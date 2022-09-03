@@ -16,21 +16,23 @@
   <meta name="author" content="lp">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Hi👋 欢迎来到我的个人博客 github地址：https:&#x2F;&#x2F;github.com&#x2F;longpi1 职业： 后台开发工程师 技能： ⚡ Go,  Java, Python, … wx : 15874437219">
-<meta property="og:type" content="website">
-<meta property="og:title" content="关于我">
-<meta property="og:url" content="https://blog.longpi1.com/about/index.html">
+    <meta name="description" content="关于hexo常用操作的记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo常用操作以及注意事项">
+<meta property="og:url" content="https://blog.longpi1.com/2022/09/03/hexo%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="Hi👋 欢迎来到我的个人博客 github地址：https:&#x2F;&#x2F;github.com&#x2F;longpi1 职业： 后台开发工程师 技能： ⚡ Go,  Java, Python, … wx : 15874437219">
+<meta property="og:description" content="关于hexo常用操作的记录">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-02-23T11:20:33.000Z">
-<meta property="article:modified_time" content="2022-08-27T04:23:20.870Z">
+<meta property="article:published_time" content="2022-09-03T07:39:53.000Z">
+<meta property="article:modified_time" content="2022-09-03T07:45:20.802Z">
 <meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="hexo">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>关于我 - lp&#39;s blog</title>
+  <title>hexo常用操作以及注意事项 - lp&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -107,7 +109,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 60vh;">
+<div class="header-inner" style="height: 70vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -212,9 +214,57 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="个人介绍"></span>
+            <span id="subtitle" data-typed-text="hexo常用操作以及注意事项"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-03 15:39" pubdate>
+          2022年9月3日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          875 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          8 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
 
         
       </div>
@@ -233,67 +283,204 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div id="board"
-          >
-          
-            <div class="about-avatar">
-              <img src="/img/avatar.png" srcset="/img/loading.gif" lazyload class="img-fluid" alt="avatar">
-            </div>
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
+      
 
-<div class="text-center">
-  <div class="about-info">
-    <div class="about-name"></div>
-    <div class="about-intro">Share your love of technology</div>
-    <div class="about-icons">
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">hexo常用操作以及注意事项</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="新建文章"><a href="#新建文章" class="headerlink" title="新建文章"></a>新建文章</h2><blockquote>
+<p>命令：<code>hexo new [layout] title</code>或 <code>hexo n [layout] title</code></p>
+</blockquote>
+<p>创建文章前要先选定模板，在hexo中也叫做布局。hexo支持三种布局（layout）：post(默认)、draft、page。我们先介绍如何使用已有布局，后面还将会介绍如何自定义布局。</p>
+<p>在博客目录下输入以下命令时，会默认使用post布局，然后自动在<code>source\_posts</code>目录生成一个text1.md文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo n text1<br></code></pre></td></tr></table></figure>
+
+<p>当然你还可以指定布局：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo n [layout_name] draft1<br></code></pre></td></tr></table></figure>
+
+<p>该命令创建了一个使用特定布局的名为draft1的文章。</p>
+<p>打开之前创建的text1.md文件，我们可以看到文章开头包含以下内容：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-meta">---</span><br><span class="hljs-attr">title:</span> <span class="hljs-string">text1</span><br><span class="hljs-attr">author:</span> <span class="hljs-string">longpi1</span><br><span class="hljs-attr">tags:</span> <span class="hljs-string">hexo</span><br><span class="hljs-attr">categories:</span> <span class="hljs-string">blog</span><br><span class="hljs-meta">---</span><br></code></pre></td></tr></table></figure>
+
+<p>上面的内容在hexo被称作<strong>Front-matter，实际上就是该文章的一些变量，用于实现一些特定的功能</strong>。比如使<code>author: longpi1</code>，那么渲染后的文章中将显示文章作者为<code>longpi1</code>。</p>
+<h2 id="本地调试"><a href="#本地调试" class="headerlink" title="本地调试"></a>本地调试</h2><p>启动hexo本地服务器<code>hexo server</code> 或 <code>hexo s</code></p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">$ hexo s INFO  Start processingINFO  Hexo is running <span class="hljs-keyword">at</span> <span class="hljs-keyword">http</span>://localhost:<span class="hljs-number">4000</span>/. Press Ctrl+C <span class="hljs-built_in">to</span> <span class="hljs-built_in">stop</span>.<br></code></pre></td></tr></table></figure>
+
+<p>在浏览器输入 <a target="_blank" rel="noopener" href="http://localhost:4000/">http://localhost:4000/</a> 进行预览，回到Git Bash输入<code>Ctrl+C</code>关闭本地服务器退出预览。</p>
+<p>指定端口：<br><code>hexo s -p 8080</code></p>
+<p>自定义 IP<br>服务器默认运行在 0.0.0.0，您可以覆盖默认的 IP 设置，如下：<br><code>hexo server -i 192.168.1.1</code></p>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p><code>hexo d</code> 或 <code>hexo deploy</code><br><code>hexo d -g</code> 部署之前预先生成静态文件</p>
+<h3 id="关于部署后原来的CNAME文件被覆盖的问题"><a href="#关于部署后原来的CNAME文件被覆盖的问题" class="headerlink" title="关于部署后原来的CNAME文件被覆盖的问题"></a>关于部署后原来的CNAME文件被覆盖的问题</h3><p>解决：CNAME,README,404.html都可以放在Hexo&#x2F;source文件夹下，<code>hexo g</code>生成博客时会被原封不动的拷贝到public文件夹中，部署后自然就到了项目的根目录。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
         
-        
-        
-        <a href=https://github.com/longpi1 class="
-           hint--bottom hint--rounded"
-           aria-label=GitHub
-           target="_blank"
-        >
-          <i class="iconfont icon-github-fill" aria-hidden="true"></i>
+  <a href="/categories/hexo/" class="category-chain-item">hexo</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/hexo/">#hexo</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>hexo常用操作以及注意事项</div>
+      <div>https://blog.longpi1.com/2022/09/03/hexo常用操作/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>lp</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月3日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
           
-        </a>
-      
-        
-        
-        
-        <a href=https://blog.longpi1.com/ class="
-           hint--bottom hint--rounded"
-           aria-label=主页
-           target="_blank"
-        >
-          <i class="iconfont icon-home-fill" aria-hidden="true"></i>
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
           
-        </a>
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/28/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/" title="分布式系统笔记">
+                        <span class="hidden-mobile">分布式系统笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
       
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
     </div>
   </div>
 </div>
 
-<article class="about-content page-content mt-5">
-  <div class="markdown-body">
-    <h3 id="Hi👋-欢迎来到我的个人博客"><a href="#Hi👋-欢迎来到我的个人博客" class="headerlink" title="Hi👋 欢迎来到我的个人博客"></a>Hi👋 欢迎来到我的个人博客</h3><ul>
-<li>github地址：<a target="_blank" rel="noopener" href="https://github.com/longpi1">https://github.com/longpi1</a></li>
-<li>职业： 后台开发工程师</li>
-<li>技能： ⚡ Go,  Java, Python, …</li>
-<li>wx : 15874437219</li>
-</ul>
-
-  </div>
-
-  
-</article>
-
 
 
 
@@ -320,11 +507,8 @@
 
 
 
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+
     
 
     
@@ -442,6 +626,34 @@
   
 
 
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
 
 
   <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
