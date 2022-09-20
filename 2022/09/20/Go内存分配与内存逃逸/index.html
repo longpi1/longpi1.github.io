@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="go的内存分配与内存逃逸机制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang内存分配与内存逃逸">
+<meta property="og:url" content="https://blog.longpi1.com/2022/09/20/Go%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E4%B8%8E%E5%86%85%E5%AD%98%E9%80%83%E9%80%B8/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="go的内存分配与内存逃逸机制">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ask.qcloudimg.com/http-save/5469577/b1e2510bc404791b9a0909da0a0f1a99.webp?imageView2/2/w/1620/format/jpg">
+<meta property="og:image" content="https://ask.qcloudimg.com/http-save/5469577/479e83aa67b17d920bd71f6625afe1c9.webp?imageView2/2/w/1620/format/jpg">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/h4jok0khik.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/http-save/5469577/e595bc8e8421e68646c147ea1cb411ab.webp?imageView2/2/w/1620/format/jpg">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/m6ls2qtdbl.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/7snaopjz26.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/nzbfzfdkup.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/u14njxdglz.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/945gf1ih2a.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/8ydk3bi2lv.png?imageView2/2/w/1620">
+<meta property="og:image" content="https://ask.qcloudimg.com/http-save/5469577/16ab1617ecd4832e038e07e9a612fd69.webp?imageView2/2/w/1620/format/jpg">
+<meta property="article:published_time" content="2022-09-20T13:36:19.000Z">
+<meta property="article:modified_time" content="2022-09-20T13:37:38.359Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="golang">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ask.qcloudimg.com/http-save/5469577/b1e2510bc404791b9a0909da0a0f1a99.webp?imageView2/2/w/1620/format/jpg">
+  
+  
+  
+  <title>Golang内存分配与内存逃逸 - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Golang内存分配与内存逃逸"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-20 21:36" pubdate>
+          2022年9月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          60 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Golang内存分配与内存逃逸</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Go内存分配与内存逃逸"><a href="#Go内存分配与内存逃逸" class="headerlink" title="Go内存分配与内存逃逸"></a>Go内存分配与内存逃逸</h1><h2 id="内存为什么需要管理"><a href="#内存为什么需要管理" class="headerlink" title="内存为什么需要管理"></a>内存为什么需要管理</h2><p>当存储的东西越来越多，也就发现物理内存的容量依然是不够用，那么对物理内存的利用率和合理的分配，管理就变得非常的重要。</p>
+<p>（1）操作系统就会对内存进行非常详细的管理。</p>
+<p>（2）基于操作系统的基础上，不同语言的内存管理机制也应允而生，有的一些语言并没有提供自动的内存管理模式，有的语言就已经提供了自身程序的内存管理模式，如表2所示。</p>
+<h6 id="表2-自动与非自动内存管理的语言"><a href="#表2-自动与非自动内存管理的语言" class="headerlink" title="表2 自动与非自动内存管理的语言"></a>表2 自动与非自动内存管理的语言</h6><table>
+<thead>
+<tr>
+<th><strong>内存自动管理的语言（部分）</strong></th>
+<th><strong>内存非自动管理的语言（部分）</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Golang</td>
+<td>C</td>
+</tr>
+<tr>
+<td>Java</td>
+<td>C++</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Rust</td>
+</tr>
+</tbody></table>
+<p>所以为了降低内存管理的难度，像C、C++这样的编程语言会完全将分配和回收内存的权限交给开发者，而Rust则是通过生命周期限定开发者对非法权限内存的访问来自动回收，因而并没有提供自动管理的一套机制。但是像Golang、Java、Python这类为了完全让开发则关注代码逻辑本身，语言层提供了一套管理模式。因为Golang编程语言给开发者提供了一套内存管理模式，所以开发者有必要了解一下Golang做了哪些助力的功能。</p>
+<p>在理解Golang语言层内存管理之前，应先了解操作系统针对物理内存做了哪些管理的方式。当插上内存条之后，通过操作系统是如何将软件存放在这个绿色的物理内存条中去的。</p>
+<h2 id="为什么需要关心内存分配问题"><a href="#为什么需要关心内存分配问题" class="headerlink" title="为什么需要关心内存分配问题"></a><strong>为什么需要关心内存分配问题</strong></h2><hr>
+<p>每个工程师的时间都如此宝贵，在继续读这篇文章之前，需要你先回答几个问题，如果得到的答案是否定的，那可能本文章里写的内容对你并没有什么帮助。但是，如果你遇到了因内存分配而导致的性能问题，可能这篇文章能带你理解 Golang 的内存分配的冰山一角，带你入个门。</p>
+<p>问题如下：</p>
+<ul>
+<li>你的程序是性能敏感型吗？</li>
+<li>GC 带来的延迟影响到了你的程序性能吗？</li>
+<li>你的程序有过多的堆内存分配吗？</li>
+</ul>
+<p>如果你命中上面问题的其中一个或两个，那这篇文章适合你继续读下去。或你根本不知道如何回答这些问题，可能去了解下 go 性能观测相关的知识（pprof 的使用等）对你更有帮助。</p>
+<p><strong>下面正文开始。</strong></p>
+<h2 id="Golang-简要内存划分"><a href="#Golang-简要内存划分" class="headerlink" title="Golang 简要内存划分"></a><strong>Golang 简要内存划分</strong></h2><hr>
+<p><img src="https://ask.qcloudimg.com/http-save/5469577/b1e2510bc404791b9a0909da0a0f1a99.webp?imageView2/2/w/1620/format/jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>可以简单的认为 Golang 程序在启动时，会向操作系统申请一定区域的内存，分为栈（Stack）和堆（Heap）。栈内存会随着函数的调用分配和回收；堆内存由程序申请分配，由垃圾回收器（Garbage Collector）负责回收。性能上，栈内存的使用和回收更迅速一些；尽管Golang 的 GC 很高效，但也不可避免的会带来一些性能损耗。因此，Go 优先使用栈内存进行内存分配。在不得不将对象分配到堆上时，才将特定的对象放到堆中。</p>
+<h2 id="内存分配过程分析"><a href="#内存分配过程分析" class="headerlink" title="内存分配过程分析"></a><strong>内存分配过程分析</strong></h2><hr>
+<p>本部分，将以代码的形式，分别介绍栈内存分配、指针作为参数情况下的栈内存分配、指针作为返回值情况下的栈内存分配并逐步引出逃逸分析和几个内存逃逸的基本原则。</p>
+<p>正文开始，Talk is cheap，show me the code。</p>
+<h2 id="栈内存分配"><a href="#栈内存分配" class="headerlink" title="栈内存分配"></a><strong>栈内存分配</strong></h2><p>我将以一段简单的代码作为示例，分析这段代码的内存分配过程。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs javascript">package main<br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br>func <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>) &#123;  n := <span class="hljs-number">4</span>  n2 := <span class="hljs-title function_">square</span>(n)  fmt.<span class="hljs-title class_">Println</span>(n2)&#125;<br>func <span class="hljs-title function_">square</span>(n int) int&#123;  <span class="hljs-keyword">return</span> n * n&#125;<br></code></pre></td></tr></table></figure>
+
+<p>复制</p>
+<p>代码的功能很简单，一个 main 函数作为程序入口，定义了一个变量n，定义了另一个函数 squire ，返回乘方操作后的 int 值。最后，将返回的值打印到控制台。程序输出为16。</p>
+<p>下面开始逐行进行分析，解析调用时，go 运行时是如何对内存进行分配的。</p>
+<p><img src="https://ask.qcloudimg.com/http-save/5469577/479e83aa67b17d920bd71f6625afe1c9.webp?imageView2/2/w/1620/format/jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当代码运行到第6行，进入 main 函数时，会在栈上创建一个 Stack frame，存放本函数中的变量信息。包括函数名称，变量等。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/h4jok0khik.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当代码运行到第7行时，go 会在栈中压入一个新的 Stack Frame，用于存放调用 square 函数的信息；包括函数名、变量 n 的值等。此时，计算4 * 4 的值，并返回。</p>
+<p><img src="https://ask.qcloudimg.com/http-save/5469577/e595bc8e8421e68646c147ea1cb411ab.webp?imageView2/2/w/1620/format/jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当 square 函数调用完成，返回16到 main 函数后，将16赋值给 n2变量。注意，原来的 stack frame 并不会被 go 清理掉，而是如栈左侧的箭头所示，被标记为不合法。上图夹在红色箭头和绿色箭头之间的横线可以理解为 go 汇编代码中的 SP 栈寄存器的值，当程序申请或释放栈内存时，只需要修改 SP 寄存器的值，这种栈内存分配方式省掉了清理栈内存空间的耗时【1】。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/m6ls2qtdbl.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>接下来，调用 fmt.Println 时，SP 寄存器的值会进一步增加，覆盖掉原来 square 函数的 stack frame，完成 print 后，程序正常退出。</p>
+<h2 id="指针作为参数情况下的栈内存分配"><a href="#指针作为参数情况下的栈内存分配" class="headerlink" title="指针作为参数情况下的栈内存分配"></a><strong>指针作为参数情况下的栈内存分配</strong></h2><p>还是同样的过程，看如下这段代码。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs javascript">package main<br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br>func <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>) &#123;  n := <span class="hljs-number">4</span>  <span class="hljs-title function_">increase</span>(&amp;n)  fmt.<span class="hljs-title class_">Println</span>(n)&#125;<br>func <span class="hljs-title function_">increase</span>(<span class="hljs-params">i *int</span>) &#123;  *i++&#125;<br></code></pre></td></tr></table></figure>
+
+<p>main 作为程序入口，声明了一个变量 n，赋值为4。声明了一个函数  increase，使用一个 int 类型的指针 i 作为参数，increase 函数内，对指针 i 对应的值进行自增操作。最后 main 函数中打印了 n 的值。程序输出为5。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/7snaopjz26.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当程序运行到 main 函数的第6行时，go 在栈上分配了一个 stack frame ，对变量 n 进行了赋值，n 在内存中对应的地址为0xc0008771，此时程序将继续向下执行，调用 increase 函数。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/nzbfzfdkup.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>这时，increase 函数对应的 stack fream 被创建，i 被赋值为变量 n对应的地址值0xc0008771，然后进行自增操作。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/u14njxdglz.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当 increase 函数运行结束后，SP 寄存器会上移，将之前分配的 stack freme 标记为不合法。此时，程序运行正常，并没有因为 SP 寄存器的改动而影响程序的正确性，内存中的值也被正确的修改了。</p>
+<h2 id="指针作为返回值情况下的栈内存分配"><a href="#指针作为返回值情况下的栈内存分配" class="headerlink" title="指针作为返回值情况下的栈内存分配"></a><strong>指针作为返回值情况下的栈内存分配</strong></h2><p>文章之前的部分分别介绍了普通变量作为参数和将指针作为参数情况下的栈内存使用，本部分来介绍将指针作为返回值，返回给调用方的情况下，内存是如何分配的，并引出内存逃逸相关内容。来看这段代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs javascript">package main<br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br>func <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>) &#123;  n := <span class="hljs-title function_">initValue</span>()  fmt.<span class="hljs-title class_">Println</span>(*n/<span class="hljs-number">2</span>)&#125;<br>func <span class="hljs-title function_">initValue</span>() *int &#123;  i := <span class="hljs-number">4</span>  <span class="hljs-keyword">return</span> &amp;i&#125;<br></code></pre></td></tr></table></figure>
+
+<p>main 函数中，调用了 initValue 函数，该函数返回一个 int 指针并赋值给 n，指针对应的值为4。随后，main 函数调用 fmt.Println 打印了指针 n &#x2F; 2对应的值。程序输出为2。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/945gf1ih2a.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>程序调用 initValue 后，将 i 的地址赋值给变量 n 。注意，如果这时，变量 i 的位置在栈上，则可能会随时被覆盖掉。</p>
+<p><img src="https://ask.qcloudimg.com/developer-images/article/5469577/8ydk3bi2lv.png?imageView2/2/w/1620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在调用 fmt.Println 时，Stack Frame 会被重新创建，变量 i 被赋值为*n&#x2F;2也就是2，会覆盖掉原来 n 所指向的变量值。这会导致及其严重的问题。在面对 sharing up 场景时，go 通常会将变量分配到堆中，如下图所示：</p>
+<p><img src="https://ask.qcloudimg.com/http-save/5469577/16ab1617ecd4832e038e07e9a612fd69.webp?imageView2/2/w/1620/format/jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>通过上面的分析，可以看到在面对被调用的函数返回一个指针类型时将对象分配到栈上会带来严重的问题，因此 Go 将变量分配到了堆上。这种分配方式保证了程序的安全性，但也不可避免的增加了堆内存创建，并需要在将来的某个时候，需要 GC 将不再使用的内存清理掉。</p>
+<h2 id="内存分配原则"><a href="#内存分配原则" class="headerlink" title="内存分配原则"></a><strong>内存分配原则</strong></h2><hr>
+<p>经过上述分析，可以简单的归纳几条原则。</p>
+<ul>
+<li>Sharing down typically stays on the stack 在调用方创建的变量或对象，通过参数的形式传递给被调用函数，这时，在调用方创建的内存空间通常在栈上。这种在调用方创建内存，在被调用方使用该内存的“内存共享”方式，称之为 Sharing down。</li>
+<li>Sharing up typically escapes to the heap 在被调用函数内创建的对象，以指针的形式返回给调用方的情况下，通常，创建的内存空间在堆上。这种在被调用方创建，在调用方使用的“内存共享”方式，称之为 Sharing up。</li>
+<li>Only the compiler knows 之所以上面两条原则都加了通常，因为具体的分配方式，是由编译器确定的，一些编译器后端优化，可能会突破这两个原则，因此，具体的分配逻辑，只有编译器（或开发编译器的人）知道。</li>
+</ul>
+<h2 id="使用-go-build-命令确定内存逃逸情况"><a href="#使用-go-build-命令确定内存逃逸情况" class="headerlink" title="使用 go build 命令确定内存逃逸情况"></a><strong>使用 go build 命令确定内存逃逸情况</strong></h2><hr>
+<p>值得注意的是，Go 在判断一个变量或对象是否需要逃逸到堆的操作，是在编译器完成的；也就是说，当代码写好后，经过编译器编译后，会在二进制中进行特定的标注，声明指定的变量要被分配到堆或栈。可以使用如下命令在编译期打印出内存分配逻辑，来具体获知特定变量或对象的内存分配位置。</p>
+<p>查看 go help 可以看到 go build 其实是在调用 go tool compile。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">go help build ... -gcflags <span class="hljs-string">&#x27;[pattern=]arg list&#x27;</span>        <span class="hljs-variable language_">arguments</span> to pass on each go tool compile invocation....<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript">go tool compile -h...-m    print optimization decisions...-l    disable inlining...<br></code></pre></td></tr></table></figure>
+
+<p>其中，需要关心的参数有两个，</p>
+<ul>
+<li>-m 显示优化决策</li>
+<li>-l 禁止使用内联【2】</li>
+</ul>
+<p>代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs javascript">package main<br>func <span class="hljs-title function_">main</span>(<span class="hljs-params"></span>) &#123;  n := <span class="hljs-title function_">initValue</span>()  <span class="hljs-title function_">println</span>(*n / <span class="hljs-number">2</span>)<br>  o := <span class="hljs-title function_">initObj</span>()  <span class="hljs-title function_">println</span>(o)<br>  f := <span class="hljs-title function_">initFn</span>()  <span class="hljs-title function_">println</span>(f)<br>  num := <span class="hljs-number">5</span>  result := <span class="hljs-title function_">add</span>(num)  <span class="hljs-title function_">println</span>(result)&#125;<br>func <span class="hljs-title function_">initValue</span>() *int &#123;  i := <span class="hljs-number">3</span>                <span class="hljs-comment">// ./main.go:19:2: moved to heap: i  return &amp;i&#125;</span><br>type <span class="hljs-title class_">Obj</span> struct &#123;  i int&#125;<br>func <span class="hljs-title function_">initObj</span>() *<span class="hljs-title class_">Obj</span> &#123;  <span class="hljs-keyword">return</span> &amp;<span class="hljs-title class_">Obj</span>&#123;<span class="hljs-attr">i</span>: <span class="hljs-number">3</span>&#125;      <span class="hljs-comment">// ./main.go:28:9: &amp;Obj literal escapes to heap&#125;</span><br>func <span class="hljs-title function_">initFn</span>() <span class="hljs-title function_">func</span>(<span class="hljs-params"></span>) &#123;  <span class="hljs-keyword">return</span> <span class="hljs-title function_">func</span>(<span class="hljs-params"></span>) &#123;       <span class="hljs-comment">// ./main.go:32:9: func literal escapes to heap    println(&quot;I am a function&quot;)  &#125;&#125;</span><br>func <span class="hljs-title function_">add</span>(i int) int &#123;  <span class="hljs-keyword">return</span> i + <span class="hljs-number">1</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>完整的构建命令和输出如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs javascript">go build -gcflags=<span class="hljs-string">&quot;-m -l&quot;</span> <br># _/<span class="hljs-title class_">Users</span>/rocket/workspace/stack-or-heap./main.<span class="hljs-property">go</span>:<span class="hljs-number">19</span>:<span class="hljs-number">2</span>: moved to <span class="hljs-attr">heap</span>: i./main.<span class="hljs-property">go</span>:<span class="hljs-number">24</span>:<span class="hljs-number">9</span>: &amp;<span class="hljs-title class_">Obj</span> literal escapes to heap./main.<span class="hljs-property">go</span>:<span class="hljs-number">28</span>:<span class="hljs-number">9</span>: func literal escapes to heap<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，sharing up 的情况（initValue，initObj，initFn）内存空间被分配到了堆上。sharing down 的情况（add）内存空间在栈上。</p>
+<p>这里给读者留个问题，大家可以研究下 moved to heap 和 escapes to heap 的区别。</p>
+<h1 id="内存逃逸"><a href="#内存逃逸" class="headerlink" title="内存逃逸"></a>内存逃逸</h1><h2 id="怎么答"><a href="#怎么答" class="headerlink" title="怎么答"></a><strong>怎么答</strong></h2><p><code>golang程序变量</code>会携带有一组校验数据，用来证明它的整个生命周期是否在运行时完全可知。如果变量通过了这些校验，它就可以在<code>栈上</code>分配。否则就说它 <code>逃逸</code> 了，必须在<code>堆上分配</code>。</p>
+<p>能引起变量逃逸到堆上的<strong>典型情况</strong>：</p>
+<ul>
+<li><strong>在方法内把局部变量指针返回</strong> 局部变量原本应该在栈中分配，在栈中回收。但是由于返回时被外部引用，因此其生命周期大于栈，则溢出。</li>
+<li><strong>发送指针或带有指针的值到 channel 中。</strong> 在编译时，是没有办法知道哪个 <a target="_blank" rel="noopener" href="https://www.zhihu.com/search?q=goroutine&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22article%22,%22sourceId%22:%22145468000%22%7D">goroutine</a> 会在 channel 上接收数据。所以编译器没法知道变量什么时候才会被释放。</li>
+<li><strong>在一个切片上存储指针或带指针的值。</strong> 一个典型的例子就是 []*string 。这会导致切片的内容逃逸。尽管其后面的数组可能是在栈上分配的，但其引用的值一定是在堆上。</li>
+<li><strong>slice 的背后数组被重新分配了，因为 append 时可能会超出其容量( cap )。</strong> slice 初始化的地方在编译时是可以知道的，它最开始会在栈上分配。如果切片背后的存储要基于运行时的数据进行扩充，就会在堆上分配。</li>
+<li><strong>在 interface 类型上调用方法。</strong> 在 interface 类型上调用方法都是动态调度的 —— 方法的真正实现只能在运行时知道。想像一个 io.Reader 类型的变量 r , 调用 r.Read(b) 会使得 r 的值和切片b 的背后存储都逃逸掉，所以会在堆上分配。</li>
+</ul>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a><strong>举例</strong></h2><ul>
+<li>通过一个例子加深理解，接下来尝试下怎么通过 <code>go build -gcflags=-m</code> 查看逃逸的情况。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><span class="hljs-keyword">type</span> A <span class="hljs-keyword">struct</span> &#123;<br> s <span class="hljs-type">string</span><br>&#125;<br><span class="hljs-comment">// 这是上面提到的 &quot;在方法内把局部变量指针返回&quot; 的情况</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">foo</span><span class="hljs-params">(s <span class="hljs-type">string</span>)</span></span> *A &#123;<br> a := <span class="hljs-built_in">new</span>(A) <br> a.s = s<br> <span class="hljs-keyword">return</span> a <span class="hljs-comment">//返回局部变量a,在C语言中妥妥野指针，但在go则ok，但a会逃逸到堆</span><br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br> a := foo(<span class="hljs-string">&quot;hello&quot;</span>)<br> b := a.s + <span class="hljs-string">&quot; world&quot;</span><br> c := b + <span class="hljs-string">&quot;!&quot;</span><br> fmt.Println(c)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>执行<code>go build -gcflags=-m main.go</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">go</span> build -gcflags=-m main.<span class="hljs-keyword">go</span><br># command-line-arguments<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">7</span>:<span class="hljs-number">6</span>: can inline foo<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">13</span>:<span class="hljs-number">10</span>: inlining call to foo<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">16</span>:<span class="hljs-number">13</span>: inlining call to fmt.Println<br>/<span class="hljs-keyword">var</span>/folders/<span class="hljs-number">45</span>/qx9lfw2s2zzgvhzg3mtzkwzc0000gn/T/<span class="hljs-keyword">go</span>-build409982591/b001/_gomod_.<span class="hljs-keyword">go</span>:<span class="hljs-number">6</span>:<span class="hljs-number">6</span>: can inline init<span class="hljs-number">.0</span><br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">7</span>:<span class="hljs-number">10</span>: leaking param: s<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">8</span>:<span class="hljs-number">10</span>: <span class="hljs-built_in">new</span>(A) escapes to heap<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">16</span>:<span class="hljs-number">13</span>: io.Writer(os.Stdout) escapes to heap<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">16</span>:<span class="hljs-number">13</span>: c escapes to heap<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">15</span>:<span class="hljs-number">9</span>: b + <span class="hljs-string">&quot;!&quot;</span> escapes to heap<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">13</span>:<span class="hljs-number">10</span>: main <span class="hljs-built_in">new</span>(A) does not escape<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">14</span>:<span class="hljs-number">11</span>: main a.s + <span class="hljs-string">&quot; world&quot;</span> does not escape<br>./main.<span class="hljs-keyword">go</span>:<span class="hljs-number">16</span>:<span class="hljs-number">13</span>: main []<span class="hljs-keyword">interface</span> &#123;&#125; literal does not escape<br>&lt;autogenerated&gt;:<span class="hljs-number">1</span>: os.(*File).<span class="hljs-built_in">close</span> .this does not escape<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>./main.go:8:10: new(A) escapes to heap</code> 说明 <code>new(A)</code> 逃逸了,符合上述提到的常见情况中的第一种。</li>
+<li><code>./main.go:14:11: main a.s + &quot; world&quot; does not escape</code> 说明 <code>b</code> 变量没有逃逸，因为它只在方法内存在，会在方法结束时被回收。</li>
+<li><code>./main.go:15:9: b + &quot;!&quot; escapes to heap</code> 说明 <code>c</code> 变量逃逸，通过<code>fmt.Println(a ...interface&#123;&#125;)</code>打印的变量，都会发生逃逸，感兴趣的朋友可以去查查为什么。</li>
+<li>以上操作其实就叫<strong>逃逸分析</strong></li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h2><hr>
+<p>1.因为栈比堆更高效，不需要 GC，因此 Go 会尽可能的将内存分配到栈上。</p>
+<p>2.当分配到栈上可能引起非法内存访问等问题后，会使用堆，主要场景有：</p>
+<ol>
+<li>当一个值可能在函数被调用后访问，这个值极有可能被分配到堆上。</li>
+<li>当编译器检测到某个值过大，这个值会被分配到堆上。</li>
+<li>当编译时，编译器不知道这个值的大小（slice、map…）这个值会被分配到堆上。</li>
+</ol>
+<p>3.Sharing down typically stays on the stack</p>
+<p>4.Sharing up typically escapes to the heap</p>
+<p>5.Don’t guess, Only the compiler knows</p>
+<p>6.Golang中一个函数内局部变量，不管是不是动态new出来的，它会被分配在堆还是栈，是由编译器做逃逸分析之后做出的决定。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a><strong>参考文献</strong></h1><p>【1】Go语言设计与实现：<a target="_blank" rel="noopener" href="https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-stack-management/#%E5%AF%84%E5%AD%98%E5%99%A8">https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-stack-management/#%E5%AF%84%E5%AD%98%E5%99%A8</a></p>
+<p>【2】Inlining optimisations in Go：<a target="_blank" rel="noopener" href="https://dave.cheney.net/2020/04/25/inlining-optimisations-in-go">https://dave.cheney.net/2020/04/25/inlining-optimisations-in-go</a></p>
+<p>【3】Golang FAQ：<a target="_blank" rel="noopener" href="https://golang.org/doc/faq#stack_or_heap">https://golang.org/doc/faq#stack_or_heap</a></p>
+<p>【4】知乎：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/145468000">https://zhuanlan.zhihu.com/p/145468000</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/golang/" class="category-chain-item">golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/golang/">#golang</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Golang内存分配与内存逃逸</div>
+      <div>https://blog.longpi1.com/2022/09/20/Go内存分配与内存逃逸/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>lp</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月20日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/12/Golang%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8Java%E7%9A%84gc%E6%A8%A1%E5%BC%8F/" title="Golang为什么不用Java的gc模式">
+                        <span class="hidden-mobile">Golang为什么不用Java的gc模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
