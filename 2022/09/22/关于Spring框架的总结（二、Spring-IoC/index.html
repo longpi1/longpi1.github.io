@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="关于Spring框架的总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于Spring框架的总结(二、Spring IoC)">
+<meta property="og:url" content="https://blog.longpi1.com/2022/09/22/%E5%85%B3%E4%BA%8ESpring%E6%A1%86%E6%9E%B6%E7%9A%84%E6%80%BB%E7%BB%93%EF%BC%88%E4%BA%8C%E3%80%81Spring-IoC/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="关于Spring框架的总结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200712110712194.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2022-09-22T13:11:57.000Z">
+<meta property="article:modified_time" content="2022-09-22T13:17:13.490Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="spring">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200712110712194.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70">
+  
+  
+  
+  <title>关于Spring框架的总结(二、Spring IoC) - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="关于Spring框架的总结(二、Spring IoC)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-22 21:11" pubdate>
+          2022年9月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">关于Spring框架的总结(二、Spring IoC)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>﻿# 关于Spring框架的总结（二、Spring IoC）</p>
+<h2 id="2-Spring-IoC"><a href="#2-Spring-IoC" class="headerlink" title="2.Spring IoC"></a>2.Spring IoC</h2><blockquote>
+<p>Spring IoC<br>2.1.Spring IoC的基本概念<br>2.2.Spring IoC容器<br>2.3.Spring IoC中的bean标签<br>2.4.依赖注入</p>
+</blockquote>
+<h2 id="2-1-Spring-IoC的基本概念"><a href="#2-1-Spring-IoC的基本概念" class="headerlink" title="2.1.Spring IoC的基本概念"></a><strong>2.1.Spring IoC的基本概念</strong></h2><p>控制反转(Inversion of Control, IoC)是一个比较抽象的概念，是Spring框架的核心，用来消减计算机程序的精合问题。<font color=red>对于spring框架来说，就是由spring来负责控制对象的生命周期和对象间的关系。</font >依赖注入(Dpendency Injection,DI)是IOC的另一种说法，只是换了种角度来描述相同的概念，下面举一个例子来解释IOC和DI。</p>
+<p>当人们需要一件东西时， 第一反应就是找东西， 例如想吃面包。在没有面包店和有面包店两种情况下，您会怎么做?在没有面包店时，最直观的做法可能是您按照自己的口味制作面包，也就是一个面包需要主动制作。然而时至今日，各种网店、实体店盛行，已经没有必要自己制作面包。想吃面包了，去网店或实体店把自己的口味告诉店家，一会就可以吃到面包了。注意，您并没有制作面包，而是由店家制作，但是完全符合您的口味。</p>
+<p>
+上面只是列举了一个非常简单的例子，但包含了控制反转的思想，即把制作面包等主动权交给店家。下面通过面向对象编程思想继续探讨这两个概念
+
+
+<p>当某个Java对象(调用者，例如您)需要调用另一个Java 对象(被调用者，即被依赖对象，例如面包)时，在传统编程模式下，调用者通常会采用“new被调用者”的代码方式来创建对象(例如您自已制作面包)。这种方式会增加调用者与被调用者之间的耦合性，不利于后期代码的升级与维护。</p>
+<p><font color=red>当Spring框架出现后，对象的实例不再由调用者来创建，而是由Spring容器(例如面包店)来创建。Spring容器会负责控制程序之间的关系(例如面包店负责控制您与面包的关系)，而不是由调用者的程序代码直接控制。这样，控制权由调用者转移到Spring容器，控制权发生了反转，这就是Spring的控制反转。</p>
+<p>从Spring容器角度来看，Spring容器负责将被依赖对象赋值给调用者的成员变量，相当于为调用者注入它所依赖的实例，这就是Spring的依赖注入。</p>
+<p>综上所述，控制反转是种通过描述 (在 Spring中可以是XML或注解)并通过第三方去产生或获取特定对象的方式。在Spring中实现控制反转的是loC容器，其实现方法是依赖注入。</p>
+<h2 id="2-2-Spring-IoC容器"><a href="#2-2-Spring-IoC容器" class="headerlink" title="2.2.Spring IoC容器"></a><strong>2.2.Spring IoC容器</strong></h2><p><strong>1.Spring IoC容器设计主要是基于BeanFactoty和ApplicationContext两个接口。下图为spring工厂的类结构体</strong><br><img src="https://img-blog.csdnimg.cn/20200712110712194.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>BeanFactory 是 Spring 容器中的顶层接口，ApplicationContext 是它的子接口。</p>
+<p><strong>2.BeanFactory 和 ApplicationContext 的区别</strong><br>BeanFactory 和 ApplicationContext 的区别：<br>创建对象的时间点不一样：</p>
+<ul>
+<li>（1.）BeanFactory：什么使用什么时候创建对象。</li>
+<li>（2.）ApplicationContext：只要一读取配置文件，默认情况下就会创建对象。</li>
+</ul>
+<p><strong>3.ApplicationContext 接口的实现类</strong></p>
+<ul>
+<li>3.1ClassPathXmlApplicationContext：从类的根路径(src根目录)寻找指定的XML配置文件 ，最常使用。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//初始化Spring容器ApplicationContext ，加载配置文件</span><br>ApplicationContext applicationContext=<span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassPathXMLApplicationContext</span>（“ApplicationContext.xml”）<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>3.2FileSystemXmlApplicationContext：从磁盘的绝对路径中寻找指定的XML配置文件，配置文件可以在磁盘的任意位置（限制比较大，如果换了设备或者文件xml配置位置改变将找不到配置文件，不推荐）。</li>
+</ul>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//初始化Spring容器ApplicationContext ，加载配置文件</span><br>ApplicationContext applicationContext=<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileSystemXmlApplicationContext</span>（“D:\文件位置\src\ApplicationContext.xml”）<br></code></pre></td></tr></table></figure>
+<ul>
+<li>3.3AnnotationConfigApplicationContext:使用注解配置容器对象时，需要使用此类来创建 spring 容器。用来读取注解。  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//初始化Spring容器ApplicationContext ，加载配置文件</span><br>ApplicationContext applicationContext=<span class="hljs-keyword">new</span> <span class="hljs-title class_">AnnotationConfigApplicationContext</span>（“注解配置类.class”）<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="2-3-Spring-IoC中的bean标签"><a href="#2-3-Spring-IoC中的bean标签" class="headerlink" title="2.3.Spring IoC中的bean标签"></a><strong>2.3.Spring IoC中的bean标签</strong></h2><p><strong>1.<code>&lt;bean&gt;</code>元素的常用属性及其子元素</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性或子元素名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>Bean在BeanFactory中的唯一标识，在代码中通过BeanFactory获取Bean实例时需要以此作为索引名称</td>
+</tr>
+<tr>
+<td>class</td>
+<td>Bean的具体实现类，使用类的名</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>指定Bean实例的作用域，具体属性值及含义</td>
+</tr>
+<tr>
+<td><code>&lt;constructor-arg&gt;</code></td>
+<td><code>&lt;bean&gt;</code>元素的子元素，使用构造方法注入，指定构造方法的参数。该元素的index属性指定参数的序号，ref属性指定对BeanFactory中其他Bean的引用关系，type属性指定参数类型，value属性指定参数的常量值</td>
+</tr>
+<tr>
+<td><code>&lt;property&gt;</code></td>
+<td><code>&lt;bean&gt;</code>元素的子元素，用于设置一个属性。该元素的name属性指定Bean实例中相应的属性名称，value 属性指定Bean的属性值，ref 属性指定属性对BeanFactory中其他Bean的引用关系</td>
+</tr>
+<tr>
+<td><code>&lt;list&gt;</code></td>
+<td><code>&lt;property&gt;</code>元素的子元素，用于封装List 或数组类型的依赖注入</td>
+</tr>
+<tr>
+<td><code>&lt;map&gt;</code></td>
+<td><code>&lt;property&gt;</code>元素的子元素，用于封装Map类型的依赖注入</td>
+</tr>
+<tr>
+<td><code>&lt;set&gt;</code></td>
+<td><code>&lt;property&gt;</code>元素的子元素，用于封装Set类型的依赖注入</td>
+</tr>
+<tr>
+<td><code>&lt;entry&gt;</code></td>
+<td><code>&lt;map&gt;</code>元素的子元素，用于设置一个键值对</td>
+</tr>
+</tbody></table>
+<p><strong>2.bean 的作用范围和生命周期</strong><br>scope：指定对象的作用范围。</p>
+<ul>
+<li><font color=red>singleton :默认值，单例的.</li>
+<li><font color=red> prototype :多例的.</li>
+<li>request :WEB 项目中,Spring 创建一个 Bean 的对象,将对象存入到 request 域中.</li>
+<li>session :WEB 项目中,Spring 创建一个 Bean 的对象,将对象存入到 session 域中.</li>
+<li>global session :WEB 项目中,应用在 Portlet 环境.如果没有 Portlet 环境那么<br>globalSession 相当于 session.</li>
+</ul>
+<p><font color=red>单例对象：scope&#x3D;”singleton”</font><br>一个应用只有一个对象的实例。它的作用范围就是整个引用。<br>生命周期：</p>
+<ul>
+<li>对象出生：当应用加载，创建容器时，对象就被创建了。</li>
+<li>对象活着：只要容器在，对象一直活着。</li>
+<li>对象死亡：当应用卸载，销毁容器时，对象就被销毁了。</li>
+</ul>
+<p><font color=red>多例对象：scope&#x3D;”prototype”</font><br>每次访问对象时，都会重新创建对象实例。<br>生命周期：</p>
+<ul>
+<li>对象出生：当使用对象时，创建新的对象实例。</li>
+<li>对象活着：只要对象在使用中，就一直活着。</li>
+<li>对象死亡：当对象长时间不用时，被 java 的垃圾回收器回收了。</li>
+</ul>
+<p><strong>3.bean的实例化</strong></p>
+<ul>
+<li><p>第一种方式：使用默认无参构造函数</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">&lt;bean id=<span class="hljs-string">&quot;类名&quot;</span> class=<span class="hljs-string">&quot;类位置&quot;</span>/&gt;<br></code></pre></td></tr></table></figure>
+
+</li>
+<li><p>第二种方式：spring 管理静态工厂-使用静态工厂的方法创建对象</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment">* 模拟一个静态工厂，创建业务层实现类</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StaticFactory</span> &#123;<br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> IAccountService <span class="hljs-title function_">createAccountService</span><span class="hljs-params">()</span>&#123;<br>             <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AccountServiceImpl</span>();<br>&#125; &#125;<br>&lt;!-- 此种方式是:使用 StaticFactory 类中的静态方法 createAccountService 创建对象，并存入 spring 容器<br>id 属性：指定 bean 的 id，用于从容器中获取<br>class 属性：指定静态工厂的全限定类名<br>factory-method 属性：指定生产对象的静态方法<br>--&gt;<br> &lt;bean id=<span class="hljs-string">&quot;accountService&quot;</span>   class=<span class="hljs-string">&quot;com.itheima.factory.StaticFactory&quot;</span>   <br>  factory-method=<span class="hljs-string">&quot;createAccountService&quot;</span>&gt;&lt;/bean&gt;<br></code></pre></td></tr></table></figure>
+
+</li>
+<li><p>第三种方式：spring 管理实例工厂-使用实例工厂的方法创建对象</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment">* 模拟一个实例工厂，创建业务层实现类</span><br><span class="hljs-comment">* 此工厂创建对象，必须现有工厂实例对象，再调用方法</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InstanceFactory</span> &#123;<br><span class="hljs-keyword">public</span> IAccountService <span class="hljs-title function_">createAccountService</span><span class="hljs-params">()</span>&#123;<br><span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AccountServiceImpl</span>();<br>&#125; &#125;<br>&lt;!-- 此种方式是：<br>先把工厂的创建交给 spring 来管理。<br>然后在使用工厂的 bean 来调用里面的方法<br>factory-bean 属性：用于指定实例工厂 bean 的 id。<br>factory-method 属性：用于指定实例工厂中创建对象的方法。<br>--&gt;<br> &lt;bean id=<span class="hljs-string">&quot;instancFactory&quot;</span> class=<span class="hljs-string">&quot;com.itheima.factory.InstanceFactory&quot;</span>&gt;&lt;/bean&gt;<br>  &lt;bean id=<span class="hljs-string">&quot;accountService&quot;</span>  factory-bean=<span class="hljs-string">&quot;instancFactory&quot;</span><br> factory-method=<span class="hljs-string">&quot;createAccountService&quot;</span>&gt;&lt;/bean&gt;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="2-4-依赖注入"><a href="#2-4-依赖注入" class="headerlink" title="2.4.依赖注入"></a><strong>2.4.依赖注入</strong></h2><p><strong>在Spring中实现IoC容器的方法是依赖注入，依赖注入的作用是在使用Spring框架创建对象时动态地将其所依赖的对象(例如属性值)注入Bean组件中。Spring框架的依赖注入通常有两种实现方式，一种是使用构造方法注入，另一种是使用属性的setter方法注入。</strong></p>
+<p><strong>1.使用构造方法注入</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java">&lt;!-- 使用构造函数的方式，给 service 中的属性传值<br>要求：<br>类中需要提供一个对应参数列表的构造函数。<br>涉及的标签：<br>constructor-arg<br>属性：<br>index:指定参数在构造函数参数列表的索引位置<br>type:指定参数在构造函数中的数据类型<br>name:指定参数在构造函数中的名称 用这个找给谁赋值<br>=======上面三个都是找给谁赋值，下面两个指的是赋什么值的==============<br>value:它能赋的值是基本数据类型和 String 类型<br>ref:它能赋的值是其他 bean 类型，也就是说，必须得是在配置文件中配置过的 bean<br>--&gt; <br>&lt;bean id=<span class="hljs-string">&quot;类&quot;</span> class=<span class="hljs-string">&quot;类的位置&quot;</span>&gt; <br>&lt;constructor-arg name=<span class="hljs-string">&quot;属性名&quot;</span> value=<span class="hljs-string">&quot;属性值&quot;</span>&gt;&lt;/constructor-arg&gt; <br>&lt;constructor-arg name=<span class="hljs-string">&quot;属性名&quot;</span> ref=<span class="hljs-string">&quot;其他bean类型的id&quot;</span>&gt;&lt;/constructor-arg&gt;<br>&lt;/bean&gt; <br>&lt;bean id=<span class="hljs-string">&quot;其他bean类型的id&quot;</span> class=<span class="hljs-string">&quot;类型&quot;</span>&gt;<br>&lt;/bean&gt;<br></code></pre></td></tr></table></figure>
+
+
+<p><strong>2.使用属性的setter方法注入</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java">&lt;!-- 通过配置文件给 bean 中的属性传值：使用 set 方法的方式<br>涉及的标签：<br>property<br>name：找的是类中 set 方法后面的部分<br>ref：给属性赋值是其他 bean 类型的<br>value：给属性赋值是基本数据类型和 string 类型的<br>实际开发中，此种方式用的较多。<br>--&gt; <br>&lt;bean id=<span class="hljs-string">&quot;类&quot;</span> class=<span class="hljs-string">&quot;类的位置&quot;</span>&gt; <br>&lt;property name=<span class="hljs-string">&quot;属性名&quot;</span> value=<span class="hljs-string">&quot;属性值&quot;</span>&gt;&lt;/property&gt; <br>&lt;property name=<span class="hljs-string">&quot;属性名&quot;</span> ref=<span class="hljs-string">&quot;其他bean类型的id&quot;</span>&gt;&lt;/property&gt;<br>&lt;/bean&gt; <br>&lt;bean id=<span class="hljs-string">&quot;其他bean类型的id&quot;</span> class=<span class="hljs-string">&quot;类型&quot;</span>&gt;<br>&lt;/bean&gt;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+<p><strong>参考文献：[1] 陈恒，楼偶俊，张立杰.Java EE框架整和开发入门到实践[M].清华大学出版社，2018-：.12-16</strong><br><strong>案例来自于黑马程序员Spring教学</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/java/" class="category-chain-item">java</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/java/">#java</a>
+      
+        <a href="/tags/spring/">#spring</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>关于Spring框架的总结(二、Spring IoC)</div>
+      <div>https://blog.longpi1.com/2022/09/22/关于Spring框架的总结（二、Spring-IoC/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/22/%E5%85%B3%E4%BA%8ESpring%E6%A1%86%E6%9E%B6%E7%9A%84%E6%80%BB%E7%BB%93%EF%BC%88%E4%B8%89%E3%80%81Spring-AOP%EF%BC%89/" title="关于Spring框架的总结（三、Spring AOP）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">关于Spring框架的总结（三、Spring AOP）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/22/%E5%85%B3%E4%BA%8ESpring%E6%A1%86%E6%9E%B6%E7%9A%84%E6%80%BB%E7%BB%93%EF%BC%88%E4%B8%80%E3%80%81spring%E7%9A%84%E7%AE%80%E5%8D%95%E6%A6%82%E8%BF%B0%EF%BC%89/" title="关于Spring框架的总结（一、spring的简单概述）">
+                        <span class="hidden-mobile">关于Spring框架的总结（一、spring的简单概述）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
