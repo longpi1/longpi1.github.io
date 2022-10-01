@@ -16,24 +16,25 @@
   <meta name="author" content="lp">
   <meta name="keywords" content="">
   
-    <meta name="description" content="设计模式-单例模式">
+    <meta name="description" content="极客时间etcd课程笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式-单例模式的六种实现方式">
-<meta property="og:url" content="https://blog.longpi1.com/2022/09/22/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%85%AD%E7%A7%8D%E5%B8%B8%E8%A7%81%E5%BD%A2%E5%BC%8F/index.html">
+<meta property="og:title" content="01.etcd基础架构">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/01/ETCD%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="设计模式-单例模式">
+<meta property="og:description" content="极客时间etcd课程笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-09-22T13:19:56.000Z">
-<meta property="article:modified_time" content="2022-09-22T13:54:19.682Z">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/34/84/34486534722d2748d8cd1172bfe63084.png?wh=1920*1240">
+<meta property="article:published_time" content="2022-10-01T14:23:40.000Z">
+<meta property="article:modified_time" content="2022-10-01T14:48:21.636Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
-<meta property="article:tag" content="java">
-<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="etcd">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/34/84/34486534722d2748d8cd1172bfe63084.png?wh=1920*1240">
   
   
   
-  <title>设计模式-单例模式的六种实现方式 - lp&#39;s blog</title>
+  <title>01.etcd基础架构 - lp&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -215,7 +216,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="设计模式-单例模式的六种实现方式"></span>
+            <span id="subtitle" data-typed-text="01.etcd基础架构"></span>
           
         </div>
 
@@ -226,8 +227,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-09-22 21:19" pubdate>
-          2022年9月22日 晚上
+        <time datetime="2022-10-01 22:23" pubdate>
+          2022年10月1日 晚上
         </time>
       </span>
     
@@ -238,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2k 字
+          741 字
         
       </span>
     
@@ -249,7 +250,7 @@
         
         
         
-          17 分钟
+          7 分钟
         
       </span>
     
@@ -298,28 +299,21 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">设计模式-单例模式的六种实现方式</h1>
+            <h1 style="display: none">01.etcd基础架构</h1>
             
             
               <div class="markdown-body">
                 
-                <p>﻿&gt; 最近重新学习了一下单例模式，写博客总结一下，有错误或者另外的方法欢迎指出</p>
-<h1 id="单例模式的六种常见形式"><a href="#单例模式的六种常见形式" class="headerlink" title="单例模式的六种常见形式"></a>单例模式的六种常见形式</h1><h2 id="一、饿汉式：直接创建对象，无线程安全问题"><a href="#一、饿汉式：直接创建对象，无线程安全问题" class="headerlink" title="一、饿汉式：直接创建对象，无线程安全问题"></a>一、饿汉式：直接创建对象，无线程安全问题</h2><p><strong>1.1直接实例化饿汉式（简洁直观）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.lp.singleton;<br><br><span class="hljs-comment">//1.1直接实例化饿汉式（简洁直观）</span><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">直接创建实例对象</span><br><span class="hljs-comment">构造器私有化</span><br><span class="hljs-comment">自行创建，用静态变量保存</span><br><span class="hljs-comment">final用来强调单例，可以不加</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HungrySingleton1</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span>  <span class="hljs-keyword">final</span>  HungrySingleton1  INSTANCE=<span class="hljs-keyword">new</span> <span class="hljs-title class_">HungrySingleton1</span>();<br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">HungrySingleton1</span><span class="hljs-params">()</span>&#123;&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-<p><strong>1.2枚举式（最简洁）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.lp.singleton;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">1.2枚举式（最简洁）</span><br><span class="hljs-comment">只声明一个，表示限定为单例</span><br><span class="hljs-comment">*/</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">HungrySingleton2</span>&#123;<br>        INSTANCE<br>    &#125;<br><br><br><br></code></pre></td></tr></table></figure>
-
-<p><strong>1.3静态代码块饿汉式（适合复杂饿汉式）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.lp.singleton;<br><span class="hljs-comment">/*</span><br><span class="hljs-comment">* 1.3静态代码块饿汉式（适合复杂饿汉式）</span><br><span class="hljs-comment">* 通过静态代码块创建实例</span><br><span class="hljs-comment">*/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HungrySingleton3</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span>  <span class="hljs-keyword">final</span> HungrySingleton3   INSTANCE;<br>    <span class="hljs-keyword">static</span> &#123;<br>        INSTANCE=<span class="hljs-keyword">new</span> <span class="hljs-title class_">HungrySingleton3</span>();<br>    &#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">HungrySingleton3</span><span class="hljs-params">()</span>&#123;&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-
-<h2 id="二、懒汉式：延迟创建对象"><a href="#二、懒汉式：延迟创建对象" class="headerlink" title="二、懒汉式：延迟创建对象"></a>二、懒汉式：延迟创建对象</h2><p><strong>2.1线程不安全（适用于单线程）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.lp.singleton;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> *2.1线程不安全（适用于单线程）</span><br><span class="hljs-comment"> * 构造器私有化</span><br><span class="hljs-comment"> * 用静态变量修饰</span><br><span class="hljs-comment"> * 提供静态变量方法获取对象</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">lazySingleton1</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> lazySingleton1 instance;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">lazySingleton1</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> lazySingleton1 <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>            instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">lazySingleton1</span>();<br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-<p><strong>2.2线程安全（适用于多线程）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.lp.singleton;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> *2.2线程安全（适用于多线程）</span><br><span class="hljs-comment"> * 构造器私有化</span><br><span class="hljs-comment"> * 用静态变量修饰</span><br><span class="hljs-comment"> * 提供静态变量方法获取对象</span><br><span class="hljs-comment"> * 使用synchronized锁住对象</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">lazySingleton2</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> lazySingleton2 instance;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">lazySingleton2</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> lazySingleton2 <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span>(instance == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">synchronized</span> (lazySingleton2.class) &#123;<br>                <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>                    instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">lazySingleton2</span>();<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br><br><br><br></code></pre></td></tr></table></figure>
-<p><strong>2.3静态内部类（适用于多线程）</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.lp.singleton;<br><br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> *2.3静态内部类（适用于多线程）</span><br><span class="hljs-comment"> * 构造器私有化</span><br><span class="hljs-comment"> * 用静态变量修饰</span><br><span class="hljs-comment"> *在静态内部类被加载和初始化时，才创建INSTANCE实例对象</span><br><span class="hljs-comment"> * 静态内部类单独加载和初始化，不会随着外部类的加载和初始化而初始化</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">lazySingleton3</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">lazySingleton3</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Inner</span> &#123;<br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span>  <span class="hljs-keyword">final</span> lazySingleton3   INSTANCE=<span class="hljs-keyword">new</span> <span class="hljs-title class_">lazySingleton3</span>();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> lazySingleton3 <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> Inner.INSTANCE;<br>    &#125;<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
-
-
+                <h1 id="ETCD基础架构"><a href="#ETCD基础架构" class="headerlink" title="ETCD基础架构"></a>ETCD基础架构</h1><p>下面是一张 etcd 的简要基础架构图，我们先从宏观上了解一下 etcd 都有哪些功能模块。</p>
+<p><img src="https://static001.geekbang.org/resource/image/34/84/34486534722d2748d8cd1172bfe63084.png?wh=1920*1240" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>可以看到，按照分层模型，etcd 可分为 Client 层、API 网络层、Raft 算法层、逻辑层和存储层。这些层的功能如下：</p>
+<ul>
+<li><strong>Client 层</strong>：Client 层包括 client v2 和 v3 两个大版本 API 客户端库，提供了简洁易用的 API，同时支持负载均衡、节点间故障自动转移，可极大降低业务使用 etcd 复杂度，提升开发效率、服务可用性。</li>
+<li><strong>API 网络层</strong>：API 网络层主要包括 client 访问 server 和 server 节点之间的通信协议。一方面，client 访问 etcd server 的 API 分为 v2 和 v3 两个大版本。v2 API 使用 HTTP&#x2F;1.x 协议，v3 API 使用 gRPC 协议。同时 v3 通过 etcd grpc-gateway 组件也支持 HTTP&#x2F;1.x 协议，便于各种语言的服务调用。另一方面，server 之间通信协议，是指节点间通过 Raft 算法实现数据复制和 Leader 选举等功能时使用的 HTTP 协议。</li>
+<li><strong>Raft 算法层</strong>：Raft 算法层实现了 Leader 选举、日志复制、ReadIndex 等核心算法特性，用于保障 etcd 多个节点间的数据一致性、提升服务可用性等，是 etcd 的基石和亮点。</li>
+<li><strong>功能逻辑层</strong>：etcd 核心特性实现层，如典型的 KVServer 模块、MVCC 模块、Auth 鉴权模块、Lease 租约模块、Compactor 压缩模块等，其中 MVCC 模块主要由 treeIndex 模块和 boltdb 模块组成。</li>
+<li><strong>存储</strong>层：存储层包含预写日志 (WAL) 模块、快照 (Snapshot) 模块、boltdb 模块。其中 WAL 可保障 etcd crash 后数据不丢失，boltdb 则保存了集群元数据和用户写入的数据。</li>
+</ul>
 
                 
               </div>
@@ -338,7 +332,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="category-chain-item">设计模式</a>
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
   
   
 
@@ -355,9 +349,7 @@
       
         <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
       
-        <a href="/tags/java/">#java</a>
-      
-        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">#设计模式</a>
+        <a href="/tags/etcd/">#etcd</a>
       
     </div>
   
@@ -369,8 +361,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>设计模式-单例模式的六种实现方式</div>
-      <div>https://blog.longpi1.com/2022/09/22/单例模式的六种常见形式/</div>
+      <div>01.etcd基础架构</div>
+      <div>https://blog.longpi1.com/2022/10/01/ETCD基础架构/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -383,9 +375,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/10/01/ETCD%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/" title="01.etcd基础架构">
+                      <a href="/2022/10/01/%E2%80%9D01-ETCD%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84%E2%80%9C/" title="”01.ETCD基础架构“">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">01.etcd基础架构</span>
+                        <span class="hidden-mobile">”01.ETCD基础架构“</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -393,8 +385,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/09/22/%E5%85%B3%E4%BA%8ESpring%E6%A1%86%E6%9E%B6%E7%9A%84%E6%80%BB%E7%BB%93%EF%BC%88%E4%B8%89%E3%80%81Spring-AOP%EF%BC%89/" title="关于Spring框架的总结（三、Spring AOP）">
-                        <span class="hidden-mobile">关于Spring框架的总结（三、Spring AOP）</span>
+                      <a href="/2022/09/22/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%85%AD%E7%A7%8D%E5%B8%B8%E8%A7%81%E5%BD%A2%E5%BC%8F/" title="设计模式-单例模式的六种实现方式">
+                        <span class="hidden-mobile">设计模式-单例模式的六种实现方式</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
