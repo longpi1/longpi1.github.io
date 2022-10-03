@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="05.鉴权：如何保护你的数据安全？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/03/05-%E9%89%B4%E6%9D%83%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BF%9D%E6%8A%A4%E4%BD%A0%E7%9A%84%E6%95%B0%E6%8D%AE%E5%AE%89%E5%85%A8%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/338524/304257ac790aeda91616bfe42800364e.png">
+<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/338524/2c8f90fd1a30fab9b9a88ba18c24c555.png">
+<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/338524/8d18f8877ea7c8fbyybebae236a8688a.png">
+<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/338524/55e03b4353c9a467493a3922cf68b294.png">
+<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/338524/ee6e0a9a63aeaa2d3505ab1a37360760.png">
+<meta property="article:published_time" content="2022-10-03T13:48:21.000Z">
+<meta property="article:modified_time" content="2022-10-03T13:48:46.758Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/338524/304257ac790aeda91616bfe42800364e.png">
+  
+  
+  
+  <title>05.鉴权：如何保护你的数据安全？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="05.鉴权：如何保护你的数据安全？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-03 21:48" pubdate>
+          2022年10月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          63 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">05.鉴权：如何保护你的数据安全？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="05-鉴权：如何保护你的数据安全？"><a href="#05-鉴权：如何保护你的数据安全？" class="headerlink" title="05. 鉴权：如何保护你的数据安全？"></a>05. 鉴权：如何保护你的数据安全？</h1><p>当你使用etcd存储业务敏感数据、多租户共享使用同etcd集群的时候，应该如何防止匿名用户访问你的etcd数据呢？多租户场景又如何最小化用户权限分配，防止越权访问的？</p>
+<h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><p>etcd鉴权体系架构由控制面和数据面组成。</p>
+<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\338524\304257ac790aeda91616bfe42800364e.png" srcset="/img/loading.gif" lazyload></p>
+<p>上图是是etcd鉴权体系控制面，可以通过客户端工具etcdctl和鉴权API动态调整认证、鉴权规则，AuthServer收到请求后，为了确保各节点间鉴权元数据一致性，会通过Raft模块进行数据同步。</p>
+<p>当对应的Raft日志条目被集群半数以上节点确认后，Apply模块通过鉴权存储(AuthStore)模块，执行日志条目的内容，将规则存储到boltdb的一系列“鉴权表”里面。</p>
+<p>下图是数据面鉴权流程，由认证和授权流程组成。认证的目的是检查client的身份是否合法、防止匿名用户访问等。目前etcd实现了两种认证机制，分别是密码认证和证书认证。</p>
+<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\338524\2c8f90fd1a30fab9b9a88ba18c24c555.png" srcset="/img/loading.gif" lazyload></p>
+<p>认证通过后，为了提高密码认证性能，会分配一个Token（类似我们生活中的门票、通信证）给client，client后续其他请求携带此Token，server就可快速完成client的身份校验工作。</p>
+<p>实现分配Token的服务也有多种，这是TokenProvider所负责的，目前支持SimpleToken和JWT两种。</p>
+<p>通过认证后，在访问MVCC模块之前，还需要通过授权流程。授权的目的是检查client是否有权限操作你请求的数据路径，etcd实现了RBAC机制，支持为每个用户分配一个角色，为每个角色授予最小化的权限。</p>
+<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\338524\8d18f8877ea7c8fbyybebae236a8688a.png" srcset="/img/loading.gif" lazyload></p>
+<p>好了，etcd鉴权体系的整个流程讲完了，下面就以 put hello命令为例，给你深入分析以上鉴权体系是如何进行身份认证来防止匿名访问的，又是如何实现细粒度的权限控制以防止越权访问的。</p>
+<h2 id="认证"><a href="#认证" class="headerlink" title="认证"></a>认证</h2><p>首先我们来看第一个问题，如何防止匿名用户访问你的etcd数据呢？</p>
+<p>解决方案当然是认证用户身份。那etcd提供了哪些机制来验证client身份呢?</p>
+<p>正如我整体架构中给你介绍的，etcd目前实现了两种机制，分别是用户密码认证和证书认证，下面我分别给你介绍这两种机制在etcd中如何实现，以及这两种机制各自的优缺点。</p>
+<h3 id="密码认证"><a href="#密码认证" class="headerlink" title="密码认证"></a>密码认证</h3><p>首先我们来讲讲用户密码认证。etcd支持为每个用户分配一个账号名称、密码。密码认证在我们生活中无处不在，从银行卡取款到微信、微博app登录，再到核武器发射，密码认证应用及其广泛，是最基础的鉴权的方式。</p>
+<p>但密码认证存在两大难点，它们分别是如何保障密码安全性和提升密码认证性能。</p>
+<h4 id="如何保障密码安全性"><a href="#如何保障密码安全性" class="headerlink" title="如何保障密码安全性"></a>如何保障密码安全性</h4><p>首先来看第一个难点：如何保障密码安全性。</p>
+<p>收到用户鉴权请求的时候，检查用户请求中密码与存储中是否一样，不就可以了吗？ 这种方案的确够简单，但若存储密码的文件万一被黑客脱库了，那么所有用户的密码都将被泄露，进而可能会导致重大数据泄露事故。</p>
+<p>也许可以奇思妙想构建一个加密算法?然后将密码翻译下，比如将密码中的每个字符按照字母表序替换成字母后的第XX个字母。然而这种加密算法，它是可逆的，一旦被黑客识别到规律，还原出你的密码后，脱库后也将导致全部账号数据泄密。</p>
+<p>那么是否用一种不可逆的加密算法就行了呢？比如常见的MD5，SHA-1，这方案听起来似乎有点道理，然而还是不严谨，因为它们的计算速度非常快，黑客可以通过暴力枚举、字典、彩虹表等手段，快速将你的密码全部破解。</p>
+<p>LinkedIn在2012年的时候650万用户密码被泄露，黑客3天就暴力破解出90%用户的密码，原因就是LinkedIn仅仅使用了SHA-1加密算法。</p>
+<p><strong>那应该如何进一步增强不可逆hash算法的破解难度？</strong></p>
+<p>一方面可以使用安全性更高的hash算法，比如SHA-256，它输出位数更多、计算更加复杂且耗CPU。</p>
+<p>另一方面可以在每个用户密码hash值的计算过程中，引入一个随机、较长的加盐(salt)参数，它可以让相同的密码输出不同的结果，这让彩虹表破解直接失效。</p>
+<p>彩虹表是黑客破解密码的一种方法之一，它预加载了常用密码使用MD5&#x2F;SHA-1计算的hash值，可通过hash值匹配快速破解你的密码。</p>
+<p>最后还可以增加密码hash值计算过程中的开销，比如循环迭代更多次，增加破解的时间成本。</p>
+<p><strong>etcd的鉴权模块如何安全存储用户密码？</strong></p>
+<p>etcd的用户密码存储正是融合了以上讨论的高安全性hash函数（Blowfish encryption algorithm）、随机的加盐salt、可自定义的hash值计算迭代次数cost。</p>
+<p>下面通过几个简单etcd鉴权API，介绍密码认证的原理。</p>
+<p>首先你可以通过如下的auth enable命令开启鉴权，注意etcd会先要求你创建一个root账号，它拥有集群的最高读写权限。</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">$ etcdctl <span class="hljs-keyword">user</span> <span class="hljs-title">add</span> root:root<br><span class="hljs-keyword">User</span> <span class="hljs-title">root</span> created<br>$ etcdctl auth enable<br>Authentication Enabled<br><br></code></pre></td></tr></table></figure>
+
+<p>启用鉴权后，这时client发起如下put hello操作时， etcd server会返回”user name is empty”错误给client，就初步达到了防止匿名用户访问你的etcd数据目的。 那么etcd server是在哪里做的鉴权的呢?</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs subunit">$ etcdctl put hello world<br><span class="hljs-keyword">Error: </span>etcdserver: user name is empty<br><br></code></pre></td></tr></table></figure>
+
+<p>etcd server收到put hello请求的时候，在提交到Raft模块前，它会从你请求的上下文中获取你的用户身份信息。如果你未通过认证，那么在状态机应用put命令的时候，检查身份权限的时候发现是空，就会返回此错误给client。</p>
+<p>下面我通过鉴权模块的user命令，给etcd增加一个alice账号。我们一起来看看etcd鉴权模块是如何基于我上面介绍的技术方案，来安全存储alice账号信息。</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">$ etcdctl <span class="hljs-keyword">user</span> <span class="hljs-title">add</span> alice:alice --<span class="hljs-keyword">user</span> <span class="hljs-title">root</span>:root<br><span class="hljs-keyword">User</span> <span class="hljs-title">alice</span> created<br><br></code></pre></td></tr></table></figure>
+
+<p>鉴权模块收到此命令后，它会使用bcrpt库的blowfish算法，基于明文密码、随机分配的salt、自定义的cost、迭代多次计算得到一个hash值，并将加密算法版本、salt值、cost、hash值组成一个字符串，作为加密后的密码。</p>
+<p>最后，鉴权模块将用户名alice作为key，用户名、加密后的密码作为value，存储到boltdb的authUsers bucket里面，完成一个账号创建。</p>
+<p>当你使用alice账号访问etcd的时候，你需要先调用鉴权模块的Authenticate接口，它会验证你的身份合法性。</p>
+<p>那么etcd如何验证你密码正确性的呢？</p>
+<p>鉴权模块首先会根据你请求的用户名alice，从boltdb获取加密后的密码，因此hash值包含了算法版本、salt、cost等信息，因此可以根据你请求中的明文密码，计算出最终的hash值，若计算结果与存储一致，那么身份校验通过。</p>
+<h4 id="如何提升密码认证性能"><a href="#如何提升密码认证性能" class="headerlink" title="如何提升密码认证性能"></a>如何提升密码认证性能</h4><p>通过以上的鉴权安全性的深入分析，我们知道身份验证这个过程开销极其昂贵，那么问题来了，如何避免频繁、昂贵的密码计算匹配，提升密码认证的性能呢？</p>
+<p>这就是密码认证的第二个难点，如何保证性能。</p>
+<p>想想我们办理港澳通行证的时候，流程特别复杂，需要各种身份证明、照片、指纹信息，办理成功后，下发通信证，每次过关你只需要刷下通信证即可，高效而便捷。</p>
+<p>那么，在软件系统领域如果身份验证通过了后，我们是否也可以返回一个类似通信证的凭据给client，后续请求携带通信证，只要通行证合法且在有效期内，就无需再次鉴权了呢？</p>
+<p>是的，etcd也有类似这样的凭据。当etcd server验证用户密码成功后，它就会返回一个Token字符串给client，用于表示用户的身份。后续请求携带此Token，就无需再次进行密码校验，实现了通信证的效果。</p>
+<p>etcd目前支持两种Token，分别为Simple Token和JWT Token。</p>
+<p><strong>Simple Token</strong></p>
+<p>Simple Token实现正如名字所言，简单。</p>
+<p>Simple Token的核心原理是当一个用户身份验证通过后，生成一个随机的字符串值Token返回给client，并在内存中使用map存储用户和Token映射关系。当收到用户的请求时， etcd会从请求中获取Token值，转换成对应的用户名信息，返回给下层模块使用。</p>
+<p>Token是你身份的象征，若此Token泄露了，那你的数据就可能存在泄露的风险。etcd是如何应对这种潜在的安全风险呢？</p>
+<p>etcd生成的每个Token，都有一个过期时间TTL属性，Token过期后client需再次验证身份，因此可显著缩小数据泄露的时间窗口，在性能上、安全性上实现平衡。</p>
+<p>在etcd v3.4.9版本中，Token默认有效期是5分钟，etcd server会定时检查你的Token是否过期，若过期则从map数据结构中删除此Token。</p>
+<p>不过要注意的是，Simple Token字符串本身并未含任何有价值信息，因此client无法及时、准确获取到Token过期时间。所以client不容易提前去规避因Token失效导致的请求报错。</p>
+<p>从以上介绍中，Simple Token有哪些不足之处？为什么etcd社区仅建议在开发、测试环境中使用Simple Token呢？</p>
+<p>首先它是有状态的，etcd server需要使用内存存储Token和用户名的映射关系。</p>
+<p>其次，它的可描述性很弱，client无法通过Token获取到过期时间、用户名、签发者等信息。</p>
+<p>etcd鉴权模块实现的另外一个Token Provider方案JWT，正是为了解决这些不足之处而生。</p>
+<p><strong>JWT Token</strong></p>
+<p>JWT是Json Web Token缩写， 它是一个基于JSON的开放标准（RFC 7519）定义的一种紧凑、独立的格式，可用于在身份提供者和服务提供者间，传递被认证的用户身份信息。它由Header、Payload、Signature三个对象组成， 每个对象都是一个JSON结构体。</p>
+<p>第一个对象是Header，它包含alg和typ两个字段，alg表示签名的算法，etcd支持RSA、ESA、PS系列，typ表示类型就是JWT。</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs 1c">&#123;<br><span class="hljs-string">&quot;alg&quot;</span>: <span class="hljs-string">&quot;RS256&quot;</span>，<br><span class="hljs-string">&quot;typ&quot;</span>: <span class="hljs-string">&quot;JWT&quot;</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>第二对象是Payload，它表示载荷，包含用户名、过期时间等信息，可以自定义添加字段。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">&#123;<br><span class="hljs-string">&quot;username&quot;</span>: username，<br><span class="hljs-string">&quot;revision&quot;</span>: revision，<br><span class="hljs-string">&quot;exp&quot;</span>:      time.<span class="hljs-constructor">Now()</span>.<span class="hljs-constructor">Add(<span class="hljs-params">t</span>.<span class="hljs-params">ttl</span>)</span>.<span class="hljs-constructor">Unix()</span>，<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>第三个对象是签名，首先它将header、payload使用base64 url编码，然后将编码后的</p>
+<p>字符串用”.”连接在一起，最后用我们选择的签名算法比如RSA系列的私钥对其计算签名，输出结果即是Signature。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus">signature=<span class="hljs-built_in">RSA256</span>(<br><span class="hljs-function"><span class="hljs-title">base64UrlEncode</span><span class="hljs-params">(header)</span></span> + <span class="hljs-string">&quot;.&quot;</span> +<br><span class="hljs-function"><span class="hljs-title">base64UrlEncode</span><span class="hljs-params">(payload)</span></span>，<br>key)<br><br></code></pre></td></tr></table></figure>
+
+<p>JWT就是由base64UrlEncode(header).base64UrlEncode(payload).signature组成。</p>
+<p>为什么说JWT是独立、紧凑的格式呢？</p>
+<p>从以上原理介绍中我们知道，它是无状态的。JWT Token自带用户名、版本号、过期时间等描述信息，etcd server不需要保存它，client可方便、高效的获取到Token的过期时间、用户名等信息。它解决了Simple Token的若干不足之处，安全性更高，etcd社区建议大家在生产环境若使用了密码认证，应使用JWT Token( –auth-token ‘jwt’)，而不是默认的Simple Token。</p>
+<p>介绍完密码认证实现过程中的两个核心挑战，密码存储安全和性能的解决方案之后，是否对密码认证的安全性、性能还有所担忧呢？</p>
+<p>接下来我给你介绍etcd的另外一种高性能、更安全的鉴权方案，x509证书认证。</p>
+<h3 id="证书认证"><a href="#证书认证" class="headerlink" title="证书认证"></a>证书认证</h3><p>密码认证一般使用在client和server基于HTTP协议通信的内网场景中。当对安全有更高要求的时候，你需要使用HTTPS协议加密通信数据，防止中间人攻击和数据被篡改等安全风险。</p>
+<p>HTTPS是利用非对称加密实现身份认证和密钥协商，因此使用HTTPS协议的时候，你需要使用CA证书给client生成证书才能访问。</p>
+<p>那么一个client证书包含哪些信息呢？使用证书认证的时候，etcd server如何知道你发送的请求对应的用户名称？</p>
+<p>我们可以使用下面的openssl命令查看client证书的内容，下图是一个x509 client证书的内容，它含有证书版本、序列号、签名算法、签发者、有效期、主体名等信息，我们重点要关注的是主体名中的CN字段。</p>
+<p>在etcd中，如果你使用了HTTPS协议并启用了client证书认证(–client-cert-auth)，它会取CN字段作为用户名，在我们的案例中，alice就是client发送请求的用户名。</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs applescript">openssl x509 -noout -<span class="hljs-built_in">text</span> -<span class="hljs-keyword">in</span> client.pem<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\338524\55e03b4353c9a467493a3922cf68b294.png" srcset="/img/loading.gif" lazyload></p>
+<p>证书认证在稳定性、性能上都优于密码认证。</p>
+<p>稳定性上，它不存在Token过期、使用更加方便、会让少踩坑，避免了不少Token失效而触发的Bug。性能上，证书认证无需像密码认证一样调用昂贵的密码认证操作(Authenticate请求)，此接口支持的性能极低。</p>
+<h2 id="授权"><a href="#授权" class="headerlink" title="授权"></a>授权</h2><p>当使用如上创建的alice账号执行put hello操作的时候，etcd却会返回如下的”etcdserver: permission denied”无权限错误，这是为什么呢？</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs subunit">$ etcdctl put hello world --user alice:alice<br><span class="hljs-keyword">Error: </span>etcdserver: permission denied<br><br></code></pre></td></tr></table></figure>
+
+<p>这是因为开启鉴权后，put请求命令在应用到状态机前，etcd还会对发出此请求的用户进行权限检查， 判断其是否有权限操作请求的数据。常用的权限控制方法有ACL(Access Control List)、ABAC(Attribute-based access control)、RBAC(Role-based access control)，etcd实现的是RBAC机制。</p>
+<h3 id="RBAC"><a href="#RBAC" class="headerlink" title="RBAC"></a>RBAC</h3><p>什么是基于角色权限的控制系统(RBAC)呢？</p>
+<p>它由下图中的三部分组成，User、Role、Permission。User表示用户，如alice。Role表示角色，它是权限的赋予对象。Permission表示具体权限明细，比如赋予Role对key范围在[key，KeyEnd]数据拥有什么权限。目前支持三种权限，分别是READ、WRITE、READWRITE。</p>
+<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\338524\ee6e0a9a63aeaa2d3505ab1a37360760.png" srcset="/img/loading.gif" lazyload></p>
+<p>下面我们通过etcd的RBAC机制，给alice用户赋予一个可读写[hello,helly]数据范围的读写权限， 如何操作呢?</p>
+<p>按照上面介绍的RBAC原理，首先需要创建一个role，这里我们命名为admin，然后新增了一个可读写[hello,helly]数据范围的权限给admin角色，并将admin的角色的权限授予了用户alice。详细如下：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">$ <span class="hljs-comment">#创建一个admin role</span><br>etcdctl <span class="hljs-keyword">role</span> <span class="hljs-title">add</span> admin  --<span class="hljs-keyword">user</span> <span class="hljs-title">root</span>:root<br><span class="hljs-keyword">Role</span> <span class="hljs-title">admin</span> created<br><span class="hljs-comment"># #分配一个可读写[hello，helly]范围数据的权限给admin role</span><br>$ etcdctl <span class="hljs-keyword">role</span> <span class="hljs-title">grant-permission</span> admin readwrite hello helly --<span class="hljs-keyword">user</span> <span class="hljs-title">root</span>:root<br><span class="hljs-keyword">Role</span> <span class="hljs-title">admin</span> updated<br><span class="hljs-comment"># 将用户alice和admin role关联起来，赋予admin权限给user</span><br>$ etcdctl <span class="hljs-keyword">user</span> <span class="hljs-title">grant-role</span> alice admin --<span class="hljs-keyword">user</span> <span class="hljs-title">root</span>:root<br><span class="hljs-keyword">Role</span> <span class="hljs-title">admin</span> is granted to <span class="hljs-keyword">user</span> <span class="hljs-title">alice</span><br><br></code></pre></td></tr></table></figure>
+
+<p>然后再次使用etcdctl执行put hello命令时，鉴权模块会从boltdb查询alice用户对应的权限列表。</p>
+<p>因为有可能一个用户拥有成百上千个权限列表，etcd为了提升权限检查的性能，引入了区间树，检查用户操作的key是否在已授权的区间，时间复杂度仅为O(logN)。</p>
+<p>在这个案例中，很明显hello在admin角色可读写的[hello，helly)数据范围内，因此它有权限更新key hello，执行成功。也可以尝试更新key hey，因为此key未在鉴权的数据区间内，因此etcd server会返回”etcdserver: permission denied”错误给client，如下所示。</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs subunit">$ etcdctl put hello world --user alice:alice<br>OK<br>$ etcdctl put hey hey --user alice:alice<br><span class="hljs-keyword">Error: </span>etcdserver: permission denied<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>设计实现一个鉴权模块最关键的目标和挑战应该是<strong>安全、性能以及一致性</strong>。</p>
+<p>首先鉴权目的是为了保证安全，必须防止恶意用户绕过鉴权系统、伪造、篡改、越权等行为，同时设计上要有前瞻性，做到即使被拖库也影响可控。etcd的解决方案是通过密码安全加密存储、证书认证、RBAC等机制保证其安全性。</p>
+<p>然后，鉴权作为了一个核心的前置模块，性能上不能拖后腿，不能成为影响业务性能的一个核心瓶颈。etcd的解决方案是通过Token降低频繁、昂贵的密码验证开销，可应用在内网、小规模业务场景，同时支持使用证书认证，不存在Token过期，巧妙的取CN字段作为用户名，可满足较大规模的业务场景鉴权诉求。</p>
+<p>接着，鉴权系统面临的业务场景是复杂的，因此权限控制系统应当具备良好的扩展性，业务可根据自己实际场景选择合适的鉴权方法。etcd的Token Provider和RBAC扩展机制，都具备较好的扩展性、灵活性。尤其是RBAC机制，让你可以精细化的控制每个用户权限，实现权限最小化分配。</p>
+<p>最后鉴权系统元数据的存储应当是可靠的，各个节点鉴权数据应确保一致，确保鉴权行为一致性。早期etcd v2版本时，因鉴权命令未经过Raft模块，存在数据不一致的问题，在etcd v3中通过Raft模块同步鉴权指令日志指令，实现鉴权数据一致性。</p>
+<p><strong>权衡</strong></p>
+<p><strong>密码鉴权简单易用，但是潜在隐患多，证书可能略麻烦，特别是多租户场景，每个用户证书都不一样，需要独立生成，总的而言，还是不能为一时方便偷懒选用密码</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>05.鉴权：如何保护你的数据安全？</div>
+      <div>https://blog.longpi1.com/2022/10/03/05-鉴权：如何保护你的数据安全？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/02/02-etcd%E8%AF%BB%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" title="02.etcd读的执行流程">
+                        <span class="hidden-mobile">02.etcd读的执行流程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
