@@ -23,20 +23,20 @@
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="极客时间etcd课程笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/be3a019beaf1310d214e5c9948cc9c74.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/f08d1c50c6bc14f09b5028095ce275be.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/42575d8d0a034e823b8e48d4ca0a49bf.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/5yy0cbf2833c438812086287d2ebf948.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/40ec1087113edfc9f7yy0f32394b948e.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/a7a04846de2be66f1162af8845b13ab4.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/5ae0a99629021e4a05c08yyd0df92f88.png">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/be/74/be3a019beaf1310d214e5c9948cc9c74.png?wh=1784*534">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/f0/be/f08d1c50c6bc14f09b5028095ce275be.png?wh=1804*1076">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/42/bf/42575d8d0a034e823b8e48d4ca0a49bf.png?wh=1920*1075">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/5y/48/5yy0cbf2833c438812086287d2ebf948.png?wh=1920*1060">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/40/8e/40ec1087113edfc9f7yy0f32394b948e.png?wh=1920*1065">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/a7/b4/a7a04846de2be66f1162af8845b13ab4.png?wh=1920*1098">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/5a/88/5ae0a99629021e4a05c08yyd0df92f88.png?wh=1920*1040">
 <meta property="article:published_time" content="2022-10-04T14:23:21.000Z">
-<meta property="article:modified_time" content="2022-10-04T14:24:00.107Z">
+<meta property="article:modified_time" content="2022-10-05T14:43:19.108Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341060/be3a019beaf1310d214e5c9948cc9c74.png">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/be/74/be3a019beaf1310d214e5c9948cc9c74.png?wh=1784*534">
   
   
   
@@ -333,12 +333,12 @@
 <p>etcd v3的Watch机制的设计实现并非凭空出现，它正是吸取了etcd v2的经验、教训而重构诞生的。</p>
 <p>在etcd v3中，为了解决etcd v2的以上缺陷，使用的是基于HTTP&#x2F;2的gRPC协议，双向流的Watch API设计，实现了连接多路复用。</p>
 <p>HTTP&#x2F;2协议为什么能实现多路复用呢？</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\be3a019beaf1310d214e5c9948cc9c74.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/be/74/be3a019beaf1310d214e5c9948cc9c74.png?wh=1784*534" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>在HTTP&#x2F;2协议中，HTTP消息被分解独立的帧（Frame），交错发送，帧是最小的数据单位。每个帧会标识属于哪个流（Stream），流由多个数据帧组成，每个流拥有一个唯一的ID，一个数据流对应一个请求或响应包。</p>
 <p>如上图所示，client正在向server发送数据流5的帧，同时server也正在向client发送数据流1和数据流3的一系列帧。一个连接上有并行的三个数据流，HTTP&#x2F;2可基于帧的流ID将并行、交错发送的帧重新组装成完整的消息。</p>
 <p>通过以上机制，HTTP&#x2F;2就解决了HTTP&#x2F;1的请求阻塞、连接无法复用的问题，实现了多路复用、乱序发送。</p>
 <p>etcd基于以上介绍的HTTP&#x2F;2协议的多路复用等机制，实现了一个client&#x2F;TCP连接支持多gRPC Stream， 一个gRPC Stream又支持多个watcher，如下图所示。同时事件通知模式也从client轮询优化成server流式推送，极大降低了server端socket、内存等资源。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\f08d1c50c6bc14f09b5028095ce275be.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/f0/be/f08d1c50c6bc14f09b5028095ce275be.png?wh=1804*1076" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>当然在etcd v3 watch性能优化的背后，也带来了Watch API复杂度上升, 不过你不用担心，etcd的clientv3库已经帮助你搞定这些棘手的工作了。</p>
 <p>在clientv3库中，Watch特性被抽象成Watch、Close、RequestProgress三个简单API提供给开发者使用，屏蔽了client与gRPC WatchServer交互的复杂细节，实现了一个client支持多个gRPC Stream，一个gRPC Stream支持多个watcher，显著降低了你的开发复杂度。</p>
 <p>同时当watch连接的节点故障，clientv3库支持自动重连到健康节点，并使用之前已接收的最大版本号创建新的watcher，避免旧事件回放等。</p>
@@ -355,8 +355,8 @@
 <p>在上一节课中我们深入介绍了它的含义，版本号是etcd逻辑时钟，当client因网络等异常出现连接闪断后，通过版本号，它就可从server端的boltdb中获取错过的历史事件，而无需全量同步，它是etcd Watch机制数据增量同步的核心。</p>
 <h2 id="可靠的事件推送机制"><a href="#可靠的事件推送机制" class="headerlink" title="可靠的事件推送机制"></a>可靠的事件推送机制</h2><p>再看第三个问题，当client和server端出现短暂网络波动等异常因素后，导致事件堆积时，server端会丢弃事件吗？若你监听的历史版本号server端不存在了，你的代码该如何处理？</p>
 <p>第三个问题的本质是 <strong>可靠事件推送机制</strong>，要搞懂它，我们就得弄懂etcd Watch特性的整体架构、核心流程，下图是Watch特性整体架构图。</p>
-<h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\42575d8d0a034e823b8e48d4ca0a49bf.png" srcset="/img/loading.gif" lazyload></p>
-<p>我先通过上面的架构图，给你简要介绍下一个watch请求流程，让你对全流程有个整体的认识。</p>
+<h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p><img src="https://static001.geekbang.org/resource/image/42/bf/42575d8d0a034e823b8e48d4ca0a49bf.png?wh=1920*1075" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>通过上面的架构图，简要介绍下一个watch请求流程，对全流程有个整体的认识。</p>
 <p>当你通过etcdctl或API发起一个watch key请求的时候，etcd的gRPCWatchServer收到watch请求后，会创建一个serverWatchStream, 它负责接收client的gRPC Stream的create&#x2F;cancel watcher请求(recvLoop goroutine)，并将从MVCC模块接收的Watch事件转发给client(sendLoop goroutine)。</p>
 <p>当serverWatchStream收到create watcher请求后，serverWatchStream会调用MVCC模块的WatchStream子模块分配一个watcher id，并将watcher注册到MVCC的WatchableKV模块。</p>
 <p>在etcd启动的时候，WatchableKV模块会运行syncWatchersLoop和syncVictimsLoop goroutine，分别负责不同场景下的事件推送，它们也是Watch特性可靠性的核心之一。</p>
@@ -370,7 +370,7 @@
 <p>从以上介绍中，我们可以将可靠的事件推送机制拆分成最新事件推送、异常场景重试、历史事件推送机制三个子问题来进行分析。</p>
 <p>下面是第一个子问题，最新事件推送机制。</p>
 <h3 id="最新事件推送机制"><a href="#最新事件推送机制" class="headerlink" title="最新事件推送机制"></a>最新事件推送机制</h3><p>当etcd收到一个写请求，key-value发生变化的时候，处于syncedGroup中的watcher，是如何获取到最新变化事件并推送给client的呢？</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\5yy0cbf2833c438812086287d2ebf948.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/5y/48/5yy0cbf2833c438812086287d2ebf948.png?wh=1920*1060" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>当创建完成watcher后，此时你执行put hello修改操作时，如上图所示，请求经过KVServer、Raft模块后Apply到状态机时，在MVCC的put事务中，它会将本次修改的后的mvccpb.KeyValue保存到一个changes数组中。</p>
 <p>在put事务结束时，如下面的精简代码所示，它会将KeyValue转换成Event事件，然后回调watchableStore.notify函数（流程5）。notify会匹配出监听过此key并处于synced watcherGroup中的watcher，同时事件中的版本号要大于等于watcher监听的最小版本号，才能将事件发送到此watcher的事件channel中。</p>
 <p>serverWatchStream的sendLoop goroutine监听到channel消息后，读出消息立即推送给client（流程6和7），至此，完成一个最新修改事件推送。</p>
@@ -386,7 +386,7 @@
 <p>若推送成功，watcher监听的最小版本号(minRev)小于等于server当前版本号(currentRev)，说明可能还有历史事件未推送，需加入到unsynced watcherGroup中，由下面介绍的历史事件推送机制，推送minRev到currentRev之间的事件。</p>
 <p>若watcher的最小版本号大于server当前版本号，则加入到synced watcher集合中，进入上面介绍的最新事件通知机制。</p>
 <p>下面我给你画了一幅图总结各类watcher状态转换关系，希望能帮助你快速厘清之间关系。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\40ec1087113edfc9f7yy0f32394b948e.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/40/8e/40ec1087113edfc9f7yy0f32394b948e.png?wh=1920*1065" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>介绍完最新事件推送、异常场景重试机制后，那历史事件推送机制又是怎么工作的呢？</p>
 <h3 id="历史事件推送机制"><a href="#历史事件推送机制" class="headerlink" title="历史事件推送机制"></a>历史事件推送机制</h3><p>WatchableKV模块的另一个goroutine，syncWatchersLoop，正是负责unsynced watcherGroup中的watcher历史事件推送。</p>
 <p>在历史事件推送机制中，如果你监听老的版本号已经被etcd压缩了，client该如何处理？</p>
@@ -394,13 +394,13 @@
 <p>syncWatchersLoop，它会遍历处于unsynced watcherGroup中的每个watcher，为了优化性能，它会选择一批unsynced watcher批量同步，找出这一批unsynced watcher中监听的最小版本号。</p>
 <p>因boltdb的key是按版本号存储的，因此可通过指定查询的key范围的最小版本号作为开始区间，当前server最大版本号作为结束区间，遍历boltdb获得所有历史数据。</p>
 <p>然后将KeyValue结构转换成事件，匹配出监听过事件中key的watcher后，将事件发送给对应的watcher事件接收channel即可。发送完成后，watcher从unsynced watcherGroup中移除、添加到synced watcherGroup中，如下面的watcher状态转换图黑色虚线框所示。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\a7a04846de2be66f1162af8845b13ab4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/a7/b4/a7a04846de2be66f1162af8845b13ab4.png?wh=1920*1098" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>若watcher监听的版本号已经小于当前etcd server压缩的版本号，历史变更数据就可能已丢失，因此etcd server会返回ErrCompacted错误给client。client收到此错误后，需重新获取数据最新版本号后，再次Watch。你在业务开发过程中，使用Watch API最常见的一个错误之一就是未处理此错误。</p>
 <h2 id="高效的事件匹配"><a href="#高效的事件匹配" class="headerlink" title="高效的事件匹配"></a>高效的事件匹配</h2><p>介绍完可靠的事件推送机制后，最后我们再看第四个问题，如果你创建了上万个watcher监听key变化，当server端收到一个写请求后，etcd是如何根据变化的key快速找到监听它的watcher呢？一个个遍历watcher吗？</p>
 <p>显然一个个遍历watcher是最简单的方法，但是它的时间复杂度是O(N)，在watcher数较多的场景下，会导致性能出现瓶颈。更何况etcd是在执行一个写事务结束时，同步触发事件通知流程的，若匹配watcher开销较大，将严重影响etcd性能。</p>
 <p>那使用什么数据结构来快速查找哪些watcher监听了一个事件中的key呢？</p>
 <p>也许你会说使用map记录下哪些watcher监听了什么key不就可以了吗？ etcd的确使用<strong>map</strong>记录了监听单个key的watcher，但是你要注意的是Watch特性不仅仅可以监听单key，它还可以指定监听key范围、key前缀，因此etcd还使用了如下的<strong>区间树</strong>。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341060\5ae0a99629021e4a05c08yyd0df92f88.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/5a/88/5ae0a99629021e4a05c08yyd0df92f88.png?wh=1920*1040" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>当收到创建watcher请求的时候，它会把watcher监听的key范围插入到上面的区间树中，区间的值保存了监听同样key范围的watcher集合&#x2F;watcherSet。</p>
 <p>当产生一个事件时，etcd首先需要从map查找是否有watcher监听了单key，其次它还需要从区间树找出与此key相交的所有区间，然后从区间的值获取监听的watcher集合。</p>
 <p><strong>区间树支持快速查找一个key是否在某个区间内，时间复杂度O(LogN)，因此etcd基于map和区间树实现了watcher与事件快速匹配，具备良好的扩展性。</strong></p>

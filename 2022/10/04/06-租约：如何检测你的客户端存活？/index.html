@@ -23,17 +23,17 @@
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="极客时间etcd课程笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/339337/ac70641fa3d41c2dac31dbb551394b7c.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/339337/aaf8bf5c3841a641f8c51fcc34ac67ee.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/339337/b09e9d30157876b031ed206391698c6b.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/339337/70ece2fa3bc400edd8d3b09f752ea759.png">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/ac/7c/ac70641fa3d41c2dac31dbb551394b7c.png?wh=2464*1552">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/aa/ee/aaf8bf5c3841a641f8c51fcc34ac67ee.png?wh=2024*1450">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/b0/6b/b09e9d30157876b031ed206391698c6b.png?wh=2552*1550">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/70/59/70ece2fa3bc400edd8d3b09f752ea759.png?wh=2580*1560">
 <meta property="article:published_time" content="2022-10-04T03:45:35.000Z">
-<meta property="article:modified_time" content="2022-10-04T03:47:38.055Z">
+<meta property="article:modified_time" content="2022-10-05T14:42:41.987Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/339337/ac70641fa3d41c2dac31dbb551394b7c.png">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/ac/7c/ac70641fa3d41c2dac31dbb551394b7c.png?wh=2464*1552">
   
   
   
@@ -319,7 +319,7 @@
 <p>你可以基于Lease的TTL特性，解决类似Leader选举、Kubernetes Event自动淘汰、服务发现场景中故障节点自动剔除等问题。为了帮助理解Lease的核心特性原理，以一个实际场景中的经常遇到的异常节点自动剔除为案例，围绕这个问题，深入介绍Lease特性的实现。</p>
 <p>在这个案例中，期望的效果是，在节点异常时，表示节点健康的key能被从etcd集群中自动删除。</p>
 <h2 id="Lease整体架构"><a href="#Lease整体架构" class="headerlink" title="Lease整体架构"></a>Lease整体架构</h2><p>Lease模块简要架构图。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\339337\ac70641fa3d41c2dac31dbb551394b7c.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/ac/7c/ac70641fa3d41c2dac31dbb551394b7c.png?wh=2464*1552" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>etcd在启动的时候，创建Lessor模块的时候，它会启动两个常驻goroutine，如上图所示，一个是RevokeExpiredLease任务，定时检查是否有过期Lease，发起撤销过期的Lease操作。一个是CheckpointScheduledLease，定时触发更新Lease的剩余到期时间的操作。</p>
 <p>Lessor模块提供了Grant、Revoke、LeaseTimeToLive、LeaseKeepAlive API给client使用，各接口作用如下:</p>
 <ul>
@@ -340,7 +340,7 @@
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">$ etcdctl put <span class="hljs-keyword">node</span> <span class="hljs-title">healthy</span> --lease <span class="hljs-number">326975935</span>f48f818<br>OK<br>$ etcdctl get <span class="hljs-keyword">node</span> <span class="hljs-title">-w</span>=json | python -m json.tool<br>&#123;<br>    <span class="hljs-string">&quot;kvs&quot;</span>:[<br>        &#123;<br>            <span class="hljs-string">&quot;create_revision&quot;</span>:<span class="hljs-number">24</span>，<br>            <span class="hljs-string">&quot;key&quot;</span>:<span class="hljs-string">&quot;bm9kZQ==&quot;</span>，<br>            <span class="hljs-string">&quot;Lease&quot;</span>:<span class="hljs-number">3632563850270275608</span>，<br>            <span class="hljs-string">&quot;mod_revision&quot;</span>:<span class="hljs-number">24</span>，<br>            <span class="hljs-string">&quot;value&quot;</span>:<span class="hljs-string">&quot;aGVhbHRoeQ==&quot;</span>，<br>            <span class="hljs-string">&quot;version&quot;</span>:<span class="hljs-number">1</span><br>        &#125;<br>    ]<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>以上流程原理如下图所示，它描述了用户的key是如何与指定Lease关联的。当你通过put等命令新增一个指定了”–lease”的key时，MVCC模块它会通过Lessor模块的Attach方法，将key关联到Lease的key内存集合ItemSet中。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\339337\aaf8bf5c3841a641f8c51fcc34ac67ee.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/aa/ee/aaf8bf5c3841a641f8c51fcc34ac67ee.png?wh=2024*1450" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>一个Lease关联的key集合是保存在内存中的，那么etcd重启时，是如何知道每个Lease上关联了哪些key呢?</p>
 <p>答案是etcd的MVCC模块在持久化存储key-value的时候，保存到boltdb的value是个结构体（mvccpb.KeyValue）， 它不仅包含你的key-value数据，还包含了关联的LeaseID等信息。因此当etcd重启时，可根据此信息，重建关联各个Lease的key集合列表。</p>
 <h2 id="如何优化Lease续期性能"><a href="#如何优化Lease续期性能" class="headerlink" title="如何优化Lease续期性能"></a>如何优化Lease续期性能</h2><p>通过以上流程，我们完成了Lease创建和数据关联操作。在正常情况下，你的节点存活时，需要定期发送KeepAlive请求给etcd续期健康状态的Lease，否则你的Lease和关联的数据就会被删除。</p>
@@ -355,7 +355,7 @@
 <p>通过以上两个优化，实现Lease性能大幅提升，满足了各个业务场景诉求。</p>
 <h2 id="如何高效淘汰过期Lease"><a href="#如何高效淘汰过期Lease" class="headerlink" title="如何高效淘汰过期Lease"></a>如何高效淘汰过期Lease</h2><p>在了解完节点正常情况下的Lease续期特性后，再看看节点异常时，未正常续期后，etcd又是如何淘汰过期Lease、删除节点健康指标key的。</p>
 <p>淘汰过期Lease的工作由Lessor模块的一个异步goroutine负责。如下面架构图虚线框所示，它会定时从最小堆中取出已过期的Lease，执行删除Lease和其关联的key列表数据的RevokeExpiredLease任务。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\339337\b09e9d30157876b031ed206391698c6b.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/b0/6b/b09e9d30157876b031ed206391698c6b.png?wh=2552*1550" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>从图中可以看到，目前etcd是基于最小堆来管理Lease，实现快速淘汰过期的Lease。</p>
 <p>etcd早期的时候，淘汰Lease非常暴力。etcd会直接遍历所有Lease，逐个检查Lease是否过期，过期则从Lease关联的key集合中，取出key列表，删除它们，时间复杂度是O(N)。</p>
 <p>然而这种方案随着Lease数增大，毫无疑问它的性能会变得越来越差。我们能否按过期时间排序呢？这样每次只需轮询、检查排在前面的Lease过期时间，一旦轮询到未过期的Lease， 则可结束本轮检查。</p>
@@ -371,7 +371,7 @@
 <p>当你的集群发生Leader切换后，新的Leader基于Lease map信息，按Lease过期时间构建一个最小堆时，etcd早期版本为了优化性能，并未持久化存储Lease剩余TTL信息，因此重建的时候就会自动给所有Lease自动续期了。</p>
 <p>然而若较频繁出现Leader切换，切换时间小于Lease的TTL，这会导致Lease永远无法删除，大量key堆积，db大小超过配额等异常。</p>
 <p>为了解决这个问题，etcd引入了检查点机制，也就是下面架构图中黑色虚线框所示的CheckPointScheduledLeases的任务。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\339337\70ece2fa3bc400edd8d3b09f752ea759.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/70/59/70ece2fa3bc400edd8d3b09f752ea759.png?wh=2580*1560" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>一方面，etcd启动的时候，Leader节点后台会运行此异步任务，定期批量地将Lease剩余的TTL基于Raft Log同步给Follower节点，Follower节点收到CheckPoint请求后，更新内存数据结构LeaseMap的剩余TTL信息。</p>
 <p>另一方面，当Leader节点收到KeepAlive请求的时候，它也会通过checkpoint机制把此Lease的剩余TTL重置，并同步给Follower节点，尽量确保续期后集群各个节点的Lease 剩余TTL一致性。</p>
 <p>最后要注意的是，此特性对性能有一定影响，目前仍然是试验特性。可以通过<strong>experimental-enable-lease-checkpoint</strong>参数开启。</p>

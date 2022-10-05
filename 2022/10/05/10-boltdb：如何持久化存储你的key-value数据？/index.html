@@ -1,0 +1,779 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10.boltdb：如何持久化存储你的key-value数据？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/05/10-boltdb%EF%BC%9A%E5%A6%82%E4%BD%95%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8%E4%BD%A0%E7%9A%84key-value%E6%95%B0%E6%8D%AE%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/a6/41/a6086a069a2cf52b38d60716780f2e41.png?wh=1920*1131">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/94/16/94a4b5yydab7yy9a3f340632274f9616.png?wh=1920*1242">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/09/c0/09d8a9174b4539718878fcfb9da84cc0.png?wh=411*161">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/14/9b/14f9c6f5061f44ea3c1d8de4f47a5b9b.png?wh=1920*719">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/0e/e8/0e70f52dc9752e2yy19f74a044530ee8.png?wh=1920*1013">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/61/9d/61af0c7e7e5beb05be6130bda29da49d.png?wh=1920*951">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/4a/9a/4a4d05678cfb785618537d2f930e859a.png?wh=1910*708">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/57/bb/57c6dd899c4cb56198a6092855161ebb.png?wh=1920*1070">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/e6/6e/e6d2c12de362b55c7c36c45e5b65706e.png?wh=1920*711">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/e9/6f/e93935835e792363ae2edc5290f2266f.png?wh=1536*1532">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/d3/8c/d31f483a10abeff34a8fef37941ef28c.png?wh=1920*838">
+<meta property="article:published_time" content="2022-10-05T14:44:41.000Z">
+<meta property="article:modified_time" content="2022-10-05T14:45:11.750Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/a6/41/a6086a069a2cf52b38d60716780f2e41.png?wh=1920*1131">
+  
+  
+  
+  <title>10.boltdb：如何持久化存储你的key-value数据？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="10.boltdb：如何持久化存储你的key-value数据？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-05 22:44" pubdate>
+          2022年10月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          78 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">10.boltdb：如何持久化存储你的key-value数据？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="10-boltdb：如何持久化存储你的key-value数据？"><a href="#10-boltdb：如何持久化存储你的key-value数据？" class="headerlink" title="10.boltdb：如何持久化存储你的key-value数据？"></a>10.boltdb：如何持久化存储你的key-value数据？</h1><p>boltdb是如何组织你的key-value数据的呢？当你读写一个key时，boltdb是如何工作的？</p>
+<p>通过一个写请求在boltdb中执行的简要流程，分析其背后的boltdb的磁盘文件布局，帮助了解page、node、bucket等核心数据结构的原理与作用，搞懂boltdb基于B+ tree、各类page实现查找、更新、事务提交的原理，让你明白etcd为什么适合读多写少的场景。</p>
+<h2 id="boltdb磁盘布局"><a href="#boltdb磁盘布局" class="headerlink" title="boltdb磁盘布局"></a>boltdb磁盘布局</h2><p>在介绍一个put写请求在boltdb中执行原理前，先从整体上介绍下平时你所看到的etcd db文件的磁盘布局，让你了解下db文件的物理存储结构。</p>
+<p>boltdb文件指的是etcd数据目录下的member&#x2F;snap&#x2F;db的文件， etcd的key-value、lease、meta、member、cluster、auth等所有数据存储在其中。etcd启动的时候，会通过mmap机制将db文件映射到内存，后续可从内存中快速读取文件中的数据。写请求通过fwrite和fdatasync来写入、持久化数据到磁盘。</p>
+<p><img src="https://static001.geekbang.org/resource/image/a6/41/a6086a069a2cf52b38d60716780f2e41.png?wh=1920*1131" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>上图是我给你画的db文件磁盘布局，从图中的左边部分你可以看到，文件的内容由若干个page组成，一般情况下page size为4KB。</p>
+<p>page按照功能可分为元数据页(meta page)、B+ tree索引节点页(branch page)、B+ tree 叶子节点页(leaf page)、空闲页管理页(freelist page)、空闲页(free page)。</p>
+<p>文件最开头的两个page是固定的db元数据meta page，空闲页管理页记录了db中哪些页是空闲、可使用的。索引节点页保存了B+ tree的内部节点，如图中的右边部分所示，它们记录了key值，叶子节点页记录了B+ tree中的key-value和bucket数据。</p>
+<p>boltdb逻辑上通过B+ tree来管理branch&#x2F;leaf page， 实现快速查找、写入key-value数据。</p>
+<h2 id="boltdb-API"><a href="#boltdb-API" class="headerlink" title="boltdb API"></a>boltdb API</h2><p>了解完boltdb的磁盘布局后，那么如果要在etcd中执行一个put请求，boltdb中是如何执行的呢？ boltdb作为一个库，提供了什么API给client访问写入数据？</p>
+<p>boltdb提供了非常简单的API给上层业务使用，当我们执行一个put hello为world命令时，boltdb实际写入的key是版本号，value为mvccpb.KeyValue结构体。</p>
+<p>这里我们简化下，假设往key bucket写入一个key为r94，value为world的字符串，其核心代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 打开boltdb文件，获取db对象</span><br>db,err := bolt.Open(<span class="hljs-string">&quot;db&quot;</span>， <span class="hljs-number">0600</span>， <span class="hljs-literal">nil</span>)<br><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>   log.Fatal(err)<br>&#125;<br><span class="hljs-keyword">defer</span> db.Close()<br><span class="hljs-comment">// 参数true表示创建一个写事务，false读事务</span><br>tx,err := db.Begin(<span class="hljs-literal">true</span>)<br><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>   <span class="hljs-keyword">return</span> err<br>&#125;<br><span class="hljs-keyword">defer</span> tx.Rollback()<br><span class="hljs-comment">// 使用事务对象创建key bucket</span><br>b,err := tx.CreatebucketIfNotExists([]<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;key&quot;</span>))<br><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>   <span class="hljs-keyword">return</span> err<br>&#125;<br><span class="hljs-comment">// 使用bucket对象更新一个key</span><br><span class="hljs-keyword">if</span> err := b.Put([]<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;r94&quot;</span>),[]<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;world&quot;</span>)); err != <span class="hljs-literal">nil</span> &#123;<br>   <span class="hljs-keyword">return</span> err<br>&#125;<br><span class="hljs-comment">// 提交事务</span><br><span class="hljs-keyword">if</span> err := tx.Commit(); err != <span class="hljs-literal">nil</span> &#123;<br>   <span class="hljs-keyword">return</span> err<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>如上所示，通过boltdb的Open API，我们获取到boltdb的核心对象db实例后，然后通过db的Begin API开启写事务，获得写事务对象tx。</p>
+<p>通过写事务对象tx， 你可以创建bucket。这里我们创建了一个名为key的bucket（如果不存在），并使用bucket API往其中更新了一个key为r94，value为world的数据。最后我们使用写事务的Commit接口提交整个事务，完成bucket创建和key-value数据写入。</p>
+<p>看起来是不是非常简单，神秘的boltdb，并未有我们想象的那么难。然而其API简单的背后却是boltdb的一系列巧妙的设计和实现。</p>
+<p>一个key-value数据如何知道该存储在db在哪个page？如何快速找到你的key-value数据？事务提交的原理又是怎样的呢？</p>
+<p>接下来我就和你浅析boltdb背后的奥秘。</p>
+<h2 id="核心数据结构介绍"><a href="#核心数据结构介绍" class="headerlink" title="核心数据结构介绍"></a>核心数据结构介绍</h2><p>上面我们介绍boltdb的磁盘布局时提到，boltdb整个文件由一个个page组成。最开头的两个page描述db元数据信息，而它正是在client调用boltdb Open API时被填充的。那么描述磁盘页面的page数据结构是怎样的呢？元数据页又含有哪些核心数据结构？</p>
+<p>boltdb本身自带了一个工具bbolt，它可以按页打印出db文件的十六进制的内容，下面我们就使用此工具来揭开db文件的神秘面纱。</p>
+<p>下图左边的十六进制是执行如下 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/bbolt/blob/master/cmd/bbolt/main.go">bbolt dump</a> 命令，所打印的boltdb第0页的数据，图的右边是对应的page磁盘页结构和meta page的数据结构。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ .<span class="hljs-regexp">/bbolt dump ./i</span>nfra1.etcd<span class="hljs-regexp">/member/</span>snap/db <span class="hljs-number">0</span><br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://static001.geekbang.org/resource/image/94/16/94a4b5yydab7yy9a3f340632274f9616.png?wh=1920*1242" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>一看上图中的十六进制数据，你可能很懵，没关系，在你了解page磁盘页结构、meta page数据结构后，你就能读懂其含义了。</p>
+<h3 id="page磁盘页结构"><a href="#page磁盘页结构" class="headerlink" title="page磁盘页结构"></a>page磁盘页结构</h3><p>我们先了解下page磁盘页结构，如上图所示，它由页ID(id)、页类型(flags)、数量(count)、溢出页数量(overflow)、页面数据起始位置(ptr)字段组成。</p>
+<p>页类型目前有如下四种：0x01表示branch page，0x02表示leaf page，0x04表示meta page，0x10表示freelist page。</p>
+<p>数量字段仅在页类型为leaf和branch时生效，溢出页数量是指当前页面数据存放不下，需要向后再申请overflow个连续页面使用，页面数据起始位置指向page的载体数据，比如meta page、branch&#x2F;leaf等page的内容。</p>
+<h3 id="meta-page数据结构"><a href="#meta-page数据结构" class="headerlink" title="meta page数据结构"></a>meta page数据结构</h3><p>第0、1页我们知道它是固定存储db元数据的页(meta page)，那么meta page它为了管理整个boltdb含有哪些信息呢？</p>
+<p>如上图中的meta page数据结构所示，你可以看到它由boltdb的文件标识(magic)、版本号(version)、页大小(pagesize)、boltdb的根bucket信息(root bucket)、freelist页面ID(freelist)、总的页面数量(pgid)、上一次写事务ID(txid)、校验码(checksum)组成。</p>
+<h3 id="meta-page十六进制分析"><a href="#meta-page十六进制分析" class="headerlink" title="meta page十六进制分析"></a>meta page十六进制分析</h3><p>了解完page磁盘页结构和meta page数据结构后，我再结合图左边的十六进数据和你简要分析下其含义。</p>
+<p>上图中十六进制输出的是db文件的page 0页结构，左边第一列表示此行十六进制内容对应的文件起始地址，每行16个字节。</p>
+<p>结合page磁盘页和meta page数据结构我们可知，第一行前8个字节描述pgid(忽略第一列)是0。接下来2个字节描述的页类型， 其值为0x04表示meta page， 说明此页的数据存储的是meta page内容，因此ptr开始的数据存储的是meta page内容。</p>
+<p>正如你下图中所看到的，第二行首先含有一个4字节的magic number(0xED0CDAED)，通过它来识别当前文件是否boltdb，接下来是两个字节描述boltdb的版本号0x2， 然后是四个字节的page size大小，0x1000表示4096个字节，四个字节的flags为0。</p>
+<p><img src="https://static001.geekbang.org/resource/image/09/c0/09d8a9174b4539718878fcfb9da84cc0.png?wh=411*161" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>第三行对应的就是meta page的root bucket结构（16个字节），它描述了boltdb的root bucket信息，比如一个db中有哪些bucket， bucket里面的数据存储在哪里。</p>
+<p>第四行中前面的8个字节，0x3表示freelist页面ID，此页面记录了db当前哪些页面是空闲的。后面8个字节，0x6表示当前db总的页面数。</p>
+<p>第五行前面的8个字节，0x1a表示上一次的写事务ID，后面的8个字节表示校验码，用于检测文件是否损坏。</p>
+<p>了解完db元数据页面原理后，那么boltdb是如何根据元数据页面信息快速找到你的bucket和key-value数据呢？</p>
+<p>这就涉及到了元数据页面中的root bucket，它是个至关重要的数据结构。下面我们看看它是如何管理一系列bucket、帮助我们查找、写入key-value数据到boltdb中。</p>
+<h3 id="bucket数据结构"><a href="#bucket数据结构" class="headerlink" title="bucket数据结构"></a>bucket数据结构</h3><p>如下命令所示，你可以使用bbolt buckets命令，输出一个db文件的bucket列表。执行完此命令后，我们可以看到之前介绍过的auth&#x2F;lease&#x2F;meta等熟悉的bucket，它们都是etcd默认创建的。那么boltdb是如何存储、管理bucket的呢？</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ .<span class="hljs-regexp">/bbolt buckets  ./i</span>nfra1.etcd<span class="hljs-regexp">/member/</span>snap/db<br>alarm<br>auth<br>authRoles<br>authUsers<br>cluster<br>key<br>lease<br>members<br>members_removed<br>meta<br><br></code></pre></td></tr></table></figure>
+
+<p>在上面我们提到过meta page中的，有一个名为root、类型bucket的重要数据结构，如下所示，bucket由root和sequence两个字段组成，root表示该bucket根节点的page id。注意meta page中的bucket.root字段，存储的是db的root bucket页面信息，你所看到的key&#x2F;lease&#x2F;auth等bucket都是root bucket的子bucket。</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gauss"><span class="hljs-built_in">type</span> bucket <span class="hljs-keyword">struct</span> &#123;<br>   root     pgid   <span class="hljs-comment">// page id of the bucket&#x27;s root-level page</span><br>   sequence uint64 <span class="hljs-comment">// monotonically incrementing, used by NextSequence()</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://static001.geekbang.org/resource/image/14/9b/14f9c6f5061f44ea3c1d8de4f47a5b9b.png?wh=1920*719" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>上面meta page十六进制图中，第三行的16个字节就是描述的root bucket信息。root bucket指向的page id为4，page id为4的页面是什么类型呢？ 我们可以通过如下bbolt pages命令看看各个page类型和元素数量，从下图结果可知，4号页面为leaf page。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ .<span class="hljs-regexp">/bbolt pages  ./i</span>nfra1.etcd<span class="hljs-regexp">/member/</span>snap/db<br>ID       TYPE       ITEMS  OVRFLW<br>======== ========== ====== ======<br><span class="hljs-number">0</span>        meta       <span class="hljs-number">0</span><br><span class="hljs-number">1</span>        meta       <span class="hljs-number">0</span><br><span class="hljs-number">2</span>        free<br><span class="hljs-number">3</span>        freelist   <span class="hljs-number">2</span><br><span class="hljs-number">4</span>        leaf       <span class="hljs-number">10</span><br><span class="hljs-number">5</span>        free<br><br></code></pre></td></tr></table></figure>
+
+<p>通过上面的分析可知，当bucket比较少时，我们子bucket数据可直接从meta page里指向的leaf page中找到。</p>
+<h3 id="leaf-page"><a href="#leaf-page" class="headerlink" title="leaf page"></a>leaf page</h3><p>meta page的root bucket直接指向的是page id为4的leaf page， page flag为0x02， leaf page它的磁盘布局如下图所示，前半部分是leafPageElement数组，后半部分是key-value数组。</p>
+<p><img src="https://static001.geekbang.org/resource/image/0e/e8/0e70f52dc9752e2yy19f74a044530ee8.png?wh=1920*1013" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>leafPageElement包含leaf page的类型flags， 通过它可以区分存储的是bucket名称还是key-value数据。</p>
+<p>当flag为bucketLeafFlag(0x01)时，表示存储的是bucket数据，否则存储的是key-value数据，leafPageElement它还含有key-value的读取偏移量，key-value大小，根据偏移量和key-value大小，我们就可以方便地从leaf page中解析出所有key-value对。</p>
+<p>当存储的是bucket数据的时候，key是bucket名称，value则是bucket结构信息。bucket结构信息含有root page信息，通过root page（基于B+ tree查找算法），你可以快速找到你存储在这个bucket下面的key-value数据所在页面。</p>
+<p>从上面分析你可以看到，每个子bucket至少需要一个page来存储其下面的key-value数据，如果子bucket数据量很少，就会造成磁盘空间的浪费。实际上boltdb实现了inline bucket，在满足一些条件限制的情况下，可以将小的子bucket内嵌在它的父亲叶子节点上，友好的支持了大量小bucket。</p>
+<p>为了方便大家快速理解核心原理，本节我们讨论的bucket是假设都是非inline bucket。</p>
+<p>那么boltdb是如何管理大量bucket、key-value的呢？</p>
+<h3 id="branch-page"><a href="#branch-page" class="headerlink" title="branch page"></a>branch page</h3><p>boltdb使用了B+ tree来高效管理所有子bucket和key-value数据，因此它可以支持大量的bucket和key-value，只不过B+ tree的根节点不再直接指向leaf page，而是branch page索引节点页。branch page flags为0x01。它的磁盘布局如下图所示，前半部分是branchPageElement数组，后半部分是key数组。</p>
+<p><img src="https://static001.geekbang.org/resource/image/61/9d/61af0c7e7e5beb05be6130bda29da49d.png?wh=1920*951" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>branchPageElement包含key的读取偏移量、key大小、子节点的page id。根据偏移量和key大小，我们就可以方便地从branch page中解析出所有key，然后二分搜索匹配key，获取其子节点page id，递归搜索，直至从bucketLeafFlag类型的leaf page中找到目的bucket name。</p>
+<p>注意，boltdb在内存中使用了一个名为node的数据结构，来保存page反序列化的结果。下面我给出了一个boltdb读取page到node的代码片段，你可以直观感受下。</p>
+<figure class="highlight roboconf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs roboconf">func (n *node) read(p *page) &#123;<br>   <span class="hljs-attribute">n.pgid = p.id</span><br><span class="hljs-attribute">   n.isLeaf = ((p.flags &amp; leafPageFlag) != 0)</span><br><span class="hljs-attribute">   n.inodes = make(inodes, int(p.count))</span><br><span class="hljs-attribute"></span><br><span class="hljs-attribute">   for i</span> := 0; <span class="hljs-attribute">i &lt; int(p.count); i++ &#123;</span><br><span class="hljs-attribute">      inode</span> := &amp;n<span class="hljs-variable">.inodes</span>[i]<br>      if n<span class="hljs-variable">.isLeaf</span> &#123;<br>         elem := p<span class="hljs-variable">.leafPageElement</span>(uint16(i))<br>         inode<span class="hljs-variable">.flags</span> = elem<span class="hljs-variable">.flags</span><br>         inode<span class="hljs-variable">.key</span> = elem<span class="hljs-variable">.key</span>()<br>         inode<span class="hljs-variable">.value</span> = elem<span class="hljs-variable">.value</span>()<br>      &#125; else &#123;<br>         elem := p<span class="hljs-variable">.branchPageElement</span>(uint16(i))<br>         inode<span class="hljs-variable">.pgid</span> = elem<span class="hljs-variable">.pgid</span><br>         inode<span class="hljs-variable">.key</span> = elem<span class="hljs-variable">.key</span>()<br>      &#125;<br>   &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>从上面分析过程中你会发现，boltdb存储bucket和key-value原理是类似的，将page划分成branch page、leaf page，通过B+ tree来管理实现。boltdb为了区分leaf page存储的数据类型是bucket还是key-value，增加了标识字段（leafPageElement.flags），因此key-value的数据存储过程我就不再重复分析了。</p>
+<h3 id="freelist"><a href="#freelist" class="headerlink" title="freelist"></a>freelist</h3><p>介绍完bucket、key-value存储原理后，再看meta page中的另外一个核心字段freelist，它的作用是什么呢？</p>
+<p>我们知道boltdb将db划分成若干个page，那么它是如何知道哪些page在使用中，哪些page未使用呢？</p>
+<p>答案是boltdb通过meta page中的freelist来管理页面的分配，freelist page中记录了哪些页是空闲的。当你在boltdb中删除大量数据的时候，其对应的page就会被释放，页ID存储到freelist所指向的空闲页中。当你写入数据的时候，就可直接从空闲页中申请页面使用。</p>
+<p>下面meta page十六进制图中，第四行的前8个字节就是描述的freelist信息，page id为3。我们可以通过bbolt page命令查看3号page内容，如下所示，它记录了2和5为空闲页，与上面通过bbolt pages命令所看到的信息一致。</p>
+<p><img src="https://static001.geekbang.org/resource/image/4a/9a/4a4d05678cfb785618537d2f930e859a.png?wh=1910*708" srcset="/img/loading.gif" lazyload alt="img"></p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs gradle">$ .<span class="hljs-regexp">/bbolt page  ./i</span>nfra1.etcd<span class="hljs-regexp">/member/</span>snap/db <span class="hljs-number">3</span><br>page ID:    <span class="hljs-number">3</span><br>page Type:  freelist<br>Total <span class="hljs-keyword">Size</span>: <span class="hljs-number">4096</span> bytes<br>Item <span class="hljs-keyword">Count</span>: <span class="hljs-number">2</span><br>Overflow: <span class="hljs-number">0</span><br><br><span class="hljs-number">2</span><br><span class="hljs-number">5</span><br><br></code></pre></td></tr></table></figure>
+
+<p>下图是freelist page存储结构，pageflags为0x10，表示freelist类型的页，ptr指向空闲页id数组。注意在boltdb中支持通过多种数据结构（数组和hashmap）来管理free page，这里介绍的是数组。</p>
+<p><img src="https://static001.geekbang.org/resource/image/57/bb/57c6dd899c4cb56198a6092855161ebb.png?wh=1920*1070" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="Open原理"><a href="#Open原理" class="headerlink" title="Open原理"></a>Open原理</h2><p>了解完核心数据结构后，就很容易搞懂boltdb Open API的原理了。</p>
+<p>首先它会打开db文件并对其增加文件锁，目的是防止其他进程也以读写模式打开它后，操作meta和free page，导致db文件损坏。</p>
+<p>其次boltdb通过mmap机制将db文件映射到内存中，并读取两个meta page到db对象实例中，然后校验meta page的magic、version、checksum是否有效，若两个meta page都无效，那么db文件就出现了严重损坏，导致异常退出。</p>
+<h2 id="Put原理"><a href="#Put原理" class="headerlink" title="Put原理"></a>Put原理</h2><p>那么成功获取db对象实例后，通过bucket API创建一个bucket、发起一个Put请求更新数据时，boltdb是如何工作的呢？</p>
+<p>根据上面介绍的bucket的核心原理，它首先是根据meta page中记录root bucket的root page，按照B+ tree的查找算法，从root page递归搜索到对应的叶子节点page面，返回key名称、leaf类型。</p>
+<p>如果leaf类型为bucketLeafFlag，且key相等，那么说明已经创建过，不允许bucket重复创建，结束请求。否则往B+ tree中添加一个flag为bucketLeafFlag的key，key名称为bucket name，value为bucket的结构。</p>
+<p>创建完bucket后，你就可以通过bucket的Put API发起一个Put请求更新数据。它的核心原理跟bucket类似，根据子bucket的root page，从root page递归搜索此key到leaf page，如果没有找到，则在返回的位置处插入新key和value。</p>
+<p>为了方便你理解B+ tree查找、插入一个key原理，我给你构造了的一个max degree为5的B+ tree，下图是key r94的查找流程图。</p>
+<p>那么如何确定这个key的插入位置呢？</p>
+<p>首先从boltdb的key bucket的root page里，二分查找大于等于r94的key所在page，最终找到key r9指向的page（流程1）。r9指向的page是个leaf page，B+ tree需要确保叶子节点key的有序性，因此同样二分查找其插入位置，将key r94插入到相关位置（流程二）。</p>
+<p><img src="https://static001.geekbang.org/resource/image/e6/6e/e6d2c12de362b55c7c36c45e5b65706e.png?wh=1920*711" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在核心数据结构介绍中，我和你提到boltdb在内存中通过node数据结构来存储page磁盘页内容，它记录了key-value数据、page id、parent及children的node、B+ tree是否需要进行重平衡和分裂操作等信息。</p>
+<p>因此，当我们执行完一个put请求时，它只是将值更新到boltdb的内存node数据结构里，并未持久化到磁盘中。</p>
+<h2 id="事务提交原理"><a href="#事务提交原理" class="headerlink" title="事务提交原理"></a>事务提交原理</h2><p>那么boltdb何时将数据持久化到db文件中呢？</p>
+<p>当你的代码执行tx.Commit API时，它才会将我们上面保存到node内存数据结构中的数据，持久化到boltdb中。下图我给出了一个事务提交的流程图，接下来我就分别和你简要分析下各个核心步骤。</p>
+<p><img src="https://static001.geekbang.org/resource/image/e9/6f/e93935835e792363ae2edc5290f2266f.png?wh=1536*1532" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>首先从上面put案例中我们可以看到，插入了一个新的元素在B+ tree的叶子节点，它可能已不满足B+ tree的特性，因此事务提交时，第一步首先要调整B+ tree，进行重平衡、分裂操作，使其满足B+ tree树的特性。上面案例里插入一个key r94后，经过重平衡、分裂操作后的B+ tree如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/d3/8c/d31f483a10abeff34a8fef37941ef28c.png?wh=1920*838" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在重平衡、分裂过程中可能会申请、释放free page，freelist所管理的free page也发生了变化。因此事务提交的第二步，就是持久化freelist。</p>
+<p>注意，在etcd v3.4.9中，为了优化写性能等，freelist持久化功能是关闭的。etcd启动获取boltdb db对象的时候，boltdb会遍历所有page，构建空闲页列表。</p>
+<p>事务提交的第三步就是将client更新操作产生的dirty page通过fdatasync系统调用，持久化存储到磁盘中。</p>
+<p>最后，在执行写事务过程中，meta page的txid、freelist等字段会发生变化，因此事务的最后一步就是持久化meta page。</p>
+<p>通过以上四大步骤，就完成了事务提交的工作，成功将数据持久化到了磁盘文件中，安全地完成了一个put操作。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>首先通过一幅boltdb磁盘布局图和bbolt工具，解密了db文件的本质。db文件由meta page、freelist page、branch page、leaf page、free page组成。随后我结合bbolt工具，和你深入介绍了meta page、branch page、leaf page、freelist page的数据结构，帮助你了解key、value数据是如何存储到文件中的。</p>
+<p>然后通过分析一个put请求在boltdb中如何执行的。从Open API获取db对象说起，介绍了其通过mmap将db文件映射到内存，构建meta page，校验meta page的有效性，再到创建bucket，通过bucket API往boltdb添加key-value数据。</p>
+<p>添加bucket和key-value操作本质，是从B+ tree管理的page中找到插入的页和位置，并将数据更新到page的内存node数据结构中。</p>
+<p>真正持久化数据到磁盘是通过事务提交执行的。它首先需要通过一系列重平衡、分裂操作，确保boltdb维护的B+ tree满足相关特性，其次需要持久化freelist page，并将用户更新操作产生的dirty page数据持久化到磁盘中，最后则是持久化meta page。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>10.boltdb：如何持久化存储你的key-value数据？</div>
+      <div>https://blog.longpi1.com/2022/10/05/10-boltdb：如何持久化存储你的key-value数据？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/05/09-%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%A6%82%E4%BD%95%E5%AE%89%E5%85%A8%E5%9C%B0%E5%AE%9E%E7%8E%B0%E5%A4%9Akey%E6%93%8D%E4%BD%9C%EF%BC%9F/" title="09.事务：如何安全地实现多key操作？">
+                        <span class="hidden-mobile">09.事务：如何安全地实现多key操作？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

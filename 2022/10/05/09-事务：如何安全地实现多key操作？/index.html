@@ -23,18 +23,18 @@
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="极客时间etcd课程笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341935/e41a4f83bda29599efcf06f6012b0bd3.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341935/cf94ce8fc0649fe5cce45f8b7468019e.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341935/1ff951756c0ffc427e5a064e3cf8caea.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341935/6a526be4949a383fd5263484c706d68d.png">
-<meta property="og:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341935/3b4c7fb43e03a38aceb2a8c2d5c92226.png">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/e4/d3/e41a4f83bda29599efcf06f6012b0bd3.png?wh=1920*852">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/cf/9e/cf94ce8fc0649fe5cce45f8b7468019e.png?wh=1920*949">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/1f/ea/1ff951756c0ffc427e5a064e3cf8caea.png?wh=1920*1153">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/6a/8d/6a526be4949a383fd5263484c706d68d.png?wh=1920*786">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/3b/26/3b4c7fb43e03a38aceb2a8c2d5c92226.png?wh=1920*1011">
 <meta property="article:published_time" content="2022-10-05T06:49:34.000Z">
-<meta property="article:modified_time" content="2022-10-05T06:49:56.333Z">
+<meta property="article:modified_time" content="2022-10-05T14:43:48.768Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="d:/桌面/学习资料/17689609062/etcd实战课/images/341935/e41a4f83bda29599efcf06f6012b0bd3.png">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/e4/d3/e41a4f83bda29599efcf06f6012b0bd3.png?wh=1920*852">
   
   
   
@@ -254,7 +254,7 @@
         
         
         
-          87 分钟
+          86 分钟
         
       </span>
     
@@ -328,7 +328,7 @@
 <p>Alice和Bob初始账上资金分别都为200元，事务首先判断Alice账号资金是否为200，若是则执行转账操作，不是则返回最新资金。etcd是如何执行这个事务的呢？ <strong>这个事务实现上有哪些问题呢？</strong></p>
 <figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs subunit">$ etcdctl txn -i<br>compares: //对应If语句<br>value(&quot;Alice&quot;) = &quot;200&quot; //判断Alice账号资金是否为200<br><br><span class="hljs-keyword">success </span>requests (get, put, del): //对应Then语句<br>put Alice 100 //Alice账号初始资金200减100<br>put Bob 300 //Bob账号初始资金200加100<br><br><span class="hljs-keyword">failure </span>requests (get, put, del): //对应Else语句<br>get Alice<br>get Bob<br><br><span class="hljs-keyword">SUCCESS</span><br><span class="hljs-keyword"></span><br><span class="hljs-keyword"></span>OK<br><br>OK<br><br></code></pre></td></tr></table></figure>
 
-<h2 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h2><p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341935\e41a4f83bda29599efcf06f6012b0bd3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h2><p><img src="https://static001.geekbang.org/resource/image/e4/d3/e41a4f83bda29599efcf06f6012b0bd3.png?wh=1920*852" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>先介绍下事务的整体流程，为我们后面介绍etcd事务ACID特性的实现做准备。</p>
 <p>上图是etcd事务的执行流程，当你通过client发起一个txn转账事务操作时，通过gRPC KV Server、Raft模块处理后，在Apply模块执行此事务的时候，它首先对你的事务的If语句进行检查，也就是ApplyCompares操作，如果通过此操作，则执行ApplyTxn&#x2F;Then语句，否则执行ApplyTxn&#x2F;Else语句。</p>
 <p>在执行以上操作过程中，它会根据事务是否只读、可写，通过MVCC层的读写事务对象，执行事务中的get&#x2F;put&#x2F;delete各操作，也就是我们上一节课介绍的MVCC对key的读写原理。</p>
@@ -337,7 +337,7 @@
 <h3 id="原子性与持久性"><a href="#原子性与持久性" class="headerlink" title="原子性与持久性"></a>原子性与持久性</h3><p>事务的原子性（Atomicity）是指在一个事务中，所有请求要么同时成功，要么同时失败。比如在我们的转账案例中，是绝对无法容忍Alice账号扣款成功，但是Bob账号资金到账失败的场景。</p>
 <p>持久性（Durability）是指事务一旦提交，其所做的修改会永久保存在数据库。</p>
 <p>软件系统在运行过程中会遇到各种各样的软硬件故障，如果etcd在执行上面事务过程中，刚执行完扣款命令（put Alice 100）就突然crash了，它是如何保证转账事务的原子性与持久性的呢？</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341935\cf94ce8fc0649fe5cce45f8b7468019e.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/cf/9e/cf94ce8fc0649fe5cce45f8b7468019e.png?wh=1920*949" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>如上图转账事务流程图所示，etcd在执行一个事务过程中，任何时间点都可能会出现节点crash等异常问题。我在图中给你标注了两个关键的异常时间点，它们分别是T1和T2。接下来我分别为你分析一下etcd在这两个关键时间点异常后，是如何保证事务的原子性和持久性的。</p>
 <h4 id="T1时间点"><a href="#T1时间点" class="headerlink" title="T1时间点"></a>T1时间点</h4><p>T1时间点是在Alice账号扣款100元完成时，Bob账号资金还未成功增加时突然发生了crash。</p>
 <p>从前面介绍的etcd写原理和上面流程图我们可知，此时MVCC写事务持有boltdb写锁，仅是将修改提交到了内存中，保证幂等性、防止日志条目重复执行的一致性索引consistent index也并未更新。同时，负责boltdb事务提交的goroutine因无法持有写锁，也并未将事务提交到持久化存储中。</p>
@@ -355,7 +355,7 @@
 <p>很明显，转账系统内的各账号资金总额，在转账前后应该一致，同时各账号资产不能小于0。</p>
 <p>为了帮助你更好地理解前面转账事务实现的问题，下面画了幅两个并发转账事务的流程图。</p>
 <p>图中有两个并发的转账事务，Mike向Bob转账100元，Alice也向Bob转账100元，按照我们上面的事务实现，从下图可知转账前系统总资金是600元，转账后却只有500元了，因此它无法保证转账前后账号系统内的资产一致性，导致了资产凭空消失，破坏了事务的一致性。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341935\1ff951756c0ffc427e5a064e3cf8caea.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://static001.geekbang.org/resource/image/1f/ea/1ff951756c0ffc427e5a064e3cf8caea.png?wh=1920*1153" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>事务一致性被破坏的根本原因是，事务中缺少对Bob账号资产是否发生变化的判断，这就导致账号资金被覆盖。</p>
 <p>为了确保事务的一致性，一方面，业务程序在转账逻辑里面，需检查转账者资产大于等于转账金额。在事务提交时，通过账号资产的版本号，确保双方账号资产未被其他事务修改。若双方账号资产被其他事务修改，账号资产版本号会检查失败，这时业务可以通过获取最新的资产和版本号，发起新的转账事务流程解决。</p>
 <p>另一方面，etcd会通过WAL日志和consistent index、boltdb事务特性，去确保事务的原子性，因此不会有部分成功部分失败的操作，导致资金凭空消失、新增。</p>
@@ -367,8 +367,8 @@
 <p>最后是 <strong>串行化</strong>（Serializable），它是最高的事务隔离级别，读写相互阻塞，通过牺牲并发能力、串行化来解决事务并发更新过程中的隔离问题。对于串行化我要和你特别补充一点，很多人认为它都是通过读写锁，来实现事务一个个串行提交的，其实这只是在基于锁的并发控制数据库系统实现而已。 <strong>为了优化性能，在基于MVCC机制实现的各个数据库系统中，提供了一个名为“可串行化的快照隔离”级别，相比悲观锁而言，它是一种乐观并发控制，通过快照技术实现的类似串行化的效果，事务提交时能检查是否冲突。</strong></p>
 <p>下面介绍下未提交读、已提交读、可重复读、串行化快照隔离。</p>
 <h4 id="未提交读"><a href="#未提交读" class="headerlink" title="未提交读"></a>未提交读</h4><p>首先是最低的事务隔离级别，未提交读。我们通过如下一个转账事务时间序列图，来分析下一个client能否读取到未提交事务修改的数据，是否存在脏读。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341935\6a526be4949a383fd5263484c706d68d.png" srcset="/img/loading.gif" lazyload></p>
-<p>图中有两个事务，一个是用户查询Alice和Bob资产的事务，一个是我们执行Alice向Bob转账的事务。</p>
+<p><img src="https://static001.geekbang.org/resource/image/6a/8d/6a526be4949a383fd5263484c706d68d.png?wh=1920*786" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图中有两个事务，一个是用户查询Alice和Bob资产的事务，一个是执行Alice向Bob转账的事务。</p>
 <p>如图中所示，若在Alice向Bob转账事务执行过程中，etcd server收到了client查询Alice和Bob资产的读请求，显然此时我们无法接受client能读取到一个未提交的事务，因为这对应用程序而言会产生严重的BUG。那么etcd是如何保证不出现这种场景呢？</p>
 <p>我们知道etcd基于boltdb实现读写操作的，读请求由boltdb的读事务处理，你可以理解为快照读。写请求由boltdb写事务处理，etcd定时将一批写操作提交到boltdb并清空buffer。</p>
 <p>由于etcd是批量提交写事务的，而读事务又是快照读，因此当MVCC写事务完成时，它需要更新buffer，这样下一个读请求到达时，才能从buffer中获取到最新数据。</p>
@@ -382,9 +382,9 @@
 <p>最后我们再来重点介绍下什么是串行化快照隔离。</p>
 <h4 id="串行化快照隔离"><a href="#串行化快照隔离" class="headerlink" title="串行化快照隔离"></a>串行化快照隔离</h4><p>串行化快照隔离是最严格的事务隔离级别，它是指在在事务刚开始时，首先获取etcd当前的版本号rev，事务中后续发出的读请求都带上这个版本号rev，告诉etcd你需要获取那个时间点的快照数据，etcd的MVCC机制就能确保事务中能读取到同一时刻的数据。</p>
 <p><strong>同时，它还要确保事务提交时，你读写的数据都是最新的，未被其他人修改，也就是要增加冲突检测机制。</strong> 当事务提交出现冲突的时候依赖client重试解决，安全地实现多key原子更新。</p>
-<p>那么我们应该如何为上面一致性案例中，两个并发转账的事务，增加冲突检测机制呢？</p>
-<p>核心就是我们前面介绍MVCC的版本号，我通过下面的并发转账事务流程图为你解释它是如何工作的。</p>
-<p><img src="D:\桌面\学习资料\17689609062\etcd实战课\images\341935\3b4c7fb43e03a38aceb2a8c2d5c92226.png" srcset="/img/loading.gif" lazyload></p>
+<p>那么如何为上面一致性案例中，两个并发转账的事务，增加冲突检测机制呢？</p>
+<p>核心就是前面介绍MVCC的版本号，通过下面的并发转账事务流程图解释它是如何工作的。</p>
+<p><img src="https://static001.geekbang.org/resource/image/3b/26/3b4c7fb43e03a38aceb2a8c2d5c92226.png?wh=1920*1011" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>如上图所示，事务A，Alice向Bob转账100元，事务B，Mike向Bob转账100元，两个事务同时发起转账操作。</p>
 <p>一开始时，Mike的版本号(指mod_revision)是4，Bob版本号是3，Alice版本号是2，资产各自200。为了防止并发写事务冲突，etcd在一个写事务开始时，会独占一个MVCC读写锁。</p>
 <p>事务A会先去etcd查询当前Alice和Bob的资产版本号，用于在事务提交时做冲突检测。在事务A查询后，事务B获得MVCC写锁并完成转账事务，Mike和Bob账号资产分别为100，300，版本号都为5。</p>
@@ -423,8 +423,10 @@
 <li>快照隔离： 每个事务都从一个数据库的快照中读数据，如果有些数据在当前事务开始之后，被其他事务改变了值，快照隔离能够保证当前事务无法看到这个新值。 可串行化快照隔离： 可串行化快照隔离是在快照隔离级别之上，支持串行化。</li>
 </ul>
 <h3 align=center>快速理解脏读、不可重复读、幻读？
+**【1】脏读（读取未提交数据）**
+      A事务读取B事务尚未提交的数据，此时如果B事务发生错误并执行回滚操作，那么A事务读取到的数据就是脏数据。就好像原本的数据比较干净、纯粹，此时由于B事务更改了它，这个数据变得不再纯粹。这个时候A事务立即读取了这个脏数据，但事务B良心发现，又用回滚把数据恢复成原来干净、纯粹的样子，而事务A却什么都不知道，最终结果就是事务A读取了此次的脏数据，称为脏读。
 
-<p><strong>【1】脏读（读取未提交数据）</strong><br>      A事务读取B事务尚未提交的数据，此时如果B事务发生错误并执行回滚操作，那么A事务读取到的数据就是脏数据。就好像原本的数据比较干净、纯粹，此时由于B事务更改了它，这个数据变得不再纯粹。这个时候A事务立即读取了这个脏数据，但事务B良心发现，又用回滚把数据恢复成原来干净、纯粹的样子，而事务A却什么都不知道，最终结果就是事务A读取了此次的脏数据，称为脏读。</p>
+
 <p><strong>这种情况常发生于转账与取款操作中:</strong></p>
 <table>
 <thead>
@@ -647,8 +649,8 @@
             <p style="margin-left:0pt;"><span style="color:#000000;">按照正确逻辑，事务A前后两次读取到的数据总量应该一致</span></p>
             </td>
         </tr></tbody></table></div>
-
 <p>理解了脏读、不可重复读、幻读，那么接下来看看事务隔离级别是怎么个回事<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33591903/article/details/82079302?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522158632818519726869014448%2522%252C%2522scm%2522%253A%252220140713.130056874..%2522%257D&amp;request_id=158632818519726869014448&amp;biz_id=0&amp;utm_source=distribute.pc_search_result.none-task-blog-blog_SOOPENSEARCH-1">【数据库】事务隔离级别</a></p>
+
 
 
 
@@ -711,6 +713,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2022/10/05/10-boltdb%EF%BC%9A%E5%A6%82%E4%BD%95%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8%E4%BD%A0%E7%9A%84key-value%E6%95%B0%E6%8D%AE%EF%BC%9F/" title="10.boltdb：如何持久化存储你的key-value数据？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">10.boltdb：如何持久化存储你的key-value数据？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
