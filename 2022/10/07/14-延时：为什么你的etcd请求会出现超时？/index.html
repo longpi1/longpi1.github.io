@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="14.延时：为什么你的etcd请求会出现超时？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/07/14-%E5%BB%B6%E6%97%B6%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84etcd%E8%AF%B7%E6%B1%82%E4%BC%9A%E5%87%BA%E7%8E%B0%E8%B6%85%E6%97%B6%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/df/2c/df9yy18a1e28e18295cfc15a28cd342c.png?wh=1920*1328">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/b5/fc/b5bb69c8effda97f2ef78b067ab1aafc.png?wh=1920*1300">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/26/ff/26617a4c08e7c1e155c4332058451cff.png?wh=866*356">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/4c/0b/4c8659e621305200b8f761b1e319460b.png?wh=856*356">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9a/52/9a08490980abb23f90d8e59a83543e52.png?wh=1326*352">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/29/db/294600a0a144be38e9d7b69d9403f3db.png?wh=1338*356">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/93/a3/9375f08cebd596b87b92623c10786fa3.png?wh=1920*1474">
+<meta property="article:published_time" content="2022-10-07T09:01:50.000Z">
+<meta property="article:modified_time" content="2022-10-07T09:02:19.021Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/df/2c/df9yy18a1e28e18295cfc15a28cd342c.png?wh=1920*1328">
+  
+  
+  
+  <title>14.延时：为什么你的etcd请求会出现超时？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="14.延时：为什么你的etcd请求会出现超时？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-07 17:01" pubdate>
+          2022年10月7日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          109 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">14.延时：为什么你的etcd请求会出现超时？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="14-延时：为什么你的etcd请求会出现超时？"><a href="#14-延时：为什么你的etcd请求会出现超时？" class="headerlink" title="14.延时：为什么你的etcd请求会出现超时？"></a>14.延时：为什么你的etcd请求会出现超时？</h1><p>在使用etcd的过程中，经常会被日志中的”apply request took too long”和“etcdserver: request timed out”等高延时现象困扰过？它们是由什么原因导致的呢？我们应该如何来分析这些问题？</p>
+<p>这就是要分享的主题：etcd延时。掌握etcd延时抖动、超时背后的常见原因和分析方法，当遇到类似问题时，能独立定位、解决。同时，在实际业务场景中，合理配置集群，遵循最佳实践，尽量减少expensive request，避免etcd请求出现超时。</p>
+<h2 id="分析思路及工具"><a href="#分析思路及工具" class="headerlink" title="分析思路及工具"></a>分析思路及工具</h2><p>首先，当面对一个高延时的请求案例后，如何梳理问题定位思路呢？</p>
+<p>知彼知己，方能百战不殆，定位问题也是类似。首先我们得弄清楚产生问题的原理、流程，读写请求的核心链路。其次是熟练掌握相关工具，借助它们，可以帮助我们快速攻破疑难杂症。</p>
+<p>Leader收到一个写请求，将一个日志条目复制到集群多数节点并应用到存储状态机的流程（如下图所示），通过此图看看写流程上哪些地方可能会导致请求超时呢？</p>
+<p><img src="https://static001.geekbang.org/resource/image/df/2c/df9yy18a1e28e18295cfc15a28cd342c.png?wh=1920*1328" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>首先是流程四，一方面，Leader需要并行将消息通过网络发送给各Follower节点，依赖网络性能。另一方面，Leader需持久化日志条目到WAL，依赖磁盘I&#x2F;O顺序写入性能。</p>
+<p>其次是流程八，应用日志条目到存储状态机时，etcd后端key-value存储引擎是boltdb。正如之前 所介绍的，它是一个基于B+ tree实现的存储引擎，当你写入数据，提交事务时，它会将dirty page持久化到磁盘中。在这过程中boltdb会产生磁盘随机I&#x2F;O写入，因此事务提交性能依赖磁盘I&#x2F;O随机写入性能。</p>
+<p>最后，在整个写流程处理过程中，etcd节点的CPU、内存、网络带宽资源应充足，否则肯定也会影响性能。</p>
+<p>初步了解完可能导致延时抖动的瓶颈处之后，我给你总结了etcd问题定位过程中常用的工具，你可以参考下面这幅图。</p>
+<p><img src="https://static001.geekbang.org/resource/image/b5/fc/b5bb69c8effda97f2ef78b067ab1aafc.png?wh=1920*1300" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>图的左边是读写请求链路中可能出现瓶颈或异常的点，比如上面流程分析中提到的磁盘、内存、CPU、网络资源。</p>
+<p>图的右边是常用的工具，分别是metrics、trace日志、etcd其他日志、WAL及boltdb分析工具等。</p>
+<p>接下来，基于读写请求的核心链路和其可能出现的瓶颈点，结合相关的工具，深入分析etcd延时抖动的定位方法和原因。</p>
+<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><p>首先看看流程图中第一个提到可能瓶颈点，网络模块。</p>
+<p>在etcd中，各个节点之间需要通过2380端口相互通信，以完成Leader选举、日志同步等功能，因此底层网络质量（吞吐量、延时、稳定性）对上层etcd服务的性能有显著影响。</p>
+<p>网络资源出现异常的常见表现是连接闪断、延时抖动、丢包等。那么我们要如何定位网络异常导致的延时抖动呢？</p>
+<p>一方面，可以使用常规的ping&#x2F;traceroute&#x2F;mtr、ethtool、ifconfig&#x2F;ip、netstat、tcpdump网络分析工具等命令，测试网络的连通性、延时，查看网卡的速率是否存在丢包等错误，确认etcd进程的连接状态及数量是否合理，抓取etcd报文分析等。</p>
+<p>另一方面，etcd应用层提供了节点之间网络统计的metrics指标，分别如下：</p>
+<ul>
+<li>etcd_network_active_peer，表示peer之间活跃的连接数；</li>
+<li>etcd_network_peer_round_trip_time_seconds，表示peer之间RTT延时；</li>
+<li>etcd_network_peer_sent_failures_total，表示发送给peer的失败消息数；</li>
+<li>etcd_network_client_grpc_sent_bytes_total，表示server发送给client的总字节数，通过这个指标我们可以监控etcd出流量；</li>
+<li>etcd_network_client_grpc_received_bytes_total，表示server收到client发送的总字节数，通过这个指标可以监控etcd入流量。</li>
+</ul>
+<p>client入流量监控如下图所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/26/ff/26617a4c08e7c1e155c4332058451cff.png?wh=866*356" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>client出流量如下图监控所示。 从图中你可以看到，峰值接近140MB&#x2F;s(1.12Gbps)，这是非常不合理的，说明业务中肯定有大量expensive read request操作。若etcd集群读写请求开始出现超时，你可以用ifconfig等命令查看是否出现丢包等错误。</p>
+<p><img src="https://static001.geekbang.org/resource/image/4c/0b/4c8659e621305200b8f761b1e319460b.png?wh=856*356" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>etcd metrics指标名由namespace和subsystem、name组成。namespace为etcd， subsystem是模块名（比如network、name具体的指标名）。你可以在Prometheus里搜索etcd_network找到所有network相关的metrics指标名。</p>
+<p>下面是一个集群中某节点异常后的metrics指标：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs abnf">etcd_network_active_peers&#123;Local<span class="hljs-operator">=</span><span class="hljs-string">&quot;fd422379fda50e48&quot;</span>，Remote<span class="hljs-operator">=</span><span class="hljs-string">&quot;8211f1d0f64f3269&quot;</span>&#125; <span class="hljs-number">1</span><br>etcd_network_active_peers&#123;Local<span class="hljs-operator">=</span><span class="hljs-string">&quot;fd422379fda50e48&quot;</span>，Remote<span class="hljs-operator">=</span><span class="hljs-string">&quot;91bc3c398fb3c146&quot;</span>&#125; <span class="hljs-number">0</span><br>etcd_network_peer_sent_failures_total&#123;To<span class="hljs-operator">=</span><span class="hljs-string">&quot;91bc3c398fb3c146&quot;</span>&#125; <span class="hljs-number">47774</span><br>etcd_network_client_grpc_sent_bytes_total <span class="hljs-number">513207</span><br><br></code></pre></td></tr></table></figure>
+
+<p>从以上metrics中，你可以看到91bc3c398fb3c146节点出现了异常。在etcd场景中，网络质量导致etcd性能下降主要源自两个方面：</p>
+<p>一方面，expensive request中的大包查询会使网卡出现瓶颈，产生丢包等错误，从而导致etcd吞吐量下降、高延时。expensive request导致网卡丢包，出现超时，这在etcd中是非常典型且易发生的问题，它主要是因为业务没有遵循最佳实践，查询了大量key-value。</p>
+<p>另一方面，在跨故障域部署的时候，故障域可能是可用区、城市。故障域越大，容灾级别越高，但各个节点之间的RTT越高，请求的延时更高。</p>
+<h2 id="磁盘I-x2F-O"><a href="#磁盘I-x2F-O" class="headerlink" title="磁盘I&#x2F;O"></a>磁盘I&#x2F;O</h2><p>了解完网络问题的定位方法和导致网络性能下降的因素后，再看看最核心的磁盘I&#x2F;O。</p>
+<p>正如Raft日志复制整体流程图中介绍的，在etcd中无论是Raft日志持久化还是boltdb事务提交，都依赖于磁盘I&#x2F;O的性能。</p>
+<p><strong>当etcd请求延时出现波动时，我们往往首先关注disk相关指标是否正常。</strong> 我们可以通过etcd磁盘相关的metrics(etcd_disk_wal_fsync_duration_seconds和etcd_disk_backend_commit_duration_seconds)来观测应用层数据写入磁盘的性能。</p>
+<p>etcd_disk_wal_fsync_duration_seconds（简称disk_wal_fsync）表示WAL日志持久化的fsync系统调用延时数据。一般本地SSD盘P99延时在10ms内，如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/9a/52/9a08490980abb23f90d8e59a83543e52.png?wh=1326*352" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>etcd_disk_backend_commit_duration_seconds（简称disk_backend_commit）表示后端boltdb事务提交的延时，一般P99在120ms内。</p>
+<p><img src="https://static001.geekbang.org/resource/image/29/db/294600a0a144be38e9d7b69d9403f3db.png?wh=1338*356" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>这里需要注意的是，一般监控显示的磁盘延时都是P99，但实际上etcd对磁盘特别敏感，一次磁盘I&#x2F;O波动就可能产生Leader切换。如果遇到集群Leader出现切换、请求超时，但是磁盘指标监控显示正常，可以查看P100确认下是不是由于磁盘I&#x2F;O波动导致的。</p>
+<p>同时etcd的WAL模块在fdatasync操作超过1秒时，也会在etcd中打印如下的日志，你可以结合日志进一步定位。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-keyword">if</span> took &gt; warnSyncDuration &#123;<br>   <span class="hljs-keyword">if</span> w<span class="hljs-selector-class">.lg</span> != nil &#123;<br>      w<span class="hljs-selector-class">.lg</span><span class="hljs-selector-class">.Warn</span>(<br>         <span class="hljs-string">&quot;slow fdatasync&quot;</span>,<br>         zap<span class="hljs-selector-class">.Duration</span>(<span class="hljs-string">&quot;took&quot;</span>, took),<br>         zap<span class="hljs-selector-class">.Duration</span>(<span class="hljs-string">&quot;expected-duration&quot;</span>, warnSyncDuration),<br>      )<br>   &#125; <span class="hljs-keyword">else</span> &#123;<br>      plog<span class="hljs-selector-class">.Warningf</span>(<span class="hljs-string">&quot;sync duration of %v, expected less than %v&quot;</span>, took, warnSyncDuration)<br>   &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>当disk_wal_fsync指标异常的时候，一般是底层硬件出现瓶颈或异常导致。当然也有可能是CPU高负载、cgroup blkio限制导致的，具体应该如何区分呢？</p>
+<p>可以通过iostat、blktrace工具分析瓶颈是在应用层还是内核层、硬件层。其中blktrace是blkio层的磁盘I&#x2F;O分析利器，它可记录IO进入通用块层、IO请求生成插入请求队列、IO请求分发到设备驱动、设备驱动处理完成这一系列操作的时间，帮助你发现磁盘I&#x2F;O瓶颈发生的阶段。</p>
+<p>当disk_backend_commit指标的异常时候，说明事务提交过程中的B+ tree树重平衡、分裂、持久化dirty page、持久化meta page等操作耗费了大量时间。</p>
+<p>disk_backend_commit指标异常，能说明是磁盘I&#x2F;O发生了异常吗？</p>
+<p>若disk_backend_commit较高、disk_wal_fsync却正常，说明瓶颈可能并非来自磁盘I&#x2F;O性能，也许是B+ tree的重平衡、分裂过程中的较高时间复杂度逻辑操作导致。比如etcd目前所有stable版本（etcd 3.2到3.4），从freelist中申请和回收若干连续空闲页的时间复杂度是O(N)，当db文件较大、空闲页碎片化分布的时候，则可能导致事务提交高延时。</p>
+<p>那如何区分事务提交过程中各个阶段的耗时呢？</p>
+<p>etcd还提供了disk_backend_commit_rebalance_duration和disk_backend_commit_spill_duration两个metrics，分别表示事务提交过程中B+ tree的重平衡和分裂操作耗时分布区间。</p>
+<p>最后，需要注意disk_wal_fsync记录的是WAL文件顺序写入的持久化时间，disk_backend_commit记录的是整个事务提交的耗时。后者涉及的磁盘I&#x2F;O是随机的，为了保证你etcd集群的稳定性，建议使用SSD磁盘以确保事务提交的稳定性。</p>
+<h2 id="expensive-request"><a href="#expensive-request" class="headerlink" title="expensive request"></a>expensive request</h2><p>若磁盘和网络指标都很正常，那么延时高还有可能是什么原因引起的呢？</p>
+<p>从读请求链路我们可知，一个读写请求经过Raft模块处理后，最终会走到MVCC模块。那么在MVCC模块会有哪些场景导致延时抖动呢？时间耗在哪个处理流程上了？</p>
+<p>etcd 3.4版本之前，在应用put&#x2F;txn等请求到状态机的apply和处理读请求range流程时，若一个请求执行超过100ms时，默认会在etcd log中打印一条”apply request took too long”的警告日志。通过此日志我们可以知道集群中apply流程产生了较慢的请求，但是不能确定具体是什么因素导致的。</p>
+<p>比如在Kubernetes中，当集群Pod较多的时候，若你频繁执行List Pod，可能会导致etcd出现大量的”apply request took too long”警告日志。</p>
+<p>因为对etcd而言，List Pod请求涉及到大量的key查询，会消耗较多的CPU、内存、网络资源，此类expensive request的QPS若较大，则很可能导致OOM、丢包。</p>
+<p>当然，除了业务发起的expensive request请求导致延时抖动以外，也有可能是etcd本身的设计实现存在瓶颈。</p>
+<p>比如在etcd 3.2和3.3版本写请求完成之前，需要更新MVCC的buffer，进行升级锁操作。然而此时若集群中出现了一个long expensive read request，则会导致写请求执行延时抖动。因为expensive read request事务会一直持有MVCC的buffer读锁，导致写请求事务阻塞在升级锁操作中。</p>
+<p>在了解完expensive request对请求延时的影响后，接下来要如何解决请求延时较高问题的定位效率呢？</p>
+<p>为了提高请求延时分布的可观测性、延时问题的定位效率，etcd社区在3.4版本后中实现了trace特性，详细记录了一个请求在各个阶段的耗时。若某阶段耗时流程超过默认的100ms，则会打印一条trace日志。</p>
+<p>下面是我将trace日志打印的阈值改成1纳秒后读请求执行过程中的trace日志。从日志中你可以看到，trace日志记录了以下阶段耗时：</p>
+<ul>
+<li>agreement among raft nodes before linearized reading，此阶段读请求向Leader发起readIndex查询并等待本地applied index &gt;&#x3D; Leader的committed index， 但是你无法区分是readIndex慢还是等待本地applied index &gt; Leader的committed index慢。在etcd 3.5中新增了trace，区分了以上阶段；</li>
+<li>get authentication metadata，获取鉴权元数据；</li>
+<li>range keys from in-memory index tree，从内存索引B-tree中查找key列表对应的版本号列表；</li>
+<li>range keys from bolt db，根据版本号列表从boltdb遍历，获得用户的key-value信息；</li>
+<li>filter and sort the key-value pairs，过滤、排序key-value列表；</li>
+<li>assemble the response，聚合结果。</li>
+</ul>
+<figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs scilab">&#123;<br>    <span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;info&quot;</span>，<br>    <span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2020-12-16T08:11:43.720+0800&quot;</span>，<br>    <span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;traceutil/trace.go:145&quot;</span>，<br>    <span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;trace[789864563] range&quot;</span>，<br>    <span class="hljs-string">&quot;detail&quot;</span>:<span class="hljs-string">&quot;&#123;range_begin:a; range_end:; response_count:1; response_revision:32011; &#125;&quot;</span>，<br>    <span class="hljs-string">&quot;duration&quot;</span>:<span class="hljs-string">&quot;318.774µs&quot;</span>，<br>    <span class="hljs-string">&quot;start&quot;</span>:<span class="hljs-string">&quot;2020-12-16T08:11:43.719+0800&quot;</span>，<br>    <span class="hljs-string">&quot;end&quot;</span>:<span class="hljs-string">&quot;2020-12-16T08:11:43.720+0800&quot;</span>，<br>    <span class="hljs-string">&quot;steps&quot;</span>:[<br>        <span class="hljs-string">&quot;trace[789864563] &#x27;</span>agreement among raft nodes before linearized reading<span class="hljs-string">&#x27;  (duration: 255.227µs)&quot;</span>，<br>        <span class="hljs-string">&quot;trace[789864563] &#x27;</span>get authentication metadata<span class="hljs-string">&#x27;  (duration: 2.97µs)&quot;</span>，<br>        <span class="hljs-string">&quot;trace[789864563] &#x27;</span>range keys from in-memory index tree<span class="hljs-string">&#x27;  (duration: 44.578µs)&quot;</span>，<br>        <span class="hljs-string">&quot;trace[789864563] &#x27;</span>range keys from bolt db<span class="hljs-string">&#x27;  (duration: 8.688µs)&quot;</span>，<br>        <span class="hljs-string">&quot;trace[789864563] &#x27;</span>filter and sort the key-value pairs<span class="hljs-string">&#x27;  (duration: 578ns)&quot;</span>，<br>        <span class="hljs-string">&quot;trace[789864563] &#x27;</span>assemble the response<span class="hljs-string">&#x27;  (duration: 643ns)&quot;</span><br>    ]<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>那么写请求流程会记录哪些阶段耗时呢？</p>
+<p>下面是put写请求的执行trace日志，记录了以下阶段耗时：</p>
+<ul>
+<li>process raft request，写请求提交到Raft模块处理完成耗时；</li>
+<li>get key’s previous created_revision and leaseID，获取key上一个创建版本号及leaseID的耗时；</li>
+<li>marshal mvccpb.KeyValue，序列化KeyValue结构体耗时；</li>
+<li>store kv pair into bolt db，存储kv数据到boltdb的耗时；</li>
+<li>attach lease to kv pair，将lease id关联到kv上所用时间。</li>
+</ul>
+<figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs scilab">&#123;<br>    <span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;info&quot;</span>，<br>    <span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2020-12-16T08:25:12.707+0800&quot;</span>，<br>    <span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;traceutil/trace.go:145&quot;</span>，<br>    <span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;trace[1402827146] put&quot;</span>，<br>    <span class="hljs-string">&quot;detail&quot;</span>:<span class="hljs-string">&quot;&#123;key:16; req_size:8; response_revision:32030; &#125;&quot;</span>，<br>    <span class="hljs-string">&quot;duration&quot;</span>:<span class="hljs-string">&quot;6.826438ms&quot;</span>，<br>    <span class="hljs-string">&quot;start&quot;</span>:<span class="hljs-string">&quot;2020-12-16T08:25:12.700+0800&quot;</span>，<br>    <span class="hljs-string">&quot;end&quot;</span>:<span class="hljs-string">&quot;2020-12-16T08:25:12.707+0800&quot;</span>，<br>    <span class="hljs-string">&quot;steps&quot;</span>:[<br>        <span class="hljs-string">&quot;trace[1402827146] &#x27;</span>process raft request<span class="hljs-string">&#x27;  (duration: 6.659094ms)&quot;</span>，<br>        <span class="hljs-string">&quot;trace[1402827146] &#x27;</span>get key<span class="hljs-string">&#x27;s previous created_revision and leaseID&#x27;</span>  (duration: <span class="hljs-number">23.498</span>µs)<span class="hljs-string">&quot;，</span><br><span class="hljs-string">        &quot;</span>trace[<span class="hljs-number">1402827146</span>] <span class="hljs-string">&#x27;marshal mvccpb.KeyValue&#x27;</span>  (duration: <span class="hljs-number">1.857</span>µs)<span class="hljs-string">&quot;，</span><br><span class="hljs-string">        &quot;</span>trace[<span class="hljs-number">1402827146</span>] <span class="hljs-string">&#x27;store kv pair into bolt db&#x27;</span>  (duration: <span class="hljs-number">30.121</span>µs)<span class="hljs-string">&quot;，</span><br><span class="hljs-string">        &quot;</span>trace[<span class="hljs-number">1402827146</span>] <span class="hljs-string">&#x27;attach lease to kv pair&#x27;</span>  (duration: <span class="hljs-number">661</span>ns)<span class="hljs-string">&quot;</span><br><span class="hljs-string">    ]</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<p>通过以上介绍的trace特性，就可以快速定位到高延时读写请求的原因。比如向etcd发起了一个涉及到大量key或value较大的expensive request请求的时候，它会产生如下的warn和trace日志。</p>
+<p>从以下日志中可以看到，此请求查询的vip前缀下所有的kv数据总共是250条，但是涉及的数据包大小有250MB，总耗时约1.85秒，其中从boltdb遍历key消耗了1.63秒。</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs d">&#123;<br>    <span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;warn&quot;</span>，<br>    <span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2020-12-16T23:02:53.324+0800&quot;</span>，<br>    <span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;etcdserver/util.go:163&quot;</span>，<br>    <span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;apply request took too long&quot;</span>，<br>    <span class="hljs-string">&quot;took&quot;</span>:<span class="hljs-string">&quot;1.84796759s&quot;</span>，<br>    <span class="hljs-string">&quot;expected-duration&quot;</span>:<span class="hljs-string">&quot;100ms&quot;</span>，<br>    <span class="hljs-string">&quot;prefix&quot;</span>:<span class="hljs-string">&quot;read-only range &quot;</span>，<br>    <span class="hljs-string">&quot;request&quot;</span>:<span class="hljs-string">&quot;key:&quot;</span>vip<span class="hljs-string">&quot; range_end:&quot;</span>vi<span class="hljs-string">q&quot; &quot;</span>，<br>    <span class="hljs-string">&quot;response&quot;</span>:<span class="hljs-string">&quot;range_response_count:250 size:262150651&quot;</span><br>&#125;<br>&#123;<br>    <span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;info&quot;</span>，<br>    <span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2020-12-16T23:02:53.324+0800&quot;</span>，<br>    <span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;traceutil/trace.go:145&quot;</span>，<br>    <span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;trace[370341530] range&quot;</span>，<br>    <span class="hljs-string">&quot;detail&quot;</span>:<span class="hljs-string">&quot;&#123;range_begin:vip; range_end:viq; response_count:250; response_revision:32666; &#125;&quot;</span>，<br>    <span class="hljs-string">&quot;duration&quot;</span>:<span class="hljs-string">&quot;1.850335038s&quot;</span>，<br>    <span class="hljs-string">&quot;start&quot;</span>:<span class="hljs-string">&quot;2020-12-16T23:02:51.473+0800&quot;</span>，<br>    <span class="hljs-string">&quot;end&quot;</span>:<span class="hljs-string">&quot;2020-12-16T23:02:53.324+0800&quot;</span>，<br>    <span class="hljs-string">&quot;steps&quot;</span>:[<br>        <span class="hljs-string">&quot;trace[370341530] &#x27;range keys from bolt db&#x27;  (duration: 1.632336981s)&quot;</span><br>    ]<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>最后，有两个注意事项。</p>
+<p>第一，在etcd 3.4中，logger默认为capnslog，trace特性只有在当logger为zap时才开启，因此你需要设置–logger&#x3D;zap。</p>
+<p>第二，trace特性并不能记录所有类型的请求，它目前只覆盖了MVCC模块中的range&#x2F;put&#x2F;txn等常用接口。像Authenticate鉴权请求，涉及到大量CPU计算，延时是非常高的，在trace日志中目前没有相关记录。</p>
+<p>如果开启了密码鉴权，在连接数增多、QPS增大后，若突然出现请求超时，如何确定是鉴权还是查询、更新等接口导致的呢？</p>
+<p>etcd默认参数并不会采集各个接口的延时数据，可以通过设置etcd的启动参数–metrics为extensive来开启，获得每个gRPC接口的延时数据。同时可结合各个gRPC接口的请求数，获得QPS。</p>
+<p>如下是某节点的metrics数据，251个Put请求，返回码OK，其中有240个请求在100毫秒内完成。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs abnf">grpc_server_handled_total&#123;grpc_code<span class="hljs-operator">=</span><span class="hljs-string">&quot;OK&quot;</span>，<br>grpc_method<span class="hljs-operator">=</span><span class="hljs-string">&quot;Put&quot;</span>，grpc_service<span class="hljs-operator">=</span><span class="hljs-string">&quot;etcdserverpb.KV&quot;</span>，<br>grpc_type<span class="hljs-operator">=</span><span class="hljs-string">&quot;unary&quot;</span>&#125; <span class="hljs-number">251</span><br><br>grpc_server_handling_seconds_bucket&#123;grpc_method<span class="hljs-operator">=</span><span class="hljs-string">&quot;Put&quot;</span>，grpc_service<span class="hljs-operator">=</span><span class="hljs-string">&quot;etcdserverpb.KV&quot;</span>，grpc_type<span class="hljs-operator">=</span><span class="hljs-string">&quot;unary&quot;</span>，le<span class="hljs-operator">=</span><span class="hljs-string">&quot;0.005&quot;</span>&#125; <span class="hljs-number">0</span><br>grpc_server_handling_seconds_bucket&#123;grpc_method<span class="hljs-operator">=</span><span class="hljs-string">&quot;Put&quot;</span>，grpc_service<span class="hljs-operator">=</span><span class="hljs-string">&quot;etcdserverpb.KV&quot;</span>，grpc_type<span class="hljs-operator">=</span><span class="hljs-string">&quot;unary&quot;</span>，le<span class="hljs-operator">=</span><span class="hljs-string">&quot;0.01&quot;</span>&#125; <span class="hljs-number">1</span><br>grpc_server_handling_seconds_bucket&#123;grpc_method<span class="hljs-operator">=</span><span class="hljs-string">&quot;Put&quot;</span>，grpc_service<span class="hljs-operator">=</span><span class="hljs-string">&quot;etcdserverpb.KV&quot;</span>，grpc_type<span class="hljs-operator">=</span><span class="hljs-string">&quot;unary&quot;</span>，le<span class="hljs-operator">=</span><span class="hljs-string">&quot;0.025&quot;</span>&#125; <span class="hljs-number">51</span><br>grpc_server_handling_seconds_bucket&#123;grpc_method<span class="hljs-operator">=</span><span class="hljs-string">&quot;Put&quot;</span>，grpc_service<span class="hljs-operator">=</span><span class="hljs-string">&quot;etcdserverpb.KV&quot;</span>，grpc_type<span class="hljs-operator">=</span><span class="hljs-string">&quot;unary&quot;</span>，le<span class="hljs-operator">=</span><span class="hljs-string">&quot;0.05&quot;</span>&#125; <span class="hljs-number">204</span><br>grpc_server_handling_seconds_bucket&#123;grpc_method<span class="hljs-operator">=</span><span class="hljs-string">&quot;Put&quot;</span>，grpc_service<span class="hljs-operator">=</span><span class="hljs-string">&quot;etcdserverpb.KV&quot;</span>，grpc_type<span class="hljs-operator">=</span><span class="hljs-string">&quot;unary&quot;</span>，le<span class="hljs-operator">=</span><span class="hljs-string">&quot;0.1&quot;</span>&#125; <span class="hljs-number">240</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="集群容量、节点CPU-x2F-Memory瓶颈"><a href="#集群容量、节点CPU-x2F-Memory瓶颈" class="headerlink" title="集群容量、节点CPU&#x2F;Memory瓶颈"></a>集群容量、节点CPU&#x2F;Memory瓶颈</h2><p>介绍完网络、磁盘I&#x2F;O、expensive request导致etcd请求延时较高的原因和分析方法后，我们再看看容量和节点资源瓶颈是如何导致高延时请求产生的。</p>
+<p>若网络、磁盘I&#x2F;O正常，也无expensive request，那此时高延时请求是怎么产生的呢？它的trace日志会输出怎样的耗时结果？</p>
+<p>下面是一个社区用户反馈的一个读接口高延时案例的两条trace日志。从第一条日志中我们可以知道瓶颈在于线性读的准备步骤，readIndex和wait applied index。</p>
+<p>那么是其中具体哪个步骤导致的高延时呢？通过在etcd 3.5版本中细化此流程，我们获得了第二条日志，发现瓶颈在于等待applied index &gt;&#x3D; Leader的committed index。</p>
+<figure class="highlight smalltalk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs smalltalk">&#123;<br><span class="hljs-comment">&quot;level&quot;</span>: <span class="hljs-comment">&quot;info&quot;</span>，<br><span class="hljs-comment">&quot;ts&quot;</span>: <span class="hljs-comment">&quot;2020-08-12T08:24:56.181Z&quot;</span>，<br><span class="hljs-comment">&quot;caller&quot;</span>: <span class="hljs-comment">&quot;traceutil/trace.go:145&quot;</span>，<br><span class="hljs-comment">&quot;msg&quot;</span>: <span class="hljs-comment">&quot;trace[677217921] range&quot;</span>，<br><span class="hljs-comment">&quot;detail&quot;</span>: <span class="hljs-comment">&quot;&#123;range_begin:/...redacted...; range_end:; response_count:1; response_revision:2725080604; &#125;&quot;</span>，<br><span class="hljs-comment">&quot;duration&quot;</span>: <span class="hljs-comment">&quot;1.553047811s&quot;</span>，<br><span class="hljs-comment">&quot;start&quot;</span>: <span class="hljs-comment">&quot;2020-08-12T08:24:54.628Z&quot;</span>，<br><span class="hljs-comment">&quot;end&quot;</span>: <span class="hljs-comment">&quot;2020-08-12T08:24:56.181Z&quot;</span>，<br><span class="hljs-comment">&quot;steps&quot;</span>: [<br><span class="hljs-comment">&quot;trace[677217921] &#x27;agreement among raft nodes before linearized reading&#x27;  (duration: 1.534322015s)&quot;</span><br>]<br>&#125;<br><br>&#123;<br>  <span class="hljs-comment">&quot;level&quot;</span>: <span class="hljs-comment">&quot;info&quot;</span>，<br>  <span class="hljs-comment">&quot;ts&quot;</span>: <span class="hljs-comment">&quot;2020-09-22T12:54:01.021Z&quot;</span>，<br>  <span class="hljs-comment">&quot;caller&quot;</span>: <span class="hljs-comment">&quot;traceutil/trace.go:152&quot;</span>，<br>  <span class="hljs-comment">&quot;msg&quot;</span>: <span class="hljs-comment">&quot;trace[2138445431] linearizableReadLoop&quot;</span>，<br>  <span class="hljs-comment">&quot;detail&quot;</span>: <span class="hljs-comment">&quot;&quot;</span>，<br>  <span class="hljs-comment">&quot;duration&quot;</span>: <span class="hljs-comment">&quot;855.447896ms&quot;</span>，<br>  <span class="hljs-comment">&quot;start&quot;</span>: <span class="hljs-comment">&quot;2020-09-22T12:54:00.166Z&quot;</span>，<br>  <span class="hljs-comment">&quot;end&quot;</span>: <span class="hljs-comment">&quot;2020-09-22T12:54:01.021Z&quot;</span>，<br>  <span class="hljs-comment">&quot;steps&quot;</span>: [<br>    <span class="hljs-comment">&quot;trace[2138445431] read index received  (duration: 824.408µs)&quot;</span>，<br>    <span class="hljs-comment">&quot;trace[2138445431] applied index is now lower than readState.Index  (duration: 854.622058ms)&quot;</span><br>  ]<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>为什么会发生这样的现象呢?</p>
+<p>首先可以通过etcd_server_slow_apply_total指标，观查其值快速增长的时间点与高延时请求产生的日志时间点是否吻合。</p>
+<p>其次检查是否存在大量写请求。线性读需确保本节点数据与Leader数据一样新， 若本节点的数据与Leader差异较大，本节点追赶Leader数据过程会花费一定时间，最终导致高延时的线性读请求产生。</p>
+<p><strong>etcd适合读多写少的业务场景，若写请求较大，很容易出现容量瓶颈，导致高延时的读写请求产生。</strong></p>
+<p>最后通过ps&#x2F;top&#x2F;mpstat&#x2F;perf等CPU、Memory性能分析工具，检查etcd节点是否存在CPU、Memory瓶颈。goroutine饥饿、内存不足都会导致高延时请求产生，若确定CPU和Memory存在异常，你可以通过开启debug模式，通过pprof分析CPU和内存瓶颈点。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>如下图所示，从以下几个方面介绍了会导致请求延时上升的原因：</p>
+<ul>
+<li>网络质量，如节点之间RTT延时、网卡带宽满，出现丢包；</li>
+<li>磁盘I&#x2F;O抖动，会导致WAL日志持久化、boltdb事务提交出现抖动，Leader出现切换等；</li>
+<li>expensive request，比如大包请求、涉及到大量key遍历、Authenticate密码鉴权等操作；</li>
+<li>容量瓶颈，太多写请求导致线性读请求性能下降等；</li>
+<li>节点配置，CPU繁忙导致请求处理延时、内存不够导致swap等。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/93/a3/9375f08cebd596b87b92623c10786fa3.png?wh=1920*1474" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>并在分析这些案例的过程中，给你介绍了etcd问题核心工具：metrics、etcd log、trace日志、blktrace、pprof等。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>14.延时：为什么你的etcd请求会出现超时？</div>
+      <div>https://blog.longpi1.com/2022/10/07/14-延时：为什么你的etcd请求会出现超时？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/07/13-db%E5%A4%A7%E5%B0%8F%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88etcd%E7%A4%BE%E5%8C%BA%E5%BB%BA%E8%AE%AEdb%E5%A4%A7%E5%B0%8F%E4%B8%8D%E8%B6%85%E8%BF%878G%EF%BC%9F/" title="13.db大小：为什么etcd社区建议db大小不超过8G？">
+                        <span class="hidden-mobile">13.db大小：为什么etcd社区建议db大小不超过8G？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

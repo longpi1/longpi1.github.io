@@ -1,0 +1,777 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/07/12-%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9F%BA%E4%BA%8ERaft%E5%AE%9E%E7%8E%B0%E7%9A%84etcd%E8%BF%98%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/8b/72/8b6dfa84bf8291369ea1803387906c72.png?wh=1920*1265">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/5c/4f/5c7a3079032f90120a6b309ee401fc4f.png?wh=605*319">
+<meta property="article:published_time" content="2022-10-07T03:44:58.000Z">
+<meta property="article:modified_time" content="2022-10-07T03:45:24.867Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/8b/72/8b6dfa84bf8291369ea1803387906c72.png?wh=1920*1265">
+  
+  
+  
+  <title>12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-07 11:44" pubdate>
+          2022年10月7日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          83 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="12-一致性：为什么基于Raft实现的etcd还会出现数据不一致？"><a href="#12-一致性：为什么基于Raft实现的etcd还会出现数据不一致？" class="headerlink" title="12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？"></a>12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？</h1><p>etcd是基于Raft实现的高可用、强一致分布式存储。</p>
+<p>问题现象：用户在更新Kubernetes集群中的Deployment资源镜像后，无法创建出新Pod，Deployment控制器莫名其妙不工作了。更令人细思极恐的是，部分Node莫名其妙消失了。</p>
+<p>随便找了一个etcd节点查看存储数据，发现Node节点却在。这究竟是怎么一回事呢？ </p>
+<h2 id="从消失的Node说起"><a href="#从消失的Node说起" class="headerlink" title="从消失的Node说起"></a>从消失的Node说起</h2><p>有人反馈Kubernetes集群出现了Deployment滚动更新异常、节点莫名其妙消失了等诡异现象。基于这个现象开始定位之旅。</p>
+<p>首先查看了下Kubernetes集群APIServer、Controller Manager、Scheduler等组件状态，发现都是正常。</p>
+<p>然后查看etcd集群各节点状态，也都是健康的，看了一个etcd节点数据也是正常，于是开始怀疑是不是APIServer出现了什么诡异的Bug了。</p>
+<p>尝试重启APIServer，可Node依旧消失。百思不得其解的同时，只能去确认各个etcd节点上数据是否存在，结果却有了颠覆你固定思维的发现，那就是基于Raft实现的强一致存储竟然出现不一致、数据丢失。除了第一个节点含有数据，另外两个节点竟然找不到。那么问题就来了，另外两个节点数据是如何丢失的呢？</p>
+<h2 id="一步步解密真相"><a href="#一步步解密真相" class="headerlink" title="一步步解密真相"></a>一步步解密真相</h2><p>在进一步深入分析前，结合etcd写流程原理的介绍（如下图），先大胆猜测下可能的原因。</p>
+<p><img src="https://static001.geekbang.org/resource/image/8b/72/8b6dfa84bf8291369ea1803387906c72.png?wh=1920*1265" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>猜测1：etcd集群出现分裂，三个节点分裂成两个集群。APIServer配置的后端etcd server地址是三个节点，APIServer并不会检查各节点集群ID是否一致，因此如果分裂，有可能会出现数据“消失”现象。这种故障之前在Kubernetes社区的确也见到过相关issue，一般是变更异常导致的，显著特点是集群ID会不一致。</p>
+<p>猜测2：Raft日志同步异常，其他两个节点会不会因为Raft模块存在特殊Bug导致未收取到相关日志条目呢？这种怀疑我们可以通过etcd自带的WAL工具来判断，它可以显示WAL日志中收到的命令（流程四、五、六）。</p>
+<p>猜测3：如果日志同步没问题，那有没有可能是Apply模块出现了问题，导致日志条目未被应用到MVCC模块呢（流程七）？</p>
+<p>猜测4：若Apply模块执行了相关日志条目到MVCC模块，MVCC模块的treeIndex子模块会不会出现了特殊Bug， 导致更新失败（流程八）？</p>
+<p>猜测5：若MVCC模块的treeIndex模块无异常，写请求到了boltdb存储模块，有没有可能boltdb出现了极端异常导致丢数据呢（流程九）？</p>
+<p>带着以上怀疑和推测，不断抽丝剥茧、去一步步探寻真相。</p>
+<p>首先还是从故障定位第一工具“日志”开始。查看etcd节点日志没发现任何异常日志，但是当查看APIServer日志的时候，发现持续报”required revision has been compacted”，这个错误根据之前的压缩介绍，原因一般是APIServer请求etcd版本号被压缩了。</p>
+<p>于是通过如下命令查看etcd节点详细的状态信息：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs lua">etcdctl endpoint <span class="hljs-built_in">status</span> <span class="hljs-comment">--cluster -w json | python -m</span><br>json.tool<br><br></code></pre></td></tr></table></figure>
+
+<p>获得以下结果：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs prolog">[<br>    &#123;<br>        <span class="hljs-string">&quot;Endpoint&quot;</span>:<span class="hljs-string">&quot;A&quot;</span>，<br>        <span class="hljs-string">&quot;Status&quot;</span>:&#123;<br>            <span class="hljs-string">&quot;header&quot;</span>:&#123;<br>                <span class="hljs-string">&quot;cluster_id&quot;</span>:<span class="hljs-number">17237436991929493444</span>，<br>                <span class="hljs-string">&quot;member_id&quot;</span>:<span class="hljs-number">9372538179322589801</span>，<br>                <span class="hljs-string">&quot;raft_term&quot;</span>:<span class="hljs-number">10</span>，<br>                <span class="hljs-string">&quot;revision&quot;</span>:<span class="hljs-number">1052950</span><br>            &#125;，<br>            <span class="hljs-string">&quot;leader&quot;</span>:<span class="hljs-number">9372538179322589801</span>，<br>            <span class="hljs-string">&quot;raftAppliedIndex&quot;</span>:<span class="hljs-number">1098420</span>，<br>            <span class="hljs-string">&quot;raftIndex&quot;</span>:<span class="hljs-number">1098430</span>，<br>            <span class="hljs-string">&quot;raftTerm&quot;</span>:<span class="hljs-number">10</span>，<br>            <span class="hljs-string">&quot;version&quot;</span>:<span class="hljs-string">&quot;3.3.17&quot;</span><br>        &#125;<br>    &#125;，<br>    &#123;<br>        <span class="hljs-string">&quot;Endpoint&quot;</span>:<span class="hljs-string">&quot;B&quot;</span>，<br>        <span class="hljs-string">&quot;Status&quot;</span>:&#123;<br>            <span class="hljs-string">&quot;header&quot;</span>:&#123;<br>                <span class="hljs-string">&quot;cluster_id&quot;</span>:<span class="hljs-number">17237436991929493444</span>，<br>                <span class="hljs-string">&quot;member_id&quot;</span>:<span class="hljs-number">10501334649042878790</span>，<br>                <span class="hljs-string">&quot;raft_term&quot;</span>:<span class="hljs-number">10</span>，<br>                <span class="hljs-string">&quot;revision&quot;</span>:<span class="hljs-number">1025860</span><br>            &#125;，<br>            <span class="hljs-string">&quot;leader&quot;</span>:<span class="hljs-number">9372538179322589801</span>，<br>            <span class="hljs-string">&quot;raftAppliedIndex&quot;</span>:<span class="hljs-number">1098418</span>，<br>            <span class="hljs-string">&quot;raftIndex&quot;</span>:<span class="hljs-number">1098428</span>，<br>            <span class="hljs-string">&quot;raftTerm&quot;</span>:<span class="hljs-number">10</span>，<br>            <span class="hljs-string">&quot;version&quot;</span>:<span class="hljs-string">&quot;3.3.17&quot;</span><br>        &#125;<br>    &#125;，<br>    &#123;<br>        <span class="hljs-string">&quot;Endpoint&quot;</span>:<span class="hljs-string">&quot;C&quot;</span>，<br>        <span class="hljs-string">&quot;Status&quot;</span>:&#123;<br>            <span class="hljs-string">&quot;header&quot;</span>:&#123;<br>                <span class="hljs-string">&quot;cluster_id&quot;</span>:<span class="hljs-number">17237436991929493444</span>，<br>                <span class="hljs-string">&quot;member_id&quot;</span>:<span class="hljs-number">18249187646912138824</span>，<br>                <span class="hljs-string">&quot;raft_term&quot;</span>:<span class="hljs-number">10</span>，<br>                <span class="hljs-string">&quot;revision&quot;</span>:<span class="hljs-number">1028860</span><br>            &#125;，<br>            <span class="hljs-string">&quot;leader&quot;</span>:<span class="hljs-number">9372538179322589801</span>，<br>            <span class="hljs-string">&quot;raftAppliedIndex&quot;</span>:<span class="hljs-number">1098408</span>，<br>            <span class="hljs-string">&quot;raftIndex&quot;</span>:<span class="hljs-number">1098428</span>，<br>            <span class="hljs-string">&quot;raftTerm&quot;</span>:<span class="hljs-number">10</span>，<br>            <span class="hljs-string">&quot;version&quot;</span>:<span class="hljs-string">&quot;3.3.17&quot;</span><br>        &#125;<br>    &#125;<br>]<br><br></code></pre></td></tr></table></figure>
+
+<p>从结果看，我们获得了如下信息：</p>
+<p>第一，集群未分裂，3个节点A、B、C cluster_id都一致，集群分裂的猜测被排除。</p>
+<p>第二，初步判断集群Raft日志条目同步正常，raftIndex表示Raft日志索引号，raftAppliedIndex表示当前状态机应用的日志索引号。这两个核心字段显示三个节点相差很小，考虑到正在写入，未偏离正常范围，Raft同步Bug导致数据丢失也大概率可以排除（不过最好还是用WAL工具验证下现在日志条目同步和写入WAL是否正常）。</p>
+<p>第三，观察三个节点的revision值，相互之间最大差距接近30000，明显偏离标准值。关于revision的含义，它是etcd逻辑时钟，每次写入，就会全局递增。为什么三个节点之间差异如此之大呢？</p>
+<p>接下来我们就一步步验证猜测、解密真相，猜测1集群分裂说被排除后，猜测2Raft日志同步异常也初步被我们排除了，那如何真正确认Raft日志同步正常呢？</p>
+<p>你可以使用下面这个方法验证Raft日志条目同步是否正常。</p>
+<p>首先我们写入一个值，比如put hello为world，然后马上在各个节点上用WAL工具etcd-dump-logs搜索hello。如下所示，各个节点上都可找到我们刚刚写入的命令。</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gradle">$ etcdctl put hello world<br>OK<br>$ .<span class="hljs-regexp">/bin/</span>tools<span class="hljs-regexp">/etcd-dump-logs ./</span>Node1.etcd/ | <span class="hljs-keyword">grep</span> hello<br><span class="hljs-number">10</span>         <span class="hljs-number">70</span> norm   header:&lt;ID:<span class="hljs-number">3632562852862290438</span> &gt; put:&lt;key:<span class="hljs-string">&quot;hello&quot;</span> value:<span class="hljs-string">&quot;world&quot;</span> &gt;<br>$ .<span class="hljs-regexp">/bin/</span>tools<span class="hljs-regexp">/etcd-dump-logs ./</span>Node2.etcd/ | <span class="hljs-keyword">grep</span> hello<br><span class="hljs-number">10</span>         <span class="hljs-number">70</span> norm   header:&lt;ID:<span class="hljs-number">3632562852862290438</span> &gt; put:&lt;key:<span class="hljs-string">&quot;hello&quot;</span> value:<span class="hljs-string">&quot;world&quot;</span> &gt;<br>$ .<span class="hljs-regexp">/bin/</span>tools<span class="hljs-regexp">/etcd-dump-logs ./</span>Node3.etcd/ | <span class="hljs-keyword">grep</span> hello<br><span class="hljs-number">10</span>         <span class="hljs-number">70</span> norm   header:&lt;ID:<span class="hljs-number">3632562852862290438</span> &gt; put:&lt;key:<span class="hljs-string">&quot;hello&quot;</span> value:<span class="hljs-string">&quot;world&quot;</span> &gt;<br><br></code></pre></td></tr></table></figure>
+
+<p>Raft日志同步异常猜测被排除后，我们再看下会不会是Apply模块出现了问题。但是<strong>raftAppliedIndex</strong>却显示三个节点几乎无差异，那我们能不能通过这个指标来判断Apply流程是否正常呢？</p>
+<p>源码面前了无秘密，etcd更新raftAppliedIndex核心代码如下所示，你会发现这个指标其实并不靠谱。Apply流程出现逻辑错误时，并没重试机制。etcd无论Apply流程是成功还是失败，都会更新raftAppliedIndex值。也就是一个请求在Apply或MVCC模块即便执行失败了，都依然会更新raftAppliedIndex。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// ApplyEntryNormal apples an EntryNormal type Raftpb request to the EtcdServer</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> （<span class="hljs-title">s</span> *<span class="hljs-title">EtcdServer</span>） <span class="hljs-title">ApplyEntryNormal</span>（<span class="hljs-title">e</span> *<span class="hljs-title">Raftpb</span>.<span class="hljs-title">Entry</span>）</span> &#123;<br>   shouldApplyV3 := <span class="hljs-literal">false</span><br>   <span class="hljs-keyword">if</span> e.Index &gt; s.consistIndex.ConsistentIndex（） &#123;<br>      <span class="hljs-comment">// set the consistent index of current executing entry</span><br>      s.consistIndex.setConsistentIndex（e.Index）<br>      shouldApplyV3 = <span class="hljs-literal">true</span><br>   &#125;<br>   <span class="hljs-keyword">defer</span> s.setAppliedIndex（e.Index）<br>   ....<br> &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>而三个节点revision差异偏离标准值，恰好又说明异常etcd节点可能未成功应用日志条目到MVCC模块。我们也可以通过查看MVCC的相关metrics（比如etcd_mvcc_put_total），来排除请求是否到了MVCC模块，事实是丢数据节点的metrics指标值的确远远落后正常节点。</p>
+<p>于是将真凶锁定在Apply流程上。对Apply流程在未向MVCC模块提交请求前可能提前返回的地方，都加了日志。</p>
+<p>同时查看Apply流程还发现，Apply失败的时候并不会打印任何日志。这也解释了为什么出现了数据不一致严重错误，但三个etcd节点却并没有任何异常日志。为了方便定位问题，我们因此增加了Apply错误日志。</p>
+<p>同时测试发现，写入是否成功还跟client连接的节点有关，连接不同节点会出现不同的写入结果，用debug版本替换后，马上就输出了一条错误日志auth: revision in header is old。</p>
+<p>原来数据不一致是因为鉴权版本号不一致导致的，节点在Apply流程的时候，会判断Raft日志条目中的请求鉴权版本号是否小于当前鉴权版本号，如果小于就拒绝写入。</p>
+<p>那为什么各个节点的鉴权版本号会出现不一致呢？那就需要从可能修改鉴权版本号的源头分析。我们发现只有鉴权相关接口才会修改它，同时各个节点鉴权版本号之间差异已经固定不再增加，要成功解决就得再次复现。</p>
+<p>然后还了解到，当时etcd进程有过重启，我们怀疑会不会重启触发了什么Bug，手动尝试复现一直失败。随后基于混沌工程，不断模拟真实业务场景、访问鉴权接口、注入故障（停止etcd进程等），最终功夫不负有心人，实现复现成功。</p>
+<p>真相终于浮出水面，原来当你无意间重启etcd的时候，如果最后一条命令是鉴权相关的，它并不会持久化consistent index（KV接口会持久化）。consistent index、它具有幂等作用，可防止命令重复执行。consistent index的未持久化最终导致鉴权命令重复执行。</p>
+<p>恰好鉴权模块的RoleGrantPermission接口未实现幂等，重复执行会修改鉴权版本号。一连串的Bug最终导致鉴权号出现不一致，随后又放大成MVCC模块的key-value数据不一致，导致严重的数据毁坏。</p>
+<p>这个Bug影响etcd v3所有版本长达3年之久。查清楚问题后，我们也给社区提交了解决方案，合并到master后，同时cherry-pick到etcd 3.3和3.4稳定版本中。etcd v3.3.21和v3.4.8后的版本已经修复此Bug。</p>
+<h2 id="为什么会不一致"><a href="#为什么会不一致" class="headerlink" title="为什么会不一致"></a>为什么会不一致</h2><p>详细了解完这个案例的不一致后，再从本质上深入分析下为什么会出现不一致，以及还有哪些场景会导致类似问题呢？</p>
+<p>首先我们知道，etcd各个节点数据一致性基于Raft算法的日志复制实现的，etcd是个基于复制状态机实现的分布式系统。下图是分布式复制状态机原理架构，核心由3个组件组成，一致性模块、日志、状态机，其工作流程如下：</p>
+<ul>
+<li>client发起一个写请求（set x &#x3D; 3）；</li>
+<li>server向一致性模块（假设是Raft）提交请求，一致性模块生成一个写提案日志条目。若server是Leader，把日志条目广播给其他节点，并持久化日志条目到WAL中；</li>
+<li>当一半以上节点持久化日志条目后，Leader的一致性模块将此日志条目标记为已提交（committed），并通知其他节点提交；</li>
+<li>server从一致性模块获取已经提交的日志条目，异步应用到状态机持久化存储中（boltdb等），然后返回给client。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/5c/4f/5c7a3079032f90120a6b309ee401fc4f.png?wh=605*319" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从图中我们可以了解到，在基于复制状态机实现的分布式存储系统中，Raft等一致性算法它只能确保各个节点的日志一致性，也就是图中的流程二。</p>
+<p>而对于流程三来说，server从日志里面获取已提交的日志条目，将其应用到状态机的过程，跟Raft算法本身无关，属于server本身的数据存储逻辑。</p>
+<p><strong>也就是说有可能存在server应用日志条目到状态机失败，进而导致各个节点出现数据不一致。但是这个不一致并非Raft模块导致的，它已超过Raft模块的功能界限。</strong></p>
+<p>比如在上面Node莫名其妙消失的案例中，就是应用日志条目到状态机流程中，出现逻辑错误，导致key-value数据未能持久化存储到boltdb。</p>
+<p>这种逻辑错误即便重试也无法解决，目前社区也没有彻底的根治方案，只能根据具体案例进行针对性的修复。同时社区增加了Apply日志条目失败的警告日志。</p>
+<h2 id="其他典型不一致Bug"><a href="#其他典型不一致Bug" class="headerlink" title="其他典型不一致Bug"></a>其他典型不一致Bug</h2><p>还有哪些场景可能还会导致Apply流程失败呢？之前升级etcd 3.2集群到3.3集群时，遇到的数据不一致的故障事件为例。</p>
+<p>这个故障对外的表现也是令人摸不着头脑，有服务不调度的、有service下的endpoint不更新的。最终经过一番排查发现，原来数据不一致是由于etcd 3.2和3.3版本Lease模块的Revoke Lease行为不一致造成。</p>
+<p>etcd 3.2版本的RevokeLease接口不需要鉴权，而etcd 3.3 RevokeLease接口增加了鉴权，因此当你升级etcd集群的时候，如果etcd 3.3版本收到了来自3.2版本的RevokeLease接口，就会导致因为没权限出现Apply失败，进而导致数据不一致，引发各种诡异现象。</p>
+<p>除了重启etcd、升级etcd可能会导致数据不一致，defrag操作也可能会导致不一致。</p>
+<p>对一个defrag碎片整理来说，它是如何触发数据不一致的呢？ 触发的条件是defrag未正常结束时会生成db.tmp临时文件。这个文件可能包含部分上一次defrag写入的部分key&#x2F;value数据，。而etcd下次defrag时并不会清理它，复用后就可能会出现各种异常场景，如重启后key增多、删除的用户数据key再次出现、删除user&#x2F;role再次出现等。</p>
+<p>etcd 3.2.29、etcd 3.3.19、etcd 3.4.4后的版本都已经修复这个Bug。我建议你根据自己实际情况进行升级，否则踩坑后，数据不一致的修复工作是非常棘手的，风险度极高。</p>
+<p>从以上三个案例里，我们可以看到， <strong>算法一致性不代表一个庞大的分布式系统工程实现中一定能保障一致性，工程实现上充满着各种挑战，从不可靠的网络环境到时钟、再到人为错误、各模块间的复杂交互等，几乎没有一个存储系统能保证任意分支逻辑能被测试用例100%覆盖。</strong></p>
+<p>复制状态机在给我们带来数据同步的便利基础上，也给我们上层逻辑开发提出了高要求。也就是说任何接口逻辑变更etcd需要保证兼容性，否则就很容易出现Apply流程失败，导致数据不一致。</p>
+<p>同时除了Apply流程可能导致数据不一致外，我们从defrag案例中也看到了一些维护变更操作，直接针对底层存储模块boltdb的，也可能会触发Bug，导致数据不一致。</p>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>在了解了etcd数据不一致的风险和原因后，在实践中有哪些方法可以提前发现和规避不一致问题呢？</p>
+<p>分别是：</p>
+<ul>
+<li>开启etcd的数据毁坏检测功能；</li>
+<li>应用层的数据一致性检测；</li>
+<li>定时数据备份；</li>
+<li>良好的运维规范（比如使用较新稳定版本、确保版本一致性、灰度变更）。</li>
+</ul>
+<h3 id="开启etcd的数据毁坏检测功能"><a href="#开启etcd的数据毁坏检测功能" class="headerlink" title="开启etcd的数据毁坏检测功能"></a>开启etcd的数据毁坏检测功能</h3><p>首先介绍下etcd的数据毁坏检测功能。etcd不仅支持在启动的时候，通过–experimental-initial-corrupt-check参数检查各个节点数据是否一致，也支持在运行过程通过指定–experimental-corrupt-check-time参数每隔一定时间检查数据一致性。</p>
+<p>那么它的一致性检测原理是怎样的？如果出现不一致性，etcd会采取什么样动作去降低数据不一致影响面呢？</p>
+<p>其实就是想确定boltdb文件里面的内容跟其他节点内容是否一致。因此可以枚举所有key value，然后比较即可。</p>
+<p>etcd的实现也就是通过遍历treeIndex模块中的所有key获取到版本号，然后再根据版本号从boltdb里面获取key的value，使用crc32 hash算法，将bucket name、key、value组合起来计算它的hash值。</p>
+<p>如果开启了–experimental-initial-corrupt-check，启动的时候每个节点都会去获取peer节点的boltdb hash值，然后相互对比，如果不相等就会无法启动。</p>
+<p>而定时检测是指Leader节点获取它当前最新的版本号，并通过Raft模块的ReadIndex机制确认Leader身份。当确认完成后，获取各个节点的revision和boltdb hash值，若出现Follower节点的revision大于Leader等异常情况时，就可以认为不一致，发送corrupt告警，触发集群corruption保护，拒绝读写。</p>
+<p>从etcd上面的一致性检测方案我们可以了解到，目前采用的方案是比较简单、暴力的。因此可能随着数据规模增大，出现检测耗时增大等扩展性问题。而DynamoDB等使用了merkle tree来实现增量hash检测，这也是etcd未来可能优化的一个方向。</p>
+<p>最后你需要特别注意的是，etcd数据毁坏检测的功能目前还是一个试验(experimental)特性，在比较新的版本才趋于稳定、成熟（推荐v3.4.9以上），预计在未来的etcd 3.5版本中才会变成稳定特性，因此etcd 3.2&#x2F;3.3系列版本就不能使用此方案。</p>
+<h3 id="应用层的数据一致性检测"><a href="#应用层的数据一致性检测" class="headerlink" title="应用层的数据一致性检测"></a>应用层的数据一致性检测</h3><p>那要如何给etcd 3.2&#x2F;3.3版本增加一致性检测呢? 其实除了etcd自带数据毁坏检测，还可以通过在应用层通过一系列方法来检测数据一致性，它们适用于etcd所有版本。</p>
+<p>接下来讲讲应用层检测的原理。</p>
+<p>从上面对数据不一致性案例的分析中，我们知道数据不一致在MVCC、boltdb会出现很多种情况，比如说key数量不一致、etcd逻辑时钟版本号不一致、MVCC模块收到的put操作metrics指标值不一致等等。因此我们的应用层检测方法就是基于它们的差异进行巡检。</p>
+<p>首先针对key数量不一致的情况，我们可以实现巡检功能，定时去统计各个节点的key数，这样可以快速地发现数据不一致，从而及时介入，控制数据不一致影响，降低风险。</p>
+<p>在统计节点key数时，记得查询的时候带上WithCountOnly参数。etcd从treeIndex模块获取到key数后就及时返回了，无需访问boltdb模块。如果你的数据量非常大（涉及到百万级别），那即便是从treeIndex模块返回也会有一定的内存开销，因为它会把key追加到一个数组里面返回。</p>
+<p>而在WithCountOnly场景中，我们只需要统计key数即可。因此我给社区提了优化方案，目前已经合并到master分支。对百万级别的key来说，WithCountOnly时内存开销从数G到几乎零开销，性能也提升数十倍。</p>
+<p>其次可以基于endpoint各个节点的revision信息做一致性监控。一般情况下，各个节点的差异是极小的。</p>
+<p>最后还可以基于etcd MVCC的metrics指标来监控。比如上面提到的mvcc_put_total，理论上每个节点这些MVCC指标是一致的，不会出现偏离太多。</p>
+<h3 id="定时数据备份"><a href="#定时数据备份" class="headerlink" title="定时数据备份"></a>定时数据备份</h3><p>etcd数据不一致的修复工作极其棘手。发生数据不一致后，各个节点可能都包含部分最新数据和脏数据。如果最终我们无法修复，那就只能使用备份数据来恢复了。</p>
+<p>因此备份特别重要，备份可以保障我们在极端场景下，能有保底的机制去恢复业务。 <strong>请记住，在做任何重要变更前一定先备份数据，以及在生产环境中建议增加定期的数据备份机制（比如每隔30分钟备份一次数据）。</strong></p>
+<p>可以使用开源的etcd-operator中的backup-operator去实现定时数据备份，它可以将etcd快照保存在各个公有云的对象存储服务里面。</p>
+<h3 id="良好的运维规范"><a href="#良好的运维规范" class="headerlink" title="良好的运维规范"></a>良好的运维规范</h3><p>最后介绍几个运维规范，这些规范可以帮助我们尽量少踩坑（即便你踩坑后也可以控制故障影响面）。</p>
+<p>首先是确保集群中各节点etcd版本一致。若各个节点的版本不一致，因各版本逻辑存在差异性，这就会增大触发不一致Bug的概率。比如我们前面提到的升级版本触发的不一致Bug就属于此类问题。</p>
+<p>其次是优先使用较新稳定版本的etcd。像上面我们提到的3个不一致Bug，在最新的etcd版本中都得到了修复。你可以根据自己情况进行升级，以避免下次踩坑。同时你可根据实际业务场景以及安全风险，来评估是否有必要开启鉴权，开启鉴权后涉及的逻辑更复杂，有可能增大触发数据不一致Bug的概率。</p>
+<p>最后是你在升级etcd版本的时候，需要多查看change log，评估是否存在可能有不兼容的特性。在你升级集群的时候注意先在测试环境多验证，生产环境务必先灰度、再全量。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>从消失的Node案例为例，介绍了etcd中定位一个复杂不一致问题的思路和方法工具。核心就是根据我们对etcd读写原理的了解，对每个模块可能出现的问题进行大胆猜想。</p>
+<p>同时我们要善于借助日志、metrics、etcd tool等进行验证排除。定位到最终模块问题后，如果很难复现，可以借助混沌工程等技术注入模拟各类故障。 <strong>遇到复杂Bug时，请永远不要轻言放弃，它一定是一个让你快速成长的机会。</strong></p>
+<p>其次我介绍了etcd数据不一致的核心原因：Raft算法只能保证各个节点日志同步的一致性，但Apply流程是异步的，它从一致性模块获取日志命令，应用到状态机的准确性取决于业务逻辑，这块是没有机制保证的。</p>
+<p>同时，defrag等运维管理操作，会直接修改底层存储数据，异常场景处理不严谨也会导致数据不一致。</p>
+<p>数据不一致的风险是非常大的，轻则业务逻辑异常，重则核心数据丢失。我们需要机制去提前发现和规避它，因此最后我详细给你总结了etcd本身和应用层的一致性监控、定时备份数据、良好的运维规范等若干最佳实践，这些都是宝贵的实践总结，希望你能有所收获。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？</div>
+      <div>https://blog.longpi1.com/2022/10/07/12-一致性：为什么基于Raft实现的etcd还会出现数据不一致？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/07/13-db%E5%A4%A7%E5%B0%8F%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88etcd%E7%A4%BE%E5%8C%BA%E5%BB%BA%E8%AE%AEdb%E5%A4%A7%E5%B0%8F%E4%B8%8D%E8%B6%85%E8%BF%878G%EF%BC%9F/" title="13.db大小：为什么etcd社区建议db大小不超过8G？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">13.db大小：为什么etcd社区建议db大小不超过8G？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/06/11-%E5%8E%8B%E7%BC%A9%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9B%9E%E6%94%B6%E6%97%A7%E7%89%88%E6%9C%AC%E6%95%B0%E6%8D%AE%EF%BC%9F/" title="11.压缩：如何回收旧版本数据？">
+                        <span class="hidden-mobile">11.压缩：如何回收旧版本数据？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,759 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="13.db大小：为什么etcd社区建议db大小不超过8G？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/07/13-db%E5%A4%A7%E5%B0%8F%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88etcd%E7%A4%BE%E5%8C%BA%E5%BB%BA%E8%AE%AEdb%E5%A4%A7%E5%B0%8F%E4%B8%8D%E8%B6%85%E8%BF%878G%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/ab/11/ab657951310461c835963c38e43fdc11.png?wh=1920*685">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/67/60/67aa0c0fe078byy681fe4c55a3983f60.png?wh=1338*362">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/33/88/331ac3c759578b297546f1651385be88.png?wh=1314*412">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/02/a1/027ef8e1759a2800f1a2c1c105d7d7a1.png?wh=1312*394">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/44/a1/44ee247e9a31a455aca28459e5bb45a1.png?wh=1322*418">
+<meta property="article:published_time" content="2022-10-07T07:11:03.000Z">
+<meta property="article:modified_time" content="2022-10-07T07:11:26.823Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/ab/11/ab657951310461c835963c38e43fdc11.png?wh=1920*685">
+  
+  
+  
+  <title>13.db大小：为什么etcd社区建议db大小不超过8G？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="13.db大小：为什么etcd社区建议db大小不超过8G？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-07 15:11" pubdate>
+          2022年10月7日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">13.db大小：为什么etcd社区建议db大小不超过8G？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="13-db大小：为什么etcd社区建议db大小不超过8G？"><a href="#13-db大小：为什么etcd社区建议db大小不超过8G？" class="headerlink" title="13.db大小：为什么etcd社区建议db大小不超过8G？"></a>13.db大小：为什么etcd社区建议db大小不超过8G？</h1><p>在写流程中分享了etcd Quota模块，那么etcd为什么需要对db增加Quota限制，以及不建议etcd集群db大小超过8G呢？ 过大的db文件对集群性能和稳定性有哪些影响？</p>
+<p>今天分享的主题就是关于db大小。将通过一个大数据量的etcd集群为案例，剖析etcd db大小配额限制背后的设计思考和过大的db潜在隐患。</p>
+<p>帮助理解大数据量对集群的各个模块的影响，配置合理的db Quota值。同时，帮助在实际业务场景中，遵循最佳实践，尽量减少value大小和大key-value更新频率，避免db文件大小不断增长。</p>
+<h2 id="分析整体思路"><a href="#分析整体思路" class="headerlink" title="分析整体思路"></a>分析整体思路</h2><p>首先写入大量数据，构造一个db大小为14G的大集群。然后通过此集群分析db大小的各个影响面，db大小影响面如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/ab/11/ab657951310461c835963c38e43fdc11.png?wh=1920*685" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>首先是 <strong>启动耗时</strong>。etcd启动的时候，需打开boltdb db文件，读取db文件所有key-value数据，用于重建内存treeIndex模块。因此在大量key导致db文件过大的场景中，这会导致etcd启动较慢。</p>
+<p>其次是 <strong>节点内存配置</strong>。etcd在启动的时候会通过mmap将db文件映射内存中，若节点可用内存不足，小于db文件大小时，可能会出现缺页文件中断，导致服务稳定性、性能下降。</p>
+<p>接着是 <strong>treeIndex</strong> 索引性能。因etcd不支持数据分片，内存中的treeIndex若保存了几十万到上千万的key，这会增加查询、修改操作的整体延时。</p>
+<p>然后是 <strong>boltdb性能</strong>。大db文件场景会导致事务提交耗时增长、抖动。</p>
+<p>再次是 <strong>集群稳定性</strong>。大db文件场景下，无论你是百万级别小key还是上千个大value场景，一旦出现expensive request后，很容易导致etcd OOM、节点带宽满而丢包。</p>
+<p>最后是 <strong>快照。</strong> 当Follower节点落后Leader较多数据的时候，会触发Leader生成快照重建发送给Follower节点，Follower基于它进行还原重建操作。较大的db文件会导致Leader发送快照需要消耗较多的CPU、网络带宽资源，同时Follower节点重建还原慢。</p>
+<h2 id="构造大集群"><a href="#构造大集群" class="headerlink" title="构造大集群"></a>构造大集群</h2><p>简单介绍完db大小的六个影响面后，我们下面来构造一个大数据量的集群，用于后续各个影响面的分析。</p>
+<p>首先，我通过一系列如下 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/tools/benchmark">benchmark</a> 命令，向一个8核32G的3节点的集群写入120万左右key。key大小为32，value大小为256到10K，用以分析大db集群案例中的各个影响面。</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"><span class="hljs-string">./benchmark</span> put <span class="hljs-params">--key-size</span> 32 <span class="hljs-params">--val-size</span> 10240 <span class="hljs-params">--total</span><br>1000000 <span class="hljs-params">--key-space-size</span> 2000000 <span class="hljs-params">--clients</span> 50 <span class="hljs-params">--conns</span> 50<br><br></code></pre></td></tr></table></figure>
+
+<p>执行完一系列benchmark命令后，db size达到14G，总key数达到120万，其监控如下图所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/67/60/67aa0c0fe078byy681fe4c55a3983f60.png?wh=1338*362" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="https://static001.geekbang.org/resource/image/33/88/331ac3c759578b297546f1651385be88.png?wh=1314*412" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="启动耗时"><a href="#启动耗时" class="headerlink" title="启动耗时"></a>启动耗时</h2><p>在如上的集群中，我通过benchmark工具将etcd集群db大小压测到14G后，在重新启动etcd进程的时候，如下日志所示，你会发现启动比较慢，为什么大db文件会影响etcd启动耗时呢？</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">2021</span>-<span class="hljs-number">02</span>-<span class="hljs-number">15</span> <span class="hljs-number">02</span>:<span class="hljs-number">25</span>:<span class="hljs-number">55</span>.<span class="hljs-number">273712</span> I | etcdmain: etcd Version: <span class="hljs-number">3</span>.<span class="hljs-number">4</span>.<span class="hljs-number">9</span><br><span class="hljs-attribute">2021</span>-<span class="hljs-number">02</span>-<span class="hljs-number">15</span> <span class="hljs-number">02</span>:<span class="hljs-number">26</span>:<span class="hljs-number">58</span>.<span class="hljs-number">806882</span> I | etcdserver: recovered store from snapshot at index <span class="hljs-number">2100090</span><br><span class="hljs-attribute">2021</span>-<span class="hljs-number">02</span>-<span class="hljs-number">15</span> <span class="hljs-number">02</span>:<span class="hljs-number">26</span>:<span class="hljs-number">58</span>.<span class="hljs-number">808810</span> I | mvcc: restore compact to <span class="hljs-number">1000002</span><br><span class="hljs-attribute">2021</span>-<span class="hljs-number">02</span>-<span class="hljs-number">15</span> <span class="hljs-number">02</span>:<span class="hljs-number">27</span>:<span class="hljs-number">19</span>.<span class="hljs-number">120141</span> W | etcdserver: backend quota <span class="hljs-number">26442450944</span> exceeds maximum recommended quota <span class="hljs-number">8589934592</span><br><span class="hljs-attribute">2021</span>-<span class="hljs-number">02</span>-<span class="hljs-number">15</span> <span class="hljs-number">02</span>:<span class="hljs-number">27</span>:<span class="hljs-number">19</span>.<span class="hljs-number">297363</span> I | embed: ready to serve client requests<br><br></code></pre></td></tr></table></figure>
+
+<p>通过对etcd启动流程增加耗时统计，我们可以发现核心瓶颈主要在于打开db文件和重建内存treeIndex模块。</p>
+<p>这里介绍下etcd启动后，重建内存treeIndex的原理。</p>
+<p>我们知道treeIndex模块维护了用户key与boltdb key的映射关系，boltdb的key、value又包含了构建treeIndex的所需的数据。因此etcd启动的时候，会启动不同角色的goroutine并发完成treeIndex构建。</p>
+<p><strong>首先是主goroutine。</strong> 它的职责是遍历boltdb，获取所有key-value数据，并将其反序列化成etcd的mvccpb.KeyValue结构。核心原理是基于etcd存储在boltdb中的key数据有序性，按版本号从1开始批量遍历，每次查询10000条key-value记录，直到查询数据为空。</p>
+<p><strong>其次是构建treeIndex索引的goroutine。</strong> 它从主goroutine获取mvccpb.KeyValue数据，基于key、版本号、是否带删除标识等信息，构建keyIndex对象，插入到treeIndex模块的B-tree中。</p>
+<p>因可能存在多个goroutine并发操作treeIndex，treeIndex的Insert函数会加全局锁，如下所示。etcd启动时只有一个 <strong>构建treeIndex索引的goroutine</strong>，因此key多时，会比较慢。之前我尝试优化成多goroutine并发构建，但是效果不佳，大量耗时会消耗在此锁上。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">func (ti *treeIndex) <span class="hljs-constructor">Insert(<span class="hljs-params">ki</span> <span class="hljs-operator">*</span><span class="hljs-params">keyIndex</span>)</span> &#123;<br>   ti.<span class="hljs-constructor">Lock()</span><br>   defer ti.<span class="hljs-constructor">Unlock()</span><br>   ti.tree.<span class="hljs-constructor">ReplaceOrInsert(<span class="hljs-params">ki</span>)</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="节点内存配置"><a href="#节点内存配置" class="headerlink" title="节点内存配置"></a>节点内存配置</h2><p>etcd进程重启完成后，在没任何读写QPS情况下，如下所示，会发现etcd所消耗的内存比db大小还大一点。这又是为什么呢？如果etcd db文件大小超过节点内存规格，会导致什么问题吗？</p>
+<p><img src="https://static001.geekbang.org/resource/image/02/a1/027ef8e1759a2800f1a2c1c105d7d7a1.png?wh=1312*394" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>etcd在启动的时候，会通过boltdb的Open API获取数据库对象，而Open API它会通过mmap机制将db文件映射到内存中。</p>
+<p>由于etcd调用boltdb Open API的时候，设置了mmap的MAP_POPULATE flag，它会告诉Linux内核预读文件，将db文件内容全部从磁盘加载到物理内存中。</p>
+<p>因此在你节点内存充足的情况下，启动后你看到的etcd占用内存，一般是db文件大小与内存treeIndex之和。</p>
+<p>在节点内存充足的情况下，启动后，client后续发起对etcd的读操作，可直接通过内存获取boltdb的key-value数据，不会产生任何磁盘IO，具备良好的读性能、稳定性。</p>
+<p>而当你的db文件大小超过节点内存配置时，若你查询的key所相关的branch page、leaf page不在内存中，那就会触发主缺页中断，导致读延时抖动、QPS下降。</p>
+<p>因此为了保证etcd集群性能的稳定性，建议etcd节点内存规格要大于你的etcd db文件大小。</p>
+<h2 id="treeIndex"><a href="#treeIndex" class="headerlink" title="treeIndex"></a>treeIndex</h2><p>当我们往集群中写入了一百多万key时，此时你再读取一个key范围操作的延时会出现一定程度上升，这是为什么呢？我们该如何分析耗时是在哪一步导致的？</p>
+<p>在etcd 3.4中提供了trace特性，它可帮助我们定位、分析请求耗时过长问题。不过你需要特别注意的是，此特性在etcd 3.4中，因为依赖zap logger，默认为关闭。你可以通过设置etcd启动参数中的–logger&#x3D;zap来开启。</p>
+<p>开启之后，我们可以在etcd日志中找到类似如下的耗时记录。</p>
+<figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scilab">&#123;<br><span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;trace[331581563] range&quot;</span>，<br><span class="hljs-string">&quot;detail&quot;</span>:<span class="hljs-string">&quot;&#123;range_begin:/vip/a; range_end:/vip/b; response_count:19304; response_revision:1005564; &#125;&quot;</span>，<br><span class="hljs-string">&quot;duration&quot;</span>:<span class="hljs-string">&quot;146.432768ms&quot;</span>，<br><span class="hljs-string">&quot;steps&quot;</span>:[<br><span class="hljs-string">&quot;trace[331581563] &#x27;</span>range keys from in-memory treeIndex<span class="hljs-string">&#x27;  (duration: 95.925033ms)&quot;</span>，<br><span class="hljs-string">&quot;trace[331581563] &#x27;</span>range keys from bolt db<span class="hljs-string">&#x27;  (duration: 47.932118ms)&quot;</span><br>]<br><br></code></pre></td></tr></table></figure>
+
+<p>此日志记录了查询请求”etcdctl get –prefix &#x2F;vip&#x2F;a”。它在treeIndex中查询相关key耗时95ms，从boltdb遍历key时47ms。主要原因还是此查询涉及的key数较多，高达一万九。</p>
+<p>也就是说若treeIndex中存储了百万级的key时，它可能也会产生几十毫秒到数百毫秒的延时，对于期望业务延时稳定在较小阈值内的业务，就无法满足其诉求。</p>
+<h2 id="boltdb性能"><a href="#boltdb性能" class="headerlink" title="boltdb性能"></a>boltdb性能</h2><p>当db文件大小持续增长到16G乃至更大后，从etcd事务提交监控metrics你可能会观察到，boltdb在提交事务时偶尔出现了较高延时，那么延时是怎么产生的呢？</p>
+<p>在 介绍boltdb的原理时，关于db文件的磁盘布局，它是由meta page、branch page、leaf page、free list、free页组成的。同时我给你介绍了boltdb事务提交的四个核心流程，分别是B+ tree的重平衡、分裂，持久化dirty page，持久化freelist以及持久化meta data。</p>
+<p>事务提交延时抖动的原因主要是在B+ tree树的重平衡和分裂过程中，它需要从freelist中申请若干连续的page存储数据，或释放空闲的page到freelist。</p>
+<p>freelist后端实现在boltdb中是array。当申请一个连续的n个page存储数据时，它会遍历boltdb中所有的空闲页，直到找到连续的n个page。因此它的时间复杂度是O(N)。若db文件较大，又存在大量的碎片空闲页，很可能导致超时。</p>
+<p>同时事务提交过程中，也可能会释放若干个page给freelist，因此需要合并到freelist的数组中，此操作时间复杂度是O(NLog N)。</p>
+<p>假设我们db大小16G，page size 4KB，则有400万个page。经过各种修改、压缩后，若存在一半零散分布的碎片空闲页，在最坏的场景下，etcd每次事务提交需要遍历200万个page才能找到连续的n个page，同时还需要持久化freelist到磁盘。</p>
+<p>为了优化boltdb事务提交的性能，etcd社区在bbolt项目中，实现了基于hashmap来管理freelist。通过引入了如下的三个map数据结构（freemaps的key是连续的页数，value是以空闲页的起始页pgid集合，forwardmap和backmap用于释放的时候快速合并页），将申请和释放时间复杂度降低到了O(1)。</p>
+<p>freelist后端实现可以通过bbolt的FreeListType参数来控制，支持array和hashmap。在etcd 3.4版本中目前还是array，未来的3.5版本将默认是hashmap。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">freemaps       <span class="hljs-keyword">map</span>[<span class="hljs-type">uint64</span>]pidSet           <span class="hljs-comment">// key is the size of continuous pages(span)，value is a set which contains the starting pgids of same size</span><br>forwardMap     <span class="hljs-keyword">map</span>[pgid]<span class="hljs-type">uint64</span>             <span class="hljs-comment">// key is start pgid，value is its span size</span><br>backwardMap    <span class="hljs-keyword">map</span>[pgid]<span class="hljs-type">uint64</span>             <span class="hljs-comment">// key is end pgid，value is its span size</span><br><br></code></pre></td></tr></table></figure>
+
+<p>另外在db中若存在大量空闲页，持久化freelist需要消耗较多的db大小，并会导致额外的事务提交延时。</p>
+<p>若未持久化freelist，bbolt支持通过重启时扫描全部page来构造freelist，降低了db大小和提升写事务提交的性能（但是它会带来etcd启动延时的上升）。此行为可以通过bbolt的NoFreelistSync参数来控制，默认是true启用此特性。</p>
+<h2 id="集群稳定性"><a href="#集群稳定性" class="headerlink" title="集群稳定性"></a>集群稳定性</h2><p>db文件增大后，另外一个非常大的隐患是用户client发起的expensive request，容易导致集群出现各种稳定性问题。</p>
+<p>本质原因是etcd不支持数据分片，各个节点保存了所有key-value数据，同时它们又存储在boltdb的一个bucket里面。当你的集群含有百万级以上key的时候，任意一种expensive read请求都可能导致etcd出现OOM、丢包等情况发生。</p>
+<p>那么有哪些expensive read请求会导致etcd不稳定性呢？</p>
+<p><strong>首先是简单的count only查询。</strong> 如下图所示，当你想通过API统计一个集群有多少key时，如果你的key较多，则有可能导致内存突增和较大的延时。</p>
+<p><img src="https://static001.geekbang.org/resource/image/44/a1/44ee247e9a31a455aca28459e5bb45a1.png?wh=1322*418" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在etcd 3.5版本之前，统计key数会遍历treeIndex，把key追加到数组中。然而当数据规模较大时，追加key到数组中的操作会消耗大量内存，同时数组扩容时涉及到大量数据拷贝，会导致延时上升。</p>
+<p><strong>其次是limit查询。</strong> 当你只想查询若干条数据的时候，若你的key较多，也会导致类似count only查询的性能、稳定性问题。</p>
+<p>原因是etcd 3.5版本之前遍历index B-tree时，并未将limit参数下推到索引层，导致了无用的资源和时间消耗。优化方案是将limit参数下推到了索引层，实现查询性能百倍提升。</p>
+<p><strong>最后是大包查询。</strong> 当你未分页批量遍历key-value数据或单key-value数据较大的时候，随着请求QPS增大，etcd OOM、节点出现带宽瓶颈导致丢包的风险会越来越大。</p>
+<p>问题主要由以下两点原因导致：</p>
+<p>第一，etcd需要遍历treeIndex获取key列表。若你未分页，一次查询万级key，显然会消耗大量内存并且高延时。</p>
+<p>第二，获取到key列表、版本号后，etcd需要遍历boltdb，将key-value保存到查询结果数据结构中。如下trace日志所示，一个请求可能在遍历boltdb时花费很长时间，同时可能会消耗几百M甚至数G的内存。随着请求QPS增大，极易出现OOM、丢包等。etcd这块未来的优化点是实现流式传输。</p>
+<figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs scilab">&#123;<br><span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;info&quot;</span>,<br><span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2021-02-15T03:44:52.209Z&quot;</span>,<br><span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;traceutil/trace.go:145&quot;</span>,<br><span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;trace[1908866301] range&quot;</span>,<br><span class="hljs-string">&quot;detail&quot;</span>:<span class="hljs-string">&quot;&#123;range_begin:; range_end:; response_count:1232274; response_revision:3128500; &#125;&quot;</span>,<br><span class="hljs-string">&quot;duration&quot;</span>:<span class="hljs-string">&quot;9.063748801s&quot;</span>,<br><span class="hljs-string">&quot;start&quot;</span>:<span class="hljs-string">&quot;2021-02-15T03:44:43.145Z&quot;</span>,<br><span class="hljs-string">&quot;end&quot;</span>:<span class="hljs-string">&quot;2021-02-15T03:44:52.209Z&quot;</span>,<br><span class="hljs-string">&quot;steps&quot;</span>:[<br><span class="hljs-string">&quot;trace[1908866301] &#x27;</span>range keys from in-memory index tree<span class="hljs-string">&#x27; (duration: 693.262565ms)&quot;</span>,<br><span class="hljs-string">&quot;trace[1908866301] &#x27;</span>range keys from bolt db<span class="hljs-string">&#x27; (duration: 8.22558566s)&quot;</span>,<br><span class="hljs-string">&quot;trace[1908866301] &#x27;</span>assemble the response<span class="hljs-string">&#x27; (duration: 18.810315ms)&quot;</span><br>]<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h2><p>大db文件最后一个影响面是快照。它会影响db备份文件生成速度、Leader发送快照给Follower节点的资源开销、Follower节点通过快照重建恢复的速度。</p>
+<p>etcd提供了快照功能，帮助我们通过API即可备份etcd数据。当etcd收到snapshot请求的时候，它会通过boltdb接口创建一个只读事务Tx，随后通过事务的WriteTo接口，将meta page和data page拷贝到buffer即可。</p>
+<p>但是随着db文件增大，快照事务执行的时间也会越来越长，而长事务则会导致db文件大小发生显著增加。</p>
+<p>也就是说当db大时，生成快照不仅慢，生成快照时可能还会触发db文件大小持续增长，最终达到配额限制。</p>
+<p>为什么长事务可能会导致db大小增长呢？</p>
+<p>快照的另一大作用是当Follower节点异常的时候，Leader生成快照发送给Follower节点，Follower使用快照重建并追赶上Leader。此过程涉及到一定的CPU、内存、网络带宽等资源开销。</p>
+<p>同时，若快照和集群写QPS较大，Leader发送快照给Follower和Follower应用快照到状态机的流程会耗费较长的时间，这可能会导致基于快照重建后的Follower依然无法通过正常的日志复制模式来追赶Leader，只能继续触发Leader生成快照，进而进入死循环，Follower一直处于异常中。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>首先大db文件首先会影响etcd启动耗时，因为etcd需要打开db文件，初始化db对象，并遍历boltdb中的所有key-value以重建内存treeIndex。</p>
+<p>其次，较大db文件会导致etcd依赖更高配置的节点内存规格，etcd通过mmap将db文件映射到内存中。etcd启动后，正常情况下读etcd过程不涉及磁盘IO，若节点内存不够，可能会导致缺页中断，引起延时抖动、服务性能下降。</p>
+<p>接着treeIndex维护了所有key的版本号信息，当treeIndex中含有百万级key时，在treeIndex中搜索指定范围的key的开销是不能忽略的，此开销可能高达上百毫秒。</p>
+<p>然后当db文件过大后，boltdb本身连续空闲页的申请、释放、存储都会存在一定的开销。etcd社区已通过新的freelist管理数据结构hashmap对其进行优化，将时间复杂度降低到了O(1)，同时支持事务提交时不持久化freelist，而是通过重启时扫描page重建，以提升etcd写性能、降低db大小。</p>
+<p>随后介绍了db文件过大后，count only、limit、大包查询等expensive request对集群稳定性的影响。建议你的业务尽量避免任何expensive request请求。</p>
+<p>最后介绍了大db文件对快照功能的影响。大db文件意味着更长的备份时间，而更长的只读事务则可能会导致db文件增长。同时Leader发送快照与Follower基于快照重建都需要较长时间，在集群写请求较大的情况下，可能会陷入死循环，导致落后的Follower节点一直无法追赶上Leader。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>13.db大小：为什么etcd社区建议db大小不超过8G？</div>
+      <div>https://blog.longpi1.com/2022/10/07/13-db大小：为什么etcd社区建议db大小不超过8G？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/07/14-%E5%BB%B6%E6%97%B6%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84etcd%E8%AF%B7%E6%B1%82%E4%BC%9A%E5%87%BA%E7%8E%B0%E8%B6%85%E6%97%B6%EF%BC%9F/" title="14.延时：为什么你的etcd请求会出现超时？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">14.延时：为什么你的etcd请求会出现超时？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/07/12-%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9F%BA%E4%BA%8ERaft%E5%AE%9E%E7%8E%B0%E7%9A%84etcd%E8%BF%98%E4%BC%9A%E5%87%BA%E7%8E%B0%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4%EF%BC%9F/" title="12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？">
+                        <span class="hidden-mobile">12.一致性：为什么基于Raft实现的etcd还会出现数据不一致？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
