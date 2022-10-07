@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="15.内存：为什么你的etcd内存占用那么高？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/07/15-%E5%86%85%E5%AD%98%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84etcd%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E9%82%A3%E4%B9%88%E9%AB%98%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/c2/49/c2673ebb2db4b555a9fbe229ed1bda49.png?wh=1920*1056">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/c1/e6/c1fb89ae1d6218a66cf1db30c41d9be6.png?wh=1164*358">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/6c/6d/6ce074583f39cd9a19bdcb392133426d.png?wh=1318*420">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/d6/45/d6dc86f76f52dfed73ab1771ebbbf545.png?wh=1302*348">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9d/70/9d97762851c18a0c4cd89aa5a7bb0270.png?wh=1310*404">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/93/bd/937c3fb0bf12595928e8ae4b05b7a5bd.png?wh=1260*354">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/8d/58/8d2d9fb3c0193745d80fe68b0cb4a758.png?wh=1276*406">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/df/2c/df9yy18a1e28e18295cfc15a28cd342c.png?wh=1920*1328">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/42/bf/42575d8d0a034e823b8e48d4ca0a49bf.png?wh=1920*1075">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/aa/90/aaf7b4f5f6f568dc70c1a0964fb92790.png?wh=1920*684">
+<meta property="article:published_time" content="2022-10-07T12:31:45.000Z">
+<meta property="article:modified_time" content="2022-10-07T12:32:06.441Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/c2/49/c2673ebb2db4b555a9fbe229ed1bda49.png?wh=1920*1056">
+  
+  
+  
+  <title>15.内存：为什么你的etcd内存占用那么高？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="15.内存：为什么你的etcd内存占用那么高？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-07 20:31" pubdate>
+          2022年10月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">15.内存：为什么你的etcd内存占用那么高？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="15-内存：为什么你的etcd内存占用那么高？"><a href="#15-内存：为什么你的etcd内存占用那么高？" class="headerlink" title="15.内存：为什么你的etcd内存占用那么高？"></a>15.内存：为什么你的etcd内存占用那么高？</h1><p>在使用etcd的过程中，你是否被异常内存占用等现象困扰过？比如etcd中只保存了1个1MB的key-value，但是经过若干次修改后，最终etcd内存可能达到数G。它是由什么原因导致的？如何分析呢？</p>
+<p>今天要分享的主题：etcd的内存。 帮助你掌握etcd内存抖动、异常背后的常见原因和分析方法，当遇到类似问题时，能独立定位、解决。同时，帮助在实际业务场景中，为集群节点配置充足的内存资源，遵循最佳实践，尽量减少expensive request，避免etcd内存出现突增，导致OOM。</p>
+<h2 id="分析整体思路"><a href="#分析整体思路" class="headerlink" title="分析整体思路"></a>分析整体思路</h2><p>当遇到etcd内存占用较高的案例时，你脑海中第一反应是什么呢？</p>
+<p>下图以etcd写请求流程为例，总结的可能导致etcd内存占用较高的核心模块与其数据结构。</p>
+<p><img src="https://static001.geekbang.org/resource/image/c2/49/c2673ebb2db4b555a9fbe229ed1bda49.png?wh=1920*1056" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从图中可以看到，当etcd收到一个写请求后，gRPC Server会建立连接。连接数越多，会导致etcd进程的fd、goroutine等资源上涨，因此会使用越来越多的内存。</p>
+<p>其次，基于Raft知识背景，它需要将此请求的日志条目保存在raftLog里面。etcd raftLog后端实现是内存存储，核心就是数组。因此raftLog使用的内存与其保存的日志条目成正比，它也是内存分析过程中最容易被忽视的一个数据结构。</p>
+<p>然后当此日志条目被集群多数节点确认后，在应用到状态机的过程中，会在内存treeIndex模块的B-tree中创建、更新key与版本号信息。 在这过程中treeIndex模块的B-tree使用的内存与key、历史版本号数量成正比。</p>
+<p>更新完treeIndex模块的索引信息后，etcd将key-value数据持久化存储到boltdb。boltdb使用了mmap技术，将db文件映射到操作系统内存中。因此在未触发操作系统将db对应的内存page换出的情况下，etcd的db文件越大，使用的内存也就越大。</p>
+<p>同时，在这个过程中还有两个注意事项。</p>
+<p>一方面，其他client可能会创建若干watcher、监听这个写请求涉及的key， etcd也需要使用一定的内存维护watcher、推送key变化监听的事件。</p>
+<p>另一方面，如果这个写请求的key还关联了Lease，Lease模块会在内存中使用数据结构Heap来快速淘汰过期的Lease，因此Heap也是一个占用一定内存的数据结构。</p>
+<p>最后，不仅仅是写请求流程会占用内存，读请求本身也会导致内存上升。尤其是expensive request，当产生大包查询时，MVCC模块需要使用内存保存查询的结果，很容易导致内存突增。</p>
+<p>基于以上读写流程图对核心数据结构使用内存的分析，我们定位问题时就有线索、方法可循了。那如何确定是哪个模块、场景导致的内存异常呢？</p>
+<p>接下来通过一个实际案例，深入介绍下内存异常的分析方法。</p>
+<h2 id="一个key使用数G内存的案例"><a href="#一个key使用数G内存的案例" class="headerlink" title="一个key使用数G内存的案例"></a>一个key使用数G内存的案例</h2><p>我们通过goreman启动一个3节点etcd集群(linux&#x2F;etcd v3.4.9)，db quota为6G，执行如下的命令并观察etcd内存占用情况：</p>
+<ul>
+<li>执行1000次的put同一个key操作，value为1MB；</li>
+<li>更新完后并进行compact、defrag操作；</li>
+</ul>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment"># put同一个key，执行1000次</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> &#123;1<span class="hljs-built_in">..</span>1000&#125;; <span class="hljs-keyword">do</span> dd <span class="hljs-attribute">if</span>=/dev/urandom <span class="hljs-attribute">bs</span>=1024<br><span class="hljs-attribute">count</span>=1024  | <span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl put key  || break; done<br><br><span class="hljs-comment"># 获取最新revision，并压缩</span><br>etcdctl compact `(etcdctl endpoint status <span class="hljs-attribute">--write-out</span>=<span class="hljs-string">&quot;json&quot;</span> | egrep -o <span class="hljs-string">&#x27;&quot;revision&quot;:[0-9]*&#x27;</span> | egrep -o <span class="hljs-string">&#x27;[0-9].*&#x27;</span>)`<br><br><span class="hljs-comment"># 对集群所有节点进行碎片整理</span><br>etcdctl defrag --cluster<br><br></code></pre></td></tr></table></figure>
+
+<p>在执行操作前，空集群etcd db size 20KB，etcd进程内存36M左右，分别如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/c1/e6/c1fb89ae1d6218a66cf1db30c41d9be6.png?wh=1164*358" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="https://static001.geekbang.org/resource/image/6c/6d/6ce074583f39cd9a19bdcb392133426d.png?wh=1318*420" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>预测执行1000次同样key更新后，etcd进程占用了多少内存呢? 约37M？ 1G？ 2G？3G？ 还是其他呢？</p>
+<p>执行1000次的put操作后，db大小和etcd内存占用分别如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/d6/45/d6dc86f76f52dfed73ab1771ebbbf545.png?wh=1302*348" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="https://static001.geekbang.org/resource/image/9d/70/9d97762851c18a0c4cd89aa5a7bb0270.png?wh=1310*404" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当执行compact、defrag命令后，如下图所示，db大小只有1M左右，但是会发现etcd进程实际却仍占用了2G左右内存。</p>
+<p><img src="https://static001.geekbang.org/resource/image/93/bd/937c3fb0bf12595928e8ae4b05b7a5bd.png?wh=1260*354" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="https://static001.geekbang.org/resource/image/8d/58/8d2d9fb3c0193745d80fe68b0cb4a758.png?wh=1276*406" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>整个集群只有一个key，为什么etcd占用了这么多的内存呢？是etcd发生了内存泄露吗？接下来进行原因分析</p>
+<h2 id="raftLog"><a href="#raftLog" class="headerlink" title="raftLog"></a>raftLog</h2><p>当发起一个put请求的时候，etcd需通过Raft模块将此请求同步到其他节点，详细流程可结合下图再次了解下。</p>
+<p><img src="https://static001.geekbang.org/resource/image/df/2c/df9yy18a1e28e18295cfc15a28cd342c.png?wh=1920*1328" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从图中可以看到，Raft模块的输入是一个消息&#x2F;Msg，输出统一为Ready结构。etcd会把此请求封装成一个消息，提交到Raft模块。</p>
+<p>Raft模块收到此请求后，会把此消息追加到raftLog的unstable存储的entry内存数组中（图中流程2），并且将待持久化的此消息封装到Ready结构内，通过管道通知到etcdserver（图中流程3）。</p>
+<p>etcdserver取出消息，持久化到WAL中，并追加到raftLog的内存存储storage的entry数组中（图中流程5）。</p>
+<p>下面是 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/log.go#L24:L45">raftLog</a> 的核心数据结构，它由storage、unstable、committed、applied等组成。storage存储已经持久化到WAL中的日志条目，unstable存储未持久化的条目和快照，一旦持久化会及时删除日志条目，因此不存在过多内存占用的问题。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">type</span> raftLog struct &#123;<br>   // <span class="hljs-keyword">storage</span> contains <span class="hljs-keyword">all</span> <span class="hljs-keyword">stable</span> entries since the last <span class="hljs-keyword">snapshot</span>.<br>   <span class="hljs-keyword">storage</span> <span class="hljs-keyword">Storage</span><br><br>   // unstable contains <span class="hljs-keyword">all</span> unstable entries <span class="hljs-keyword">and</span> <span class="hljs-keyword">snapshot</span>.<br>   // they will be saved <span class="hljs-keyword">into</span> <span class="hljs-keyword">storage</span>.<br>   unstable unstable<br><br>   // <span class="hljs-keyword">committed</span> <span class="hljs-keyword">is</span> the highest <span class="hljs-keyword">log</span> position that <span class="hljs-keyword">is</span> known <span class="hljs-keyword">to</span> be <span class="hljs-keyword">in</span><br>   // <span class="hljs-keyword">stable</span> <span class="hljs-keyword">storage</span> <span class="hljs-keyword">on</span> a quorum <span class="hljs-keyword">of</span> nodes.<br>   <span class="hljs-keyword">committed</span> uint64<br>   // applied <span class="hljs-keyword">is</span> the highest <span class="hljs-keyword">log</span> position that the application has<br>   // been instructed <span class="hljs-keyword">to</span> apply <span class="hljs-keyword">to</span> its state machine.<br>   // Invariant: applied &lt;= <span class="hljs-keyword">committed</span><br>   applied uint64<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>从上面raftLog结构体中，可以看到，存储稳定的日志条目的storage类型是Storage，Storage定义了存储Raft日志条目的核心API接口，业务应用层可根据实际场景进行定制化实现。etcd使用的是Raft算法库本身提供的MemoryStorage，其定义如下，核心是使用了一个数组来存储已经持久化后的日志条目。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-comment">// MemoryStorage implements the Storage interface backed</span><br><span class="hljs-comment">// by an in-memory array.</span><br>type MemoryStorage struct &#123;<br>   <span class="hljs-comment">// Protects access to all fields. Most methods of MemoryStorage are</span><br>   <span class="hljs-comment">// run on the raft goroutine， but Append() is run on an application</span><br>   <span class="hljs-comment">// goroutine.</span><br>   sync<span class="hljs-selector-class">.Mutex</span><br><br>   hardState pb<span class="hljs-selector-class">.HardState</span><br>   snapshot  pb<span class="hljs-selector-class">.Snapshot</span><br>   <span class="hljs-comment">// ents[i] has raftLog position i+snapshot.Metadata.Index</span><br>   ents <span class="hljs-selector-attr">[]</span>pb<span class="hljs-selector-class">.Entry</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>那么随着写请求增多，内存中保留的Raft日志条目会越来越多，如何防止etcd出现OOM呢？</p>
+<p>etcd提供了<strong>快照和压缩</strong>功能来解决这个问题。</p>
+<p>首先可以通过调整–snapshot-count参数来控制生成快照的频率，其值默认是100000（etcd v3.4.9，早期etcd版本是10000），也就是每10万个写请求触发一次快照生成操作。</p>
+<p>快照生成完之后，etcd会通过压缩来删除旧的日志条目。</p>
+<p>那么是全部删除日志条目还是保留一小部分呢？</p>
+<p>答案是保留一小部分Raft日志条目。数量由DefaultSnapshotCatchUpEntries参数控制，默认5000，目前不支持自定义配置。</p>
+<p>保留一小部分日志条目其实是为了帮助慢的Follower以较低的开销向Leader获取Raft日志条目，以尽快追上Leader进度。若raftLog中不保留任何日志条目，就只能发送快照给慢的Follower，这开销就非常大了。</p>
+<p>通过以上分析可知，如果你的请求key-value比较大，比如上面我们的案例中是1M，1000次修改，那么etcd raftLog至少会消耗1G的内存。这就是为什么内存随着写请求修改次数不断增长的原因。</p>
+<p>除了raftLog占用内存外，MVCC模块的treeIndex&#x2F;boltdb模块又是如何使用内存的呢？</p>
+<h2 id="treeIndex"><a href="#treeIndex" class="headerlink" title="treeIndex"></a>treeIndex</h2><p>一个put写请求的日志条目被集群多数节点确认提交后，这时etcdserver就会从Raft模块获取已提交的日志条目，应用到MVCC模块的treeIndex和boltdb。</p>
+<p>我们知道treeIndex是基于google内存btree库实现的一个索引管理模块，在etcd中每个key都会在treeIndex中保存一个索引项(keyIndex)，记录你的key和版本号等信息，如下面的数据结构所示。</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs gauss"><span class="hljs-built_in">type</span> keyIndex <span class="hljs-keyword">struct</span> &#123;<br>   <span class="hljs-built_in">key</span>         []byte<br>   modified    revision <span class="hljs-comment">// the main rev of the last modification</span><br>   generations []generation<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>同时，每次对key的修改、删除操作都会在key的索引项中追加一条修改记录(revision)。因此，随着修改次数的增加，etcd内存会一直增加。那么如何清理旧版本，防止过多的内存占用呢？</p>
+<p>答案也是压缩。当你执行compact命令时，etcd会遍历treeIndex中的各个keyIndex，清理历史版本号记录与已删除的key，释放内存。</p>
+<p>从上面的keyIndex数据结构我们可知，一个key的索引项内存开销跟你的key大小、保存的历史版本数、compact策略有关。为了避免内存索引项占用过多的内存，key的长度不应过长，同时需要配置好合理的压缩策略。</p>
+<h2 id="boltdb"><a href="#boltdb" class="headerlink" title="boltdb"></a>boltdb</h2><p>在treeIndex模块中创建、更新完keyIndex数据结构后，你的key-value数据、各种版本号、lease等相关信息会保存到如下的一个mvccpb.keyValue结构体中。它是boltdb的value，key则是treeIndex中保存的版本号，然后通过boltdb的写接口保存到db文件中。</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs dts">kv := mvccpb.KeyValue<span class="hljs-punctuation">&#123;</span><br><span class="hljs-symbol">   Key:</span>            key，<br><span class="hljs-symbol">   Value:</span>          value，<br><span class="hljs-symbol">   CreateRevision:</span> c，<br><span class="hljs-symbol">   ModRevision:</span>    rev，<br><span class="hljs-symbol">   Version:</span>        ver，<br><span class="hljs-symbol">   Lease:</span>          int64(leaseID)，<br><span class="hljs-punctuation">&#125;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>前面介绍boltdb时，提到过etcd在启动时会通过mmap机制，将etcd db文件映射到etcd进程地址空间，并设置mmap的MAP_POPULATE flag，它会告诉Linux内核预读文件，让Linux内核将文件内容拷贝到物理内存中。</p>
+<p>在节点内存足够的情况下，后续读请求可直接从内存中获取。相比read系统调用，mmap少了一次从page cache拷贝到进程内存地址空间的操作，因此具备更好的性能。</p>
+<p>若etcd节点内存不足，可能会导致db文件对应的内存页被换出。当读请求命中的页未在内存中时，就会产生缺页异常，导致读过程中产生磁盘IO。这样虽然避免了etcd进程OOM，但是此过程会产生较大的延时。</p>
+<p>从以上boltdb的key-value和mmap机制介绍中我们可知，我们应控制boltdb文件大小，优化key-value大小，配置合理的压缩策略，回收旧版本，避免过多内存占用。</p>
+<h2 id="watcher"><a href="#watcher" class="headerlink" title="watcher"></a>watcher</h2><p>在写入key的时候，其他client还可通过etcd的Watch监听机制，获取到key的变化事件。</p>
+<p>那创建一个watcher耗费的内存跟哪些因素有关呢?</p>
+<p>在Watch机制设计与实现分析中，介绍过创建watcher的整体流程与架构，如下图所示。当创建一个watcher时，client与server建立连接后，会创建一个gRPC Watch Stream，随后通过这个gRPC Watch Stream发送创建watcher请求。</p>
+<p>每个gRPC Watch Stream中etcd WatchServer会分配两个goroutine处理，一个是sendLoop，它负责Watch事件的推送。一个是recvLoop，负责接收client的创建、取消watcher请求消息。</p>
+<p>同时对每个watcher来说，etcd的WatchableKV模块需将其保存到相应的内存管理数据结构中，实现可靠的Watch事件推送。</p>
+<p><img src="https://static001.geekbang.org/resource/image/42/bf/42575d8d0a034e823b8e48d4ca0a49bf.png?wh=1920*1075" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>因此watch监听机制耗费的内存跟client连接数、gRPC Stream、watcher数(watching)有关，如下面公式所示：</p>
+<ul>
+<li>c1表示每个连接耗费的内存；</li>
+<li>c2表示每个gRPC Stream耗费的内存；</li>
+<li>c3表示每个watcher耗费的内存。</li>
+</ul>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">memory</span> = <span class="hljs-built_in">c1</span> * number_of_conn + <span class="hljs-built_in">c2</span> *<br><span class="hljs-symbol">avg_number_of_stream_per_conn</span> + <span class="hljs-built_in">c3</span> *<br><span class="hljs-symbol">avg_number_of_watch_stream</span><br><br></code></pre></td></tr></table></figure>
+
+<p>根据etcd社区的 <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/benchmarks/etcd-3-watch-memory-benchmark/">压测报告</a>，大概估算出Watch机制中c1、c2、c3占用的内存分别如下：</p>
+<ul>
+<li>每个client连接消耗大约17kb的内存(c1)；</li>
+<li>每个gRPC Stream消耗大约18kb的内存(c2)；</li>
+<li>每个watcher消耗大约350个字节(c3)；</li>
+</ul>
+<p>当业务场景大量使用watcher的时候，应提前估算下内存容量大小，选择合适的内存配置节点。</p>
+<p>注意以上估算并不包括watch事件堆积的开销。变更事件较多，服务端、客户端高负载，网络阻塞等情况都可能导致事件堆积。</p>
+<p>在etcd 3.4.9版本中，每个watcher默认buffer是1024。buffer内保存watch响应结果，如watchID、watch事件（watch事件包含key、value）等。</p>
+<p>若大量事件堆积，将产生较高昂的内存的开销。你可以通过etcd_debugging_mvcc_pending_events_total指标监控堆积的事件数，etcd_debugging_slow_watcher_total指标监控慢的watcher数，来及时发现异常。</p>
+<h2 id="expensive-request"><a href="#expensive-request" class="headerlink" title="expensive request"></a>expensive request</h2><p>当写入比较大的key-value后，如果client频繁查询它，也会产生高昂的内存开销。</p>
+<p>假设写入了100个这样1M大小的key， 通过Range接口一次查询100个key， 那么boltdb遍历、反序列化过程将花费至少100MB的内存。如下面代码所示，它会遍历整个key-value，将key-value保存到数组kvs中。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go">kvs := <span class="hljs-built_in">make</span>([]mvccpb.KeyValue， limit)<br>revBytes := newRevBytes()<br><span class="hljs-keyword">for</span> i， revpair := <span class="hljs-keyword">range</span> revpairs[:<span class="hljs-built_in">len</span>(kvs)] &#123;<br>   revToBytes(revpair， revBytes)<br>   _， vs := tr.tx.UnsafeRange(keyBucketName， revBytes， <span class="hljs-literal">nil</span>， <span class="hljs-number">0</span>)<br>   <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(vs) != <span class="hljs-number">1</span> &#123;<br>        ......<br>   &#125;<br>   <span class="hljs-keyword">if</span> err := kvs[i].Unmarshal(vs[<span class="hljs-number">0</span>]); err != <span class="hljs-literal">nil</span> &#123;<br>        .......<br>   &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>也就是说，一次查询就耗费了至少100MB的内存、产生了至少100MB的流量，随着QPS增大后，很容易OOM、网卡出现丢包。</p>
+<p>count-only、limit查询在key百万级以上时，也会产生非常大的内存开销。因为它们在遍历treeIndex的过程中，会将相关key保存在数组里面。当key多时，此开销不容忽视。</p>
+<h2 id="etcd-v2-x2F-goroutines-x2F-bug"><a href="#etcd-v2-x2F-goroutines-x2F-bug" class="headerlink" title="etcd v2&#x2F;goroutines&#x2F;bug"></a>etcd v2&#x2F;goroutines&#x2F;bug</h2><p>除了以上介绍的核心模块、expensive request场景可能导致较高的内存开销外，还有以下场景也会导致etcd内存使用较高。</p>
+<p>首先是 <strong>etcd中使用了v2的API写入了大量的key-value数据</strong>，这会导致内存飙高。etcd v2的key-value都是存储在内存树中的，同时v2的watcher不支持多路复用，内存开销相比v3多了一个数量级。</p>
+<p>在etcd 3.4版本之前，etcd默认同时支持etcd v2&#x2F;v3 API，etcd 3.4版本默认关闭了v2 API。 可以通过etcd v2 API和etcd v2内存存储模块的metrics前缀etcd_debugging_store，观察集群中是否有v2数据导致的内存占用高。</p>
+<p>其次是 <strong>goroutines泄露</strong> 导致内存占用高。此问题可能会在容器化场景中遇到。etcd在打印日志的时候，若出现阻塞则可能会导致goroutine阻塞并持续泄露，最终导致内存泄露。可以通过观察、监控go_goroutines来发现这个问题。</p>
+<p>最后是 <strong>etcd bug</strong> 导致的内存泄露。当基本排除以上场景导致的内存占用高后，则很可能是etcd bug导致的内存泄露。</p>
+<p>比如早期etcd clientv3的lease keepalive租约频繁续期bug，它会导致Leader高负载、内存泄露，此bug已在3.2.24&#x2F;3.3.9版本中修复。</p>
+<p>若内存泄露并不是已知的etcd bug导致，可以开启pprof， 尝试复现，通过分析pprof heap文件来确定消耗大量内存的模块和数据结构。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>通过一个写入1MB key的实际案例，介绍了可能导致etcd内存占用高的核心数据结构、场景，将可能导致内存占用较高的因素总结为了下面这幅图。</p>
+<p><img src="https://static001.geekbang.org/resource/image/aa/90/aaf7b4f5f6f568dc70c1a0964fb92790.png?wh=1920*684" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>首先是raftLog。为了帮助slow Follower同步数据，它至少要保留5000条最近收到的写请求在内存中。若key非常大，更新5000次会产生较大的内存开销。</p>
+<p>其次是treeIndex。 每个key-value会在内存中保留一个索引项。索引项的开销跟key长度、保留的历史版本有关，可以通过compact命令压缩。</p>
+<p>然后是boltdb。etcd启动的时候，会通过mmap系统调用，将文件映射到虚拟内存中。可以通过compact命令回收旧版本，defrag命令进行碎片整理。</p>
+<p>接着是watcher。它的内存占用跟连接数、gRPC Watch Stream数、watcher数有关。watch机制一个不可忽视的内存开销其实是事件堆积的占用缓存，可以通过相关metrics及时发现堆积的事件以及slow watcher。</p>
+<p>最后介绍了一些典型的场景导致的内存异常，如大包查询等expensive request，etcd中存储了v2 API写入的key， goroutines泄露以及etcd lease bug等。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>15.内存：为什么你的etcd内存占用那么高？</div>
+      <div>https://blog.longpi1.com/2022/10/07/15-内存：为什么你的etcd内存占用那么高？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/07/14-%E5%BB%B6%E6%97%B6%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84etcd%E8%AF%B7%E6%B1%82%E4%BC%9A%E5%87%BA%E7%8E%B0%E8%B6%85%E6%97%B6%EF%BC%9F/" title="14.延时：为什么你的etcd请求会出现超时？">
+                        <span class="hidden-mobile">14.延时：为什么你的etcd请求会出现超时？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
