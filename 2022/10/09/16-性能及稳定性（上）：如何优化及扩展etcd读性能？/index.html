@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="16.性能及稳定性（上）：如何优化及扩展etcd读性能？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/09/16-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8A%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E8%AF%BB%E6%80%A7%E8%83%BD%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/7f/52/7f8c66ded3e151123b18768b880a2152.png?wh=1920*1253">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9e/61/9e1fb86567b351641db9586081c0e361.png?wh=1920*1267">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/bc/c4/bc6336b93de53e6650bd7a5565ef8ec4.png?wh=1470*1284">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/44/aa/449bb47bef89a7cf1d2fbb1205a15faa.png?wh=1286*1362">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/58/9a/5832f5da0f916b941b1d832e9fe2e29a.png?wh=1920*1270">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/3d/9a/3d18aafb016a93e8d2f07a4193cb6b9a.png?wh=1426*1336">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/83/0d/831338d142bc44999cc6c3b04147yy0d.png?wh=1474*1346">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/58/ca/58135ebf14a25e3f74004929369867ca.png?wh=1398*590">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/f0/f1/f018b98629360e7c6eef6f9cfb0241f1.png?wh=1920*1162">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/73/bc/732ec57338e1yy1d932e959ed776c0bc.png?wh=1920*1336">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/40/5a/4069e72370942764ef4905715267c05a.jpg?wh=1475*620">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9d/da/9dfe22355a9fd841943fb1c4556db9da.png?wh=1920*1272">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/a0/c7/a0735af4c2efd4156d392f75yyf132c7.png?wh=1296*1324">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/95/78/9599ec869c1496e8f9a8e5e54acb5b78.png?wh=1326*412">
+<meta property="article:published_time" content="2022-10-09T14:34:02.000Z">
+<meta property="article:modified_time" content="2022-10-09T14:34:35.644Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/7f/52/7f8c66ded3e151123b18768b880a2152.png?wh=1920*1253">
+  
+  
+  
+  <title>16.性能及稳定性（上）：如何优化及扩展etcd读性能？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="16.性能及稳定性（上）：如何优化及扩展etcd读性能？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-09 22:34" pubdate>
+          2022年10月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          56 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">16.性能及稳定性（上）：如何优化及扩展etcd读性能？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="16-性能及稳定性（上）：如何优化及扩展etcd读性能？"><a href="#16-性能及稳定性（上）：如何优化及扩展etcd读性能？" class="headerlink" title="16.性能及稳定性（上）：如何优化及扩展etcd读性能？"></a>16.性能及稳定性（上）：如何优化及扩展etcd读性能？</h1><h2 id="读性能分析链路"><a href="#读性能分析链路" class="headerlink" title="读性能分析链路"></a>读性能分析链路</h2><p>为什么在业务场景中读性能不如预期呢？ 是读流程中的哪一个环节出现了瓶颈？</p>
+<p>在下图中，总结了一个开启密码鉴权场景的读性能瓶颈分析链路图，并在每个核心步骤数字旁边，标出了影响性能的关键因素。之所以选用密码鉴权的读请求为案例，是因为它使用较广泛并且请求链路覆盖最全，同时它也是最容易遇到性能瓶颈的场景。</p>
+<p><img src="https://static001.geekbang.org/resource/image/7f/52/7f8c66ded3e151123b18768b880a2152.png?wh=1920*1253" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>接下来按照这张链路分析图，深入分析一个使用密码鉴权的线性读请求，一起看看影响它性能表现的核心因素以及最佳优化实践。</p>
+<h2 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h2><p>首先是流程一负载均衡。在etcd 3.4以前，client为了节省与server节点的连接数，clientv3负载均衡器最终只会选择一个sever节点IP，与其建立一个长连接。</p>
+<p>但是这可能会导致对应的server节点过载（如单节点流量过大，出现丢包）， 其他节点却是低负载，最终导致业务无法获得集群的最佳性能。在etcd 3.4后，引入了Round-robin负载均衡算法，它通过轮询的方式依次从endpoint列表中选择一个endpoint访问(长连接)，使server节点负载尽量均衡。</p>
+<p>所以，如果使用的是etcd低版本，那么通过Load Balancer访问后端etcd集群。因为一方面Load Balancer一般支持配置各种负载均衡算法，如连接数、Round-robin等，可以使集群负载更加均衡，规避etcd client早期的固定连接缺陷，获得集群最佳性能。</p>
+<p>另一方面，当集群节点需要替换、扩缩容集群节点的时候，不需要去调整各个client访问server的节点配置。</p>
+<h2 id="选择合适的鉴权"><a href="#选择合适的鉴权" class="headerlink" title="选择合适的鉴权"></a>选择合适的鉴权</h2><p>client通过负载均衡算法为请求选择好etcd server节点后，client就可调用server的Range RPC方法，把请求发送给etcd server。在此过程中，如果server启用了鉴权，那么就会返回无权限相关错误给client。</p>
+<p>如果server使用的是密码鉴权，你在创建client时，需指定用户名和密码。etcd clientv3库发现用户名、密码非空，就会先校验用户名和密码是否正确。</p>
+<p>client是如何向sever请求校验用户名、密码正确性的呢？</p>
+<p>client是通过向server发送Authenticate RPC鉴权请求实现密码认证的，也就是图中的流程二。</p>
+<p><img src="https://static001.geekbang.org/resource/image/9e/61/9e1fb86567b351641db9586081c0e361.png?wh=1920*1267" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>根据之前介绍的密码认证原理，server节点收到鉴权请求后，它会从boltdb获取此用户密码对应的算法版本、salt、cost值，并基于用户的请求明文密码计算出一个hash值。</p>
+<p>在得到hash值后，就可以对比db里保存的hash密码是否与其一致了。如果一致，就会返回一个token给client。 这个token是client访问server节点的通行证，后续server只需要校验“通行证”是否有效即可，无需每次发起昂贵的Authenticate RPC请求。</p>
+<p>若你的业务在访问etcd过程中未复用token，每次访问etcd都发起一次Authenticate调用，这将是一个非常大的性能瓶颈和隐患。为了保证密码的安全性，密码认证（Authenticate）的开销非常昂贵，涉及到大量CPU资源。</p>
+<p>那这个Authenticate接口究竟有多慢呢？</p>
+<p>为了得到Authenticate接口的性能，一个测试：</p>
+<ul>
+<li>压测集群etcd节点配置是16核32G；</li>
+<li>压测方式是通过修改etcd clientv3库、benchmark工具，使benchmark工具支持Authenticate接口压测；</li>
+<li>然后设置不同的client和connection参数，运行多次，观察结果是否稳定，获取测试结果。</li>
+</ul>
+<p>最终的测试结果非常惊人。etcd v3.4.9之前的版本，Authenticate接口性能不到16 QPS，并且随着client和connection增多，该性能会继续恶化。</p>
+<p>当client和connection的数量达到200个的时候，性能会下降到8 QPS，P99延时为18秒，如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/bc/c4/bc6336b93de53e6650bd7a5565ef8ec4.png?wh=1470*1284" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>由于导致Authenticate接口性能差的核心瓶颈，是在于密码鉴权使用了bcrpt计算hash值，因此Authenticate性能已接近极限。</p>
+<p><img src="https://static001.geekbang.org/resource/image/44/aa/449bb47bef89a7cf1d2fbb1205a15faa.png?wh=1286*1362" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>最令人头疼的是，Auenticate的调用由clientv3库默默发起的，etcd中也没有任何日志记录其耗时等。当大家开启密码鉴权后，遇到读写接口超时的时候，未详细了解etcd的同学就会非常困惑，很难定位超时本质原因。</p>
+<p>问题大都是由比较频繁的Authenticate调用导致，只要临时关闭鉴权或升级到etcd v3.4.9版本就可以恢复。</p>
+<p>密码鉴权的性能如此差，可是业务又需要使用它，该怎么解决密码鉴权的性能问题呢？对此，三点建议。</p>
+<p>第一，如果你的生产环境需要开启鉴权，并且读写QPS较大，不要图省事使用密码鉴权。最好使用证书鉴权，这样能完美避坑认证性能差、token过期等问题，性能几乎无损失。</p>
+<p>第二，确保业务每次发起请求时有复用token机制，尽可能减少Authenticate RPC调用。</p>
+<p>第三，如果使用密码鉴权时遇到性能瓶颈问题，可将etcd升级到3.4.9及以上版本，能适当提升密码鉴权的性能。</p>
+<h2 id="选择合适的读模式"><a href="#选择合适的读模式" class="headerlink" title="选择合适的读模式"></a>选择合适的读模式</h2><p>client通过server的鉴权后，就可以发起读请求调用了，也就是图中的流程三。</p>
+<p><img src="https://static001.geekbang.org/resource/image/58/9a/5832f5da0f916b941b1d832e9fe2e29a.png?wh=1920*1270" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在这个步骤中，读模式对性能有着至关重要的影响。前面讲过etcd提供了串行读和线性读两种读模式。前者因为不经过ReadIndex模块，具有低延时、高吞吐量的特点；而后者在牺牲一点延时和吞吐量的基础上，实现了数据的强一致性读。这两种读模式分别为不同场景的读提供了解决方案。</p>
+<p>关于串行读和线性读的性能对比，下图给出了一个测试结果，测试环境如下：</p>
+<ul>
+<li>机器配置client 16核32G，三个server节点8核16G、SSD盘，client与server节点都在同可用区；</li>
+<li>各节点之间RTT在0.1ms到0.2ms之间；</li>
+<li>etcd v3.4.9版本；</li>
+<li>1000个client。</li>
+</ul>
+<p>执行如下串行读压测命令：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">benchmark <span class="hljs-attribute">--endpoints</span>=addr <span class="hljs-attribute">--conns</span>=100 <span class="hljs-attribute">--clients</span>=1000 \<br>range hello <span class="hljs-attribute">--consistency</span>=s <span class="hljs-attribute">--total</span>=500000<br><br></code></pre></td></tr></table></figure>
+
+<p>得到串行读压测结果如下，32万 QPS，平均延时2.5ms。</p>
+<p><img src="https://static001.geekbang.org/resource/image/3d/9a/3d18aafb016a93e8d2f07a4193cb6b9a.png?wh=1426*1336" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>执行如下线性读压测命令：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">benchmark <span class="hljs-attribute">--endpoints</span>=addr <span class="hljs-attribute">--conns</span>=100 <span class="hljs-attribute">--clients</span>=1000 \<br>range hello <span class="hljs-attribute">--consistency</span>=l <span class="hljs-attribute">--total</span>=500000<br><br></code></pre></td></tr></table></figure>
+
+<p>得到线性读压测结果如下，19万 QPS，平均延时4.9ms。</p>
+<p><img src="https://static001.geekbang.org/resource/image/83/0d/831338d142bc44999cc6c3b04147yy0d.png?wh=1474*1346" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从两个压测结果图中你可以看到，在100个连接时，串行读性能比线性读性能高近11万&#x2F;s，串行读请求延时（2.5ms）比线性读延时约低一半（4.9ms）。</p>
+<p><strong>需要注意的是，以上读性能数据是在1个key、没有任何写请求、同可用区的场景下压测出来的，实际的读性能会随着你的写请求增多而出现显著下降，这也是实际业务场景性能与社区压测结果存在非常大差距的原因之一。</strong> 建议使用etcd benchmark工具在etcd集群环境中自测一下，也可以参考下面的 <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/op-guide/performance/">etcd社区压测结果</a>。</p>
+<p><img src="https://static001.geekbang.org/resource/image/58/ca/58135ebf14a25e3f74004929369867ca.png?wh=1398*590" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>如果业务场景读QPS较大，但是又不想通过etcd proxy等机制来扩展性能，那可以进一步评估业务场景对数据一致性的要求高不高。如果可以容忍短暂的不一致，那你可以通过串行读来提升etcd的读性能，也可以部署Learner节点给可能会产生expensive read request的业务使用，实现cheap&#x2F;expensive read request隔离。</p>
+<h2 id="线性读实现机制、网络延时"><a href="#线性读实现机制、网络延时" class="headerlink" title="线性读实现机制、网络延时"></a>线性读实现机制、网络延时</h2><p>了解完读模式对性能的影响后，我们继续往下分析。在我们这个密码鉴权读请求的性能分析案例中，读请求使用的是etcd默认线性读模式。线性读对应图中的流程四、流程五，其中流程四对应的是ReadIndex，流程五对应的是等待本节点数据追上Leader的进度（ApplyWait）。</p>
+<p><img src="https://static001.geekbang.org/resource/image/f0/f1/f018b98629360e7c6eef6f9cfb0241f1.png?wh=1920*1162" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在早期的etcd 3.0版本中，etcd线性读是基于Raft log read实现的。每次读请求要像写请求一样，生成一个Raft日志条目，然后提交给Raft一致性模块处理，基于Raft日志执行的有序性来实现线性读。因为该过程需要经过磁盘I&#x2F;O，所以性能较差。</p>
+<p>为了解决Raft log read的线性读性能瓶颈，etcd 3.1中引入了ReadIndex。ReadIndex仅涉及到各个节点之间网络通信，因此节点之间的RTT延时对其性能有较大影响。虽然同可用区可获取到最佳性能，但是存在单可用区故障风险。如果你想实现高可用区容灾的话，那就必须牺牲一点性能了。</p>
+<p>跨可用区部署时，各个可用区之间延时一般在2毫秒内。如果跨城部署，服务性能就会下降较大。所以一般场景下我不建议你跨城部署，你可以通过Learner节点实现异地容灾。如果异地的服务对数据一致性要求不高，那么你甚至可以通过串行读访问Learner节点，来实现就近访问，低延时。</p>
+<p>各个节点之间的RTT延时，是决定流程四ReadIndex性能的核心因素之一。</p>
+<h2 id="磁盘IO性能、写QPS"><a href="#磁盘IO性能、写QPS" class="headerlink" title="磁盘IO性能、写QPS"></a>磁盘IO性能、写QPS</h2><p>到了流程五，影响性能的核心因素就是磁盘IO延时和写QPS。</p>
+<p><img src="https://static001.geekbang.org/resource/image/73/bc/732ec57338e1yy1d932e959ed776c0bc.png?wh=1920*1336" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>如下面代码所示，流程五是指节点从Leader获取到最新已提交的日志条目索引(rs.Index)后，它需要等待本节点当前已应用的Raft日志索引，大于等于Leader的已提交索引，确保能在本节点状态机中读取到最新数据。</p>
+<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs fortran"><span class="hljs-keyword">if</span> ai := s.getAppliedIndex(); ai &lt; rs.<span class="hljs-built_in">Index</span> &#123;<br>   <span class="hljs-keyword">select</span> &#123;<br>   <span class="hljs-keyword">case</span> &lt;-s.applyWait.<span class="hljs-keyword">Wait</span>(rs.<span class="hljs-built_in">Index</span>):<br>   <span class="hljs-keyword">case</span> &lt;-s.stopping:<br>      <span class="hljs-keyword">return</span><br>   &#125;<br>&#125;<br>// unblock <span class="hljs-built_in">all</span> l-reads requested at indices before rs.<span class="hljs-built_in">Index</span><br>nr.notify(nil)<br><br></code></pre></td></tr></table></figure>
+
+<p>而应用已提交日志条目到状态机的过程中又涉及到随机写磁盘，详情可参考我们 <a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/336766">03</a> 中介绍过etcd的写请求原理。</p>
+<p>因此可以知道， <strong>etcd是一个对磁盘IO性能非常敏感的存储系统，磁盘IO性能不仅会影响Leader稳定性、写性能表现，还会影响读性能。线性读性能会随着写性能的增加而快速下降。如果业务对性能、稳定性有较大要求，建议尽量使用SSD盘。</strong></p>
+<p>下表给出了一个8核16G的三节点集群，在总key数只有一个的情况下，随着写请求增大，线性读性能下降的趋势总结（基于benchmark工具压测结果），可以直观感受下读性能是如何随着写性能下降。</p>
+<p><img src="https://static001.geekbang.org/resource/image/40/5a/4069e72370942764ef4905715267c05a.jpg?wh=1475*620" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当本节点已应用日志条目索引大于等于Leader已提交的日志条目索引后，读请求就会接到通知，就可通过MVCC模块获取数据。</p>
+<h2 id="RBAC规则数、Auth锁"><a href="#RBAC规则数、Auth锁" class="headerlink" title="RBAC规则数、Auth锁"></a>RBAC规则数、Auth锁</h2><p>读请求到了MVCC模块后，首先要通过鉴权模块判断此用户是否有权限访问请求的数据路径，也就是流程六。影响流程六的性能因素是你的RBAC规则数和锁。</p>
+<p>首先是RBAC规则数，为了解决快速判断用户对指定key范围是否有权限，etcd为每个用户维护了读写权限区间树。基于区间树判断用户访问的范围是否在用户的读写权限区间内，时间复杂度仅需要O(logN)。</p>
+<p>另外一个因素则是AuthStore的锁。在etcd 3.4.9之前的，校验密码接口可能会占用较长时间的锁，导致授权接口阻塞。etcd 3.4.9之后合入了缩小锁范围的PR，可一定程度降低授权接口被阻塞的问题。</p>
+<h2 id="expensive-request、treeIndex锁"><a href="#expensive-request、treeIndex锁" class="headerlink" title="expensive request、treeIndex锁"></a>expensive request、treeIndex锁</h2><p>通过流程六的授权后，则进入流程七，从treeIndex中获取整个查询涉及的key列表版本号信息。在这个流程中，影响其性能的关键因素是treeIndex的总key数、查询的key数、获取treeIndex锁的耗时。</p>
+<p><img src="https://static001.geekbang.org/resource/image/9d/da/9dfe22355a9fd841943fb1c4556db9da.png?wh=1920*1272" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>首先，treeIndex中总key数过多会适当增大遍历的耗时。</p>
+<p>其次，若要访问treeIndex我们必须获取到锁，但是可能其他请求如compact操作也会获取锁。早期的时候，它需要遍历所有索引，然后进行数据压缩工作。这就会导致其他请求阻塞，进而增大延时。</p>
+<p>为了解决这个性能问题，优化方案是compact的时候会将treeIndex克隆一份，以空间来换时间，尽量降低锁阻塞带来的超时问题。</p>
+<p>接下来重点介绍查询key数较多等expensive read request时对性能的影响。</p>
+<p>假设链路分析图中的请求是查询一个Kubernetes集群所有Pod，当Pod数一百以内的时候可能对etcd影响不大，但是当你Pod数千甚至上万的时候， 流程七、八就会遍历大量的key，导致请求耗时突增、内存上涨、性能急剧下降。</p>
+<p>如果业务就是有这种expensive read request逻辑，我们该如何应对呢？</p>
+<p>首先可以尽量减少expensive read request次数，在程序启动的时候，只List一次全量数据，然后通过etcd Watch机制去获取增量变更数据。比如Kubernetes的Informer机制，就是典型的优化实践。</p>
+<p>其次，在设计上评估是否能进行一些数据分片、拆分等，不同场景使用不同的etcd prefix前缀。比如在Kubernetes中，不要把Pod全部都部署在default命名空间下，尽量根据业务场景按命名空间拆分部署。即便每个场景全量拉取，也只需要遍历自己命名空间下的资源，数据量上将下降一个数量级。</p>
+<p>再次，如果觉得Watch改造大、数据也无法分片，开发麻烦，你可以通过分页机制按批拉取，尽量减少一次性拉取数万条数据。</p>
+<p>最后，如果以上方式都不起作用的话，还可以通过引入cache实现缓存expensive read request的结果，不过应用需维护缓存数据与etcd的一致性。</p>
+<h2 id="大key-value、boltdb锁"><a href="#大key-value、boltdb锁" class="headerlink" title="大key-value、boltdb锁"></a>大key-value、boltdb锁</h2><p>从流程七获取到key列表及版本号信息后，我们就可以访问boltdb模块，获取key-value信息了。在这个流程中，影响其性能表现的，除了我们上面介绍的expensive read request，还有大key-value和锁。</p>
+<p>首先是大key-value。我们知道etcd设计上定位是个小型的元数据存储，它没有数据分片机制，默认db quota只有2G，实践中往往不会超过8G，并且针对每个key-value大小，它也进行了大小限制，默认是1.5MB。</p>
+<p>大key-value非常容易导致etcd OOM、server 节点出现丢包、性能急剧下降等。</p>
+<p>那么当我们往etcd集群写入一个1MB的key-value时，它的线性读性能会从17万QPS具体下降到多少呢?</p>
+<p>我们可以执行如下benchmark命令：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">benchmark <span class="hljs-attribute">--endpoints</span>=addr <span class="hljs-attribute">--conns</span>=100 <span class="hljs-attribute">--clients</span>=1000 \<br>range key <span class="hljs-attribute">--consistency</span>=l <span class="hljs-attribute">--total</span>=10000<br><br></code></pre></td></tr></table></figure>
+
+<p>得到其结果如下，从下图可以看到，读取一个1MB的key-value，线性读性能QPS下降到1163，平均延时上升到818ms，可见大key-value对性能的巨大影响。</p>
+<p><img src="https://static001.geekbang.org/resource/image/a0/c7/a0735af4c2efd4156d392f75yyf132c7.png?wh=1296*1324" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>同时，从下面的etcd监控图上你也可以看到内存出现了突增，若存在大量大key-value时，可想而知，etcd内存肯定暴涨，大概率会OOM。</p>
+<p><img src="https://static001.geekbang.org/resource/image/95/78/9599ec869c1496e8f9a8e5e54acb5b78.png?wh=1326*412" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>其次是锁，etcd为了提升boltdb读的性能，从etcd 3.1到etcd 3.4版本，分别进行过几次重大优化，在下一节中我将和你介绍。</p>
+<p>以上就是一个开启密码鉴权场景，线性读请求的性能瓶颈分析过程。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>优化读性能的核心思路是首先通过etcd clientv3自带的Round-robin负载均衡算法或者Load Balancer，尽量确保整个集群负载均衡。</p>
+<p>然后，在开启鉴权场景时，建议尽量使用证书而不是密码认证，避免校验密码的昂贵开销。</p>
+<p>其次，根据业务场景选择合适的读模式，串行读比线性度性能提高30%以上，延时降低一倍。线性读性能受节点之间RTT延时、磁盘IO延时、当前写QPS等多重因素影响。</p>
+<p>最容易被大家忽视的就是写QPS对读QPS的影响，我通过一系列压测数据，整理成一个表格，让你更直观感受写QPS对读性能的影响。多可用区部署会导致节点RTT延时增高，读性能下降。因此你需要在高可用和高性能上做取舍和平衡。</p>
+<p>最后在访问数据前，读性能还可能会受授权性能、expensive read request、treeIndex及boltdb的锁等影响。你需要遵循最佳实践，避免一个请求查询大量key、大key-value等，否则会导致读性能剧烈下降。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>16.性能及稳定性（上）：如何优化及扩展etcd读性能？</div>
+      <div>https://blog.longpi1.com/2022/10/09/16-性能及稳定性（上）：如何优化及扩展etcd读性能？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/09/17-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E5%86%99%E6%80%A7%E8%83%BD/" title="17.性能及稳定性（下）：如何优化及扩展etcd写性能?">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">17.性能及稳定性（下）：如何优化及扩展etcd写性能?</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/07/15-%E5%86%85%E5%AD%98%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84etcd%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E9%82%A3%E4%B9%88%E9%AB%98%EF%BC%9F/" title="15.内存：为什么你的etcd内存占用那么高？">
+                        <span class="hidden-mobile">15.内存：为什么你的etcd内存占用那么高？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

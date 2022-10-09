@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="17.性能及稳定性（下）：如何优化及扩展etcd写性能?">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/09/17-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E5%86%99%E6%80%A7%E8%83%BD/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/14/0a/14ac1e7f1936f2def67b7fa24914070a.png?wh=1920*1167">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/89/e8/89c9ccbf210861836cc3b5929b7ebae8.png?wh=1920*1227">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/78/14/78062ff5b8c5863d8802bdfacf32yy14.png?wh=1920*1233">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/66/2c/660a03c960cd56610e3c43e15c14182c.png?wh=1920*1247">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/8d/eb/8dd9d414eb4ef3ba9a7603fayy991aeb.png?wh=1920*1254">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/91/14/913e9875ef32df415426a3e5e7cff814.png?wh=1424*1364">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/17/2f/1758a57804be463228e6431a388c552f.png?wh=1432*1354">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/1a/38/1ab7a084e61d84f44b893a0fbbdc0138.png?wh=1920*1262">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/53/f6/5303f1b003480d2ddfe7dbd56b05b3f6.png?wh=1920*1179">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/0c/bb/0c2635d617245f5d4084fbe48820e4bb.png?wh=1007*157">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/a7/63/a745af37d76208c08be147ac46018463.png?wh=1302*1324">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/4a/b1/4a13ec9a4f93931e6e0656c600c2d3b1.png?wh=1920*1042">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/92/87/928a4f1e66200531f5ee73aab000ce87.png?wh=1920*1091">
+<meta property="article:published_time" content="2022-10-09T14:34:49.000Z">
+<meta property="article:modified_time" content="2022-10-09T14:35:07.426Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/14/0a/14ac1e7f1936f2def67b7fa24914070a.png?wh=1920*1167">
+  
+  
+  
+  <title>17.性能及稳定性（下）：如何优化及扩展etcd写性能? - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="17.性能及稳定性（下）：如何优化及扩展etcd写性能?"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-09 22:34" pubdate>
+          2022年10月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          60 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">17.性能及稳定性（下）：如何优化及扩展etcd写性能?</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="17-性能及稳定性（下）：如何优化及扩展etcd写性能"><a href="#17-性能及稳定性（下）：如何优化及扩展etcd写性能" class="headerlink" title="17.性能及稳定性（下）：如何优化及扩展etcd写性能?"></a>17.性能及稳定性（下）：如何优化及扩展etcd写性能?</h1><h2 id="写性能分析链路"><a href="#写性能分析链路" class="headerlink" title="写性能分析链路"></a>写性能分析链路</h2><p>为什么写入大量key-value数据的时候，会遇到Too Many Request限速错误呢？ 是写流程中的哪些环节出现了瓶颈？</p>
+<p>和读请求类似，总结一个开启鉴权场景的写性能瓶颈及稳定性分析链路图，并在每个核心步骤数字旁边标识了影响性能、稳定性的关键因素。</p>
+<p><img src="https://static001.geekbang.org/resource/image/14/0a/14ac1e7f1936f2def67b7fa24914070a.png?wh=1920*1167" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="db-quota"><a href="#db-quota" class="headerlink" title="db quota"></a>db quota</h2><p>首先是流程一。在etcd v3.4.9版本中，client会通过clientv3库的Round-robin负载均衡算法，从endpoint列表中轮询选择一个endpoint访问，发起gRPC调用。</p>
+<p>然后进入流程二。etcd收到gRPC写请求后，首先经过的是Quota模块，它会影响写请求的稳定性，若db大小超过配额就无法写入。</p>
+<p><img src="https://static001.geekbang.org/resource/image/89/e8/89c9ccbf210861836cc3b5929b7ebae8.png?wh=1920*1227" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>etcd是个小型的元数据存储，默认db quota大小是2G，超过2G就只读无法写入。因此需要根据业务场景，适当调整db quota大小，并配置的合适的压缩策略。</p>
+<p>etcd支持按时间周期性压缩、按版本号压缩两种策略，建议压缩策略不要配置得过于频繁。比如如果按时间周期压缩，一般情况下5分钟以上压缩一次比较合适，因为压缩过程中会加一系列锁和删除boltdb数据，过于频繁的压缩会对性能有一定的影响。</p>
+<p>一般情况下db大小尽量不要超过8G，过大的db文件和数据量对集群稳定性各方面都会有一定的影响，详细你可以参考 <a href="https://blog.longpi1.com/2022/10/07/13-db%E5%A4%A7%E5%B0%8F%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88etcd%E7%A4%BE%E5%8C%BA%E5%BB%BA%E8%AE%AEdb%E5%A4%A7%E5%B0%8F%E4%B8%8D%E8%B6%85%E8%BF%878G%EF%BC%9F/">13</a>。</p>
+<h2 id="限速"><a href="#限速" class="headerlink" title="限速"></a>限速</h2><p>通过流程二的Quota模块后，请求就进入流程三KVServer模块。在KVServer模块里，影响写性能的核心因素是限速。</p>
+<p><img src="https://static001.geekbang.org/resource/image/78/14/78062ff5b8c5863d8802bdfacf32yy14.png?wh=1920*1233" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>KVServer模块的写请求在提交到Raft模块前，会进行限速判断。如果Raft模块已提交的日志索引（committed index）比已应用到状态机的日志索引（applied index）超过了5000，那么它就返回一个”etcdserver: too many requests”错误给client。</p>
+<p>那么哪些情况可能会导致committed Index远大于applied index呢?</p>
+<p>首先是long expensive read request导致写阻塞。比如etcd 3.4版本之前长读事务会持有较长时间的buffer读锁，而写事务又需要升级锁更新buffer，因此出现写阻塞乃至超时。最终导致etcd server应用已提交的Raft日志命令到状态机缓慢。堆积过多时，则会触发限速。</p>
+<p>其次etcd定时批量将boltdb写事务提交的时候，需要对B+ tree进行重平衡、分裂，并将freelist、dirty page、meta page持久化到磁盘。此过程需要持有boltdb事务锁，若磁盘随机写性能较差、瞬间大量写入，则也容易写阻塞，应用已提交的日志条目缓慢。</p>
+<p>最后执行defrag等运维操作时，也会导致写阻塞，它们会持有相关锁，导致写性能下降。</p>
+<h2 id="心跳及选举参数优化"><a href="#心跳及选举参数优化" class="headerlink" title="心跳及选举参数优化"></a>心跳及选举参数优化</h2><p>写请求经过KVServer模块后，则会提交到流程四的Raft模块。我们知道etcd写请求需要转发给Leader处理，因此影响此模块性能和稳定性的核心因素之一是集群Leader的稳定性。</p>
+<p><img src="https://static001.geekbang.org/resource/image/66/2c/660a03c960cd56610e3c43e15c14182c.png?wh=1920*1247" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>那如何判断Leader的稳定性呢?</p>
+<p>答案是日志和metrics。</p>
+<p>一方面，在使用etcd过程中，你很可能见过如下Leader发送心跳超时的警告日志，你可以通过此日志判断集群是否有频繁切换Leader的风险。</p>
+<p>另一方面，可以通过etcd_server_leader_changes_seen_total metrics来观察已发生Leader切换的次数。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">21</span>:<span class="hljs-number">30</span>:<span class="hljs-number">27</span> etcd3 | &#123;<span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;warn&quot;</span>,<span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2021-02-23T21:30:27.255+0800&quot;</span>,<span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;wal/wal.go:782&quot;</span>,<span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;slow fdatasync&quot;</span>,<span class="hljs-string">&quot;took&quot;</span>:<span class="hljs-string">&quot;3.259857956s&quot;</span>,<span class="hljs-string">&quot;expected-duration&quot;</span>:<span class="hljs-string">&quot;1s&quot;</span>&#125;<br><span class="hljs-attribute">21</span>:<span class="hljs-number">30</span>:<span class="hljs-number">30</span> etcd3 | &#123;<span class="hljs-string">&quot;level&quot;</span>:<span class="hljs-string">&quot;warn&quot;</span>,<span class="hljs-string">&quot;ts&quot;</span>:<span class="hljs-string">&quot;2021-02-23T21:30:30.396+0800&quot;</span>,<span class="hljs-string">&quot;caller&quot;</span>:<span class="hljs-string">&quot;etcdserver/raft.go:390&quot;</span>,<span class="hljs-string">&quot;msg&quot;</span>:<span class="hljs-string">&quot;leader failed to send out heartbeat on time; took too long, leader is overloaded likely from slow disk&quot;</span>,<span class="hljs-string">&quot;to&quot;</span>:<span class="hljs-string">&quot;91bc3c398fb3c146&quot;</span>,<span class="hljs-string">&quot;heartbeat-interval&quot;</span>:<span class="hljs-string">&quot;100ms&quot;</span>,<span class="hljs-string">&quot;expected-duration&quot;</span>:<span class="hljs-string">&quot;200ms&quot;</span>,<span class="hljs-string">&quot;exceeded-duration&quot;</span>:<span class="hljs-string">&quot;827.162111ms&quot;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>那么哪些因素会导致此日志产生以及发生Leader切换呢?</p>
+<p>首先，etcd是基于Raft协议实现数据复制和高可用的，各节点会选出一个Leader，然后Leader将写请求同步给各个Follower节点。而Follower节点如何感知Leader异常，发起选举，正是依赖Leader的心跳机制。</p>
+<p>在etcd中，Leader节点会根据heartbeart-interval参数（默认100ms）定时向Follower节点发送心跳。如果两次发送心跳间隔超过2*heartbeart-interval，就会打印此警告日志。超过election timeout（默认1000ms），Follower节点就会发起新一轮的Leader选举。</p>
+<p>哪些原因会导致心跳超时呢？</p>
+<p>一方面可能是磁盘IO比较慢。因为etcd从Raft的Ready结构获取到相关待提交日志条目后，它需要将此消息写入到WAL日志中持久化。可以通过观察etcd_wal_fsync_durations_seconds_bucket指标来确定写WAL日志的延时。若延时较大，可以使用SSD硬盘解决。</p>
+<p>另一方面也可能是CPU使用率过高和网络延时过大导致。CPU使用率较高可能导致发送心跳的goroutine出现饥饿。若etcd集群跨地域部署，节点之间RTT延时大，也可能会导致此问题。</p>
+<p>最后应该如何调整心跳相关参数，以避免频繁Leader选举呢？</p>
+<p>etcd默认心跳间隔是100ms，较小的心跳间隔会导致发送频繁的消息，消耗CPU和网络资源。而较大的心跳间隔，又会导致检测到Leader故障不可用耗时过长，影响业务可用性。一般情况下，为了避免频繁Leader切换，可以根据实际部署环境、业务场景，将心跳间隔时间调整到100ms到400ms左右，选举超时时间要求至少是心跳间隔的10倍。</p>
+<h2 id="网络和磁盘IO延时"><a href="#网络和磁盘IO延时" class="headerlink" title="网络和磁盘IO延时"></a>网络和磁盘IO延时</h2><p>当集群Leader稳定后，就可以进入Raft日志同步流程。</p>
+<p>假设收到写请求的节点就是Leader，写请求通过Propose接口提交到Raft模块后，Raft模块会输出一系列消息。</p>
+<p>etcd server的raftNode goroutine通过Raft模块的输出接口Ready，获取到待发送给Follower的日志条目追加消息和待持久化的日志条目。</p>
+<p>raftNode goroutine首先通过HTTP协议将日志条目追加消息广播给各个Follower节点，也就是流程五。</p>
+<p><img src="https://static001.geekbang.org/resource/image/8d/eb/8dd9d414eb4ef3ba9a7603fayy991aeb.png?wh=1920*1254" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>流程五涉及到各个节点之间网络通信，因此节点之间RTT延时对其性能有较大影响。跨可用区、跨地域部署时性能会出现一定程度下降，建议你结合实际网络环境使用benchmark工具测试一下。etcd Raft网络模块在实现上，也会通过流式发送和pipeline等技术优化来降低延时、提高网络性能。</p>
+<p>同时，raftNode goroutine也会将待持久化的日志条目追加到WAL中，它可以防止进程crash后数据丢失，也就是流程六。注意此过程需要同步等待数据落地，因此磁盘顺序写性能决定着性能优异。</p>
+<p>为了提升写吞吐量，etcd会将一批日志条目批量持久化到磁盘。etcd是个对磁盘IO延时非常敏感的服务，如果服务对性能、稳定性有较大要求，建议你使用SSD盘。</p>
+<p>那使用SSD盘的etcd集群和非SSD盘的etcd集群写性能差异有多大呢？</p>
+<p>下面是SSD盘集群，执行如下benchmark命令的压测结果，写QPS 51298，平均延时189ms。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs routeros">benchmark <span class="hljs-attribute">--endpoints</span>=addr <span class="hljs-attribute">--conns</span>=100 <span class="hljs-attribute">--clients</span>=1000 \<br>    put <span class="hljs-attribute">--key-size</span>=8 --sequential-keys <span class="hljs-attribute">--total</span>=10000000 --<br><span class="hljs-attribute">val-size</span>=256<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://static001.geekbang.org/resource/image/91/14/913e9875ef32df415426a3e5e7cff814.png?wh=1424*1364" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>下面是非SSD盘集群，执行同样benchmark命令的压测结果，写QPS 35255，平均延时279ms。</p>
+<p><img src="https://static001.geekbang.org/resource/image/17/2f/1758a57804be463228e6431a388c552f.png?wh=1432*1354" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="快照参数优化"><a href="#快照参数优化" class="headerlink" title="快照参数优化"></a>快照参数优化</h2><p>在Raft模块中，正常情况下，Leader可快速地将key-value写请求同步给其他Follower节点。但是某Follower节点若数据落后太多，Leader内存中的Raft日志已经被compact了，那么Leader只能发送一个快照给Follower节点重建恢复。</p>
+<p>在快照较大的时候，发送快照可能会消耗大量的CPU、Memory、网络资源，那么它就会影响读写性能，也就是图中的流程七。</p>
+<p><img src="https://static001.geekbang.org/resource/image/1a/38/1ab7a084e61d84f44b893a0fbbdc0138.png?wh=1920*1262" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>一方面， etcd Raft模块引入了流控机制，来解决日志同步过程中可能出现的大量资源开销、导致集群不稳定的问题。</p>
+<p>另一方面，可以通过快照参数优化，去降低Follower节点通过Leader快照重建的概率，使其尽量能通过增量的日志同步保持集群的一致性。</p>
+<p>etcd提供了一个名为–snapshot-count的参数来控制快照行为。它是指收到多少个写请求后就触发生成一次快照，并对Raft日志条目进行压缩。为了帮助slower Follower赶上Leader进度，etcd在生成快照，压缩日志条目的时候也会至少保留5000条日志条目在内存中。</p>
+<p>那snapshot-count参数设置多少合适呢?</p>
+<p>snapshot-count值过大它会消耗较多内存，可以参考15内存篇中Raft日志内存占用分析。过小则的话在某节点数据落后时，如果它请求同步的日志条目Leader已经压缩了，此时就不得不将整个db文件发送给落后节点，然后进行快照重建。</p>
+<p>快照重建是极其昂贵的操作，对服务质量有较大影响，因此需要尽量避免快照重建。etcd 3.2版本之前snapshot-count参数值是1万，比较低，短时间内大量写入就较容易触发慢的Follower节点快照重建流程。etcd 3.2版本后将其默认值调大到10万，老版本升级的时候，需要注意配置文件是否写死固定的参数值。</p>
+<h2 id="大value"><a href="#大value" class="headerlink" title="大value"></a>大value</h2><p>当写请求对应的日志条目被集群多数节点确认后，就可以提交到状态机执行了。etcd的raftNode goroutine就可通过Raft模块的输出接口Ready，获取到已提交的日志条目，然后提交到Apply模块的FIFO待执行队列。因为它是串行应用执行命令，任意请求在应用到状态机时阻塞都会导致写性能下降。</p>
+<p>当Raft日志条目命令从FIFO队列取出执行后，它会首先通过授权模块校验是否有权限执行对应的写操作，对应图中的流程八。影响其性能因素是RBAC规则数和锁。</p>
+<p><img src="https://static001.geekbang.org/resource/image/53/f6/5303f1b003480d2ddfe7dbd56b05b3f6.png?wh=1920*1179" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>然后通过权限检查后，写事务则会从treeIndex模块中查找key、更新的key版本号等信息，对应图中的流程九，影响其性能因素是key数和锁。</p>
+<p>更新完索引后，就可以把新版本号作为boltdb key， 把用户key&#x2F;value、版本号等信息组合成一个value，写入到boltdb，对应图中的流程十，影响其性能因素是大value、锁。</p>
+<p>如果你在应用中保存1Mb的value，这会给etcd稳定性带来哪些风险呢？</p>
+<p>首先会导致读性能大幅下降、内存突增、网络带宽资源出现瓶颈等，上节课我已和你分享过一个1MB的key-value读性能压测结果，QPS从17万骤降到1100多。</p>
+<p>那么写性能具体会下降到多少呢？</p>
+<p>通过benchmark执行如下命令写入1MB的数据时候，集群几乎不可用（三节点8核16G，非SSD盘），事务提交P99延时高达4秒，如下图所示。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs routeros">benchmark <span class="hljs-attribute">--endpoints</span>=addr <span class="hljs-attribute">--conns</span>=100 <span class="hljs-attribute">--clients</span>=1000 \<br>put <span class="hljs-attribute">--key-size</span>=8 --sequential-keys <span class="hljs-attribute">--total</span>=500 --val-<br><span class="hljs-attribute">size</span>=1024000<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://static001.geekbang.org/resource/image/0c/bb/0c2635d617245f5d4084fbe48820e4bb.png?wh=1007*157" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>因此只能将写入的key-value大小调整为100KB。执行后得到如下结果，写入QPS 仅为1119&#x2F;S，平均延时高达324ms。</p>
+<p><img src="https://static001.geekbang.org/resource/image/a7/63/a745af37d76208c08be147ac46018463.png?wh=1302*1324" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>其次etcd底层使用的boltdb存储，它是个基于COW(Copy-on-write)机制实现的嵌入式key-value数据库。较大的value频繁更新，因为boltdb的COW机制，会导致boltdb大小不断膨胀，很容易超过默认db quota值，导致无法写入。</p>
+<p>那如何优化呢？</p>
+<p>首先，如果业务已经使用了大key，拆分、改造存在一定客观的困难，那就从问题的根源之一的写入对症下药，尽量不要频繁更新大key，这样etcd db大小就不会快速膨胀。</p>
+<p>可以从业务场景考虑，判断频繁的更新是否合理，能否做到增量更新。之前遇到一个case， 一个业务定时更新大量key，导致被限速，最后业务通过增量更新解决了问题。</p>
+<p>如果写请求降低不了， 就必须进行精简、拆分数据结构了。将需要频繁更新的数据拆分成小key进行更新等，实现将value值控制在合理范围以内，才能让集群跑的更稳、更高效。</p>
+<p>Kubernetes的Node心跳机制优化就是这块一个非常优秀的实践。早期kubelet会每隔10s上报心跳更新Node资源。但是此资源对象较大，导致db大小不断膨胀，无法支撑更大规模的集群。为了解决这个问题，社区做了数据拆分，将经常变更的数据拆分成非常细粒度的对象，实现了集群稳定性提升，支撑住更大规模的Kubernetes集群。</p>
+<h2 id="boltdb锁"><a href="#boltdb锁" class="headerlink" title="boltdb锁"></a>boltdb锁</h2><p>了解完大value对集群性能的影响后，我们再看影响流程十的另外一个核心因素boltdb锁。</p>
+<p>首先我们回顾下etcd读写性能优化历史，它经历了以下流程：</p>
+<ul>
+<li>3.0基于Raft log read实现线性读，线性读需要经过磁盘IO，性能较差；</li>
+<li>3.1基于ReadIndex实现线性读，每个节点只需要向Leader发送ReadIndex请求，不涉及磁盘IO，提升了线性读性能；</li>
+<li>3.2将访问boltdb的锁从互斥锁优化到读写锁，提升了并发读的性能；</li>
+<li>3.4实现全并发读，去掉了buffer锁，长尾读几乎不再影响写。</li>
+</ul>
+<p>并发读特性的核心原理是创建读事务对象时，它会全量拷贝当前写事务未提交的buffer数据，并发的读写事务不再阻塞在一个buffer资源锁上，实现了全并发读。</p>
+<p>最重要的是，写事务也不再因为expensive read request长时间阻塞，有效的降低了写请求的延时，详细测试结果可以参考 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/pull/10523">并发读特性实现PR</a>。</p>
+<h2 id="扩展性能"><a href="#扩展性能" class="headerlink" title="扩展性能"></a>扩展性能</h2><p>当然有不少业务场景你即便用最高配的硬件配置，etcd可能还是无法解决你所面临的性能问题。etcd社区也考虑到此问题，提供了一个名为 <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/op-guide/grpc_proxy/">gRPC proxy</a> 的组件，帮助你扩展读、扩展watch、扩展Lease性能的机制，如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/4a/b1/4a13ec9a4f93931e6e0656c600c2d3b1.png?wh=1920*1042" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="扩展读"><a href="#扩展读" class="headerlink" title="扩展读"></a>扩展读</h3><p>如果client比较多，etcd集群节点连接数大于2万，或者想平行扩展串行读的性能，那么gRPC proxy就是良好一个解决方案。它是个无状态节点，提供高性能的读缓存的能力。可以根据业务场景需要水平扩容若干节点，同时通过连接复用，降低服务端连接数、负载。</p>
+<p>它也提供了故障探测和自动切换能力，当后端etcd某节点失效后，会自动切换到其他正常节点，业务client可对此无感知。</p>
+<h3 id="扩展Watch"><a href="#扩展Watch" class="headerlink" title="扩展Watch"></a>扩展Watch</h3><p>大量的watcher会显著增大etcd server的负载，导致读写性能下降。etcd为了解决这个问题，gRPC proxy组件里面提供了watcher合并的能力。如果多个client Watch同key或者范围（如上图三个client Watch同key）时，它会尝试将你的watcher进行合并，降低服务端的watcher数。</p>
+<p>然后当它收到etcd变更消息时，会根据每个client实际Watch的版本号，将增量的数据变更版本，分发给你的多个client，实现watch性能扩展及提升。</p>
+<h3 id="扩展Lease"><a href="#扩展Lease" class="headerlink" title="扩展Lease"></a>扩展Lease</h3><p>我们知道etcd Lease特性，提供了一种客户端活性检测机制。为了确保你的key不被淘汰，client需要定时发送keepalive心跳给server。当Lease非常多时，这就会导致etcd服务端的负载增加。在这种场景下，gRPC proxy提供了keepalive心跳连接合并的机制，来降低服务端负载。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>通过从上至下的写请求流程分析，介绍了各个流程中可能存在的瓶颈和优化方法、最佳实践。讨论的etcd性能优化、扩展问题分为了以下几类：</p>
+<ul>
+<li>业务应用层，etcd应用层的最佳实践；</li>
+<li>etcd内核层，etcd参数最佳实践；</li>
+<li>操作系统层，操作系统优化事项；</li>
+<li>硬件及网络层，不同的硬件设备对etcd性能有着非常大的影响；</li>
+<li>扩展性能，基于gRPC proxy扩展读、Watch、Lease的性能。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/92/87/928a4f1e66200531f5ee73aab000ce87.png?wh=1920*1091" srcset="/img/loading.gif" lazyload alt="img"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>17.性能及稳定性（下）：如何优化及扩展etcd写性能?</div>
+      <div>https://blog.longpi1.com/2022/10/09/17-性能及稳定性（下）：如何优化及扩展etcd写性能/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/09/16-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8A%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E8%AF%BB%E6%80%A7%E8%83%BD%EF%BC%9F/" title="16.性能及稳定性（上）：如何优化及扩展etcd读性能？">
+                        <span class="hidden-mobile">16.性能及稳定性（上）：如何优化及扩展etcd读性能？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
