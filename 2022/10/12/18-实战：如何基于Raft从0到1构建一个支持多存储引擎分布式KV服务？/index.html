@@ -1,0 +1,848 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/12/18-%E5%AE%9E%E6%88%98%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9F%BA%E4%BA%8ERaft%E4%BB%8E0%E5%88%B01%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%94%AF%E6%8C%81%E5%A4%9A%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E5%88%86%E5%B8%83%E5%BC%8FKV%E6%9C%8D%E5%8A%A1%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/5e/03/5e9f6882a6f6e357e5c2c5yyffda4e03.png?wh=1920*1166">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/5c/4f/5c7a3079032f90120a6b309ee401fc4f.png?wh=605*319">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/05/50/05f01951fe5862a62624b81e2ceea150.png?wh=992*677">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/a7/39/a79a97f8cc8294dcb93f9552fb638f39.png?wh=1920*787">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9b/c1/9b84a7e312165de46749e1c4046fc9c1.png?wh=1920*1135">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/17/b2/1746fbd9e9435d8607e44bea2d2c39b2.png?wh=1920*1187">
+<meta property="article:published_time" content="2022-10-12T14:40:11.000Z">
+<meta property="article:modified_time" content="2022-10-12T14:40:50.207Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/5e/03/5e9f6882a6f6e357e5c2c5yyffda4e03.png?wh=1920*1166">
+  
+  
+  
+  <title>18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-12 22:40" pubdate>
+          2022年10月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          91 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="18-实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？"><a href="#18-实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？" class="headerlink" title="18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？"></a>18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？</h1><p>今天聊聊如何实现一个类etcd、支持多存储引擎的KV服务，基于etcd自带的 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/contrib/raftexample">raftexample</a> 项目快速构建它。</p>
+<p>为了方便后面描述，把它命名为metcd（表示微型的etcd），它是raftexample的加强版。希望通过metcd这个小小的实战项目，能够帮助进一步理解etcd乃至分布式存储服务的核心架构、原理、典型问题解决方案。</p>
+<h2 id="整体架构设计"><a href="#整体架构设计" class="headerlink" title="整体架构设计"></a>整体架构设计</h2><p>在和你深入聊代码细节之前，首先我和你从整体上介绍下系统架构。</p>
+<p>下面是我给你画的metcd整体架构设计，它由API层、Raft层的共识模块、逻辑层及存储层组成的状态机组成。</p>
+<p>接下来，简要分析下API设计及复制状态机。</p>
+<p><img src="https://static001.geekbang.org/resource/image/5e/03/5e9f6882a6f6e357e5c2c5yyffda4e03.png?wh=1920*1166" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="API设计"><a href="#API设计" class="headerlink" title="API设计"></a>API设计</h3><p>API是软件系统对外的语言，它是应用编程接口的缩写，由一组接口定义和协议组成。</p>
+<p>在设计API的时候，往往会考虑以下几个因素：</p>
+<ul>
+<li><strong>性能</strong>。如etcd v2使用的是简单的HTTP&#x2F;1.x，性能上无法满足大规模Kubernetes集群等场景的诉求，因此etcd v3使用的是基于HTTP&#x2F;2的gRPC协议。</li>
+<li><strong>易用性、可调试性</strong>。如有的内部高并发服务为了满足性能等诉求，使用的是UDP协议。相比HTTP协议，UDP协议显然在易用性、可调试性上存在一定的差距。</li>
+<li><strong>开发效率、跨平台、可移植性</strong>。相比基于裸UDP、TCP协议设计的接口，如果你使用Protobuf等IDL语言，它支持跨平台、代码自动自动生成，开发效率更高。</li>
+<li><strong>安全性</strong>。如相比HTTP协议，使用HTTPS协议可对通信数据加密更安全，可适用于不安全的网络环境（比如公网传输）。</li>
+<li><strong>接口幂等性</strong>。幂等性简单来说，就是同样一个接口请求一次与多次的效果一样。若你的接口对外保证幂等性，则可降低使用者的复杂度。</li>
+</ul>
+<p>因为我们场景的是POC(Proof of concept)、Demo开发，因此在metcd项目中，我们优先考虑点是易用性、可调试性，选择HTTP&#x2F;1.x协议，接口上为了满足key-value操作，支持Get和Put接口即可。</p>
+<p>假设metcd项目使用3379端口，Put和Get接口，如下所示。</p>
+<ul>
+<li>Put接口，设置key-value</li>
+</ul>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">curl -L http:<span class="hljs-regexp">//</span><span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3379</span>/hello -XPUT -d world<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Get接口，查询key-value</li>
+</ul>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">curl -L http:<span class="hljs-regexp">//</span><span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3379</span>/hello<br>world<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="复制状态机"><a href="#复制状态机" class="headerlink" title="复制状态机"></a>复制状态机</h3><p>了解完API设计，那最核心的复制状态机是如何工作的呢？</p>
+<p>我们知道etcd是基于下图复制状态机实现的分布式KV服务，复制状态机由共识模块、日志模块、状态机组成。</p>
+<p><img src="https://static001.geekbang.org/resource/image/5c/4f/5c7a3079032f90120a6b309ee401fc4f.png?wh=605*319" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>实战项目metcd，也正是使用与之一样的模型，并且使用etcd项目中实现的Raft算法库作为共识模块，此算法库已被广泛应用在etcd、cockroachdb、dgraph等开源项目中。</p>
+<p>以下是复制状态机的写请求流程：</p>
+<ul>
+<li>client发起一个写请求（put hello &#x3D; world）；</li>
+<li>server向Raft共识模块提交请求，共识模块生成一个写提案日志条目。若server是Leader，则把日志条目广播给其他节点，并持久化日志条目到WAL中；</li>
+<li>当一半以上节点持久化日志条目后，Leader的共识模块将此日志条目标记为已提交（committed），并通知其他节点提交；</li>
+<li>server从共识模块获取已经提交的日志条目，异步应用到状态机存储中（boltdb&#x2F;leveldb&#x2F;memory），然后返回给client。</li>
+</ul>
+<h3 id="多存储引擎"><a href="#多存储引擎" class="headerlink" title="多存储引擎"></a>多存储引擎</h3><p>了解完复制状态机模型后，再深入介绍下状态机。状态机中最核心模块当然是存储引擎，那要如何同时支持多种存储引擎呢？</p>
+<p>metcd项目将基于etcd本身自带的raftexample项目进行快速开发，而raftexample本身只支持内存存储。</p>
+<p>因此通过将KV存储接口进行<strong>抽象化设计</strong>，实现支持多存储引擎。KVStore interface的定义如下所示。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-keyword">type</span> KVStore interface &#123;<br>   <span class="hljs-comment">// LookUp get key value</span><br>   <span class="hljs-constructor">Lookup(<span class="hljs-params">key</span> <span class="hljs-params">string</span>)</span> (<span class="hljs-built_in">string</span>, <span class="hljs-built_in">bool</span>)<br><br>   <span class="hljs-comment">// Propose propose kv request into raft state machine</span><br>   <span class="hljs-constructor">Propose(<span class="hljs-params">k</span>, <span class="hljs-params">v</span> <span class="hljs-params">string</span>)</span><br><br>   <span class="hljs-comment">// ReadCommits consume entry from raft state machine into KvStore map until error</span><br>   <span class="hljs-constructor">ReadCommits(<span class="hljs-params">commitC</span> &lt;-<span class="hljs-params">chan</span> <span class="hljs-operator">*</span><span class="hljs-params">string</span>, <span class="hljs-params">errorC</span> &lt;-<span class="hljs-params">chan</span> <span class="hljs-params">error</span>)</span><br><br>   <span class="hljs-comment">// Snapshot return KvStore snapshot</span><br>   <span class="hljs-constructor">Snapshot()</span> (<span class="hljs-literal">[]</span>byte, error)<br><br>   <span class="hljs-comment">// RecoverFromSnapshot recover data from snapshot</span><br>   <span class="hljs-constructor">RecoverFromSnapshot(<span class="hljs-params">snapshot</span> []<span class="hljs-params">byte</span>)</span> error<br><br>   <span class="hljs-comment">// Close close backend databases</span><br>   <span class="hljs-constructor">Close()</span> err<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>基于KV接口抽象化的设计，只需要针对具体的存储引擎，实现对应的操作即可。</strong></p>
+<p>我们期望支持三种存储引擎，分别是内存map、boltdb、leveldb，并做一系列简化设计。一组metcd实例，通过metcd启动时的配置来决定使用哪种存储引擎。不同业务场景不同实例，比如读多写少的存储引擎可使用boltdb，写多读少的可使用leveldb。</p>
+<p>接下来重点介绍下存储引擎的选型及原理。</p>
+<h4 id="boltdb"><a href="#boltdb" class="headerlink" title="boltdb"></a>boltdb</h4><p>boltdb是一个基于B+ tree实现的存储引擎库，在 之前文章详细介绍过原理。</p>
+<p>boltdb为什么适合读多写少？</p>
+<p><strong>对于读请求而言，一般情况下它可直接从内存中基于B+ tree遍历，快速获取数据返回给client，不涉及经过磁盘I&#x2F;O。</strong></p>
+<p>对于写请求，它基于B+ tree查找写入位置，更新key-value。事务提交时，写请求包括B+ tree重平衡、分裂、持久化ditry page、持久化freelist、持久化meta page流程。同时，ditry page可能分布在文件的各个位置，它发起的是随机写磁盘I&#x2F;O。</p>
+<p>因此在boltdb中，完成一个写请求的开销相比读请求是大很多的。一个3节点的8核16G空集群，线性读性能可以达到19万QPS，而写QPS仅为5万。</p>
+<h4 id="leveldb"><a href="#leveldb" class="headerlink" title="leveldb"></a>leveldb</h4><p>那要如何设计适合写多读少的存储引擎呢?</p>
+<p>最简单的思路当然是写内存最快。可是内存有限的，无法支撑大容量的数据存储，不持久化数据会丢失。</p>
+<p>那能否直接将数据顺序追加到文件末尾（AOF）呢？因为磁盘的特点是顺序写性能比较快。</p>
+<p>当然可以。 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bitcask">Bitcask</a> 存储模型就是采用AOF模式，把写请求顺序追加到文件。Facebook的图片存储 <a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Beaver.pdf">Haystack</a> 根据其论文介绍，也是使用类似的方案来解决大规模写入痛点。</p>
+<p>那在AOF写入模型中如何实现查询数据呢？</p>
+<p>很显然通过遍历文件一个个匹配key是可以的，但是它的性能是极差的。为了实现高性能的查询，最理想的解决方案从直接从内存中查询，但是内存是有限的，那么我们能否通过内存索引来记录一个key-value数据在文件中的偏移量，实现从磁盘快速读取呢？</p>
+<p>是的，这正是 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bitcask">Bitcask</a> 存储模型的查询的实现，它通过内存哈希表维护各个key-value数据的索引，实现了快速查找key-value数据。不过，内存中虽然只保存key索引信息，但是当key较多的时候，其对内存要求依然比较高。</p>
+<p>快速了解完存储引擎提升写性能的核心思路（随机写转化为顺序写）之后，那leveldb它的原理是怎样的呢？与Bitcask存储模型有什么不一样？</p>
+<p>leveldb是基于**LSM tree(log-structured merge-tree)**实现的key-value存储，它的架构如下图所示（ <a target="_blank" rel="noopener" href="https://microsoft.github.io/MLOS/notebooks/LevelDbTuning/">引用自微软博客</a>）。</p>
+<p>它提升写性能的核心思路同样是将随机写转化为顺序写磁盘WAL文件和内存，结合了我们上面讨论的写内存和磁盘两种方法。数据持久化到WAL文件是为了确保机器crash后数据不丢失。</p>
+<p><img src="https://static001.geekbang.org/resource/image/05/50/05f01951fe5862a62624b81e2ceea150.png?wh=992*677" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>那么它要如何解决内存不足和查询的痛点问题呢？</p>
+<p>核心解决方案是分层的设计和基于一系列对象的转换和压缩。接下来分析一下上面架构图写流程和后台compaction任务：</p>
+<ul>
+<li>首先写请求顺序写入Log文件(WAL)；</li>
+<li>更新内存的Memtable。leveldb Memtable后端数据结构实现是skiplist，skiplist相比平衡二叉树，实现简单却同样拥有高性能的读写；</li>
+<li>当Memtable达到一定的阈值时，转换成不可变的Memtable，也就是只读不可写；</li>
+<li>leveldb后台Compact任务会将不可变的Memtable生成SSTable文件，它有序地存储一系列key-value数据。注意SST文件按写入时间进行了分层，Level层次越小数据越新。Manifest文件记录了各个SSTable文件处于哪个层级、它的最小与最大key范围；</li>
+<li>当某个level下的SSTable文件数目超过一定阈值后，Compact任务会从这个level的SSTable中选择一个文件（level&gt;0），将其和高一层级的level+1的SSTable文件合并；</li>
+<li>注意level 0是由Immutable直接生成的，因此level 0 SSTable文件中的key-value存在相互重叠。而level &gt; 0时，在和更高一层SSTable合并过程中，参与的SSTable文件是多个，leveldb会确保各个SSTable中的key-value不重叠。</li>
+</ul>
+<p>了解完写流程，读流程也就简单了，核心步骤如下：</p>
+<ul>
+<li>从Memtable跳跃表中查询key；</li>
+<li>未找到则从Immutable中查找；</li>
+<li>Immutable仍未命中，则按照leveldb的分层属性，因level 0 SSTable文件是直接从Immutable生成的，level 0存在特殊性，因此你需要从level 0遍历SSTable查找key；</li>
+<li>level 0中若未命中，则从level 1乃至更高的层次查找。level大于0时，各个SSTable中的key是不存在相互重叠的。根据manifest记录的key-value范围信息，可快递定位到具体的SSTable。同时leveldb基于 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bloom_filter">bloom filter</a> 实现了快速筛选SSTable，因此查询效率较高。</li>
+</ul>
+<p>更详细原理可以参考一下 <a target="_blank" rel="noopener" href="https://github.com/google/leveldb">leveldb</a> 源码。</p>
+<h2 id="实现分析"><a href="#实现分析" class="headerlink" title="实现分析"></a>实现分析</h2><p>从API设计、复制状态机、多存储引擎支持等几个方面你介绍了metcd架构设计后，接下来我就和你重点介绍下共识模块、状态机支持多存储引擎模块的核心实现要点。</p>
+<h3 id="Raft算法库"><a href="#Raft算法库" class="headerlink" title="Raft算法库"></a>Raft算法库</h3><p>共识模块使用的是etcd <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/raft">Raft算法库</a>，它是一个经过大量业务生产环境检验、具备良好可扩展性的共识算法库。</p>
+<p>它提供了哪些接口给你使用? 如何提交一个提案，并且获取Raft共识模块输出结果呢？</p>
+<h4 id="Raft-API"><a href="#Raft-API" class="headerlink" title="Raft API"></a>Raft API</h4><p>Raft作为一个库，它对外最核心的对象是一个名为 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/node.go#L125:L203">Node</a> 的数据结构。Node表示Raft集群中的一个节点，它的输入与输出接口如下图所示，下面重点介绍它的几个接口功能：</p>
+<ul>
+<li>Campaign，状态转换成Candidate，发起新一轮Leader选举；</li>
+<li>Propose，提交提案接口；</li>
+<li>Ready，Raft状态机输出接口，它的返回是一个输出Ready数据结构类型的管道，应用需要监听此管道，获取Ready数据，处理其中的各个消息（如持久化未提交的日志条目到WAL中，发送消息给其他节点等）；</li>
+<li>Advance，通知Raft状态机，应用已处理上一个输出的Ready数据，等待发送下一个Ready数据；</li>
+<li>TransferLeaderShip，尝试将Leader转移到某个节点；</li>
+<li>Step，向Raft状态机提交收到的消息，比如当Leader广播完MsgApp消息给Follower节点后，Leader收到Follower节点回复的MsgAppResp消息时，就通过Step接口将此消息提交给Raft状态机驱动其工作；</li>
+<li>ReadIndex，用于实现线性读。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/a7/39/a79a97f8cc8294dcb93f9552fb638f39.png?wh=1920*787" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>上面提到的Raft状态机的输出 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/node.go#L52:L90">Ready结构</a> 含有哪些信息呢? 下图是其详细字段，含义如下：</p>
+<ul>
+<li>SoftState，软状态。包括集群Leader和节点状态，不需要持久化到WAL；</li>
+<li>pb.HardState，硬状态。与软状态相反，包括了节点当前Term、Vote等信息，需要持久化到WAL中；</li>
+<li>ReadStates，用于线性一致性读；</li>
+<li>Entries，在向其他节点发送消息之前需持久化到WAL中；</li>
+<li>Messages，持久化Entries后，发送给其他节点的消息；</li>
+<li>Committed Entries，已提交的日志条目，需要应用到存储状态机中；</li>
+<li>Snapshot，快照需保存到持久化存储中；</li>
+<li>MustSync，HardState和Entries是否要持久化到WAL中；</li>
+</ul>
+<p>了解完API后，接下来继续看看代码如何使用Raft的Node API。</p>
+<p>etcd Raft库的设计抽象了网络、Raft日志存储等模块，它本身并不会进行网络、存储相关的操作，上层应用需结合自己业务场景选择内置的模块或自定义实现网络、存储、日志等模块。</p>
+<p>因此在使用Raft库时，需要先自定义好相关网络、存储等模块，再结合上面介绍的Raft Node API，就可以完成一个Node的核心操作了。其数据结构定义如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// A key-value stream backed by raft</span><br><span class="hljs-keyword">type</span> raftNode <span class="hljs-keyword">struct</span> &#123;<br>   proposeC    &lt;-<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>            <span class="hljs-comment">// proposed messages (k,v)</span><br>   confChangeC &lt;-<span class="hljs-keyword">chan</span> raftpb.ConfChange <span class="hljs-comment">// proposed cluster config changes</span><br>   commitC     <span class="hljs-keyword">chan</span>&lt;- *<span class="hljs-type">string</span>           <span class="hljs-comment">// entries committed to log (k,v)</span><br>   errorC      <span class="hljs-keyword">chan</span>&lt;- <span class="hljs-type">error</span>             <span class="hljs-comment">// errors from raft session</span><br>   id          <span class="hljs-type">int</span>      <span class="hljs-comment">// client ID for raft session</span><br>   ......<br>   node        raft.Node<br>   raftStorage *raft.MemoryStorage<br>   wal         *wal.WAL<br>   transport *rafthttp.Transport<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>这个数据结构名字叫raftNode，它表示Raft集群中的一个节点。它是由我们业务应用层设计的一个组合结构。从结构体定义中你可以看到它包含了Raft核心数据结构Node(raft.Node)、Raft日志条目内存存储模块(raft.MemoryStorage）、WAL持久化模块(wal.WAL)以及网络模块(rafthttp.Transport)。</p>
+<p>同时，它提供了三个核心的管道与业务逻辑模块、存储状态机交互：</p>
+<ul>
+<li>proposeC，它用来接收client发送的写请求提案消息；</li>
+<li>confChangeC，它用来接收集群配置变化消息；</li>
+<li>commitC，它用来输出Raft共识模块已提交的日志条目消息。</li>
+</ul>
+<p>在metcd项目中因为是直接基于raftexample定制开发，因此日志持久化存储、网络都使用的是etcd自带的WAL和rafthttp模块。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/wal/wal.go">WAL</a> 模块中提供了核心的保存未持久化的日志条目和快照功能接口。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/etcdserver/api/rafthttp">rafthttp</a> 模块基于HTTP协议提供了各个节点间的消息发送能力，metcd使用如下：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">rc.transport = &amp;rafthttp.Transport&#123;<br>   Logger:      zap.<span class="hljs-constructor">NewExample()</span>,<br>   ID:          types.<span class="hljs-constructor">ID(<span class="hljs-params">rc</span>.<span class="hljs-params">id</span>)</span>,<br>   ClusterID:   <span class="hljs-number">0x1000</span>,<br>   Raft:        rc,<br>   ServerStats: stats.<span class="hljs-constructor">NewServerStats(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)</span>,<br>   LeaderStats: stats.<span class="hljs-constructor">NewLeaderStats(<span class="hljs-params">strconv</span>.Itoa(<span class="hljs-params">rc</span>.<span class="hljs-params">id</span>)</span>),<br>   ErrorC:      make(chan error),<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>搞清楚Raft模块的输入、输出API，设计好raftNode结构，复用etcd的WAL、网络等模块后，接下来就只需要实现如下两个循环逻辑，处理业务层发送给proposeC和confChangeC消息、将Raft的Node输出Ready结构进行相对应的处理即可。精简后的代码如下所示：</p>
+<figure class="highlight roboconf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs roboconf">func (rc *raftNode) serveChannels() &#123;<br>   // <span class="hljs-attribute">send proposals over raft</span><br><span class="hljs-attribute">   go func() &#123;</span><br><span class="hljs-attribute">      confChangeCount</span> := uint64(0)<br>      for rc<span class="hljs-variable">.proposeC</span> != nil &amp;&amp; rc<span class="hljs-variable">.confChangeC</span> != nil &#123;<br>         select &#123;<br>         case prop, ok := &lt;-rc<span class="hljs-variable">.proposeC</span>:<br>            if !ok &#123;<br>               rc<span class="hljs-variable">.proposeC</span> = nil<br>            &#125; else &#123;<br>               // blocks until accepted by raft state machine<br>               rc<span class="hljs-variable">.node</span><span class="hljs-variable">.Propose</span>(context<span class="hljs-variable">.TODO</span>(), []byte(prop))<br>            &#125;<br><br>         case cc, ok := &lt;-rc<span class="hljs-variable">.confChangeC</span>:<br>            if !ok &#123;<br>               rc<span class="hljs-variable">.confChangeC</span> = nil<br>            &#125; else &#123;<br>               confChangeCount++<br>               cc<span class="hljs-variable">.ID</span> = confChangeCount<br>               rc<span class="hljs-variable">.node</span><span class="hljs-variable">.ProposeConfChange</span>(context<span class="hljs-variable">.TODO</span>(), cc)<br>            &#125;<br>         &#125;<br>      &#125;<br>   &#125;()<br><br>   // event loop on raft state machine updates<br>   for &#123;<br>      select &#123;<br>      case &lt;-ticker<span class="hljs-variable">.C</span>:<br>         rc<span class="hljs-variable">.node</span><span class="hljs-variable">.Tick</span>()<br><br>      // store raft entries to wal, then publish over commit channel<br>      case rd := &lt;-rc<span class="hljs-variable">.node</span><span class="hljs-variable">.Ready</span>():<br>         rc<span class="hljs-variable">.wal</span><span class="hljs-variable">.Save</span>(rd<span class="hljs-variable">.HardState</span>, rd<span class="hljs-variable">.Entries</span>)<br>         if !raft<span class="hljs-variable">.IsEmptySnap</span>(rd<span class="hljs-variable">.Snapshot</span>) &#123;<br>            rc<span class="hljs-variable">.saveSnap</span>(rd<span class="hljs-variable">.Snapshot</span>)<br>            rc<span class="hljs-variable">.raftStorage</span><span class="hljs-variable">.ApplySnapshot</span>(rd<span class="hljs-variable">.Snapshot</span>)<br>            rc<span class="hljs-variable">.publishSnapshot</span>(rd<span class="hljs-variable">.Snapshot</span>)<br>         &#125;<br>         rc<span class="hljs-variable">.raftStorage</span><span class="hljs-variable">.Append</span>(rd<span class="hljs-variable">.Entries</span>)<br>         rc<span class="hljs-variable">.transport</span><span class="hljs-variable">.Send</span>(rd<span class="hljs-variable">.Messages</span>)<br>         if ok := rc<span class="hljs-variable">.publishEntries</span>(rc<span class="hljs-variable">.entriesToApply</span>(rd<span class="hljs-variable">.CommittedEntries</span>)); !<span class="hljs-attribute">ok &#123;</span><br><span class="hljs-attribute">            rc.stop()</span><br><span class="hljs-attribute">            return</span><br><span class="hljs-attribute">         &#125;</span><br><span class="hljs-attribute">         rc.maybeTriggerSnapshot()</span><br><span class="hljs-attribute">         rc.node.Advance()</span><br><span class="hljs-attribute">      &#125;</span><br><span class="hljs-attribute">   &#125;</span><br><span class="hljs-attribute">&#125;</span><br><span class="hljs-attribute"></span><br></code></pre></td></tr></table></figure>
+
+<p>代码简要分析如下：</p>
+<ul>
+<li>从proposeC中取出提案消息，通过raft.Node.Propose API提交提案；</li>
+<li>从confChangeC取出配置变更消息，通过raft.Node.ProposeConfChange API提交配置变化消息；</li>
+<li>从raft.Node中获取Raft算法状态机输出到Ready结构中，将rd.Entries和rd.HardState通过WAL模块持久化，将rd.Messages通过rafthttp模块，发送给其他节点。将rd.CommittedEntries应用到业务存储状态机。</li>
+</ul>
+<p>以上就是Raft实现的核心流程，接下来聊聊业务存储状态机。</p>
+<h3 id="支持多存储引擎"><a href="#支持多存储引擎" class="headerlink" title="支持多存储引擎"></a>支持多存储引擎</h3><p>在整体架构设计时，介绍了为了使metcd项目能支撑多存储引擎，将KVStore进行了抽象化设计，因此只需要实现各个存储引擎相对应的API即可。</p>
+<p>这里以Put接口为案例，分别介绍下各个存储引擎的实现。</p>
+<h4 id="boltdb-1"><a href="#boltdb-1" class="headerlink" title="boltdb"></a>boltdb</h4><p>首先是boltdb存储引擎，它的实现如下。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *boltdbKVStore)</span></span> Put(key, value <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;<br>   s.mu.Lock()<br>   <span class="hljs-keyword">defer</span> s.mu.Unlock()<br>   <span class="hljs-comment">// Start a writable transaction.</span><br>   tx, err := s.db.Begin(<span class="hljs-literal">true</span>)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   <span class="hljs-keyword">defer</span> tx.Rollback()<br><br>   <span class="hljs-comment">// Use the transaction...</span><br>   bucket, err := tx.CreateBucketIfNotExists([]<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;keys&quot;</span>))<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to put key %s, value %s, err is %v&quot;</span>, key, value, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   err = bucket.Put([]<span class="hljs-type">byte</span>(key), []<span class="hljs-type">byte</span>(value))<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to put key %s, value %s, err is %v&quot;</span>, key, value, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br><br>   <span class="hljs-comment">// Commit the transaction and check for error.</span><br>   <span class="hljs-keyword">if</span> err := tx.Commit(); err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to commit transaction, key %s, err is %v&quot;</span>, key, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   log.Printf(<span class="hljs-string">&quot;backend:%s,put key:%s,value:%s succ&quot;</span>, s.config.backend, key, value)<br>   <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br><br></code></pre></td></tr></table></figure>
+
+<h4 id="leveldb-1"><a href="#leveldb-1" class="headerlink" title="leveldb"></a>leveldb</h4><p>其次是leveldb，我们使用的是 <a target="_blank" rel="noopener" href="https://github.com/syndtr/goleveldb">goleveldb</a>，它基于Google开源的c++ <a target="_blank" rel="noopener" href="https://github.com/google/leveldb">leveldb</a> 版本实现。它提供的常用API如下所示。</p>
+<ul>
+<li>通过OpenFile API创建或打开一个leveldb数据库。</li>
+</ul>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stata"><span class="hljs-keyword">db</span>, <span class="hljs-keyword">err</span> := leveldb.OpenFile(<span class="hljs-string">&quot;path/to/db&quot;</span>, nil)<br>...<br>defer <span class="hljs-keyword">db</span>.<span class="hljs-keyword">Close</span>()<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过DB.Get&#x2F;Put&#x2F;Delete API操作数据。</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs stylus">data, err := db<span class="hljs-selector-class">.Get</span>(<span class="hljs-selector-attr">[]</span><span class="hljs-built_in">byte</span>(<span class="hljs-string">&quot;key&quot;</span>), nil)<br>...<br>err = db<span class="hljs-selector-class">.Put</span>(<span class="hljs-selector-attr">[]</span><span class="hljs-built_in">byte</span>(<span class="hljs-string">&quot;key&quot;</span>), <span class="hljs-selector-attr">[]</span><span class="hljs-built_in">byte</span>(<span class="hljs-string">&quot;value&quot;</span>), nil)<br>...<br>err = db<span class="hljs-selector-class">.Delete</span>(<span class="hljs-selector-attr">[]</span><span class="hljs-built_in">byte</span>(<span class="hljs-string">&quot;key&quot;</span>), nil)<br>...<br><br></code></pre></td></tr></table></figure>
+
+<p>了解其接口后，通过goleveldb的库，client调用就非常简单了，下面是metcd项目中，leveldb存储引擎Put接口的实现。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *leveldbKVStore)</span></span> Put(key, value <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;<br>   err := s.db.Put([]<span class="hljs-type">byte</span>(key), []<span class="hljs-type">byte</span>(value), <span class="hljs-literal">nil</span>)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to put key %s, value %s, err is %v&quot;</span>, key, value, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   log.Printf(<span class="hljs-string">&quot;backend:%s,put key:%s,value:%s succ&quot;</span>, s.config.backend, key, value)<br>   <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="读写流程"><a href="#读写流程" class="headerlink" title="读写流程"></a>读写流程</h3><p>介绍完在metcd项目中如何使用Raft共识模块、支持多存储引擎后，再从整体上介绍下在metcd中写入和读取一个key-value的流程。</p>
+<h4 id="写流程"><a href="#写流程" class="headerlink" title="写流程"></a>写流程</h4><p>当通过如下curl命令发起一个写操作时，写流程如下面架构图序号所示:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">curl -L http:<span class="hljs-regexp">//</span><span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3379</span>/hello -XPUT -d world<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>client通过curl发送HTTP PUT请求到server；</li>
+<li>server收到后，将消息写入到KVStore的ProposeC管道；</li>
+<li>raftNode循环逻辑将消息通过Raft模块的Propose接口提交；</li>
+<li>Raft模块输出Ready结构，server将日志条目持久化后，并发送给其他节点；</li>
+<li>集群多数节点持久化此日志条目后，这个日志条目被提交给存储状态机KVStore执行；</li>
+<li>KVStore根据启动的backend存储引擎名称，调用对应的Put接口即可。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/9b/c1/9b84a7e312165de46749e1c4046fc9c1.png?wh=1920*1135" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="读流程"><a href="#读流程" class="headerlink" title="读流程"></a>读流程</h4><p>当通过curl命令发起一个读操作时，读流程如下面架构图序号所示：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">curl -L http:<span class="hljs-regexp">//</span><span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3379</span>/hello<br>world<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>client通过curl发送HTTP Get请求到server；</li>
+<li>server收到后，根据KVStore的存储引擎，从后端查询出对应的key-value数据。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/17/b2/1746fbd9e9435d8607e44bea2d2c39b2.png?wh=1920*1187" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>如何基于Raft从0到1构建一个支持多存储引擎的分布式key-value数据库。</p>
+<p>在整体架构设计上，介绍了API设计核心因素，它们分别是<strong>性能、易用性、开发效率、安全性、幂等性</strong>。其次介绍了复制状态机的原理，它由共识模块、日志模块、存储状态机模块组成。最后深入分析了多存储引擎设计，重点介绍了leveldb原理，它将随机写转换为顺序写日志和内存，通过一系列分层、创新的设计实现了优异的写性能，适合读少写多。</p>
+<p>在实现分析上，重点介绍了Raft算法库的核心对象Node API。对于一个库而言，我们重点关注的是其输入、输出接口，业务逻辑层可通过Propose接口提交提案，通过Ready结构获取Raft算法状态机的输出内容。其次介绍了Raft算法库如何与WAL模块、Raft日志存储模块、网络模块协作完成一个写请求。</p>
+<p>最后为了支持多存储引擎，分别基于boltdb、leveldb实现了KVStore相关接口操作，并通过读写流程图，从整体上介绍了一个读写请求在metcd中是如何工作的。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p> <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/contrib/raftexample">raftexample</a> 启动的时候是如何工作的吗？它的存储引擎内存map是如何保证数据不丢失的呢？</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？</div>
+      <div>https://blog.longpi1.com/2022/10/12/18-实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/09/17-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E5%86%99%E6%80%A7%E8%83%BD/" title="17.性能及稳定性（下）：如何优化及扩展etcd写性能?">
+                        <span class="hidden-mobile">17.性能及稳定性（下）：如何优化及扩展etcd写性能?</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
