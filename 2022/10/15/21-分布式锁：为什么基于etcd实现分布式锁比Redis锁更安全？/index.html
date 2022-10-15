@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/15/21-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9F%BA%E4%BA%8Eetcd%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E6%AF%94Redis%E9%94%81%E6%9B%B4%E5%AE%89%E5%85%A8%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.longpi1.com/images/350285/cd3d4ab1af45c6eb76e7dccd9c666245.png">
+<meta property="og:image" content="https://blog.longpi1.com/images/350285/cb4cb52cf2244d2000884ef5f5ff3db1.png">
+<meta property="article:published_time" content="2022-10-15T09:09:09.000Z">
+<meta property="article:modified_time" content="2022-10-15T14:50:30.501Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta property="article:tag" content="笔记">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://blog.longpi1.com/images/350285/cd3d4ab1af45c6eb76e7dccd9c666245.png">
+  
+  
+  
+  <title>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-15 17:09" pubdate>
+          2022年10月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          80 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"><a href="#21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？" class="headerlink" title="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"></a>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</h1><p>在软件开发过程中，我们经常会遇到各种场景要求对共享资源进行互斥操作，否则整个系统的数据一致性就会出现问题。典型场景如商品库存操作、Kubernertes调度器为Pod分配运行的Node。</p>
+<p>那要如何实现对共享资源进行互斥操作呢？</p>
+<p>锁就是其中一个非常通用的解决方案。在单节点多线程环境，你使用本地的互斥锁就可以完成资源的互斥操作。然而单节点存在单点故障，为了保证服务高可用，你需要多节点部署。在多节点部署的分布式架构中，你就需要使用分布式锁来解决资源互斥操作了。</p>
+<p>但是为什么有的业务使用了分布式锁还会出现各种严重超卖事故呢？分布式锁的实现和使用过程需要注意什么？</p>
+<h2 id="从茅台超卖案例看分布式锁要素"><a href="#从茅台超卖案例看分布式锁要素" class="headerlink" title="从茅台超卖案例看分布式锁要素"></a>从茅台超卖案例看分布式锁要素</h2><p>首先我们从去年一个因Redis分布式锁实现问题导致 <a target="_blank" rel="noopener" href="https://juejin.cn/post/6854573212831842311">茅台超卖案例</a> 说起，在这个真实案例中，因茅台的稀缺性，事件最终定级为P0级生产事故，后果影响严重。</p>
+<p>那么它是如何导致超卖的呢？</p>
+<p>首先简单介绍下此案例中的Redis简易分布式锁实现方案，它使用了Redis SET命令来实现。</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs coq">SET key value [EX seconds|<span class="hljs-type">PX</span> milliseconds|<span class="hljs-type">EXAT</span> timestamp|<span class="hljs-type">PXAT</span> milliseconds-timestamp|<span class="hljs-type">KEEPTTL</span>] [NX|<span class="hljs-type">XX</span>]<br>[GET]<br><br></code></pre></td></tr></table></figure>
+
+<p>简单给你介绍下SET命令重点参数含义：</p>
+<ul>
+<li><code>EX</code> 设置过期时间，单位秒；</li>
+<li><code>NX</code> 当key不存在的时候，才设置key；</li>
+<li><code>XX</code> 当key存在的时候，才设置key。</li>
+</ul>
+<p>此业务就是基于Set key value EX 10 NX命令来实现的分布式锁，并通过JAVA的try-finally语句，执行Del key语句来释放锁，简易流程如下：</p>
+<figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs vbnet"># 对资源<span class="hljs-keyword">key</span>加锁，<span class="hljs-keyword">key</span>不存在时创建，并且设置，<span class="hljs-number">10</span>秒自动过期<br><span class="hljs-keyword">SET</span> <span class="hljs-keyword">key</span> value EX <span class="hljs-number">10</span> NX<br>业务逻辑流程<span class="hljs-number">1</span>，校验用户身份<br>业务逻辑流程<span class="hljs-number">2</span>，查询并校验库存(<span class="hljs-keyword">get</span> <span class="hljs-built_in">and</span> <span class="hljs-keyword">compare</span>)<br>业务逻辑流程<span class="hljs-number">3</span>，库存&gt;<span class="hljs-number">0</span>，扣减库存(Decr stock)，生成秒杀茅台订单<br><br># 释放锁<br>Del <span class="hljs-keyword">key</span><br><br></code></pre></td></tr></table></figure>
+
+<p>以上流程中其实存在以下思考点:</p>
+<ul>
+<li>NX参数有什么作用?</li>
+<li>为什么需要原子的设置key及过期时间？</li>
+<li>为什么基于Set key value EX 10 NX命令还出现了超卖呢?</li>
+<li>为什么大家都比较喜欢使用Redis作为分布式锁实现？</li>
+</ul>
+<p>首先来看第一个问题，NX参数的作用。NX参数是为了保证当分布式锁不存在时，只有一个client能写入此key成功，获取到此锁。我们使用分布式锁的目的就是希望在高并发系统中，有一种互斥机制来防止彼此相互干扰，保证数据的一致性。</p>
+<p><strong>因此分布式锁的第一核心要素就是互斥性、安全性。在同一时间内，不允许多个client同时获得锁。</strong></p>
+<p>再看第二个问题，假设我们未设置key自动过期时间，在Set key value NX后，如果程序crash或者发生网络分区后无法与Redis节点通信，毫无疑问其他client将永远无法获得锁。这将导致死锁，服务出现中断。</p>
+<p>有的同学意识到这个问题后，使用如下SETNX和EXPIRE命令去设置key和过期时间，这也是不正确的，因为你无法保证SETNX和EXPIRE命令的原子性。</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gauss"><span class="hljs-meta"># 对资源key加锁，key不存在时创建</span><br>SETNX <span class="hljs-built_in">key</span> value<br><span class="hljs-meta"># 设置KEY过期时间</span><br>EXPIRE <span class="hljs-built_in">key</span> <span class="hljs-number">10</span><br>业务逻辑流程<br><br><span class="hljs-meta"># 释放锁</span><br>Del <span class="hljs-built_in">key</span><br><br></code></pre></td></tr></table></figure>
+
+<p><strong>这就是分布式锁第二个核心要素，活性。在实现分布式锁的过程中要考虑到client可能会出现crash或者网络分区，你需要原子申请分布式锁及设置锁的自动过期时间，通过过期、超时等机制自动释放锁，避免出现死锁，导致业务中断。</strong></p>
+<p>再看第三个问题，为什么使用了Set key value EX 10 NX命令，还出现了超卖呢？</p>
+<p>原来是抢购活动开始后，加锁逻辑中的业务流程1访问的用户身份服务出现了高负载，导致阻塞在校验用户身份流程中(超时30秒)，然而锁10秒后就自动过期了，因此其他client能获取到锁。关键是阻塞的请求执行完后，它又把其他client的锁释放掉了，导致进入一个恶性循环。</p>
+<p>因此申请锁时，写入的value应确保唯一性（随机值等）。client在释放锁时，应通过Lua脚本原子校验此锁的value与自己写入的value一致，若一致才能执行释放工作。</p>
+<p>更关键的是库存校验是通过get and compare方式，它压根就无法防止超卖。正确的解决方案应该是通过LUA脚本实现Redis比较库存、扣减库存操作的原子性（或者在每次只能抢购一个的情况下，通过判断 <a target="_blank" rel="noopener" href="https://redis.io/commands/DECR">Redis Decr命令</a> 的返回值即可。此命令会返回扣减后的最新库存，若小于0则表示超卖）。</p>
+<p><strong>从这个问题中我们可以看到，分布式锁实现具备一定的复杂度，它不仅依赖存储服务提供的核心机制，同时依赖业务领域的实现。无论是遭遇高负载、还是宕机、网络分区等故障，都需确保锁的互斥性、安全性，否则就会出现严重的超卖生产事故。</strong></p>
+<p>再看最后一个问题，为什么大家都比较喜欢使用Redis做分布式锁的实现呢?</p>
+<p>考虑到在秒杀等业务场景上存在大量的瞬间、高并发请求，加锁与释放锁的过程应是高性能、高可用的。而Redis核心优点就是<strong>快、简单</strong>，是随处可见的基础设施，部署、使用也及其方便，因此广受开发者欢迎。</p>
+<p><strong>这就是分布式锁第三个核心要素，高性能、高可用。加锁、释放锁的过程性能开销要尽量低，同时要保证高可用，确保业务不会出现中断。</strong></p>
+<p>那么除了以上案例中人为实现问题导致的锁不安全因素外，基于Redis实现的以上分布式锁还有哪些安全性问题呢？</p>
+<h2 id="Redis分布式锁问题"><a href="#Redis分布式锁问题" class="headerlink" title="Redis分布式锁问题"></a>Redis分布式锁问题</h2><p>我们从茅台超卖案例中为你总结出的分布式核心要素（<strong>互斥性、安全性、活性、高可用、高性能</strong>）说起。</p>
+<p>首先，如果我们的分布式锁跑在单节点的Redis Master节点上，那么它就存在单点故障，无法保证分布式锁的高可用。</p>
+<p>于是我们需要一个主备版的Redis服务，至少具备一个Slave节点。</p>
+<p>我们又知道Redis是基于主备异步复制协议实现的Master-Slave数据同步，如下图所示，若client A执行SET key value EX 10 NX命令，redis-server返回给client A成功后，Redis Master节点突然出现crash等异常，这时候Redis Slave节点还未收到此命令的同步。</p>
+<p><img src="/images/350285/cd3d4ab1af45c6eb76e7dccd9c666245.png" srcset="/img/loading.gif" lazyload></p>
+<p>若你部署了Redis Sentinel等主备切换服务，那么它就会以Slave节点提升为主，此时Slave节点因并未执行SET key value EX 10 NX命令，因此它收到client B发起的加锁的此命令后，它也会返回成功给client。</p>
+<p>那么在同一时刻，集群就出现了两个client同时获得锁，分布式锁的互斥性、安全性就被破坏了。</p>
+<p>除了主备切换可能会导致基于Redis实现的分布式锁出现安全性问题，在发生网络分区等场景下也可能会导致出现脑裂，Redis集群出现多个Master，进而也会导致多个client同时获得锁。</p>
+<p>如下图所示，Master节点在可用区1，Slave节点在可用区2，当可用区1和可用区2发生网络分区后，部署在可用区2的Redis Sentinel服务就会将可用区2的Slave提升为Master，而此时可用区1的Master也在对外提供服务。因此集群就出现了脑裂，出现了两个Master，都可对外提供分布式锁申请与释放服务，分布式锁的互斥性被严重破坏。</p>
+<p><img src="/images/350285/cb4cb52cf2244d2000884ef5f5ff3db1.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>主备切换、脑裂是Redis分布式锁的两个典型不安全的因素，本质原因是Redis为了满足高性能，采用了主备异步复制协议，同时也与负责主备切换的Redis Sentinel服务是否合理部署有关。</strong></p>
+<p>有没有其他方案解决呢？</p>
+<p>当然有，Redis作者为了解决SET key value [EX] 10 [NX]命令实现分布式锁不安全的问题，提出了 <a target="_blank" rel="noopener" href="https://redis.io/topics/distlock">RedLock算法</a>。它是基于多个独立的Redis Master节点的一种实现（一般为5）。client依次向各个节点申请锁，若能从多数个节点中申请锁成功并满足一些条件限制，那么client就能获取锁成功。</p>
+<p>它通过独立的N个Master节点，避免了使用主备异步复制协议的缺陷，只要多数Redis节点正常就能正常工作，显著提升了分布式锁的安全性、可用性。</p>
+<p>但是，它的实现建立在一个不安全的系统模型上的，它依赖系统时间，当时钟发生跳跃时，也可能会出现安全性问题。你要有兴趣的话，可以详细阅读下分布式存储专家Martin对 <a target="_blank" rel="noopener" href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">RedLock的分析文章</a>，Redis作者的也专门写了 <a target="_blank" rel="noopener" href="http://antirez.com/news/101">一篇文章进行了反驳</a>。</p>
+<h2 id="分布式锁常见实现方案"><a href="#分布式锁常见实现方案" class="headerlink" title="分布式锁常见实现方案"></a>分布式锁常见实现方案</h2><p>了解完Redis分布式锁的一系列问题和实现方案后，我们再看看还有哪些典型的分布式锁实现。</p>
+<p>除了Redis分布式锁，其他使用最广的应该是ZooKeeper分布式锁和etcd分布式锁。</p>
+<p>ZooKeeper也是一个典型的分布式元数据存储服务，它的分布式锁实现基于ZooKeeper的临时节点和顺序特性。</p>
+<p>首先什么是临时节点呢？</p>
+<p>临时节点具备数据自动删除的功能。当client与ZooKeeper连接和session断掉时，相应的临时节点就会被删除。</p>
+<p>其次ZooKeeper也提供了Watch特性可监听key的数据变化。</p>
+<p><a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/atc10/tech/full_papers/Hunt.pdf">使用Zookeeper加锁的伪代码如下</a>：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs awk">Lock<br><span class="hljs-number">1</span> n = create(l + “/lock-”, EPHEMERAL|SEQUENTIAL)<br><span class="hljs-number">2</span> C = getChildren(l, false)<br><span class="hljs-number">3</span> <span class="hljs-keyword">if</span> n is lowest znode <span class="hljs-keyword">in</span> C, <span class="hljs-keyword">exit</span><br><span class="hljs-number">4</span> p = znode <span class="hljs-keyword">in</span> C ordered just before n<br><span class="hljs-number">5</span> <span class="hljs-keyword">if</span> exists(p, true) wait <span class="hljs-keyword">for</span> watch event<br><span class="hljs-number">6</span> goto <span class="hljs-number">2</span><br>Unlock<br><span class="hljs-number">1</span> <span class="hljs-keyword">delete</span>(n)<br><br></code></pre></td></tr></table></figure>
+
+<p>接下来重点介绍一下基于etcd的分布式锁实现。</p>
+<h2 id="etcd分布式锁实现"><a href="#etcd分布式锁实现" class="headerlink" title="etcd分布式锁实现"></a>etcd分布式锁实现</h2><p>那么基于etcd实现的分布式锁是如何确保安全性、互斥性、活性的呢？</p>
+<h3 id="事务与锁的安全性"><a href="#事务与锁的安全性" class="headerlink" title="事务与锁的安全性"></a>事务与锁的安全性</h3><p>从Redis案例中我们可以看到，加锁的过程需要确保安全性、互斥性。比如，当key不存在时才能创建，否则查询相关key信息，而etcd提供的事务能力正好可以满足我们的诉求。</p>
+<p>正如之前介绍的事务特性，它由IF语句、Then语句、Else语句组成。其中在IF语句中，支持比较key的是<strong>修改版本号mod_revision和创建版本号create_revision</strong>。</p>
+<p>在分布式锁场景，你就可以通过key的创建版本号create_revision来检查key是否已存在，因为一个key不存在的话，它的create_revision版本号就是0。</p>
+<p>若create_revision是0，就可发起put操作创建相关key，具体代码如下:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css">txn := client.<span class="hljs-built_in">Txn</span>(ctx).<span class="hljs-built_in">If</span>(v3.<span class="hljs-built_in">Compare</span>(v3.<span class="hljs-built_in">CreateRevision</span>(k),<br><span class="hljs-string">&quot;=&quot;</span>, <span class="hljs-number">0</span>))<br><br></code></pre></td></tr></table></figure>
+
+<p>要注意的是，实现分布式锁的方案有多种，比如你可以通过client是否成功创建一个固定的key，来判断此client是否获得锁，你也可以通过多个client创建prefix相同，名称不一样的key，<strong>哪个key的revision最小，最终就是它获得锁。（解决惊群效应的方式之一）</strong>。</p>
+<p>相比Redis基于主备异步复制导致锁的安全性问题，etcd是基于<strong>Raft共识算法</strong>实现的，一个写请求需要经过集群多数节点确认。因此一旦分布式锁申请返回给client成功后，它一定是持久化到了集群多数节点上，不会出现Redis主备异步复制可能导致丢数据的问题，具备更高的安全性。</p>
+<h3 id="Lease与锁的活性"><a href="#Lease与锁的活性" class="headerlink" title="Lease与锁的活性"></a>Lease与锁的活性</h3><p>通过事务实现原子的检查key是否存在、创建key后，我们确保了分布式锁的安全性、互斥性。那么etcd是如何确保锁的活性呢? 也就是发生任何故障，都可避免出现死锁呢？</p>
+<p>正如在租约特性中介绍的，Lease就是一种活性检测机制，它提供了检测各个客户端存活的能力。你的业务client需定期向etcd服务发送”特殊心跳”汇报健康状态，若你未正常发送心跳，并超过和etcd服务约定的最大存活时间后，就会被etcd服务移除此Lease和其关联的数据。</p>
+<p>通过Lease机制就优雅地解决了client出现crash故障、client与etcd集群网络出现隔离等各类故障场景下的死锁问题。一旦超过Lease TTL，它就能自动被释放，确保了其他client在TTL过期后能正常申请锁，保障了业务的可用性。</p>
+<p>具体代码如下:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs css">txn := client.<span class="hljs-built_in">Txn</span>(ctx).<span class="hljs-built_in">If</span>(v3.<span class="hljs-built_in">Compare</span>(v3.<span class="hljs-built_in">CreateRevision</span>(k), <span class="hljs-string">&quot;=&quot;</span>, <span class="hljs-number">0</span>))<br>txn = txn.<span class="hljs-built_in">Then</span>(v3.<span class="hljs-built_in">OpPut</span>(k, val, v3.<span class="hljs-built_in">WithLease</span>(s.<span class="hljs-built_in">Lease</span>())))<br>txn = txn.<span class="hljs-built_in">Else</span>(v3.<span class="hljs-built_in">OpGet</span>(k))<br>resp, err := txn.<span class="hljs-built_in">Commit</span>()<br>if err != nil &#123;<br>    return err<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="Watch与锁的可用性"><a href="#Watch与锁的可用性" class="headerlink" title="Watch与锁的可用性"></a>Watch与锁的可用性</h3><p>当一个持有锁的client crash故障后，其他client如何快速感知到此锁失效了，快速获得锁呢，最大程度降低锁的不可用时间呢？</p>
+<p>答案是<strong>Watch</strong>特性。正如在Watch特性中和介绍的，Watch提供了高效的数据监听能力。当其他client收到Watch Delete事件后，就可快速判断自己是否有资格获得锁，极大减少了锁的不可用时间。</p>
+<p>具体代码如下所示：</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-built_in">var</span> wr v3.WatchResponse<br>wch := client.Watch(cctx, <span class="hljs-built_in">key</span>, v3.WithRev(rev))<br><span class="hljs-keyword">for</span> wr = <span class="hljs-built_in">range</span> wch &#123;<br>   <span class="hljs-keyword">for</span> <span class="hljs-symbol">_</span>, <span class="hljs-built_in">ev</span> := <span class="hljs-built_in">range</span> wr.Events &#123;<br>      <span class="hljs-keyword">if</span> <span class="hljs-built_in">ev</span>.Type == mvccpb.DELETE &#123;<br>         <span class="hljs-built_in">return</span> nil<br>      &#125;<br>   &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="etcd自带的concurrency包"><a href="#etcd自带的concurrency包" class="headerlink" title="etcd自带的concurrency包"></a>etcd自带的concurrency包</h3><p>为了简化分布式锁、分布式选举、分布式事务的实现，etcd社区提供了一个名为concurrency包实现更简单、正确地使用分布式锁、分布式选举。</p>
+<p>下面简单介绍下分布式锁 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/clientv3/concurrency">concurrency</a> 包的使用和实现，它的使用非常简单，如下代码所示，核心流程如下：</p>
+<ul>
+<li>首先通过concurrency.NewSession方法创建Session，本质是创建了一个TTL为10的Lease。</li>
+<li>其次得到session对象后，通过concurrency.NewMutex创建了一个mutex对象，包含Lease、key prefix等信息。</li>
+<li>然后通过mutex对象的Lock方法尝试获取锁。</li>
+<li>最后使用结束，可通过mutex对象的Unlock方法释放锁。</li>
+</ul>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs stata"><span class="hljs-keyword">cli</span>, <span class="hljs-keyword">err</span> := clientv3.New(clientv3.Config&#123;Endpoints: endpoints&#125;)<br><span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> != nil &#123;<br>   <span class="hljs-keyword">log</span>.Fatal(<span class="hljs-keyword">err</span>)<br>&#125;<br>defer <span class="hljs-keyword">cli</span>.<span class="hljs-keyword">Close</span>()<br><span class="hljs-comment">// create two separate sessions for lock competition</span><br>s1, <span class="hljs-keyword">err</span> := concurrency.NewSession(<span class="hljs-keyword">cli</span>, concurrency.WithTTL(10))<br><span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> != nil &#123;<br>   <span class="hljs-keyword">log</span>.Fatal(<span class="hljs-keyword">err</span>)<br>&#125;<br>defer s1.<span class="hljs-keyword">Close</span>()<br>m1 := concurrency.NewMutex(s1, <span class="hljs-string">&quot;/my-lock/&quot;</span>)<br><span class="hljs-comment">// acquire lock for s1</span><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> := m1.Lock(context.TODO()); <span class="hljs-keyword">err</span> != nil &#123;<br>   <span class="hljs-keyword">log</span>.Fatal(<span class="hljs-keyword">err</span>)<br>&#125;<br>fmt.Println(<span class="hljs-string">&quot;acquired lock for s1&quot;</span>)<br><span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> := m1.Unlock(context.TODO()); <span class="hljs-keyword">err</span> != nil &#123;<br>   <span class="hljs-keyword">log</span>.Fatal(<span class="hljs-keyword">err</span>)<br>&#125;<br>fmt.Println(<span class="hljs-string">&quot;released lock for s1&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>那么mutex对象的Lock方法是如何加锁的呢？</p>
+<p>核心还是使用了上面介绍的事务和Lease特性，当CreateRevision为0时，它会创建一个prefix为&#x2F;my-lock的key（ &#x2F;my-lock + LeaseID)，并获取到&#x2F;my-lock prefix下面最早创建的一个key（revision最小），分布式锁最终是由写入此key的client获得，其他client则进入等待模式。</p>
+<p>详细代码如下：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs stylus">m<span class="hljs-selector-class">.myKey</span> = fmt<span class="hljs-selector-class">.Sprintf</span>(<span class="hljs-string">&quot;%s%x&quot;</span>, m<span class="hljs-selector-class">.pfx</span>, s<span class="hljs-selector-class">.Lease</span>())<br>cmp := v3<span class="hljs-selector-class">.Compare</span>(v3<span class="hljs-selector-class">.CreateRevision</span>(m.myKey), <span class="hljs-string">&quot;=&quot;</span>, <span class="hljs-number">0</span>)<br><span class="hljs-comment">// put self in lock waiters via myKey; oldest waiter holds lock</span><br>put := v3<span class="hljs-selector-class">.OpPut</span>(m<span class="hljs-selector-class">.myKey</span>, <span class="hljs-string">&quot;&quot;</span>, v3<span class="hljs-selector-class">.WithLease</span>(s<span class="hljs-selector-class">.Lease</span>()))<br><span class="hljs-comment">// reuse key in case this session already holds the lock</span><br>get := v3<span class="hljs-selector-class">.OpGet</span>(m.myKey)<br><span class="hljs-comment">// fetch current holder to complete uncontended path with only one RPC</span><br>getOwner := v3<span class="hljs-selector-class">.OpGet</span>(m<span class="hljs-selector-class">.pfx</span>, v3<span class="hljs-selector-class">.WithFirstCreate</span>()...)<br>resp, err := client<span class="hljs-selector-class">.Txn</span>(ctx)<span class="hljs-selector-class">.If</span>(cmp)<span class="hljs-selector-class">.Then</span>(put, getOwner)<span class="hljs-selector-class">.Else</span>(get, getOwner)<span class="hljs-selector-class">.Commit</span>()<br><span class="hljs-keyword">if</span> err != nil &#123;<br>   return err<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>那未获得锁的client是如何等待的呢?</p>
+<p>答案是通过Watch机制各自监听prefix相同，revision比自己小的key，因为只有revision比自己小的key释放锁，才能有机会获得锁，如下代码所示，其中waitDelete会使用上面的介绍的Watch去监听比自己小的key，详细代码可参考 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/clientv3/concurrency/mutex.go">concurrency mutex</a> 的实现。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-comment">// wait for deletion revisions prior to myKey</span><br>hdr, werr := <span class="hljs-built_in">waitDeletes</span>(ctx, client, m<span class="hljs-selector-class">.pfx</span>, m.myRev-<span class="hljs-number">1</span>)<br><span class="hljs-comment">// release lock key if wait failed</span><br><span class="hljs-keyword">if</span> werr != nil &#123;<br>   m<span class="hljs-selector-class">.Unlock</span>(client<span class="hljs-selector-class">.Ctx</span>())<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>   m<span class="hljs-selector-class">.hdr</span> = hdr<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>首先通过一个Redis分布式锁实现问题——茅台超卖案例，介绍了分布式锁的三个主要核心要素，它们分别如下：</p>
+<ul>
+<li>安全性、互斥性。在同一时间内，不允许多个client同时获得锁。</li>
+<li>活性。无论client出现crash还是遭遇网络分区，都需要确保任意故障场景下，都不会出现死锁，常用的解决方案是超时和自动过期机制。</li>
+<li>高可用、高性能。加锁、释放锁的过程性能开销要尽量低，同时要保证高可用，避免单点故障。</li>
+</ul>
+<p>随后通过这个案例，继续分析了Redis SET命令创建分布式锁的安全性问题。单Redis Master节点存在单点故障，一主多备Redis实例又因为Redis主备异步复制，当Master节点发生crash时，可能会导致同时多个client持有分布式锁，违反了锁的安全性问题。</p>
+<p>为了优化以上问题，Redis作者提出了<strong>RedLock</strong>分布式锁，它基于多个独立的Redis Master节点工作，只要一半以上节点存活就能正常工作，同时不依赖Redis主备异步复制，具有良好的安全性、高可用性。然而它的实现依赖于系统时间，当发生时钟跳变的时候，也会出现安全性问题。</p>
+<p>最后重点介绍了etcd的分布式锁实现过程中的一些技术点。它通过etcd事务机制，校验CreateRevision为0才能写入相关key。若多个client同时申请锁，则client通过比较各个key的revision大小，判断是否获得锁，确保了锁的安全性、互斥性。通过Lease机制确保了锁的活性，无论client发生crash还是网络分区，都能保证不会出现死锁。通过Watch机制使其他client能快速感知到原client持有的锁已释放，提升了锁的可用性。最重要的是etcd是基于Raft协议实现的高可靠、强一致存储，正常情况下，不存在Redis主备异步复制协议导致的数据丢失问题。</p>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><p>这节课到这里也就结束了，最后我给你留了两个思考题。</p>
+<p>第一，死锁、脑裂、惊群效应是分布式锁的核心问题，你知道它们各自是怎么一回事吗？ZooKeeper和etcd是如何应对这些问题的呢？</p>
+<p>死锁：加锁后由于没有添加锁的过期时间或者锁的时间设置过长，服务异常crash或者服务执行后漏执行释放锁操作，导致锁长时间没有释放</p>
+<p>脑裂：分布式体系结构中的集中式结构（也称为 Master&#x2F;Slave 架构），一个Master节点多个Slave节点，所有的请求数据处理必须先经过Master中央服务器，由Master统一进行资源和任务调度，中央服务器根据这些信息，将任务下达给节点服务器，节点服务器执行任务，并将结果反馈给中央服务器。脑裂是在某些特殊条件下，如主备切换，Slave在与Master的网络出现故障的时候，Slave会认为Master已经故障，从而成为新的master，而原来的master也没有卸任，从而导致存在两个Master在对外服务，存在多master会导致共享资源的互斥性遭到破坏，出现资源争抢，数据不一致等问题 </p>
+<p>惊群效应：指多进程（多线程）在同时阻塞等待同一个事件的时候（休眠状态），如果等待的这个事件发生，那么他就会唤醒等待的所有进程（或者线程），但是最终却只能有一个进程（线程）获得这个时间的“控制权”，对该事件进行处理，而其他进程（线程）获取“控制权”失败，只能重新进入休眠状态，这种现象和性能浪费就叫做惊群效应。（当你往一群鸽子中间扔一块食物，虽然最终只有一个鸽子抢到食物，但所有鸽子都会被惊动来争夺，没有抢到食物的鸽子只好回去继续睡觉， 等待下一块食物到来。这样，每扔一块食物，都会惊动所有的鸽子，即为惊群。） </p>
+<p>etcd如何避免死锁：利用Lease的活性检测机制，它提供了检测各个客户端存活的能力。你的业务 client 需定期向 etcd 服务发送”特殊心跳”汇报健康状态，若你未正常发送心跳，并超过和 etcd 服务约定的最大存活时间后，就会被 etcd 服务移除此 Lease 和其关联的数据。通过 Lease 机制就优雅地解决了 client 出现 crash 故障、client 与 etcd 集群网络出现隔离等各类故障场景下的死锁问题。一旦超过 Lease TTL，它就能自动被释放，确保了其他 client 在 TTL 过期后能正常申请锁，保障了业务的可用性。 </p>
+<p>etcd如何避免集群脑裂：在leader选举上采用了过半机制，即得到一半以上的follow才能成为leader，且新leader就任后旧leader必须卸任，所以etcd不存在脑裂问题 </p>
+<p>etcd如何避免惊群效应：mutex，通过 Watch 机制各自监听 prefix 相同，revision 比自己小的 key，因为只有 revision 比自己小的 key 释放锁，才能有机会，获得锁</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</div>
+      <div>https://blog.longpi1.com/2022/10/15/21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/15/22-%E9%85%8D%E7%BD%AE%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%EF%BC%9A%E8%A7%A3%E6%9E%90etcd%E5%9C%A8APIGateway%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%BA%94%E7%94%A8/" title="22.配置及服务发现：解析etcd在API Gateway开源项目中应用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">22.配置及服务发现：解析etcd在API Gateway开源项目中应用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/15/20-Kubernetes%E9%AB%98%E7%BA%A7%E5%BA%94%E7%94%A8%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E4%BD%BFetcd%E8%83%BD%E6%94%AF%E6%92%91%E4%B8%8A%E4%B8%87%E8%8A%82%E7%82%B9%E9%9B%86%E7%BE%A4%EF%BC%9F/" title="20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？">
+                        <span class="hidden-mobile">20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

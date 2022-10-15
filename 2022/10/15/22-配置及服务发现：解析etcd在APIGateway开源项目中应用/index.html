@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="22.配置及服务发现：解析etcd在API Gateway开源项目中应用">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/15/22-%E9%85%8D%E7%BD%AE%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%EF%BC%9A%E8%A7%A3%E6%9E%90etcd%E5%9C%A8APIGateway%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间etcd课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/ca/20/ca6090e229dde9a0361d6yy2c3df8d20.png?wh=1920*1046">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/cf/4a/cf62b7704446c05d8747b4672b5fb74a.png?wh=1920*1048">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/26/e4/26d0d18c0725de278eeb7505f20642e4.png?wh=1920*1137">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/20/fd/20a539bdd37db2d4632c7b0c5f4119fd.png?wh=1920*1246">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/83/f4/834502c6ed7e59fe0b4643c11b2d31f4.png?wh=1746*838">
+<meta property="article:published_time" content="2022-10-15T14:50:59.000Z">
+<meta property="article:modified_time" content="2022-10-15T14:51:28.948Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="etcd">
+<meta property="article:tag" content="笔记">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/ca/20/ca6090e229dde9a0361d6yy2c3df8d20.png?wh=1920*1046">
+  
+  
+  
+  <title>22.配置及服务发现：解析etcd在API Gateway开源项目中应用 - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="22.配置及服务发现：解析etcd在API Gateway开源项目中应用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-15 22:50" pubdate>
+          2022年10月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          64 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">22.配置及服务发现：解析etcd在API Gateway开源项目中应用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="22-配置及服务发现：解析etcd在API-Gateway开源项目中应用"><a href="#22-配置及服务发现：解析etcd在API-Gateway开源项目中应用" class="headerlink" title="22.配置及服务发现：解析etcd在API Gateway开源项目中应用"></a>22.配置及服务发现：解析etcd在API Gateway开源项目中应用</h1><p>在软件开发的过程中，为了提升代码的灵活性和开发效率，我们大量使用配置去控制程序的运行行为。</p>
+<p>从简单的数据库账号密码配置，到 <a target="_blank" rel="noopener" href="https://github.com/kelseyhightower/confd">confd</a> 支持以etcd为后端存储的本地配置及模板管理，再到 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix">Apache APISIX</a> 等API Gateway项目使用etcd存储服务配置、路由信息等，最后到Kubernetes更实现了Secret和ConfigMap资源对象来解决配置管理的问题。</p>
+<p>那么它们是如何实现实时、动态调整服务配置而不需要重启相关服务的呢？</p>
+<p>接下来将以开源项目Apache APISIX为例，分析服务发现的原理，带你了解etcd的key-value模型，Watch机制，鉴权机制，Lease特性，事务特性在其中的应用。</p>
+<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>首先聊聊服务发现，服务发现是指什么？为什么需要它呢?</p>
+<p>为了搞懂这个问题，首先分享下程序部署架构的演进。</p>
+<h3 id="单体架构"><a href="#单体架构" class="headerlink" title="单体架构"></a>单体架构</h3><p>在早期软件开发时使用的是单体架构，也就是所有功能耦合在同一个项目中，统一构建、测试、发布。单体架构在项目刚启动的时候，架构简单、开发效率高，比较容易部署、测试。但是随着项目不断增大，它具有若干缺点，比如：</p>
+<ul>
+<li>所有功能耦合在同一个项目中，修复一个小Bug就需要发布整个大工程项目，增大引入问题风险。同时随着开发人员增多、单体项目的代码增长、各模块堆砌在一起、代码质量参差不齐，内部复杂度会越来越高，可维护性差。</li>
+<li>无法按需针对仅出现瓶颈的功能模块进行弹性扩容，只能作为一个整体继续扩展，因此扩展性较差。</li>
+<li>一旦单体应用宕机，将导致所有服务不可用，因此可用性较差。</li>
+</ul>
+<h3 id="分布式及微服务架构"><a href="#分布式及微服务架构" class="headerlink" title="分布式及微服务架构"></a>分布式及微服务架构</h3><p>如何解决以上痛点呢？</p>
+<p>当然是将单体应用进行拆分，大而化小。如何拆分呢？ 这里我就以一个我曾经参与重构建设的电商系统为案例给你分析一下。在一个单体架构中，完整的电商系统应包括如下模块：</p>
+<ul>
+<li>商城系统，负责用户登录、查看及搜索商品、购物车商品管理、优惠券管理、订单管理、支付等功能。</li>
+<li>物流及仓储系统，根据用户订单，进行发货、退货、换货等一系列仓储、物流管理。</li>
+<li>其他客服系统、客户管理系统等。</li>
+</ul>
+<p>因此在分布式架构中，你可以按整体功能，将单体应用垂直拆分成以上三大功能模块，各个功能模块可以选择不同的技术栈实现，按需弹性扩缩容，如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/ca/20/ca6090e229dde9a0361d6yy2c3df8d20.png?wh=1920*1046" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>那什么又是微服务架构呢？</p>
+<p>它是对各个功能模块进行更细立度的拆分，比如商城系统模块可以拆分成：</p>
+<ul>
+<li>用户鉴权模块；</li>
+<li>商品模块；</li>
+<li>购物车模块；</li>
+<li>优惠券模块；</li>
+<li>支付模块；</li>
+<li>……</li>
+</ul>
+<p>在微服务架构中，每个模块职责更单一、独立部署、开发迭代快，如下图所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/cf/4a/cf62b7704446c05d8747b4672b5fb74a.png?wh=1920*1048" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>那么在分布式及微服务架构中，各个模块之间如何及时知道对方网络地址与端口、协议，进行接口调用呢？</p>
+<h3 id="为什么需要服务发现中间件"><a href="#为什么需要服务发现中间件" class="headerlink" title="为什么需要服务发现中间件?"></a>为什么需要服务发现中间件?</h3><p>其实这个知道的过程，就是服务发现。在早期的时候我们往往通过硬编码、配置文件声明各个依赖模块的网络地址、端口，然而这种方式在分布式及微服务架构中，其运维效率、服务可用性是远远不够的。</p>
+<p>那么我们能否实现通过一个特殊服务就查询到各个服务的后端部署地址呢？ 各服务启动的时候，就自动将IP和Port、协议等信息注册到特殊服务上，当某服务出现异常的时候，特殊服务就自动删除异常实例信息？</p>
+<p>是的，当然可以，这个特殊服务就是注册中心服务，你可以基于etcd、ZooKeeper、consul等实现。</p>
+<h3 id="etcd服务发现原理"><a href="#etcd服务发现原理" class="headerlink" title="etcd服务发现原理"></a>etcd服务发现原理</h3><p>那么如何基于etcd实现服务发现呢?</p>
+<p>下面给出一个通用的服务发现原理架构图，通过此图，为你介绍下服务发现的基本原理。详细如下：</p>
+<ul>
+<li>整体上分为四层，client层、proxy层(可选)、业务server、etcd存储层组成。引入proxy层的原因是使client更轻、逻辑更简单，无需直接访问存储层，同时可通过proxy层支持各种协议。</li>
+<li>client层通过负载均衡访问proxy组件。proxy组件启动的时候，通过etcd的Range RPC方法从etcd读取初始化服务配置数据，随后通过Watch接口持续监听后端业务server扩缩容变化，实时修改路由。</li>
+<li>proxy组件收到client的请求后，它根据从etcd读取到的对应服务的路由配置、负载均衡算法（比如Round-robin）转发到对应的业务server。</li>
+<li>业务server启动的时候，通过etcd的写接口Txn&#x2F;Put等，注册自身地址信息、协议到高可用的etcd集群上。业务server缩容、故障时，对应的key应能自动从etcd集群删除，因此相关key需要关联lease信息，设置一个合理的TTL，并定时发送keepalive请求给Leader续租，以防止租约及key被淘汰。</li>
+</ul>
+<p><img src="https://static001.geekbang.org/resource/image/26/e4/26d0d18c0725de278eeb7505f20642e4.png?wh=1920*1137" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当然，在分布式及微服务架构中，我们面对的问题不仅仅是服务发现，还包括如下痛点：</p>
+<ul>
+<li>限速；</li>
+<li>鉴权；</li>
+<li>安全；</li>
+<li>日志；</li>
+<li>监控；</li>
+<li>丰富的发布策略；</li>
+<li>链路追踪；</li>
+<li>……</li>
+</ul>
+<p>为了解决以上痛点，各大公司及社区开发者推出了大量的开源项目。这里以国内开发者广泛使用的Apache APISIX项目为例，分析etcd在其中的应用，了解下它是怎么玩转服务发现的。</p>
+<h3 id="Apache-APISIX原理"><a href="#Apache-APISIX原理" class="headerlink" title="Apache APISIX原理"></a>Apache APISIX原理</h3><p>Apache APISIX它具备哪些功能呢？</p>
+<p>它的本质是一个无状态、高性能、实时、动态、可水平扩展的API网关。核心原理就是基于你配置的服务信息、路由规则等信息，将收到的请求通过一系列规则后，正确转发给后端的服务。</p>
+<p>Apache APISIX其实就是上面服务发现原理架构图中的proxy组件，如下图红色虚线框所示。</p>
+<p><img src="https://static001.geekbang.org/resource/image/20/fd/20a539bdd37db2d4632c7b0c5f4119fd.png?wh=1920*1246" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>Apache APISIX详细架构图如下（ <a target="_blank" rel="noopener" href="https://github.com/apache/apisix">引用自社区项目文档</a>）。从图中可以看到，它由控制面和数据面组成。</p>
+<p>控制面顾名思义，就是你通过Admin API下发服务、路由、安全配置的操作。控制面默认的服务发现存储是etcd，当然也支持consul、nacos等。</p>
+<p>如果没有使用过Apache APISIX的话，可以参考下这个 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix-docker/tree/master/example">example</a>，快速、直观的了解下Apache APISIX是如何通过Admin API下发服务和路由配置的。</p>
+<p>数据面是在实现基于服务路由信息数据转发的基础上，提供了限速、鉴权、安全、日志等一系列功能，也就是解决了我们上面提的分布式及微服务架构中的典型痛点。</p>
+<p><img src="https://static001.geekbang.org/resource/image/83/f4/834502c6ed7e59fe0b4643c11b2d31f4.png?wh=1746*838" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>那么当我们通过控制面API新增一个服务时，Apache APISIX是是如何实现实时、动态调整服务配置，而不需要重启网关服务的呢？</p>
+<p>下面，我就和你聊聊etcd在Apache APISIX项目中的应用。</p>
+<h3 id="etcd在Apache-APISIX中的应用"><a href="#etcd在Apache-APISIX中的应用" class="headerlink" title="etcd在Apache APISIX中的应用"></a>etcd在Apache APISIX中的应用</h3><p>在搞懂这个问题之前，我们先看看Apache APISIX在etcd中，都存储了哪些数据呢？它的数据存储格式是怎样的？</p>
+<h4 id="数据存储格式"><a href="#数据存储格式" class="headerlink" title="数据存储格式"></a>数据存储格式</h4><p>下面我参考Apache APISIX的 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix-docker/tree/master/example">example</a> 案例（apisix:2.3），通过Admin API新增了两个服务、路由规则后，执行如下查看etcd所有key的命令：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs vim">etcdctl <span class="hljs-built_in">get</span> <span class="hljs-string">&quot;&quot;</span> --prefix --<span class="hljs-built_in">keys</span>-<span class="hljs-keyword">only</span><br><br></code></pre></td></tr></table></figure>
+
+<p>etcd输出结果如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">/apisix/</span>consumers/<br><span class="hljs-regexp">/apisix/</span>data_plane<span class="hljs-regexp">/server_info/</span>f7285805-<span class="hljs-number">73</span>e9-<span class="hljs-number">4</span>ce4-acc6-a38d619afdc3<br><span class="hljs-regexp">/apisix/g</span>lobal_rules/<br><span class="hljs-regexp">/apisix/</span>node_status/<br><span class="hljs-regexp">/apisix/</span>plugin_metadata/<br><span class="hljs-regexp">/apisix/</span>plugins<br><span class="hljs-regexp">/apisix/</span>plugins/<br><span class="hljs-regexp">/apisix/</span>proto/<br><span class="hljs-regexp">/apisix/</span>routes/<br><span class="hljs-regexp">/apisix/</span>routes/<span class="hljs-number">12</span><br><span class="hljs-regexp">/apisix/</span>routes/<span class="hljs-number">22</span><br><span class="hljs-regexp">/apisix/</span>services/<br><span class="hljs-regexp">/apisix/</span>services/<span class="hljs-number">1</span><br><span class="hljs-regexp">/apisix/</span>services/<span class="hljs-number">2</span><br><span class="hljs-regexp">/apisix/</span>ssl/<br><span class="hljs-regexp">/apisix/</span>ssl/<span class="hljs-number">1</span><br><span class="hljs-regexp">/apisix/</span>ssl/<span class="hljs-number">2</span><br><span class="hljs-regexp">/apisix/</span>stream_routes/<br><span class="hljs-regexp">/apisix/u</span>pstreams/<br><br></code></pre></td></tr></table></figure>
+
+<p>然后我们继续通过etcdctl get命令查看下services都存储了哪些信息呢？</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs awk">root@e9d3b477ca1f:<span class="hljs-regexp">/opt/</span>bitnami<span class="hljs-regexp">/etcd# etcdctl get /</span>apisix/services --prefix<br><span class="hljs-regexp">/apisix/</span>services/<br>init_dir<br><span class="hljs-regexp">/apisix/</span>services/<span class="hljs-number">1</span><br>&#123;<span class="hljs-string">&quot;update_time&quot;</span>:<span class="hljs-number">1614293352</span>,<span class="hljs-string">&quot;create_time&quot;</span>:<span class="hljs-number">1614293352</span>,<span class="hljs-string">&quot;upstream&quot;</span>:&#123;<span class="hljs-string">&quot;type&quot;</span>:<span class="hljs-string">&quot;roundrobin&quot;</span>,<span class="hljs-string">&quot;nodes&quot;</span>:&#123;<span class="hljs-string">&quot;172.18.5.12:80&quot;</span>:<span class="hljs-number">1</span>&#125;,<span class="hljs-string">&quot;hash_on&quot;</span>:<span class="hljs-string">&quot;vars&quot;</span>,<span class="hljs-string">&quot;scheme&quot;</span>:<span class="hljs-string">&quot;http&quot;</span>,<span class="hljs-string">&quot;pass_host&quot;</span>:<span class="hljs-string">&quot;pass&quot;</span>&#125;,<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;1&quot;</span>&#125;<br><span class="hljs-regexp">/apisix/</span>services/<span class="hljs-number">2</span><br>&#123;<span class="hljs-string">&quot;update_time&quot;</span>:<span class="hljs-number">1614293361</span>,<span class="hljs-string">&quot;create_time&quot;</span>:<span class="hljs-number">1614293361</span>,<span class="hljs-string">&quot;upstream&quot;</span>:<br>&#123;<span class="hljs-string">&quot;type&quot;</span>:<span class="hljs-string">&quot;roundrobin&quot;</span>,<span class="hljs-string">&quot;nodes&quot;</span>:&#123;<span class="hljs-string">&quot;172.18.5.13:80&quot;</span>:<span class="hljs-number">1</span>&#125;,<span class="hljs-string">&quot;hash_on&quot;</span>:<span class="hljs-string">&quot;vars&quot;</span>,<span class="hljs-string">&quot;scheme&quot;</span>:<span class="hljs-string">&quot;http&quot;</span>,<span class="hljs-string">&quot;pass_host&quot;</span>:<span class="hljs-string">&quot;pass&quot;</span>&#125;,<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;2&quot;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>从中我们可以总结出如下信息：</p>
+<ul>
+<li>Apache APSIX 2.x系列版本使用的是etcd3。</li>
+<li>服务、路由、ssl、插件等配置存储格式前缀是&#x2F;apisix + “&#x2F;“ + 功能特性类型（routes&#x2F;services&#x2F;ssl等），我们通过Admin API添加的路由、服务等配置就保存在相应的前缀下。</li>
+<li>路由和服务配置的value是个Json对象，其中服务对象包含了id、负载均衡算法、后端节点、协议等信息。</li>
+</ul>
+<p>了解完Apache APISIX在etcd中的数据存储格式后，那么它是如何动态、近乎实时地感知到服务配置变化的呢？</p>
+<h4 id="Watch机制的应用"><a href="#Watch机制的应用" class="headerlink" title="Watch机制的应用"></a>Watch机制的应用</h4><p>与Kubernetes一样，它们都是通过etcd的 <strong>Watch机制</strong> 来实现的。</p>
+<p>Apache APISIX在启动的时候，首先会通过Range操作获取网关的配置、路由等信息，随后就通过Watch机制，获取增量变化事件。</p>
+<p>使用Watch机制最容易犯错的地方是什么呢？</p>
+<p>答案是不处理Watch返回的相关错误信息，比如已压缩ErrCompacted错误。Apache APISIX项目在从etcd v2中切换到etcd v3早期的时候，同样也犯了这个错误。</p>
+<h4 id="鉴权机制的应用"><a href="#鉴权机制的应用" class="headerlink" title="鉴权机制的应用"></a>鉴权机制的应用</h4><p>除了Watch机制，Apache APISIX项目还使用了鉴权，毕竟配置网关是个高危操作，那它是如何使用etcd鉴权机制的呢？ <strong>etcd鉴权机制</strong> 中最容易踩的坑是什么呢？</p>
+<p>答案是不复用client和鉴权token，频繁发起Authenticate操作，导致etcd高负载。正如之前介绍的，一个8核32G的高配节点在100个连接时，Authenticate QPS仅为8。可想而知，你如果不复用token，那么出问题就很自然不过了。</p>
+<p>Apache APISIX是否也踩了这个坑呢？</p>
+<p>Apache APISIX是基于Lua构建的，使用的是 <a target="_blank" rel="noopener" href="https://github.com/api7/lua-resty-etcd/blob/master/lib/resty/etcd/v3.lua">lua-resty-etcd</a> 这个项目访问etcd，从相关 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix/issues/2899">issue</a> 反馈看，的确也踩了这个坑。社区用户反馈后，随后通过复用client、更完善的token复用机制解决了Authenticate的性能瓶颈，详细信息可参考 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix/pull/2932">PR 2932</a>、 <a target="_blank" rel="noopener" href="https://github.com/api7/lua-resty-etcd/pull/100">PR 100</a>。</p>
+<p>除了以上介绍的Watch机制、鉴权机制，Apache APISIX还使用了etcd的Lease特性和事务接口。</p>
+<h4 id="Lease特性的应用"><a href="#Lease特性的应用" class="headerlink" title="Lease特性的应用"></a>Lease特性的应用</h4><p>为什么Apache APISIX项目需要Lease特性呢？</p>
+<p>服务发现的核心工作原理是服务启动的时候将地址信息登录到注册中心，服务异常时自动从注册中心删除。</p>
+<p>这是不是跟前面介绍的&lt;Lease特性: 如何检测客户端的存活性&gt;应用场景很匹配呢？</p>
+<p>没错，Apache APISIX通过etcd v2的TTL特性、etcd v3的Lease特性来实现类似的效果，它提供的增加服务路由API，支持设置TTL属性，如下面所示：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli"><span class="hljs-comment"># Create a route expires after 60 seconds, then it&#x27;s deleted automatically</span><br>$ curl http:<span class="hljs-string">//127.0.0.1</span><span class="hljs-function">:9080</span>/apisix/admin/routes/2?ttl=60 -H &#x27;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#x27; -X PUT -i -d &#x27;<br>&#123;<br>    <span class="hljs-string">&quot;uri&quot;</span>: <span class="hljs-string">&quot;/aa/index.html&quot;</span>,<br>    <span class="hljs-string">&quot;upstream&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;roundrobin&quot;</span>,<br>        <span class="hljs-string">&quot;nodes&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;39.97.63.215:80&quot;</span>: 1<br>        &#125;<br>    &#125;<br>&#125;&#x27;<br><br></code></pre></td></tr></table></figure>
+
+<p>当一个路由设置非0 TTL后，Apache APISIX就会为它创建Lease，关联key，相关代码如下：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-comment">-- lease substitute ttl in v3</span><br><span class="hljs-keyword">local</span> res, err<br><span class="hljs-keyword">if</span> ttl <span class="hljs-keyword">then</span><br>    <span class="hljs-keyword">local</span> data, grant_err = etcd_cli:<span class="hljs-keyword">grant</span>(tonumber(ttl))<br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> data <span class="hljs-keyword">then</span><br>        <span class="hljs-keyword">return</span> nil, grant_err<br>    <span class="hljs-keyword">end</span><br>    res, err = etcd_cli:<span class="hljs-keyword">set</span>(prefix .. key, <span class="hljs-keyword">value</span>, &#123;prev_kv = <span class="hljs-keyword">true</span>, lease = data.body.ID&#125;)<br><span class="hljs-keyword">else</span><br>    res, err = etcd_cli:<span class="hljs-keyword">set</span>(prefix .. key, <span class="hljs-keyword">value</span>, &#123;prev_kv = <span class="hljs-keyword">true</span>&#125;)<br><span class="hljs-keyword">end</span><br><br></code></pre></td></tr></table></figure>
+
+<h4 id="事务特性的应用"><a href="#事务特性的应用" class="headerlink" title="事务特性的应用"></a>事务特性的应用</h4><p>介绍完Lease特性在Apache APISIX项目中的应用后，我们再来思考两个问题。为什么它还依赖etcd的事务特性呢？简单的执行put接口有什么问题？</p>
+<p>答案是它跟Kubernetes是一样的使用目的。使用事务是为了防止并发场景下的数据写冲突，比如你可能同时发起两个Patch Admin API去修改配置等。如果简单地使用put接口，就会导致第一个写请求的结果被覆盖。</p>
+<p>Apache APISIX是如何使用事务接口提供的乐观锁机制去解决并发冲突的问题呢？</p>
+<p>核心依然是我们前面课程中一直强调的<strong>mod_revision</strong>，它会比较事务提交时的mod_revision与预期是否一致，一致才能执行put操作，Apache APISIX相关使用代码如下：</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-built_in">local</span> <span class="hljs-built_in">compare</span> = &#123;<br>    &#123;<br>        <span class="hljs-built_in">key</span> = <span class="hljs-built_in">key</span>,<br>        target = <span class="hljs-string">&quot;MOD&quot;</span>,<br>        result = <span class="hljs-string">&quot;EQUAL&quot;</span>,<br>        mod_revision = mod_revision,<br>    &#125;<br>&#125;<br><span class="hljs-built_in">local</span> success = &#123;<br>    &#123;<br>        requestPut = &#123;<br>            <span class="hljs-built_in">key</span> = <span class="hljs-built_in">key</span>,<br>            value = value,<br>            lease = lease_id,<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-built_in">local</span> res, err = etcd_cli:txn(<span class="hljs-built_in">compare</span>, success)<br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> res <span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">return</span> nil, err<br>end<br><br></code></pre></td></tr></table></figure>
+
+<p>关于Apache APISIX事务特性的引入、背景以及更详细的实现，也可以参考 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix/pull/2216">PR 2216</a>。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>闪现介绍了服务部署架构的演进，从单体架构的缺陷开始、到分布式及微服务架构的诞生，分享了分布式及微服务架构中面临的一系列痛点（如服务发现，鉴权，安全，限速等等）。</p>
+<p>而开源项目Apache APISIX正是一个基于etcd的项目，它为后端存储提供了一系列的解决方案，通过它的架构图为你介绍了其控制面和数据面的工作原理。</p>
+<p>随后从数据存储格式、Watch机制、鉴权机制、Lease特性以及事务特性维度，分析了它们在Apache APISIX项目中的应用。</p>
+<p>数据存储格式上，APISIX采用典型的prefix + 功能特性组织格式。key是相关配置id，value是个json对象，包含一系列业务所需要的核心数据。你需要注意的是Apache APISIX 1.x版本使用的etcd v2 API，2.x版本使用的是etcd v3 API，要求至少是etcd v3.4版本以上。</p>
+<p>Watch机制上，APISIX依赖它进行配置的动态、实时更新，避免了传统的修改配置，需要服务重启等缺陷。</p>
+<p>鉴权机制上，APISIX使用密码认证，进行多租户认证、授权，防止用户出现越权访问，保护网关服务的安全。</p>
+<p>Lease及事务特性上，APISIX通过Lease来设置自动过期的路由规则，解决服务发现中的节点异常自动剔除等问题，通过事务特性的乐观锁机制来实现并发场景下覆盖更新等问题。</p>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><p>假设老板让你去设计一个大型配置系统，满足公司各个业务场景的诉求，期望的设计目标如下：</p>
+<ul>
+<li>高可靠。配置系统的作为核心基础设施，期望可用性能达到99.99%。</li>
+<li>高性能。公司业务多，规模大，配置系统应具备高性能、并能水平扩容。</li>
+<li>支持多业务、多版本管理、多种发布策略。</li>
+</ul>
+<p>你认为etcd适合此业务场景吗？</p>
+<p>答案1：</p>
+<p>1.高可靠。etcd基于raft的多副本可以满足。</p>
+<p> 2.高性能。公司业务多，规模大，可以依据不同业务不同etcd的方法，分担etcd的写压力，以及数据存储量有限的问题。各自业务的etcd可以水平扩展。 </p>
+<p>3.支持多业务、多版本管理、多种发布策略。</p>
+<p>etcd可以做到多版本管理，多发布策略的话，可以级联多个etcd的方法。 另外，可能更加理想的存储架构方式是采用计算与存储分离的方法，计算部分处理读写以及扩展，存储部分处理多版本，多业务，多发布策略。</p>
+<p>答案2：</p>
+<p>认为etcd并不合适，适合使用可平行扩容的分布式数据库如tidb，运维复杂度不更低点吗，容量也更大，还能支持各种key value大小配置</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/etcd/" class="category-chain-item">etcd</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/etcd/">#etcd</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>22.配置及服务发现：解析etcd在API Gateway开源项目中应用</div>
+      <div>https://blog.longpi1.com/2022/10/15/22-配置及服务发现：解析etcd在APIGateway开源项目中应用/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/15/21-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9F%BA%E4%BA%8Eetcd%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E6%AF%94Redis%E9%94%81%E6%9B%B4%E5%AE%89%E5%85%A8%EF%BC%9F/" title="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？">
+                        <span class="hidden-mobile">21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
