@@ -16,23 +16,35 @@
   <meta name="author" content="lp">
   <meta name="keywords" content="">
   
-    <meta name="description" content="lp的个人博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="标签 - etcd">
-<meta property="og:url" content="https://blog.longpi1.com/tags/etcd/index.html">
+    <meta name="description" content="极客时间etcd课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式存储系统核心知识点">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/16/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="lp的个人博客">
+<meta property="og:description" content="极客时间etcd课程笔记">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/7b/28/7b54b6ca9134c130bf3940c7db497928.png?wh=1920*1177">
+<meta property="article:published_time" content="2022-10-16T01:39:57.000Z">
+<meta property="article:modified_time" content="2022-10-16T01:40:53.583Z">
 <meta property="article:author" content="lp">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="分布式存储">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/7b/28/7b54b6ca9134c130bf3940c7db497928.png?wh=1920*1177">
   
   
   
-  <title>标签 - etcd - lp&#39;s blog</title>
+  <title>分布式存储系统核心知识点 - lp&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
 
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
 
 
 
@@ -204,9 +216,57 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="标签 - etcd"></span>
+            <span id="subtitle" data-typed-text="分布式存储系统核心知识点"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-16 09:39" pubdate>
+          2022年10月16日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          1 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
 
         
       </div>
@@ -225,100 +285,181 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div id="board"
-          >
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
-
-<div class="list-group">
-  <p class="h4">共计 24 篇文章</p>
-  <hr>
-  
-  
-    
       
-      <p class="h5">2022</p>
-    
-    <a href="/2022/10/16/24-%E8%BF%90%E7%BB%B4%EF%BC%9A%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BA%E9%AB%98%E5%8F%AF%E9%9D%A0%E7%9A%84etcd%E9%9B%86%E7%BE%A4%E8%BF%90%E7%BB%B4%E4%BD%93%E7%B3%BB%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-16</time>
-      <div class="list-group-item-title">24.运维：如何构建高可靠的etcd集群运维体系？</div>
-    </a>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">分布式存储系统核心知识点</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="分布式存储系统核心知识点"><a href="#分布式存储系统核心知识点" class="headerlink" title="分布式存储系统核心知识点"></a>分布式存储系统核心知识点</h1><p><img src="https://static001.geekbang.org/resource/image/7b/28/7b54b6ca9134c130bf3940c7db497928.png?wh=1920*1177" srcset="/img/loading.gif" lazyload alt="img"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
   
     
-    <a href="/2022/10/15/23-%E9%80%89%E5%9E%8B%EF%BC%9Aetcd-ZooKeeper-Consul%E7%AD%89%E6%88%91%E4%BB%AC%E8%AF%A5%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-15</time>
-      <div class="list-group-item-title">23.选型：etcd/ZooKeeper/Consul等我们该如何选择？</div>
-    </a>
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/" class="category-chain-item">分布式存储</a>
   
-    
-    <a href="/2022/10/15/22-%E9%85%8D%E7%BD%AE%E5%8F%8A%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%EF%BC%9A%E8%A7%A3%E6%9E%90etcd%E5%9C%A8APIGateway%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%BA%94%E7%94%A8/" class="list-group-item list-group-item-action">
-      <time>10-15</time>
-      <div class="list-group-item-title">22.配置及服务发现：解析etcd在API Gateway开源项目中应用</div>
-    </a>
   
+
+      </span>
     
-    <a href="/2022/10/15/21-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%9F%BA%E4%BA%8Eetcd%E5%AE%9E%E7%8E%B0%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E6%AF%94Redis%E9%94%81%E6%9B%B4%E5%AE%89%E5%85%A8%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-15</time>
-      <div class="list-group-item-title">21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</div>
-    </a>
   
-    
-    <a href="/2022/10/15/20-Kubernetes%E9%AB%98%E7%BA%A7%E5%BA%94%E7%94%A8%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E4%BD%BFetcd%E8%83%BD%E6%94%AF%E6%92%91%E4%B8%8A%E4%B8%87%E8%8A%82%E7%82%B9%E9%9B%86%E7%BE%A4%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-15</time>
-      <div class="list-group-item-title">20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？</div>
-    </a>
+</span>
+
+    </div>
   
-    
-    <a href="/2022/10/15/19-Kubernetes%E5%9F%BA%E7%A1%80%E5%BA%94%E7%94%A8%EF%BC%9A%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAPod%E8%83%8C%E5%90%8Eetcd%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-15</time>
-      <div class="list-group-item-title">19.Kubernetes基础应用：创建一个Pod背后etcd发生了什么？</div>
-    </a>
   
-    
-    <a href="/2022/10/12/18-%E5%AE%9E%E6%88%98%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9F%BA%E4%BA%8ERaft%E4%BB%8E0%E5%88%B01%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%94%AF%E6%8C%81%E5%A4%9A%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E5%88%86%E5%B8%83%E5%BC%8FKV%E6%9C%8D%E5%8A%A1%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-12</time>
-      <div class="list-group-item-title">18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？</div>
-    </a>
-  
-    
-    <a href="/2022/10/09/17-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E5%86%99%E6%80%A7%E8%83%BD/" class="list-group-item list-group-item-action">
-      <time>10-09</time>
-      <div class="list-group-item-title">17.性能及稳定性（下）：如何优化及扩展etcd写性能?</div>
-    </a>
-  
-    
-    <a href="/2022/10/09/16-%E6%80%A7%E8%83%BD%E5%8F%8A%E7%A8%B3%E5%AE%9A%E6%80%A7%EF%BC%88%E4%B8%8A%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E5%8F%8A%E6%89%A9%E5%B1%95etcd%E8%AF%BB%E6%80%A7%E8%83%BD%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-09</time>
-      <div class="list-group-item-title">16.性能及稳定性（上）：如何优化及扩展etcd读性能？</div>
-    </a>
-  
-    
-    <a href="/2022/10/07/15-%E5%86%85%E5%AD%98%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%A0%E7%9A%84etcd%E5%86%85%E5%AD%98%E5%8D%A0%E7%94%A8%E9%82%A3%E4%B9%88%E9%AB%98%EF%BC%9F/" class="list-group-item list-group-item-action">
-      <time>10-07</time>
-      <div class="list-group-item-title">15.内存：为什么你的etcd内存占用那么高？</div>
-    </a>
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/">#分布式存储</a>
+      
+    </div>
   
 </div>
 
 
-  <nav aria-label="navigation">
-    <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/tags/etcd/page/2/#board">2</a><a class="page-number" href="/tags/etcd/page/3/#board">3</a><a class="extend next" rel="next" href="/tags/etcd/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
-    </span>
-  </nav>
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分布式存储系统核心知识点</div>
+      <div>https://blog.longpi1.com/2022/10/16/分布式存储系统核心知识点/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
 
 
 
-
-              </div>
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/16/24-%E8%BF%90%E7%BB%B4%EF%BC%9A%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BA%E9%AB%98%E5%8F%AF%E9%9D%A0%E7%9A%84etcd%E9%9B%86%E7%BE%A4%E8%BF%90%E7%BB%B4%E4%BD%93%E7%B3%BB%EF%BC%9F/" title="24.运维：如何构建高可靠的etcd集群运维体系？">
+                        <span class="hidden-mobile">24.运维：如何构建高可靠的etcd集群运维体系？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
             </div>
-          </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
         </div>
       </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
     
 
     
@@ -437,6 +578,72 @@
 
 
 
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
 
   <script defer src="/js/leancloud.js" ></script>
 
