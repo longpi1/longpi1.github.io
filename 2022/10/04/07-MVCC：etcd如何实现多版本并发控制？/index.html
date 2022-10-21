@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/8b/f7/8bec06d61622f2a99ea9dd2f78e693f7.jpg?wh=1432*477">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/da/17/da4e5bc5033619dda296c022ac6yyc17.jpg?wh=1611*581">
 <meta property="article:published_time" content="2022-10-04T09:23:26.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:12:38.524Z">
+<meta property="article:modified_time" content="2022-10-21T14:01:19.266Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -260,7 +260,7 @@
         
         
         
-          79 分钟
+          80 分钟
         
       </span>
     
@@ -314,7 +314,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="07-MVCC：如何实现多版本并发控制？"><a href="#07-MVCC：如何实现多版本并发控制？" class="headerlink" title="07.MVCC：如何实现多版本并发控制？"></a>07.MVCC：如何实现多版本并发控制？</h1><p>etcd v2时，存在若干局限，如仅保留最新版本key-value数据、丢弃历史版本。而<strong>etcd核心特性watch又依赖历史版本</strong>（为什么watch机制依赖历史版本），因此etcd v2为了缓解这个问题，会在内存中维护一个较短的全局事件滑动窗口，保留最近的1000条变更事件。但是在集群写请求较多等场景下，它依然无法提供可靠的Watch机制。</p>
+                <h1 id="07-MVCC：如何实现多版本并发控制？"><a href="#07-MVCC：如何实现多版本并发控制？" class="headerlink" title="07.MVCC：如何实现多版本并发控制？"></a>07.MVCC：如何实现多版本并发控制？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>etcd v2时，存在若干局限，如仅保留最新版本key-value数据、丢弃历史版本。而<strong>etcd核心特性watch又依赖历史版本</strong>（为什么watch机制依赖历史版本），因此etcd v2为了缓解这个问题，会在内存中维护一个较短的全局事件滑动窗口，保留最近的1000条变更事件。但是在集群写请求较多等场景下，它依然无法提供可靠的Watch机制。</p>
 <p>那么不可靠的etcd v2事件机制，在etcd v3中是如何解决的呢？</p>
 <p>今天分享的MVCC（Multiversion concurrency control）机制，正是为解决这个问题而诞生的。</p>
 <p>MVCC机制的核心思想是保存一个key-value数据的多个历史版本，etcd基于它不仅实现了可靠的Watch机制，避免了client频繁发起List Pod等expensive request操作，保障etcd集群稳定性。而且MVCC还能以较低的并发控制开销，实现各类隔离级别的事务，保障事务的安全性，是事务特性的基础。</p>

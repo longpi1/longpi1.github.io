@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/55/94/55e03b4353c9a467493a3922cf68b294.png?wh=1144*854">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/ee/60/ee6e0a9a63aeaa2d3505ab1a37360760.png?wh=1786*1134">
 <meta property="article:published_time" content="2022-10-03T13:48:21.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:12:38.468Z">
+<meta property="article:modified_time" content="2022-10-21T14:01:03.961Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -244,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.5k 字
+          7.6k 字
         
       </span>
     
@@ -255,7 +255,7 @@
         
         
         
-          63 分钟
+          64 分钟
         
       </span>
     
@@ -309,7 +309,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="05-鉴权：如何保护你的数据安全？"><a href="#05-鉴权：如何保护你的数据安全？" class="headerlink" title="05. 鉴权：如何保护你的数据安全？"></a>05. 鉴权：如何保护你的数据安全？</h1><p>当你使用etcd存储业务敏感数据、多租户共享使用同etcd集群的时候，应该如何防止匿名用户访问你的etcd数据呢？多租户场景又如何最小化用户权限分配，防止越权访问的？</p>
+                <h1 id="05-鉴权：如何保护你的数据安全？"><a href="#05-鉴权：如何保护你的数据安全？" class="headerlink" title="05. 鉴权：如何保护你的数据安全？"></a>05. 鉴权：如何保护你的数据安全？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>当使用etcd存储业务敏感数据、多租户共享使用同etcd集群的时候，应该如何防止匿名用户访问你的etcd数据呢？多租户场景又如何最小化用户权限分配，防止越权访问的？</p>
 <h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><p>etcd鉴权体系架构由控制面和数据面组成。</p>
 <p><img src="https://static001.geekbang.org/resource/image/30/4e/304257ac790aeda91616bfe42800364e.png?wh=1920*420" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>上图是是etcd鉴权体系控制面，可以通过客户端工具etcdctl和鉴权API动态调整认证、鉴权规则，AuthServer收到请求后，为了确保各节点间鉴权元数据一致性，会通过Raft模块进行数据同步。</p>

@@ -27,7 +27,7 @@
 <meta property="og:image" content="https://blog.longpi1.com/images/348633/29deb02b3724edef274ce71d6a758b29.png">
 <meta property="og:image" content="https://blog.longpi1.com/images/348633/e1694c3dce75b310b9950f3e3yydd2d2.png">
 <meta property="article:published_time" content="2022-10-15T05:10:11.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:11:42.569Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.132Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="Kubernetes">
@@ -254,7 +254,7 @@
         
         
         
-          90 分钟
+          91 分钟
         
       </span>
     
@@ -308,7 +308,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="20-Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？"><a href="#20-Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？" class="headerlink" title="20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？"></a>20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？</h1><p>Kubernetes社区官网文档目前声称支持最大集群节点数为5000，但是云厂商已经号称支持15000节点的Kubernetes集群了，那么为什么一个小小的etcd能支撑15000节点Kubernetes集群呢？</p>
+                <h1 id="20-Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？"><a href="#20-Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？" class="headerlink" title="20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？"></a>20.Kubernetes高级应用：如何优化业务场景使etcd能支撑上万节点集群？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>Kubernetes社区官网文档目前声称支持最大集群节点数为5000，但是云厂商已经号称支持15000节点的Kubernetes集群了，那么为什么一个小小的etcd能支撑15000节点Kubernetes集群呢？</p>
 <p>今天聊聊为了支撑15000节点，Kubernetes和etcd的做的一系列优化。将重点分析Kubernetes针对etcd的瓶颈是如何从应用层采取一系列优化措施，去解决大规模集群场景中各个痛点。</p>
 <h2 id="大集群核心问题分析"><a href="#大集群核心问题分析" class="headerlink" title="大集群核心问题分析"></a>大集群核心问题分析</h2><p>在大规模Kubernetes集群中会遇到哪些问题呢？</p>
 <p>大规模Kubernetes集群的外在表现是节点数成千上万，资源对象数量高达几十万。本质是更频繁地查询、写入更大的资源对象。</p>

@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/6a/8d/6a526be4949a383fd5263484c706d68d.png?wh=1920*786">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/3b/26/3b4c7fb43e03a38aceb2a8c2d5c92226.png?wh=1920*1011">
 <meta property="article:published_time" content="2022-10-05T06:49:34.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:12:38.532Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.091Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -255,7 +255,7 @@
         
         
         
-          86 分钟
+          87 分钟
         
       </span>
     
@@ -309,7 +309,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="09-事务：如何安全地实现多key操作？"><a href="#09-事务：如何安全地实现多key操作？" class="headerlink" title="09.事务：如何安全地实现多key操作？"></a>09.事务：如何安全地实现多key操作？</h1><p>在软件开发过程中，我们经常会遇到需要批量执行多个key操作的业务场景，比如转账案例中，Alice给Bob转账100元，Alice账号减少100，Bob账号增加100，这涉及到多个key的原子更新。</p>
+                <h1 id="09-事务：如何安全地实现多key操作？"><a href="#09-事务：如何安全地实现多key操作？" class="headerlink" title="09.事务：如何安全地实现多key操作？"></a>09.事务：如何安全地实现多key操作？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>在软件开发过程中，我们经常会遇到需要批量执行多个key操作的业务场景，比如转账案例中，Alice给Bob转账100元，Alice账号减少100，Bob账号增加100，这涉及到多个key的原子更新。</p>
 <p>无论发生任何故障，我们应用层期望的结果是，要么两个操作一起成功，要么两个一起失败。我们无法容忍出现一个成功，一个失败的情况。那么etcd是如何解决多key原子更新问题呢？</p>
 <p>这正是分享的主题——事务，它就是为了 <strong>简化应用层的编程模型</strong> 而诞生的，通过转账案例为你剖析etcd事务实现，让你了解etcd如何实现事务ACID特性的，以及MVCC版本号在事务中的重要作用。希望通过本节课，帮助你在业务开发中正确使用事务，保证软件代码的正确性。</p>
 <h2 id="事务特性初体验及API"><a href="#事务特性初体验及API" class="headerlink" title="事务特性初体验及API"></a>事务特性初体验及API</h2><p>如何使用etcd实现Alice向Bob转账功能呢？</p>

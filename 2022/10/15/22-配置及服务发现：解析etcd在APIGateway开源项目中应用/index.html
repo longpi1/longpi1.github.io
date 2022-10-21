@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/20/fd/20a539bdd37db2d4632c7b0c5f4119fd.png?wh=1920*1246">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/83/f4/834502c6ed7e59fe0b4643c11b2d31f4.png?wh=1746*838">
 <meta property="article:published_time" content="2022-10-15T14:50:59.000Z">
-<meta property="article:modified_time" content="2022-10-15T14:51:28.948Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.141Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -244,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.7k 字
+          7.8k 字
         
       </span>
     
@@ -255,7 +255,7 @@
         
         
         
-          64 分钟
+          65 分钟
         
       </span>
     
@@ -309,7 +309,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="22-配置及服务发现：解析etcd在API-Gateway开源项目中应用"><a href="#22-配置及服务发现：解析etcd在API-Gateway开源项目中应用" class="headerlink" title="22.配置及服务发现：解析etcd在API Gateway开源项目中应用"></a>22.配置及服务发现：解析etcd在API Gateway开源项目中应用</h1><p>在软件开发的过程中，为了提升代码的灵活性和开发效率，我们大量使用配置去控制程序的运行行为。</p>
+                <h1 id="22-配置及服务发现：解析etcd在API-Gateway开源项目中应用"><a href="#22-配置及服务发现：解析etcd在API-Gateway开源项目中应用" class="headerlink" title="22.配置及服务发现：解析etcd在API Gateway开源项目中应用"></a>22.配置及服务发现：解析etcd在API Gateway开源项目中应用</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>在软件开发的过程中，为了提升代码的灵活性和开发效率，我们大量使用配置去控制程序的运行行为。</p>
 <p>从简单的数据库账号密码配置，到 <a target="_blank" rel="noopener" href="https://github.com/kelseyhightower/confd">confd</a> 支持以etcd为后端存储的本地配置及模板管理，再到 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix">Apache APISIX</a> 等API Gateway项目使用etcd存储服务配置、路由信息等，最后到Kubernetes更实现了Secret和ConfigMap资源对象来解决配置管理的问题。</p>
 <p>那么它们是如何实现实时、动态调整服务配置而不需要重启相关服务的呢？</p>
 <p>接下来将以开源项目Apache APISIX为例，分析服务发现的原理，带你了解etcd的key-value模型，Watch机制，鉴权机制，Lease特性，事务特性在其中的应用。</p>

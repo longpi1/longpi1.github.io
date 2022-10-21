@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/02/a1/027ef8e1759a2800f1a2c1c105d7d7a1.png?wh=1312*394">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/44/a1/44ee247e9a31a455aca28459e5bb45a1.png?wh=1322*418">
 <meta property="article:published_time" content="2022-10-07T07:11:03.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:11:42.620Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.215Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -244,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.9k 字
+          8k 字
         
       </span>
     
@@ -309,7 +309,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="13-db大小：为什么etcd社区建议db大小不超过8G？"><a href="#13-db大小：为什么etcd社区建议db大小不超过8G？" class="headerlink" title="13.db大小：为什么etcd社区建议db大小不超过8G？"></a>13.db大小：为什么etcd社区建议db大小不超过8G？</h1><p>在写流程中分享了etcd Quota模块，那么etcd为什么需要对db增加Quota限制，以及不建议etcd集群db大小超过8G呢？ 过大的db文件对集群性能和稳定性有哪些影响？</p>
+                <h1 id="13-db大小：为什么etcd社区建议db大小不超过8G？"><a href="#13-db大小：为什么etcd社区建议db大小不超过8G？" class="headerlink" title="13.db大小：为什么etcd社区建议db大小不超过8G？"></a>13.db大小：为什么etcd社区建议db大小不超过8G？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>在写流程中分享了etcd Quota模块，那么etcd为什么需要对db增加Quota限制，以及不建议etcd集群db大小超过8G呢？ 过大的db文件对集群性能和稳定性有哪些影响？</p>
 <p>今天分享的主题就是关于db大小。将通过一个大数据量的etcd集群为案例，剖析etcd db大小配额限制背后的设计思考和过大的db潜在隐患。</p>
 <p>帮助理解大数据量对集群的各个模块的影响，配置合理的db Quota值。同时，帮助在实际业务场景中，遵循最佳实践，尽量减少value大小和大key-value更新频率，避免db文件大小不断增长。</p>
 <h2 id="分析整体思路"><a href="#分析整体思路" class="headerlink" title="分析整体思路"></a>分析整体思路</h2><p>首先写入大量数据，构造一个db大小为14G的大集群。然后通过此集群分析db大小的各个影响面，db大小影响面如下图所示。</p>

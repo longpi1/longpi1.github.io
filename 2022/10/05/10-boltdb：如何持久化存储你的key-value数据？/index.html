@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/e9/6f/e93935835e792363ae2edc5290f2266f.png?wh=1536*1532">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/d3/8c/d31f483a10abeff34a8fef37941ef28c.png?wh=1920*838">
 <meta property="article:published_time" content="2022-10-05T14:44:41.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:12:38.475Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.206Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -250,7 +250,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.3k 字
+          9.4k 字
         
       </span>
     
@@ -261,7 +261,7 @@
         
         
         
-          78 分钟
+          79 分钟
         
       </span>
     
@@ -315,7 +315,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="10-boltdb：如何持久化存储你的key-value数据？"><a href="#10-boltdb：如何持久化存储你的key-value数据？" class="headerlink" title="10.boltdb：如何持久化存储你的key-value数据？"></a>10.boltdb：如何持久化存储你的key-value数据？</h1><p>boltdb是如何组织你的key-value数据的呢？当你读写一个key时，boltdb是如何工作的？</p>
+                <h1 id="10-boltdb：如何持久化存储你的key-value数据？"><a href="#10-boltdb：如何持久化存储你的key-value数据？" class="headerlink" title="10.boltdb：如何持久化存储你的key-value数据？"></a>10.boltdb：如何持久化存储你的key-value数据？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>boltdb是如何组织你的key-value数据的呢？当你读写一个key时，boltdb是如何工作的？</p>
 <p>通过一个写请求在boltdb中执行的简要流程，分析其背后的boltdb的磁盘文件布局，帮助了解page、node、bucket等核心数据结构的原理与作用，搞懂boltdb基于B+ tree、各类page实现查找、更新、事务提交的原理，让你明白etcd为什么适合读多写少的场景。</p>
 <h2 id="boltdb磁盘布局"><a href="#boltdb磁盘布局" class="headerlink" title="boltdb磁盘布局"></a>boltdb磁盘布局</h2><p>在介绍一个put写请求在boltdb中执行原理前，先从整体上介绍下平时你所看到的etcd db文件的磁盘布局，让你了解下db文件的物理存储结构。</p>
 <p>boltdb文件指的是etcd数据目录下的member&#x2F;snap&#x2F;db的文件， etcd的key-value、lease、meta、member、cluster、auth等所有数据存储在其中。etcd启动的时候，会通过mmap机制将db文件映射到内存，后续可从内存中快速读取文件中的数据。写请求通过fwrite和fdatasync来写入、持久化数据到磁盘。</p>

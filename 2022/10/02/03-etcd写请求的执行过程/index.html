@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/7f/5b/7f13edaf28yy7a6698e647104771235b.png?wh=1920*641">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/a1/ff/a19a06d8f4cc5e488a114090d84116ff.png?wh=1920*1035">
 <meta property="article:published_time" content="2022-10-02T13:06:37.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:12:38.517Z">
+<meta property="article:modified_time" content="2022-10-21T14:01:03.928Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -244,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.5k 字
+          7.6k 字
         
       </span>
     
@@ -255,7 +255,7 @@
         
         
         
-          63 分钟
+          64 分钟
         
       </span>
     
@@ -309,7 +309,10 @@
             
               <div class="markdown-body">
                 
-                <h2 id="etcd-写请求的执行过程"><a href="#etcd-写请求的执行过程" class="headerlink" title="etcd 写请求的执行过程"></a>etcd 写请求的执行过程</h2><p>etcd 一个写请求执行流程又是怎样的呢？在执行写请求过程中，如果进程 crash 了，如何保证数据不丢、命令不重复执行呢？</p>
+                <h2 id="etcd-写请求的执行过程"><a href="#etcd-写请求的执行过程" class="headerlink" title="etcd 写请求的执行过程"></a>etcd 写请求的执行过程</h2><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>etcd 一个写请求执行流程又是怎样的呢？在执行写请求过程中，如果进程 crash 了，如何保证数据不丢、命令不重复执行呢？</p>
 <h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p><img src="https://static001.geekbang.org/resource/image/8b/72/8b6dfa84bf8291369ea1803387906c72.png?wh=1920*1265" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>为了能够更直观地理解 etcd 的写请求流程，在如上的架构图中，用序号标识了下面的一个 put hello 为 world 的写请求的简要执行流程，从整体上快速了解一个写请求的全貌。</p>
 <figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs applescript">etcdctl <span class="hljs-keyword">put</span> hello world <span class="hljs-comment">--endpoints http://127.0.0.1:2379</span><br>OK<br></code></pre></td></tr></table></figure>

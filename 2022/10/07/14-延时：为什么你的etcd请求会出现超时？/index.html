@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/29/db/294600a0a144be38e9d7b69d9403f3db.png?wh=1338*356">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/93/a3/9375f08cebd596b87b92623c10786fa3.png?wh=1920*1474">
 <meta property="article:published_time" content="2022-10-07T09:01:50.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:11:42.604Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.224Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -257,7 +257,7 @@
         
         
         
-          109 分钟
+          110 分钟
         
       </span>
     
@@ -311,7 +311,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="14-延时：为什么你的etcd请求会出现超时？"><a href="#14-延时：为什么你的etcd请求会出现超时？" class="headerlink" title="14.延时：为什么你的etcd请求会出现超时？"></a>14.延时：为什么你的etcd请求会出现超时？</h1><p>在使用etcd的过程中，经常会被日志中的”apply request took too long”和“etcdserver: request timed out”等高延时现象困扰过？它们是由什么原因导致的呢？我们应该如何来分析这些问题？</p>
+                <h1 id="14-延时：为什么你的etcd请求会出现超时？"><a href="#14-延时：为什么你的etcd请求会出现超时？" class="headerlink" title="14.延时：为什么你的etcd请求会出现超时？"></a>14.延时：为什么你的etcd请求会出现超时？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>在使用etcd的过程中，经常会被日志中的”apply request took too long”和“etcdserver: request timed out”等高延时现象困扰过？它们是由什么原因导致的呢？我们应该如何来分析这些问题？</p>
 <p>这就是要分享的主题：etcd延时。掌握etcd延时抖动、超时背后的常见原因和分析方法，当遇到类似问题时，能独立定位、解决。同时，在实际业务场景中，合理配置集群，遵循最佳实践，尽量减少expensive request，避免etcd请求出现超时。</p>
 <h2 id="分析思路及工具"><a href="#分析思路及工具" class="headerlink" title="分析思路及工具"></a>分析思路及工具</h2><p>首先，当面对一个高延时的请求案例后，如何梳理问题定位思路呢？</p>
 <p>知彼知己，方能百战不殆，定位问题也是类似。首先我们得弄清楚产生问题的原理、流程，读写请求的核心链路。其次是熟练掌握相关工具，借助它们，可以帮助我们快速攻破疑难杂症。</p>

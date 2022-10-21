@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://blog.longpi1.com/images/350285/cd3d4ab1af45c6eb76e7dccd9c666245.png">
 <meta property="og:image" content="https://blog.longpi1.com/images/350285/cb4cb52cf2244d2000884ef5f5ff3db1.png">
 <meta property="article:published_time" content="2022-10-15T09:09:09.000Z">
-<meta property="article:modified_time" content="2022-10-15T14:50:30.501Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.124Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -241,7 +241,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.5k 字
+          9.6k 字
         
       </span>
     
@@ -306,7 +306,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"><a href="#21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？" class="headerlink" title="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"></a>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</h1><p>在软件开发过程中，我们经常会遇到各种场景要求对共享资源进行互斥操作，否则整个系统的数据一致性就会出现问题。典型场景如商品库存操作、Kubernertes调度器为Pod分配运行的Node。</p>
+                <h1 id="21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"><a href="#21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？" class="headerlink" title="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"></a>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>在软件开发过程中，我们经常会遇到各种场景要求对共享资源进行互斥操作，否则整个系统的数据一致性就会出现问题。典型场景如商品库存操作、Kubernertes调度器为Pod分配运行的Node。</p>
 <p>那要如何实现对共享资源进行互斥操作呢？</p>
 <p>锁就是其中一个非常通用的解决方案。在单节点多线程环境，你使用本地的互斥锁就可以完成资源的互斥操作。然而单节点存在单点故障，为了保证服务高可用，你需要多节点部署。在多节点部署的分布式架构中，你就需要使用分布式锁来解决资源互斥操作了。</p>
 <p>但是为什么有的业务使用了分布式锁还会出现各种严重超卖事故呢？分布式锁的实现和使用过程需要注意什么？</p>

@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/34/84/34486534722d2748d8cd1172bfe63084.png?wh=1920*1240">
 <meta property="article:published_time" content="2022-10-01T14:23:40.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:12:38.509Z">
+<meta property="article:modified_time" content="2022-10-21T14:01:03.936Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -240,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          741 字
+          828 字
         
       </span>
     
@@ -305,7 +305,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="ETCD基础架构"><a href="#ETCD基础架构" class="headerlink" title="ETCD基础架构"></a>ETCD基础架构</h1><p>下面是一张 etcd 的简要基础架构图，我们先从宏观上了解一下 etcd 都有哪些功能模块。</p>
+                <h1 id="ETCD基础架构"><a href="#ETCD基础架构" class="headerlink" title="ETCD基础架构"></a>ETCD基础架构</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>下面是一张 etcd 的简要基础架构图，我们先从宏观上了解一下 etcd 都有哪些功能模块。</p>
 <p><img src="https://static001.geekbang.org/resource/image/34/84/34486534722d2748d8cd1172bfe63084.png?wh=1920*1240" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>可以看到，按照分层模型，etcd 可分为 Client 层、API 网络层、Raft 算法层、逻辑层和存储层。这些层的功能如下：</p>
 <ul>

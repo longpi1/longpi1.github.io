@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/42/bf/42575d8d0a034e823b8e48d4ca0a49bf.png?wh=1920*1075">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/aa/90/aaf7b4f5f6f568dc70c1a0964fb92790.png?wh=1920*684">
 <meta property="article:published_time" content="2022-10-07T12:31:45.000Z">
-<meta property="article:modified_time" content="2022-10-15T05:11:42.562Z">
+<meta property="article:modified_time" content="2022-10-21T14:02:31.198Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="etcd">
@@ -249,7 +249,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          8k 字
+          8.1k 字
         
       </span>
     
@@ -260,7 +260,7 @@
         
         
         
-          67 分钟
+          68 分钟
         
       </span>
     
@@ -314,7 +314,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="15-内存：为什么你的etcd内存占用那么高？"><a href="#15-内存：为什么你的etcd内存占用那么高？" class="headerlink" title="15.内存：为什么你的etcd内存占用那么高？"></a>15.内存：为什么你的etcd内存占用那么高？</h1><p>在使用etcd的过程中，你是否被异常内存占用等现象困扰过？比如etcd中只保存了1个1MB的key-value，但是经过若干次修改后，最终etcd内存可能达到数G。它是由什么原因导致的？如何分析呢？</p>
+                <h1 id="15-内存：为什么你的etcd内存占用那么高？"><a href="#15-内存：为什么你的etcd内存占用那么高？" class="headerlink" title="15.内存：为什么你的etcd内存占用那么高？"></a>15.内存：为什么你的etcd内存占用那么高？</h1><blockquote>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+</blockquote>
+<p>在使用etcd的过程中，你是否被异常内存占用等现象困扰过？比如etcd中只保存了1个1MB的key-value，但是经过若干次修改后，最终etcd内存可能达到数G。它是由什么原因导致的？如何分析呢？</p>
 <p>今天要分享的主题：etcd的内存。 帮助你掌握etcd内存抖动、异常背后的常见原因和分析方法，当遇到类似问题时，能独立定位、解决。同时，帮助在实际业务场景中，为集群节点配置充足的内存资源，遵循最佳实践，尽量减少expensive request，避免etcd内存出现突增，导致OOM。</p>
 <h2 id="分析整体思路"><a href="#分析整体思路" class="headerlink" title="分析整体思路"></a>分析整体思路</h2><p>当遇到etcd内存占用较高的案例时，你脑海中第一反应是什么呢？</p>
 <p>下图以etcd写请求流程为例，总结的可能导致etcd内存占用较高的核心模块与其数据结构。</p>
