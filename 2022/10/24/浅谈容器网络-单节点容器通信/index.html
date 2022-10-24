@@ -1,0 +1,757 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间深入剖析 Kubernetes课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈容器网络--单节点容器通信">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/24/%E6%B5%85%E8%B0%88%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C-%E5%8D%95%E8%8A%82%E7%82%B9%E5%AE%B9%E5%99%A8%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间深入剖析 Kubernetes课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/e0/66/e0d28e0371f93af619e91a86eda99a66.png?wh=1715*995">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9f/01/9fb381d1e49318bb6a67bda3f9db6901.png?wh=1715*995">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/90/95/90bd630c0723ea8a1fb7ccd738ad1f95.png?wh=1834*994">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/b4/3d/b4387a992352109398a66d1dbe6e413d.png?wh=1828*721">
+<meta property="article:published_time" content="2022-10-24T13:51:10.000Z">
+<meta property="article:modified_time" content="2022-10-24T13:52:10.040Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="笔记">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/e0/66/e0d28e0371f93af619e91a86eda99a66.png?wh=1715*995">
+  
+  
+  
+  <title>浅谈容器网络--单节点容器通信 - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="浅谈容器网络--单节点容器通信"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-24 21:51" pubdate>
+          2022年10月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">浅谈容器网络--单节点容器通信</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="浅谈容器网络–单节点容器通信"><a href="#浅谈容器网络–单节点容器通信" class="headerlink" title="浅谈容器网络–单节点容器通信"></a>浅谈容器网络–单节点容器通信</h1><blockquote>
+<p>本文笔记来自：「深入剖析 Kubernetes课程」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/64948">https://time.geekbang.org/column/article/64948</a></p>
+</blockquote>
+<p>所谓“网络栈”，包括了：<strong>网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和iptables规则</strong>。对于一个进程来说，这些要素，构成了它发起和响应网络请求的基本环境。</p>
+<p>需要指出的是，作为一个容器，它可以声明直接使用宿主机的网络栈（–net&#x3D;host），即：不开启Network Namespace，比如：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ docker <span class="hljs-built_in">run</span> –d –<span class="hljs-attribute">net</span>=host --name nginx-host nginx<br></code></pre></td></tr></table></figure>
+
+<p>在这种情况下，这个容器启动后，直接监听的就是宿主机的80端口。</p>
+<p>像这样直接使用宿主机网络栈的方式，虽然可以为容器提供良好的网络性能，但也会不可避免地引入共享网络资源的问题，比如端口冲突。所以， <strong>在大多数情况下，我们都希望容器进程能使用自己Network Namespace里的网络栈，即：拥有属于自己的IP地址和端口。</strong></p>
+<p>这时候，一个显而易见的问题就是：这个被隔离的容器进程，该如何跟其他Network Namespace里的容器进程进行交互呢？</p>
+<p>为了理解这个问题，可以把每一个容器看做一台主机，它们都有一套独立的“网络栈”。</p>
+<p>如果想要实现两台主机之间的通信，最直接的办法，就是把它们用一根网线连接起来；而如果你想要实现多台主机之间的通信，那就需要用网线，把它们连接在一台交换机上。</p>
+<p>在Linux中，能够起到虚拟交换机作用的网络设备，是网桥（Bridge）。它是一个工作在数据链路层（Data Link）的设备，主要功能是根据MAC地址学习来将数据包转发到网桥的不同端口（Port）上。</p>
+<p>·	至于为什么这些主机之间需要MAC地址才能进行通信，这就是网络分层模型的基础知识了。不熟悉这块可以通过 <a target="_blank" rel="noopener" href="https://www.lifewire.com/layers-of-the-osi-model-illustrated-818017">这篇文章</a> 来学习一下。</p>
+<p>而为了实现上述目的，Docker项目会默认在宿主机上创建一个名叫docker0的网桥，凡是连接在docker0网桥上的容器，就可以通过它来进行通信。</p>
+<p>可是，又该如何把这些容器“连接”到docker0网桥上呢？</p>
+<p>这时候，我们就需要使用一种名叫 <strong>Veth Pair</strong> 的虚拟设备了。</p>
+<p>Veth Pair设备的特点是：它被创建出来后，总是以两张虚拟网卡（Veth Peer）的形式成对出现的。并且，从其中一个“网卡”发出的数据包，可以直接出现在与它对应的另一张“网卡”上，哪怕这两个“网卡”在不同的Network Namespace里。</p>
+<p>这就使得Veth Pair常常被用作连接不同Network Namespace 的“网线”。</p>
+<p>比如，现在我们启动了一个叫作nginx-1的容器：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs applescript">$ docker <span class="hljs-built_in">run</span> –d <span class="hljs-comment">--name nginx-1 nginx</span><br><br></code></pre></td></tr></table></figure>
+
+<p>然后进入到这个容器中查看一下它的网络设备：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs tap"><span class="hljs-comment"># 在宿主机上</span><br>$ docker exec -it nginx-1 /bin/bash<br><span class="hljs-comment"># 在容器里</span><br>root@2b3c181aecf1:/<span class="hljs-comment"># ifconfig</span><br>eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500<br>        inet 172.17.0.2  netmask 255.255.0.0  broadcast 0.0.0.0<br>        inet6 fe80::42:acff:fe11:2  prefixlen<span class="hljs-number"> 64 </span> scopeid 0x20&lt;link&gt;<br>        ether 02:42:ac:11:00:02  txqueuelen<span class="hljs-number"> 0 </span> (Ethernet)<br>        RX packets<span class="hljs-number"> 364 </span> bytes<span class="hljs-number"> 8137175 </span>(7.7 MiB)<br>        RX errors<span class="hljs-number"> 0 </span> dropped<span class="hljs-number"> 0 </span> overruns<span class="hljs-number"> 0 </span> frame 0<br>        TX packets<span class="hljs-number"> 281 </span> bytes<span class="hljs-number"> 21161 </span>(20.6 KiB)<br>        TX errors<span class="hljs-number"> 0 </span> dropped<span class="hljs-number"> 0 </span>overruns<span class="hljs-number"> 0 </span> carrier<span class="hljs-number"> 0 </span> collisions 0<br><br>lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536<br>        inet 127.0.0.1  netmask 255.0.0.0<br>        inet6 ::1  prefixlen<span class="hljs-number"> 128 </span> scopeid 0x10&lt;host&gt;<br>        loop  txqueuelen<span class="hljs-number"> 1000 </span> (Local Loopback)<br>        RX packets<span class="hljs-number"> 0 </span> bytes<span class="hljs-number"> 0 </span>(0.0 B)<br>        RX errors<span class="hljs-number"> 0 </span> dropped<span class="hljs-number"> 0 </span> overruns<span class="hljs-number"> 0 </span> frame 0<br>        TX packets<span class="hljs-number"> 0 </span> bytes<span class="hljs-number"> 0 </span>(0.0 B)<br>        TX errors<span class="hljs-number"> 0 </span> dropped<span class="hljs-number"> 0 </span>overruns<span class="hljs-number"> 0 </span> carrier<span class="hljs-number"> 0 </span> collisions 0<br><br>$ route<br>Kernel IP routing table<br>Destination     Gateway         Genmask         Flags Metric Ref    Use Iface<br>default         172.17.0.1      0.0.0.0         UG   <span class="hljs-number"> 0 </span>    <span class="hljs-number"> 0 </span>      <span class="hljs-number"> 0 </span>eth0<br>172.17.0.0      0.0.0.0         255.255.0.0     U    <span class="hljs-number"> 0 </span>    <span class="hljs-number"> 0 </span>      <span class="hljs-number"> 0 </span>eth0<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这个容器里有一张叫作eth0的网卡，它正是一个Veth Pair设备在容器里的这一端。</p>
+<p>通过route命令查看nginx-1容器的路由表，我们可以看到，这个eth0网卡是这个容器里的默认路由设备；所有对172.17.0.0&#x2F;16网段的请求，也会被交给eth0来处理（第二条172.17.0.0路由规则）。</p>
+<p>而这个Veth Pair设备的另一端，则在宿主机上。你可以通过查看宿主机的网络设备看到它，如下所示：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs vim"># 在宿主机上<br>$ ifconfig<br>...<br>docker0   Link encap:Ethernet  HWaddr <span class="hljs-number">02</span>:<span class="hljs-number">42</span>:d8:e4:df:c1<br>          inet addr:<span class="hljs-number">172.17</span>.<span class="hljs-number">0.1</span>  Bcas<span class="hljs-variable">t:0</span>.<span class="hljs-number">0.0</span>.<span class="hljs-number">0</span>  Mask:<span class="hljs-number">255.255</span>.<span class="hljs-number">0.0</span><br>          inet6 addr: fe80::<span class="hljs-number">42</span>:d8ff:fee4:dfc1/<span class="hljs-number">64</span> Scope:Link<br>          UP BROADCAST RUNNING MULTICAST  MTU:<span class="hljs-number">1500</span>  Metric:<span class="hljs-number">1</span><br>          RX packet<span class="hljs-variable">s:309</span> error<span class="hljs-variable">s:0</span> dropped:<span class="hljs-number">0</span> overrun<span class="hljs-variable">s:0</span> frame:<span class="hljs-number">0</span><br>          TX packet<span class="hljs-variable">s:372</span> error<span class="hljs-variable">s:0</span> dropped:<span class="hljs-number">0</span> overrun<span class="hljs-variable">s:0</span> carrier:<span class="hljs-number">0</span><br> collision<span class="hljs-variable">s:0</span> txqueuelen:<span class="hljs-number">0</span><br>          RX byte<span class="hljs-variable">s:18944</span> (<span class="hljs-number">18.9</span> KB)  TX byte<span class="hljs-variable">s:8137789</span> (<span class="hljs-number">8.1</span> MB)<br>veth9c02e56 Link encap:Ethernet  HWaddr <span class="hljs-number">52</span>:<span class="hljs-number">81</span>:<span class="hljs-number">0</span><span class="hljs-variable">b:24</span>:<span class="hljs-number">3</span>d:da<br>          inet6 addr: fe80::<span class="hljs-number">5081</span>:bff:fe24:<span class="hljs-number">3</span>dda/<span class="hljs-number">64</span> Scope:Link<br>          UP BROADCAST RUNNING MULTICAST  MTU:<span class="hljs-number">1500</span>  Metric:<span class="hljs-number">1</span><br>          RX packet<span class="hljs-variable">s:288</span> error<span class="hljs-variable">s:0</span> dropped:<span class="hljs-number">0</span> overrun<span class="hljs-variable">s:0</span> frame:<span class="hljs-number">0</span><br>          TX packet<span class="hljs-variable">s:371</span> error<span class="hljs-variable">s:0</span> dropped:<span class="hljs-number">0</span> overrun<span class="hljs-variable">s:0</span> carrier:<span class="hljs-number">0</span><br> collision<span class="hljs-variable">s:0</span> txqueuelen:<span class="hljs-number">0</span><br>          RX byte<span class="hljs-variable">s:21608</span> (<span class="hljs-number">21.6</span> KB)  TX byte<span class="hljs-variable">s:8137719</span> (<span class="hljs-number">8.1</span> MB)<br><br>$ brctl show<br>bridge name bridge id  STP enabled interfaces<br>docker0  <span class="hljs-number">8000.0242</span>d8e4dfc1 <span class="hljs-keyword">no</span>  veth9c02e56<br><br></code></pre></td></tr></table></figure>
+
+<p>通过ifconfig命令的输出，可以看到，nginx-1容器对应的Veth Pair设备，在宿主机上是一张虚拟网卡。它的名字叫作veth9c02e56。并且，通过brctl show的输出，可以看到这张网卡被“插”在了docker0上。</p>
+<p>这时候，如果再在这台宿主机上启动另一个Docker容器，比如nginx-2：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ docker <span class="hljs-built_in">run</span> –d --name nginx-2 nginx<br>$ brctl show<span class="hljs-built_in"></span><br><span class="hljs-built_in">bridge </span>name<span class="hljs-built_in"> bridge </span>id  STP enabled interfaces<br>docker0  8000.0242d8e4dfc1 <span class="hljs-literal">no</span>  veth9c02e56<br>       vethb4963f3<br><br></code></pre></td></tr></table></figure>
+
+<p>就会发现一个新的、名叫vethb4963f3的虚拟网卡，也被“插”在了docker0网桥上。</p>
+<p>这时候，如果在nginx-1容器里ping一下nginx-2容器的IP地址（172.17.0.3），就会发现同一宿主机上的两个容器默认就是相互连通的。</p>
+<p>这其中的原理其实非常简单。</p>
+<p>当你在nginx-1容器里访问nginx-2容器的IP地址（比如ping 172.17.0.3）的时候，这个目的IP地址会匹配到nginx-1容器里的第二条路由规则。可以看到，这条路由规则的网关（Gateway）是0.0.0.0，这就意味着这是一条直连规则，即：凡是匹配到这条规则的IP包，应该经过本机的eth0网卡，通过二层网络直接发往目的主机。</p>
+<p>而要通过二层网络到达nginx-2容器，就需要有172.17.0.3这个IP地址对应的MAC地址。所以nginx-1容器的网络协议栈，就需要通过eth0网卡发送一个ARP广播，来通过IP地址查找对应的MAC地址。</p>
+<blockquote>
+<p>备注：ARP（Address Resolution Protocol），是通过三层的IP地址找到对应的二层MAC地址的协议。</p>
+</blockquote>
+<p>这个eth0网卡，是一个Veth Pair，它的一端在这个nginx-1容器的Network Namespace里，而另一端则位于宿主机上（Host Namespace），并且被“插”在了宿主机的docker0网桥上。</p>
+<p>一旦一张虚拟网卡被“插”在网桥上，它就会变成该网桥的“从设备”。从设备会被“剥夺”调用网络协议栈处理数据包的资格，从而“降级”成为网桥上的一个端口。而这个端口唯一的作用，就是接收流入的数据包，然后把这些数据包的“生杀大权”（比如转发或者丢弃），全部交给对应的网桥。</p>
+<p>所以，在收到这些ARP请求之后，docker0网桥就会扮演二层交换机的角色，把ARP广播转发到其他被“插”在docker0上的虚拟网卡上。这样，同样连接在docker0上的nginx-2容器的网络协议栈就会收到这个ARP请求，从而将172.17.0.3所对应的MAC地址回复给nginx-1容器。</p>
+<p>有了这个目的MAC地址，nginx-1容器的eth0网卡就可以将数据包发出去。</p>
+<p>而根据Veth Pair设备的原理，这个数据包会立刻出现在宿主机上的veth9c02e56虚拟网卡上。不过，此时这个veth9c02e56网卡的网络协议栈的资格已经被“剥夺”，所以这个数据包就直接流入到了docker0网桥里。</p>
+<p>docker0处理转发的过程，则继续扮演二层交换机的角色。此时，docker0网桥根据数据包的目的MAC地址（也就是nginx-2容器的MAC地址），在它的CAM表（即交换机通过MAC地址学习维护的端口和MAC地址的对应表）里查到对应的端口（Port）为：vethb4963f3，然后把数据包发往这个端口。</p>
+<p>而这个端口，正是nginx-2容器“插”在docker0网桥上的另一块虚拟网卡，当然，它也是一个Veth Pair设备。这样，数据包就进入到了nginx-2容器的Network Namespace里。</p>
+<p>所以，nginx-2容器看到的情况是，它自己的eth0网卡上出现了流入的数据包。这样，nginx-2的网络协议栈就会对请求进行处理，最后将响应（Pong）返回到nginx-1。</p>
+<p>以上，就是同一个宿主机上的不同容器通过docker0网桥进行通信的流程了。我把这个流程总结成了一幅示意图，如下所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/e0/66/e0d28e0371f93af619e91a86eda99a66.png?wh=1715*995" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>需要注意的是，在实际的数据传递时，上述数据的传递过程在网络协议栈的不同层次，都有Linux内核Netfilter参与其中。所以，可以通过打开iptables的TRACE功能查看到数据包的传输过程，具体方法如下所示：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gauss"><span class="hljs-meta"># 在宿主机上执行</span><br>$ iptables -t raw -A <span class="hljs-keyword">OUTPUT</span> -p icmp -j <span class="hljs-keyword">TRACE</span><br>$ iptables -t raw -A PREROUTING -p icmp -j <span class="hljs-keyword">TRACE</span><br><br></code></pre></td></tr></table></figure>
+
+<p>通过上述设置，就可以在&#x2F;var&#x2F;log&#x2F;syslog里看到数据包传输的日志了。这一部分内容，可以结合 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Iptables">iptables的相关知识</a> 进行实践，从而验证数据包传递流程。</p>
+<p>熟悉了docker0网桥的工作方式，就可以理解，在默认情况下， <strong>被限制在Network Namespace里的容器进程，实际上是通过Veth Pair设备+宿主机网桥的方式，实现了跟同其他容器的数据交换。</strong></p>
+<p>与之类似地，当在一台宿主机上，访问该宿主机上的容器的IP地址时，这个请求的数据包，也是先根据路由规则到达docker0网桥，然后被转发到对应的Veth Pair设备，最后出现在容器里。这个过程的示意图，如下所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/9f/01/9fb381d1e49318bb6a67bda3f9db6901.png?wh=1715*995" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>同样地，当一个容器试图连接到另外一个宿主机时，比如：ping 10.168.0.3，它发出的请求数据包，首先经过docker0网桥出现在宿主机上。然后根据宿主机的路由表里的直连路由规则（10.168.0.0&#x2F;24 via eth0)），对10.168.0.3的访问请求就会交给宿主机的eth0处理。</p>
+<p>所以接下来，这个数据包就会经宿主机的eth0网卡转发到宿主机网络上，最终到达10.168.0.3对应的宿主机上。当然，这个过程的实现要求这两台宿主机本身是连通的。这个过程的示意图，如下所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/90/95/90bd630c0723ea8a1fb7ccd738ad1f95.png?wh=1834*994" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>所以说， <strong>当遇到容器连不通“外网”的时候，都应该先试试docker0网桥能不能ping通，然后查看一下跟docker0和Veth Pair设备相关的iptables规则是不是有异常，往往就能够找到问题的答案了。</strong></p>
+<p>不过，在最后一个“Docker容器连接其他宿主机”的例子里，如果在另外一台宿主机（比如：10.168.0.3）上，也有一个Docker容器。那么，nginx-1容器又该如何访问它呢？</p>
+<p>这个问题，其实就是容器的“<strong>跨主通信</strong>”问题。</p>
+<p>在Docker的默认配置下，一台宿主机上的docker0网桥，和其他宿主机上的docker0网桥，没有任何关联，它们互相之间也没办法连通。所以，连接在这些网桥上的容器，自然也没办法进行通信了。</p>
+<p>不过，万变不离其宗。	</p>
+<p>如果我们通过软件的方式，创建一个整个集群“公用”的网桥，然后把集群里的所有容器都连接到这个网桥上，不就可以相互通信了吗？</p>
+<p>说得没错。</p>
+<p>这样一来，我们整个集群里的容器网络就会类似于下图所示的样子：</p>
+<p><img src="https://static001.geekbang.org/resource/image/b4/3d/b4387a992352109398a66d1dbe6e413d.png?wh=1828*721" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>可以看到，构建这种容器网络的核心在于：我们需要在已有的宿主机网络上，再通过软件构建一个覆盖在已有宿主机网络之上的、可以把所有容器连通在一起的虚拟网络。所以，这种技术就被称为：Overlay Network（覆盖网络）。</p>
+<p>而这个Overlay Network本身，可以由每台宿主机上的一个“特殊网桥”共同组成。比如，当Node 1上的Container 1要访问Node 2上的Container 3的时候，Node 1上的“特殊网桥”在收到数据包之后，能够通过某种方式，把数据包发送到正确的宿主机，比如Node 2上。而Node 2上的“特殊网桥”在收到数据包后，也能够通过某种方式，把数据包转发给正确的容器，比如Container 3。</p>
+<p>甚至，每台宿主机上，都不需要有一个这种特殊的网桥，而仅仅通过某种方式配置宿主机的路由表，就能够把数据包转发到正确的宿主机上。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在今天这篇文章中，介绍了在本地环境下，单机容器网络的实现原理和docker0网桥的作用。</p>
+<p>这里的关键在于，容器要想跟外界进行通信，它发出的IP包就必须从它的Network Namespace里出来，来到宿主机上。</p>
+<p>而解决这个问题的方法就是：为容器创建一个一端在容器里充当默认网卡、另一端在宿主机上的Veth Pair设备。</p>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><p>尽管容器的Host Network模式有一些缺点，但是它性能好、配置简单，并且易于调试，所以很多团队会直接使用Host Network。那么，如果要在生产环境中使用容器的Host Network模式，需要做哪些额外的准备工作？</p>
+<p>使用host网络，要提前规划好每个服务应该使用的端口吧</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/Kubernetes/">#Kubernetes</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>浅谈容器网络--单节点容器通信</div>
+      <div>https://blog.longpi1.com/2022/10/24/浅谈容器网络-单节点容器通信/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/24/%E5%AE%B9%E5%99%A8%E8%B7%A8%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C-flannel%E7%9A%84UDP%E4%B8%8EVXLAN%E6%A8%A1%E5%BC%8F/" title="容器跨主机网络--flannel的UDP与VXLAN模式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">容器跨主机网络--flannel的UDP与VXLAN模式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/16/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9/" title="分布式存储系统核心知识点">
+                        <span class="hidden-mobile">分布式存储系统核心知识点</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
