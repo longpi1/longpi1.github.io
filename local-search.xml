@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>Github中release里面文件下载太慢或者无法下载的解决方法</title>
+    <link href="/2022/10/28/Github%E4%B8%ADrelease%E9%87%8C%E9%9D%A2%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E5%A4%AA%E6%85%A2%E6%88%96%E8%80%85%E6%97%A0%E6%B3%95%E4%B8%8B%E8%BD%BD%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"/>
+    <url>/2022/10/28/Github%E4%B8%ADrelease%E9%87%8C%E9%9D%A2%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E5%A4%AA%E6%85%A2%E6%88%96%E8%80%85%E6%97%A0%E6%B3%95%E4%B8%8B%E8%BD%BD%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
+    
+    <content type="html"><![CDATA[<blockquote><blockquote><p>最近在GitHub上面下载一个release里面的文件下载很慢，一直不成功，在网上找了很多方式和插件都没有成功。但最后找到一个网站解决掉了这个问题，给大家分享一下。</p></blockquote><p><strong><a href="https://d.serctl.com/">https://d.serctl.com</a></strong><br><img src="https://img-blog.csdnimg.cn/20200628093805317.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p><h2 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h2><p><strong>1.在GitHub获取下载链接地址</strong><br><img src="https://img-blog.csdnimg.cn/20200628094009353.png" alt="在这里插入图片描述"><br><strong>2.复制到<a href="https://d.serctl.com/">https://d.serctl.com</a>中的下载地址并提交</strong><br><img src="https://img-blog.csdnimg.cn/20200628094106143.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p><p><strong>3.在下载地址中打开文件即可</strong><br><img src="https://img-blog.csdnimg.cn/20200628094217561.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p></blockquote>]]></content>
+    
+    
+    <categories>
+      
+      <category>github</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>原创</tag>
+      
+      <tag>github</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>容器跨主机网络--flannel的UDP与VXLAN模式</title>
     <link href="/2022/10/24/%E5%AE%B9%E5%99%A8%E8%B7%A8%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C-flannel%E7%9A%84UDP%E4%B8%8EVXLAN%E6%A8%A1%E5%BC%8F/"/>
     <url>/2022/10/24/%E5%AE%B9%E5%99%A8%E8%B7%A8%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C-flannel%E7%9A%84UDP%E4%B8%8EVXLAN%E6%A8%A1%E5%BC%8F/</url>
