@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间深入剖析 Kubernetes课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Service、DNS与服务发现">
+<meta property="og:url" content="https://blog.longpi1.com/2022/10/29/Service%E3%80%81DNS%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间深入剖析 Kubernetes课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-10-29T14:39:34.000Z">
+<meta property="article:modified_time" content="2022-10-29T14:40:24.976Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="笔记">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Service、DNS与服务发现 - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Service、DNS与服务发现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-29 22:39" pubdate>
+          2022年10月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Service、DNS与服务发现</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Service、DNS与服务发现"><a href="#Service、DNS与服务发现" class="headerlink" title="Service、DNS与服务发现"></a>Service、DNS与服务发现</h1><blockquote>
+<p>本文笔记来自：「深入剖析 Kubernetes课程」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/64948">https://time.geekbang.org/column/article/64948</a></p>
+</blockquote>
+<p>Kubernetes之所以需要Service，一方面是因为Pod的IP不是固定的，另一方面则是因为一组Pod实例之间总会有负载均衡的需求。</p>
+<p>一个最典型的Service定义，如下所示：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">hostnames</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">app:</span> <span class="hljs-string">hostnames</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">default</span><br>    <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">80</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">9376</span><br><br></code></pre></td></tr></table></figure>
+
+<p>这个Service的例子，相信你不会陌生。其中，我使用了selector字段来声明这个Service只代理携带了app&#x3D;hostnames标签的Pod。并且，这个Service的80端口，代理的是Pod的9376端口。</p>
+<p>然后，应用的Deployment如下所示：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Deployment</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">hostnames</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">hostnames</span><br>  <span class="hljs-attr">replicas:</span> <span class="hljs-number">3</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">hostnames</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">hostnames</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">k8s.gcr.io/serve_hostname</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">9376</span><br>          <span class="hljs-attr">protocol:</span> <span class="hljs-string">TCP</span><br><br></code></pre></td></tr></table></figure>
+
+<p>这个应用的作用，就是每次访问9376端口时，返回它自己的hostname。</p>
+<p>而被selector选中的Pod，就称为Service的Endpoints，可以使用kubectl get ep命令看到它们，如下所示：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dns">$ kubectl get endpoints hostnames<br>NAME        ENDPOINTS<br>hostnames   <span class="hljs-number">10.244.0.5</span>:<span class="hljs-number">9376,10.244</span>.<span class="hljs-number">0.6:9376</span>,<span class="hljs-number">10.244.0.7</span>:<span class="hljs-number">9376</span><br><br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，只有处于Running状态，且readinessProbe检查通过的Pod，才会出现在Service的Endpoints列表里。并且，当某一个Pod出现问题时，Kubernetes会自动把它从Service里摘除掉。</p>
+<p>而此时，通过该Service的VIP地址10.0.1.175，就可以访问到它所代理的Pod了：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> kubectl get svc hostnames<br>NAME        <span class="hljs-built_in">TYPE</span>        CLUSTER<span class="hljs-literal">-IP</span>   EXTERNAL<span class="hljs-literal">-IP</span>   PORT(S)   AGE<br>hostnames   ClusterIP   <span class="hljs-number">10.0</span>.<span class="hljs-number">1.175</span>   &lt;none&gt;        <span class="hljs-number">80</span>/TCP    <span class="hljs-number">5</span>s<br><br><span class="hljs-variable">$</span> <span class="hljs-built_in">curl</span> <span class="hljs-number">10.0</span>.<span class="hljs-number">1.175</span>:<span class="hljs-number">80</span><br>hostnames<span class="hljs-literal">-0uton</span><br><br><span class="hljs-variable">$</span> <span class="hljs-built_in">curl</span> <span class="hljs-number">10.0</span>.<span class="hljs-number">1.175</span>:<span class="hljs-number">80</span><br>hostnames<span class="hljs-literal">-yp2kp</span><br><br><span class="hljs-variable">$</span> <span class="hljs-built_in">curl</span> <span class="hljs-number">10.0</span>.<span class="hljs-number">1.175</span>:<span class="hljs-number">80</span><br>hostnames<span class="hljs-literal">-bvc05</span><br><br></code></pre></td></tr></table></figure>
+
+<p>这个VIP地址是Kubernetes自动为Service分配的。而像上面这样，通过三次连续不断地访问Service的VIP地址和代理端口80，它就为我们依次返回了三个Pod的hostname。这也正印证了Service提供的是Round Robin方式的负载均衡。对于这种方式，我们称为：ClusterIP模式的Service。</p>
+<p>Kubernetes里的Service究竟是如何工作的呢？</p>
+<p>实际上， <strong>Service是由kube-proxy组件，加上iptables来共同实现的。</strong></p>
+<p>对于前面创建的名叫hostnames的Service来说，一旦它被提交给Kubernetes，那么kube-proxy就可以通过Service的Informer感知到这样一个Service对象的添加。而作为对这个事件的响应，它就会在宿主机上创建这样一条iptables规则（你可以通过iptables-save看到它），如下所示：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">-A KUBE-SERVICES -d <span class="hljs-number">10.0</span>.<span class="hljs-number">1.175</span>/<span class="hljs-number">32</span> -<span class="hljs-selector-tag">p</span> tcp -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames: cluster IP&quot;</span> -m tcp <span class="hljs-attr">--dport</span> <span class="hljs-number">80</span> -j KUBE-SVC-NWV5X2332I4OT4T3<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这条iptables规则的含义是：凡是目的地址是10.0.1.175、目的端口是80的IP包，都应该跳转到另外一条名叫KUBE-SVC-NWV5X2332I4OT4T3的iptables链进行处理。</p>
+<p>而我们前面已经看到，10.0.1.175正是这个Service的VIP。所以这一条规则，就为这个Service设置了一个固定的入口地址。并且，由于10.0.1.175只是一条iptables规则上的配置，并没有真正的网络设备，所以你ping这个地址，是不会有任何响应的。</p>
+<p>那么，即将跳转到的KUBE-SVC-NWV5X2332I4OT4T3规则，又有什么作用呢？</p>
+<p>实际上，它是一组规则的集合，如下所示：</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sqf">-A KUBE-SVC-NWV5X2332I4OT4T3 -m <span class="hljs-built_in">comment</span> --<span class="hljs-built_in">comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -m statistic --mode <span class="hljs-built_in">random</span> --probability <span class="hljs-number">0.33332999982</span> -j KUBE-SEP-WNBA2IHDGP2BOBGZ<br>-A KUBE-SVC-NWV5X2332I4OT4T3 -m <span class="hljs-built_in">comment</span> --<span class="hljs-built_in">comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -m statistic --mode <span class="hljs-built_in">random</span> --probability <span class="hljs-number">0.50000000000</span> -j KUBE-SEP-X3P2623AGDH6CDF3<br>-A KUBE-SVC-NWV5X2332I4OT4T3 -m <span class="hljs-built_in">comment</span> --<span class="hljs-built_in">comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -j KUBE-SEP-<span class="hljs-number">57</span>KPRZ3JQVENLNBR<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这一组规则，实际上是一组随机模式（–mode random）的iptables链。</p>
+<p>而随机转发的目的地，分别是KUBE-SEP-WNBA2IHDGP2BOBGZ、KUBE-SEP-X3P2623AGDH6CDF3和KUBE-SEP-57KPRZ3JQVENLNBR。</p>
+<p>而这三条链指向的最终目的地，其实就是这个Service代理的三个Pod。所以这一组规则，就是Service实现负载均衡的位置。</p>
+<p>需要注意的是，iptables规则的匹配是从上到下逐条进行的，所以为了保证上述三条规则每条被选中的概率都相同，我们应该将它们的probability字段的值分别设置为1&#x2F;3（0.333…）、1&#x2F;2和1。</p>
+<p>这么设置的原理很简单：第一条规则被选中的概率就是1&#x2F;3；而如果第一条规则没有被选中，那么这时候就只剩下两条规则了，所以第二条规则的probability就必须设置为1&#x2F;2；类似地，最后一条就必须设置为1。</p>
+<p>你可以想一下，如果把这三条规则的probability字段的值都设置成1&#x2F;3，最终每条规则被选中的概率会变成多少。</p>
+<p>通过查看上述三条链的明细，我们就很容易理解Service进行转发的具体原理了，如下所示：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs stylus">-A KUBE-SEP-<span class="hljs-number">57</span>KPRZ3JQVENLNBR -s <span class="hljs-number">10.244</span>.<span class="hljs-number">3.6</span>/<span class="hljs-number">32</span> -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -j MARK <span class="hljs-attr">--set-xmark</span> <span class="hljs-number">0</span>x00004000/<span class="hljs-number">0</span>x00004000<br>-A KUBE-SEP-<span class="hljs-number">57</span>KPRZ3JQVENLNBR -<span class="hljs-selector-tag">p</span> tcp -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -m tcp -j DNAT <span class="hljs-attr">--to-destination</span> <span class="hljs-number">10.244</span>.<span class="hljs-number">3.6</span>:<span class="hljs-number">9376</span><br><br>-A KUBE-SEP-WNBA2IHDGP2BOBGZ -s <span class="hljs-number">10.244</span>.<span class="hljs-number">1.7</span>/<span class="hljs-number">32</span> -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -j MARK <span class="hljs-attr">--set-xmark</span> <span class="hljs-number">0</span>x00004000/<span class="hljs-number">0</span>x00004000<br>-A KUBE-SEP-WNBA2IHDGP2BOBGZ -<span class="hljs-selector-tag">p</span> tcp -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -m tcp -j DNAT <span class="hljs-attr">--to-destination</span> <span class="hljs-number">10.244</span>.<span class="hljs-number">1.7</span>:<span class="hljs-number">9376</span><br><br>-A KUBE-SEP-X3P2623AGDH6CDF3 -s <span class="hljs-number">10.244</span>.<span class="hljs-number">2.3</span>/<span class="hljs-number">32</span> -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -j MARK <span class="hljs-attr">--set-xmark</span> <span class="hljs-number">0</span>x00004000/<span class="hljs-number">0</span>x00004000<br>-A KUBE-SEP-X3P2623AGDH6CDF3 -<span class="hljs-selector-tag">p</span> tcp -m comment <span class="hljs-attr">--comment</span> <span class="hljs-string">&quot;default/hostnames:&quot;</span> -m tcp -j DNAT <span class="hljs-attr">--to-destination</span> <span class="hljs-number">10.244</span>.<span class="hljs-number">2.3</span>:<span class="hljs-number">9376</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这三条链，其实是三条DNAT规则。但在DNAT规则之前，iptables对流入的IP包还设置了一个“标志”（–set-xmark）。这个“标志”的作用，我会在下一篇文章再为你讲解。</p>
+<p>而DNAT规则的作用，就是在PREROUTING检查点之前，也就是在路由之前，将流入IP包的目的地址和端口，改成–to-destination所指定的新的目的地址和端口。可以看到，这个目的地址和端口，正是被代理Pod的IP地址和端口。</p>
+<p>这样，访问Service VIP的IP包经过上述iptables处理之后，就已经变成了访问具体某一个后端Pod的IP包了。不难理解，这些Endpoints对应的iptables规则，正是kube-proxy通过监听Pod的变化事件，在宿主机上生成并维护的。</p>
+<p>以上，就是Service最基本的工作原理。</p>
+<p>此外，Kubernetes的kube-proxy还支持一种叫作<strong>IPVS</strong>的模式。这又是怎么一回事儿呢？</p>
+<p>其实，通过上面的讲解，可以看到，<strong>kube-proxy通过iptables处理Service的过程，其实需要在宿主机上设置相当多的iptables规则。而且，kube-proxy还需要在控制循环里不断地刷新这些规则来确保它们始终是正确的</strong>。</p>
+<p>不难想到，当你的宿主机上有大量Pod的时候，<strong>成百上千条iptables规则不断地被刷新，会大量占用该宿主机的CPU资源，甚至会让宿主机“卡”在这个过程中</strong>。所以说， <strong>一直以来，基于iptables的Service实现，都是制约Kubernetes项目承载更多量级的Pod的主要障碍。</strong></p>
+<p><strong>而IPVS模式的Service，就是解决这个问题的一个行之有效的方法。</strong></p>
+<p>IPVS模式的工作原理，其实跟iptables模式类似。当创建了前面的Service之后，kube-proxy首先会在宿主机上创建一个虚拟网卡（叫作：kube-ipvs0），并为它分配Service VIP作为IP地址，如下所示：</p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs pf"><span class="hljs-comment"># ip addr</span><br>  ...<br>  <span class="hljs-number">73</span>：kube-ipvs0：<span class="hljs-variable">&lt;BROADCAST,NOARP&gt;</span>  mtu <span class="hljs-number">1500</span> qdisc noop <span class="hljs-keyword">state</span> DOWN qlen <span class="hljs-number">1000</span><br>  link/ether  <span class="hljs-number">1</span>a:ce:f5:<span class="hljs-number">5</span>f:c1:<span class="hljs-number">4</span>d brd ff:ff:ff:ff:ff:ff<br>  <span class="hljs-keyword">inet</span> <span class="hljs-number">10.0</span>.<span class="hljs-number">1.175</span>/<span class="hljs-number">32</span>  scope <span class="hljs-keyword">global</span> kube-ipvs0<br>  valid_lft forever  preferred_lft forever<br><br></code></pre></td></tr></table></figure>
+
+<p>而接下来，kube-proxy就会通过Linux的IPVS模块，为这个IP地址设置三个IPVS虚拟主机，并设置这三个虚拟主机之间使用轮询模式(rr)来作为负载均衡策略。我们可以通过ipvsadm查看到这个设置，如下所示：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs tap"><span class="hljs-comment"># ipvsadm -ln</span><br> IP Virtual Server version 1.2.1 (size=4096)<br>  Prot LocalAddress:Port Scheduler Flags<br>    -&gt;  RemoteAddress:Port           Forward  Weight ActiveConn InActConn<br>  TCP  10.102.128.4:80 rr<br>    -&gt;  10.244.3.6:9376    Masq   <span class="hljs-number"> 1 </span>     <span class="hljs-number"> 0 </span>         0<br>    -&gt;  10.244.1.7:9376    Masq   <span class="hljs-number"> 1 </span>     <span class="hljs-number"> 0 </span>         0<br>    -&gt;  10.244.2.3:9376    Masq   <span class="hljs-number"> 1 </span>     <span class="hljs-number"> 0 </span>         0<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这三个IPVS虚拟主机的IP地址和端口，对应的正是三个被代理的Pod。</p>
+<p>这时候，任何发往10.102.128.4:80的请求，就都会被IPVS模块转发到某一个后端Pod上了。</p>
+<p>而相比于iptables，IPVS在内核中的实现其实也是<strong>基于Netfilter的NAT模式</strong>，所以在转发这一层上，理论上IPVS并没有显著的性能提升。但是，<strong>IPVS并不需要在宿主机上为每个Pod设置iptables规则，而是把对这些“规则”的处理放到了内核态，从而极大地降低了维护这些规则的代价</strong>。<strong>“将重要操作放入内核态”是提高性能的重要手段。</strong></p>
+<p>不过需要注意的是，<strong>IPVS模块只负责上述的负载均衡和代理功能</strong>。<strong>而一个完整的Service流程正常工作所需要的包过滤、SNAT等操作，还是要靠iptables来实现。只不过，这些辅助性的iptables规则数量有限，也不会随着Pod数量的增加而增加。</strong></p>
+<p>所以，<strong>在大规模集群里，非常建议kube-proxy设置–proxy-mode&#x3D;ipvs来开启这个功能</strong>。它为Kubernetes集群规模带来的提升，还是非常巨大的。</p>
+<p><strong>Service与DNS的关系</strong></p>
+<p>在Kubernetes中，Service和Pod都会被分配对应的DNS A记录（从域名解析IP的记录）。</p>
+<p>对于ClusterIP模式的Service来说（比如我们上面的例子），它的A记录的格式是：..svc.cluster.local。当你访问这条A记录的时候，它解析到的就是该Service的VIP地址。</p>
+<p>而对于指定了clusterIP&#x3D;None的Headless Service来说，它的A记录的格式也是：..svc.cluster.local。但是，当你访问这条A记录的时候，它返回的是所有被代理的Pod的IP地址的集合。当然，如果客户端没办法解析这个集合的话，它可能会只会拿到第一个Pod的IP地址。</p>
+<p>此外，对于ClusterIP模式的Service来说，它代理的Pod被自动分配的A记录的格式是：..pod.cluster.local。这条记录指向Pod的IP地址。</p>
+<p>而对Headless Service来说，它代理的Pod被自动分配的A记录的格式是：…svc.cluster.local。这条记录也指向Pod的IP地址。</p>
+<p>但如果你为Pod指定了Headless Service，并且Pod本身声明了hostname和subdomain字段，那么这时候Pod的A记录就会变成：&lt;pod的hostname&gt;…svc.cluster.local，比如：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Service</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">default-subdomain</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">busybox</span><br>  <span class="hljs-attr">clusterIP:</span> <span class="hljs-string">None</span><br>  <span class="hljs-attr">ports:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">foo</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">1234</span><br>    <span class="hljs-attr">targetPort:</span> <span class="hljs-number">1234</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Pod</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">busybox1</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">busybox</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">hostname:</span> <span class="hljs-string">busybox-1</span><br>  <span class="hljs-attr">subdomain:</span> <span class="hljs-string">default-subdomain</span><br>  <span class="hljs-attr">containers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">image:</span> <span class="hljs-string">busybox</span><br>    <span class="hljs-attr">command:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">sleep</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;3600&quot;</span><br>    <span class="hljs-attr">name:</span> <span class="hljs-string">busybox</span><br><br></code></pre></td></tr></table></figure>
+
+<p><strong>在上面这个Service和Pod被创建之后，就可以通过busybox-1.default-subdomain.default.svc.cluster.local解析到这个Pod的IP地址了。</strong></p>
+<p>需要注意的是，在Kubernetes里，&#x2F;etc&#x2F;hosts文件是单独挂载的，这也是为什么kubelet能够对hostname进行修改并且Pod重建后依然有效的原因。这跟Docker的Init层是一个原理。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在这篇文章里，Service机制，以及Kubernetes里的DNS插件，都是在帮助你解决同样一个问题，即：如何找到我的某一个容器？</p>
+<p>这个问题在平台级项目中，往往就被称作服务发现，即：当我的一个服务（Pod）的IP地址是不固定的且没办法提前获知时，该如何通过一个固定的方式访问到这个Pod呢？</p>
+<p>在这里讲解的、ClusterIP模式的Service为你提供的，就是一个Pod的稳定的IP地址，即VIP。并且，这里Pod和Service的关系是可以通过Label确定的。</p>
+<p>而Headless Service为你提供的，则是一个Pod的稳定的DNS名字，并且，这个名字是可以通过Pod名字和Service名字拼接出来的。</p>
+<p>在实际的场景里，根据自己的具体需求进行合理选择。</p>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><p>Kubernetes的Service的负载均衡策略，在iptables和ipvs模式下，都有哪几种？具体工作模式是怎样的？</p>
+<p><strong>ipvs负载均衡类型</strong>：round robin    least connection    destination hashing    source hashing    shortest expected delay    never queue    overflow-connection</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/Kubernetes/">#Kubernetes</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Service、DNS与服务发现</div>
+      <div>https://blog.longpi1.com/2022/10/29/Service、DNS与服务发现/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/29/cni%E6%8F%92%E4%BB%B6%E4%B9%8Bflannel%E7%9A%84host-gw%E6%A8%A1%E5%BC%8F%E4%B8%8Ecalico/" title="cni插件之flannel的host-gw模式与calico">
+                        <span class="hidden-mobile">cni插件之flannel的host-gw模式与calico</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
