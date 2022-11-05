@@ -46,8 +46,8 @@
 <meta property="og:image" content="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/no_STW_3.png">
 <meta property="og:image" content="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/no_STW_4.png">
 <meta property="og:image" content="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/no_STW_5.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/longpi1/blog-img/20220919223939.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/longpi1/blog-img/20220919224028.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/liqingqiya/liqingqiya.github.io/images/posts/2020-07-11-gc2/8F95309B-9CD8-44E2-A65A-BAAA96CC0BE8.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/liqingqiya/liqingqiya.github.io/images/posts/2020-07-11-gc2/Image.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/liqingqiya/liqingqiya.github.io/images/posts/2020-07-11-gc2/23DEE999-886F-4298-BCAE-EDB4F7A0B454.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/liqingqiya/liqingqiya.github.io/images/posts/2020-07-11-gc2/FB0B964D-0A0F-4650-8700-45C4278E704E.png">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036383192-cb6b9fe9-4946-47da-bb9a-643f0c38a654.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10">
@@ -71,7 +71,6 @@
 <meta property="og:image" content="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/delete_barrier_5.png">
 <meta property="og:image" content="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/delete_barrier_6.png">
 <meta property="og:image" content="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/delete_barrier_7.png">
-<meta property="og:image" content="c:/Users/longp/AppData/Roaming/Typora/typora-user-images/image-20220821132611515.png">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036708530-f7c50de5-6a63-45dc-baef-f53b1b42eb62.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036716310-65729a9c-d8df-40ce-9c2b-d35228278791.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036737874-a2f71441-c4f9-4f74-8c8a-c5a53bd35d4c.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10">
@@ -86,7 +85,7 @@
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036864959-929ec428-e8d8-48a9-aaeb-e2589723ec62.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036876957-976a0ac6-6c82-4eca-88f3-10180782281c.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10">
 <meta property="article:published_time" content="2022-08-27T07:12:08.000Z">
-<meta property="article:modified_time" content="2022-09-20T13:59:18.989Z">
+<meta property="article:modified_time" content="2022-11-05T12:03:55.646Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="golang">
@@ -430,12 +429,12 @@
 <li>缺点：性能低，因为在移动对象的时候不仅需要移动对象还要维护对象的引用地址，可能需要对内存经过几次扫描才能完成；</li>
 </ul>
 <h3 id="分代式"><a href="#分代式" class="headerlink" title="分代式"></a>分代式</h3><p>将对象根据存活时间的长短进行分类，存活时间小于某个值的为年轻代，存活时间大于某个值的为老年代，永远不会参与回收的对象为永久代。并根据分代假设（如果一个对象存活时间不长则倾向于被回收，如果一个对象已经存活很长时间则倾向于存活更长时间）对对象进行回收。</p>
-<h3 id="Golang的垃圾回收（GC）算法"><a href="#Golang的垃圾回收（GC）算法" class="headerlink" title="Golang的垃圾回收（GC）算法"></a>Golang的垃圾回收（GC）算法</h3><p>Golang的垃圾回收（GC）算法使用的是无分代（对象没有代际之分）、不整理（回收过程中不对对象进行移动与整理）、并发（与用户代码并发执行）的三色标记清扫算法。原因在于：</p>
+<h3 id="Golang的垃圾回收（GC）算法"><a href="#Golang的垃圾回收（GC）算法" class="headerlink" title="Golang的垃圾回收（GC）算法"></a>Golang的垃圾回收（GC）算法</h3><p>Golang的垃圾回收（GC）算法使用的是无分代（对象没有代际之分）、<strong>不整理（回收过程中不对对象进行移动与整理）</strong>、<strong>并发（与用户代码并发执行）</strong>的三色标记清扫算法。原因在于：</p>
 <ul>
-<li>对象整理的优势是解决内存碎片问题以及“允许”使用顺序内存分配器。但 Go 运行时的分配算法基于<code>tcmalloc</code>，基本上没有碎片问题。 并且顺序内存分配器在多线程的场景下并不适用。Go 使用的是基于<code>tcmalloc</code>的现代内存分配算法，对对象进行整理不会带来实质性的性能提升。</li>
-<li>分代<code>GC</code>依赖分代假设，即<code>GC</code>将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），而非频繁检查所有对象。</li>
+<li><strong>对象整理的优势是解决内存碎片问题以及“允许”使用顺序内存分配器。但 Go 运行时的分配算法基于<code>tcmalloc</code>，基本上没有碎片问题。 并且顺序内存分配器在多线程的场景下并不适用。G</strong>o 使用的是基于<code>tcmalloc</code>的现代内存分配算法，对对象进行整理不会带来实质性的性能提升。</li>
+<li>分代<code>GC</code>依赖分代假设，即<code>GC</code>将主要的回收目标放在新创建的对象上（存活时间短，更倾向于被回收），<strong>而非频繁检查所有对象。</strong></li>
 <li>Go 的编译器会通过逃逸分析将大部分新生对象存储在栈上（栈直接被回收），只有那些需要长期存在的对象才会被分配到需要进行垃圾回收的堆中。也就是说，分代<code>GC</code>回收的那些存活时间短的对象在 Go 中是直接被分配到栈上，当<code>goroutine</code>死亡后栈也会被直接回收，不需要<code>GC</code>的参与，进而分代假设并没有带来直接优势。</li>
-<li>Go 的垃圾回收器与用户代码并发执行，使得 STW 的时间与对象的代际、对象的 size 没有关系。Go 团队更关注于如何更好地让 GC 与用户代码并发执行（使用适当的 CPU 来执行垃圾回收），而非减少停顿时间这一单一目标上。</li>
+<li>Go 的垃圾回收器与用户代码<strong>并发执行</strong>，<strong>使得 STW 的时间与对象的代际、对象的 size 没有关系。</strong>Go 团队更关注于如何更好地让 GC 与用户代码并发执行（使用适当的 CPU 来执行垃圾回收），而非减少停顿时间这一单一目标上。</li>
 </ul>
 <h2 id="三、Go的垃圾回收"><a href="#三、Go的垃圾回收" class="headerlink" title="三、Go的垃圾回收"></a>三、Go的垃圾回收</h2><p>垃圾回收(Garbage Collection，简称GC)是编程语言中提供的自动的内存管理机制，自动释放不需要的内存对象，让出存储器资源。GC过程中无需程序员手动执行。GC机制在现代很多编程语言都支持，GC能力的性能与优劣也是不同语言之间对比度指标之一。</p>
 <p>Golang在GC的演进过程中也经历了很多次变革，Go V1.3之前的标记-清除(mark and sweep)算法，Go V1.3之前的标记-清扫(mark and sweep)的缺点</p>
@@ -503,7 +502,7 @@
 <p>以上我们将全部的白色对象进行删除回收，<img src="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651035960263-e50436a6-4a3c-48f9-82cb-bb5729d71116.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10" srcset="/img/loading.gif" lazyload alt="img">剩下的就是全部依赖的黑色对象。</p>
 <p>三色标记清除算法本身是不可以并发或者增量执行的，<strong>它需要STW</strong>，<strong>而如果并发执行，用户程序可能在标记执行的过程中修改对象的指针。</strong></p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/VY8SELNGe94Cjxng5VbT4M7FkUgyAfhpDGBI8liaibcvyXxOjP7kowzG1TnVmgAJefhegPo2IJiabXQ6IxnRdVqPQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
-<h3 id="没有STW的异常情况一般会有2种："><a href="#没有STW的异常情况一般会有2种：" class="headerlink" title="没有STW的异常情况一般会有2种："></a><strong>没有STW的异常情况一般会有2种：</strong></h3><p>1.一种是把原本应该垃圾回收的死亡对象错误的标记为存活。虽然这不好，但是不会导致严重后果，只不过产生了一点逃过本次回收的浮动垃圾而已，下次清理就可以，比如上图所示的三色标记过程中，用户程序取消了从B对象到E对象的引用，但是因为B到E已经被标记完成不会继续执行步骤2，所以E对象最终会被错误的标记成黑色，不会被回收，这个D就是<strong>浮动垃圾</strong>，会在下次垃圾收集中清理。</p>
+<h3 id="没有STW的异常情况一般会有2种："><a href="#没有STW的异常情况一般会有2种：" class="headerlink" title="没有STW的异常情况一般会有2种："></a><strong>没有STW的异常情况一般会有2种：</strong></h3><p>1.一种是把原本应该垃圾回收的死亡对象错误的标记为存活。虽然这不好，但是不会导致严重后果，只不过产生了一点逃过本次回收的浮动垃圾而已，下次清理就可以，比如上图所示的三色标记过程中，用户程序取消了从B对象到E对象的引用，但是因为B到E已经被标记完成不会继续执行步骤2，所以E对象最终会被错误的标记成黑色，不会被回收，这个E就是<strong>浮动垃圾</strong>，会在下次垃圾收集中清理。</p>
 <p>2.一种是把原本存活的对象错误的标记为已死亡，导致“对象消失”，这在内存管理中是非常严重的错误。比如上图所示的三色标记过程中，用户程序建立了从B对象到H对象的引用(例如<strong>B.next &#x3D;H</strong>)，接着执行<strong>D.next&#x3D;nil</strong>，但是因为B到H中不存在灰色对象，因此在这之间不会继续执行三色并发标记中的步骤2，D到H之间的链接被断开，所以H对象最终会被标记成白色，会被垃圾收集器错误地回收。我们将这种错误称为<strong>悬挂指针</strong>，即指针没有指向特定类型的合法对象，影响了内存的安全性。</p>
 <h3 id="没有STW的三色标记法情况下-—-悬挂指针的具体介绍"><a href="#没有STW的三色标记法情况下-—-悬挂指针的具体介绍" class="headerlink" title="没有STW的三色标记法情况下  — 悬挂指针的具体介绍"></a>没有STW的三色标记法情况下  — 悬挂指针的具体介绍</h3><p>先抛砖引玉，我们加入如果没有STW，那么也就不会再存在性能上的问题，那么接下来我们假设如果三色标记法不加入STW会发生什么事情？<br>我们还是基于上述的三色并发标记法来说, 他是一定要依赖STW的. 因为如果不暂停程序, 程序的逻辑改变对象引用关系, 这种动作如果在标记阶段做了修改，会影响标记结果的正确性，我们来看看一个场景，如果三色标记法, 标记过程不使用STW将会发生什么事情?</p>
 <p>1.我们把初始状态设置为已经经历了第一轮扫描，目前黑色的有对象1和对象4， 灰色的有对象2和对象7，其他的为白色对象，且对象2是通过指针p指向对象3的，如图所示。<br><img src="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/no_STW_1.png" srcset="/img/loading.gif" lazyload alt="no_STW_1"></p>
@@ -578,13 +577,13 @@
 </ol>
 </li>
 <li><p>24 行 —— 触发逃逸 （分配到堆上）</p>
-<p>  1.这次必须注意下，其实站在我们上帝视角，这次的分配其实也可以分配到栈上。这种情况编译器就简单处理了，直接给分配到堆上。这种就属于编译器它摸不准的，那么分配到堆上就对了，反正也就性能有点影响，功能不会有问题，不然的话你真分配到栈上了，一旦栈被回收就出问题了</p>
+<p>1.这次必须注意下，其实站在我们上帝视角，这次的分配其实也可以分配到栈上。这种情况编译器就简单处理了，直接给分配到堆上。这种就属于编译器它摸不准的，那么分配到堆上就对了，反正也就性能有点影响，功能不会有问题，不然的话你真分配到栈上了，一旦栈被回收就出问题了</p>
 </li>
 </ol>
 <h5 id="写屏障真实的样子"><a href="#写屏障真实的样子" class="headerlink" title="写屏障真实的样子"></a>写屏障真实的样子</h5><p>再看下编译器汇编的代码：</p>
-<p>![汇编后]<img src="https://cdn.jsdelivr.net/gh/longpi1/blog-img/20220919223939.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://cdn.jsdelivr.net/gh/liqingqiya/liqingqiya.github.io/images/posts/2020-07-11-gc2/8F95309B-9CD8-44E2-A65A-BAAA96CC0BE8.png" srcset="/img/loading.gif" lazyload></p>
 <p>从这个地方我们需要知道一个事情，go 的关键字语法呀，其实在编译的时候，都会对应到一个特定的函数，比如 new 这个关键字就对应了 <code>newobject</code> 函数，go 这个关键字对应的是 <code>newproc</code> 函数。贴一张比较完整的图：</p>
-<p><img src="https://cdn.jsdelivr.net/gh/longpi1/blog-img/20220919224028.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://cdn.jsdelivr.net/gh/liqingqiya/liqingqiya.github.io/images/posts/2020-07-11-gc2/Image.png" srcset="/img/loading.gif" lazyload></p>
 <p>从这个汇编代码我们也确认了，23，24行的对象分配确实是在堆上。我们再看下函数 <code>funcAlloc0</code> 和 <code>funcAlloc1</code> 这两个。</p>
 <p><strong><code>main.funcAlloc0</code></strong></p>
 <figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">13 </span>func funcAlloc0 (a *Tstruct) &#123;<br><span class="hljs-symbol">14 </span>    a.<span class="hljs-keyword">base</span> = <span class="hljs-keyword">new</span>(BaseStruct)    // <span class="hljs-keyword">new</span> 一个BaseStruct结构体，赋值给 a.<span class="hljs-keyword">base</span> 字段<br><span class="hljs-symbol">15 </span>&#125;<br></code></pre></td></tr></table></figure>
@@ -597,7 +596,7 @@
 <ol>
 <li>golang 传参和返回参数都是通过栈来传递的（可以思考下优略点，有点是逻辑简单了，也能很好的支持多返回值的实现，缺点是比寄存器的方式略慢，但是这种损耗在程序的运行下可以忽略）；</li>
 <li>写屏障是一段编译器插入的特殊代码，在编译期间插入，代码函数名字叫做 <code>gcWriteBarrier</code> ；</li>
-<li>屏障代码并不是直接运行，也是要条件判断的，并不是只要是堆上内存赋值就会运行gcWriteBarrier 代码，而是要有一个条件判断。这里提前透露下，这个条件判断是垃圾回收器扫描开始前，stw 程序给设置上去的；<ol>
+<li>屏障代码并不是直接运行，也是要条件判断的，并不是只要是堆上内存赋值就会运行gcWriteBarrier 代码，而是要有一个条件判断。这里透露下，这个条件判断是垃圾回收器扫描开始前，stw 程序给设置上去的；<ol>
 <li>所以平时对于堆上内存的赋值，多了一次写操作；</li>
 </ol>
 </li>
@@ -705,7 +704,6 @@
 <p><img src="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/delete_barrier_6.png" srcset="/img/loading.gif" lazyload alt="delete_barrier_6"></p>
 <p><img src="https://liangyaopei.github.io/2021/01/02/golang-gc-intro/delete_barrier_7.png" srcset="/img/loading.gif" lazyload alt="delete_barrier_7"></p>
 <p>这种方式的回收精度低，一个对象即使被删除了最后一个指向它的指针也依旧可以活过这一轮，在下一轮GC中被清理掉。</p>
-<p><img src="C:\Users\longp\AppData\Roaming\Typora\typora-user-images\image-20220821132611515.png" srcset="/img/loading.gif" lazyload alt="image-20220821132611515"></p>
 <p><strong>插入写屏障和删除写屏障的短板：</strong></p>
 <ul>
 <li>插入写屏障：结束时需要STW来重新扫描栈，标记栈上引用的白色对象的存活； </li>
@@ -715,18 +713,7 @@
 <p>Go 语言在v1.8组合Dijkstra插入写屏障和Yuasa删除写屏障构成了如下所示的混合写屏障，该写屏障会将被覆盖的对象标记成灰色并在当前栈没有扫描时将新对象也标记成灰色：</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">writePointer</span><span class="hljs-params">(slot, ptr)</span></span>:<br>    <span class="hljs-built_in">shade</span>(*slot)<br>    <span class="hljs-keyword">if</span> current stack is grey:<br>        <span class="hljs-built_in">shade</span>(ptr)<br>    *slot = ptr<br></code></pre></td></tr></table></figure>
 
-<p>为了移除栈的重扫描过程，除了引入混合写屏障之外，在垃圾收集的标记阶段，我们还需要将创建的所有新对象都标记成黑色，防止新分配的栈内存和堆内存中的对象被错误地回收，因为栈内存在标记阶段最终都会变为黑色，所以不再需要重新扫描栈空间。总结来说主要有这几点：</p>
-<ul>
-<li><p>GC开始将栈上的对象全部扫描并标记为黑色；</p>
-</li>
-<li><p>GC期间，任何在栈上创建的新对象，均为黑色；</p>
-</li>
-<li><p>被删除的堆对象标记为灰色；</p>
-</li>
-<li><p>被添加的堆对象标记为灰色。</p>
-</li>
-</ul>
-<p>Go V1.8版本引入了混合写屏障机制（hybrid write barrier），避免了对栈re-scan的过程，极大的减少了STW的时间。结合了两者的优点。</p>
+<p>避免了对栈re-scan的过程，极大的减少了STW的时间。结合了两者的优点。</p>
 <p>最本质的区别就是：<strong>内存屏障其实就是编译器帮你生成的一段 hook 代码</strong>，这三个屏障的本质区别就是 hook 的时机不同而已。</p>
 <hr>
 <h4 id="1-混合写屏障规则"><a href="#1-混合写屏障规则" class="headerlink" title="(1) 混合写屏障规则"></a>(1) 混合写屏障规则</h4><p><code>具体操作</code>:</p>
@@ -736,9 +723,9 @@
 <p>4、被添加的对象标记为灰色。</p>
 <p><code>满足</code>: 变形的<strong>弱三色不变式</strong>.</p>
 <p>伪代码：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go">添加下游对象(当前下游对象slot, 新下游对象ptr) &#123;<br>  	<span class="hljs-comment">//1 </span><br>		标记灰色(当前下游对象slot)    <span class="hljs-comment">//只要当前下游对象被移走，就标记灰色</span><br>  	<br>  	<span class="hljs-comment">//2 </span><br>  	标记灰色(新下游对象ptr)<br>  		<br>  	<span class="hljs-comment">//3</span><br>  	当前下游对象slot = 新下游对象ptr<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go">添加下游对象(当前下游对象slot, 新下游对象ptr) &#123;<br>  	<span class="hljs-comment">//1 </span><br>	标记灰色(当前下游对象slot)    <span class="hljs-comment">//只要当前下游对象被移走，就标记灰色</span><br>  	<br>  	<span class="hljs-comment">//2 </span><br>  	标记灰色(新下游对象ptr)<br>  		<br>  	<span class="hljs-comment">//3</span><br>  	当前下游对象slot = 新下游对象ptr<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>这里我们注意， 屏障技术是不在栈上应用的，因为要保证栈的运行效率。</p>
+<p>这里需要注意， 屏障技术是不在栈上应用的，因为要保证栈的运行效率。</p>
 <h4 id="2-混合写屏障的具体场景分析"><a href="#2-混合写屏障的具体场景分析" class="headerlink" title="(2) 混合写屏障的具体场景分析"></a>(2) 混合写屏障的具体场景分析</h4><p>接下来，我们用几张图，来模拟整个一个详细的过程， 希望您能够更可观的看清晰整体流程。</p>
 <p>注意混合写屏障是Gc的一种屏障机制，所以只是当程序执行GC的时候，才会触发这种机制。</p>
 <h5 id="GC开始：扫描栈区，将可达对象全部标记为黑"><a href="#GC开始：扫描栈区，将可达对象全部标记为黑" class="headerlink" title="GC开始：扫描栈区，将可达对象全部标记为黑"></a>GC开始：扫描栈区，将可达对象全部标记为黑</h5><p><img src="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036708530-f7c50de5-6a63-45dc-baef-f53b1b42eb62.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10" srcset="/img/loading.gif" lazyload alt="img"><img src="https://cdn.nlark.com/yuque/0/2022/jpeg/26269664/1651036716310-65729a9c-d8df-40ce-9c2b-d35228278791.jpeg?x-oss-process=image/watermark,type_d3F5LW1pY3JvaGVp,size_55,text_5YiY5Li55YawQWNlbGQ=,color_FFFFFF,shadow_50,t_80,g_se,x_10,y_10" srcset="/img/loading.gif" lazyload alt="img"></p>
