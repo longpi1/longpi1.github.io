@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2.关于 Linux 网络基础（下）">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/06/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%8B%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-06T06:25:49.000Z">
+<meta property="article:modified_time" content="2022-11-06T10:29:52.248Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>2.关于 Linux 网络基础（下） - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="2.关于 Linux 网络基础（下）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-06 14:25" pubdate>
+          2022年11月6日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">2.关于 Linux 网络基础（下）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="2-关于Linux-网络，你必须知道这些（下）"><a href="#2-关于Linux-网络，你必须知道这些（下）" class="headerlink" title="2.关于Linux 网络，你必须知道这些（下）"></a>2.关于Linux 网络，你必须知道这些（下）</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">&gt; 本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：https:<span class="hljs-regexp">//</span>time.geekbang.org<span class="hljs-regexp">/column/</span>article/<span class="hljs-number">80898</span><br></code></pre></td></tr></table></figure>
+
+<p>上一篇学习了 Linux 网络的基础原理。简单回顾一下，Linux 网络根据 TCP&#x2F;IP 模型，构建其网络协议栈。TCP&#x2F;IP 模型由应用层、传输层、网络层、网络接口层等四层组成，这也是 Linux 网络栈最核心的构成部分。</p>
+<p>应用程序通过套接字接口发送数据包时，先要在网络协议栈中从上到下逐层处理，然后才最终送到网卡发送出去；而接收数据包时，也要先经过网络栈从下到上的逐层处理，最后送到应用程序。</p>
+<p>了解Linux 网络的基本原理和收发流程后，如何去观察网络的性能情况。具体而言，哪些指标可以用来衡量 Linux 的网络性能呢？</p>
+<h2 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h2><p>实际上，我们通常用带宽、吞吐量、延时、PPS（Packet Per Second）等指标衡量网络的性能。</p>
+<ul>
+<li><p><strong>带宽</strong>，表示链路的最大传输速率，单位通常为 b&#x2F;s （比特&#x2F;秒）。</p>
+</li>
+<li><p><strong>吞吐量</strong>，表示单位时间内成功传输的数据量，单位通常为 b&#x2F;s（比特&#x2F;秒）或者 B&#x2F;s（字节&#x2F;秒）。吞吐量受带宽限制，而吞吐量&#x2F;带宽，也就是该网络的使用率。</p>
+</li>
+<li><p><strong>延时</strong>，表示从网络请求发出后，一直到收到远端响应，所需要的时间延迟。在不同场景中，这一指标可能会有不同含义。比如，它可以表示，建立连接需要的时间（比如 TCP 握手延时），或一个数据包往返所需的时间（比如 RTT）。</p>
+</li>
+<li><p><strong>PPS</strong>，是 Packet Per Second（包&#x2F;秒）的缩写，表示以网络包为单位的传输速率。PPS 通常用来评估网络的转发能力，比如硬件交换机，通常可以达到线性转发（即 PPS 可以达到或者接近理论最大值）。而基于 Linux 服务器的转发，则容易受网络包大小的影响。</p>
+</li>
+</ul>
+<p>除了这些指标， <strong>网络的可用性</strong>（网络能否正常通信）、 <strong>并发连接数</strong>（TCP连接数量）、 <strong>丢包率</strong>（丢包百分比）、 <strong>重传率</strong>（重新传输的网络包比例）等也是常用的性能指标。</p>
+<p>接下来，打开一个终端，SSH登录到服务器上，然后一起来探索这些性能指标。</p>
+<h2 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a><strong>网络配置</strong></h2><p>分析网络问题的第一步，通常是查看网络接口的配置和状态。可以使用 ifconfig 或者 ip 命令，来查看网络的配置。更推荐使用 ip 工具，因为它提供了更丰富的功能和更易用的接口。</p>
+<blockquote>
+<p>ifconfig 和 ip 分别属于软件包 net-tools 和 iproute2，iproute2 是 net-tools 的下一代。通常情况下它们会在发行版中默认安装。但如果你找不到 ifconfig 或者 ip 命令，可以安装这两个软件包。</p>
+</blockquote>
+<p>以网络接口 eth0 为例，你可以运行下面的两个命令，查看它的配置和状态：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs tap">$ ifconfig eth0<br>eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt; mtu 1500<br>      inet 10.240.0.30 netmask 255.240.0.0 broadcast 10.255.255.255<br>      inet6 fe80::20d:3aff:fe07:cf2a prefixlen<span class="hljs-number"> 64 </span>scopeid 0x20&lt;link&gt;<br>      ether 78:0d:3a:07:cf:3a txqueuelen<span class="hljs-number"> 1000 </span>(Ethernet)<br>      RX packets<span class="hljs-number"> 40809142 </span>bytes<span class="hljs-number"> 9542369803 </span>(9.5 GB)<br>      RX errors<span class="hljs-number"> 0 </span>dropped<span class="hljs-number"> 0 </span>overruns<span class="hljs-number"> 0 </span>frame 0<br>      TX packets<span class="hljs-number"> 32637401 </span>bytes<span class="hljs-number"> 4815573306 </span>(4.8 GB)<br>      TX errors<span class="hljs-number"> 0 </span>dropped<span class="hljs-number"> 0 </span>overruns<span class="hljs-number"> 0 </span>carrier<span class="hljs-number"> 0 </span>collisions 0<br>​<br>$ ip -s addr show dev eth0<br>2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu<span class="hljs-number"> 1500 </span>qdisc mq state UP group default qlen 1000<br>  link/ether 78:0d:3a:07:cf:3a brd ff:ff:ff:ff:ff:ff<br>  inet 10.240.0.30/12 brd 10.255.255.255 scope global eth0<br>      valid_lft forever preferred_lft forever<br>  inet6 fe80::20d:3aff:fe07:cf2a/64 scope link<br>      valid_lft forever preferred_lft forever<br>  RX: bytes packets errors dropped overrun mcast<br>  <span class="hljs-number"> 9542432350 </span>40809397<span class="hljs-number"> 0 </span>     <span class="hljs-number"> 0 </span>     <span class="hljs-number"> 0 </span>      193<br>  TX: bytes packets errors dropped carrier collsns<br>  <span class="hljs-number"> 4815625265 </span>32637658<span class="hljs-number"> 0 </span>     <span class="hljs-number"> 0 </span>     <span class="hljs-number"> 0 </span>      0<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，ifconfig 和 ip 命令输出的指标基本相同，只是显示格式略微不同。比如，它们都包括了网络接口的状态标志、MTU 大小、IP、子网、MAC 地址以及网络包收发的统计信息。</p>
+<p>这些具体指标的含义，在文档中都有详细的说明，不过，这里有几个跟网络性能密切相关的指标，需要特别关注一下。</p>
+<p>第一，网络接口的状态标志。ifconfig 输出中的 RUNNING ，或 ip 输出中的 LOWER_UP ，都表示物理网络是连通的，即网卡已经连接到了交换机或者路由器中。如果你看不到它们，通常表示网线被拔掉了。</p>
+<p>第二，MTU 的大小。MTU 默认大小是 1500，根据网络架构的不同（比如是否使用了 VXLAN 等叠加网络），你可能需要调大或者调小 MTU 的数值。</p>
+<p>第三，网络接口的 IP 地址、子网以及 MAC 地址。这些都是保障网络功能正常工作所必需的，你需要确保配置正确。</p>
+<p>第四，网络收发的字节数、包数、错误数以及丢包情况，特别是 TX 和 RX 部分的 errors、dropped、overruns、carrier 以及 collisions 等指标不为 0 时，通常表示出现了网络 I&#x2F;O 问题。其中：</p>
+<ul>
+<li><p>errors 表示发生错误的数据包数，比如校验错误、帧同步错误等；</p>
+</li>
+<li><p>dropped 表示丢弃的数据包数，即数据包已经收到了 Ring Buffer，但因为内存不足等原因丢包；</p>
+</li>
+<li><p>overruns 表示超限数据包数，即网络 I&#x2F;O 速度过快，导致 Ring Buffer 中的数据包来不及处理（队列满）而导致的丢包；</p>
+</li>
+<li><p>carrier 表示发生 carrirer 错误的数据包数，比如双工模式不匹配、物理电缆出现问题等；</p>
+</li>
+<li><p>collisions 表示碰撞数据包数。</p>
+</li>
+</ul>
+<h2 id="套接字信息"><a href="#套接字信息" class="headerlink" title="套接字信息"></a><strong>套接字信息</strong></h2><p>ifconfig 和 ip 只显示了网络接口收发数据包的统计信息，但在实际的性能问题中，网络协议栈中的统计信息，我们也必须关注。可以用 netstat 或者 ss 来查看套接字、网络栈、网络接口以及路由表的信息。</p>
+<p>更推荐使用 ss 来查询网络的连接信息，因为它比 netstat 提供了更好的性能（速度更快）。</p>
+<p>比如，执行下面的命令，查询套接字信息：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment"># head -n 3 表示只显示前面3行</span><br><span class="hljs-comment"># -l 表示只显示监听套接字</span><br><span class="hljs-comment"># -n 表示显示数字地址和端口(而不是名字)</span><br><span class="hljs-comment"># -p 表示显示进程信息</span><br>$ netstat -nlp | head -n 3<br>Active Internet connections (only servers)<br>Proto Recv-Q Send-Q Local<span class="hljs-built_in"> Address </span>          Foreign<span class="hljs-built_in"> Address </span>        State       PID/Program name<br>tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      840/systemd-resolve<br><br><span class="hljs-comment"># -l 表示只显示监听套接字</span><br><span class="hljs-comment"># -t 表示只显示 TCP 套接字</span><br><span class="hljs-comment"># -n 表示显示数字地址和端口(而不是名字)</span><br><span class="hljs-comment"># -p 表示显示进程信息</span><br>$ ss -ltnp | head -n 3<br>State    Recv-Q    Send-Q        Local Address:Port       <span class="hljs-built_in"> Peer </span>Address:Port<br>LISTEN   0         128           127.0.0.53%lo:53               0.0.0.0:*        users:((<span class="hljs-string">&quot;systemd-resolve&quot;</span>,<span class="hljs-attribute">pid</span>=840,fd=13))<br>LISTEN   0         128                 0.0.0.0:22               0.0.0.0:*        users:((<span class="hljs-string">&quot;sshd&quot;</span>,<span class="hljs-attribute">pid</span>=1459,fd=3))<br><br></code></pre></td></tr></table></figure>
+
+<p>netstat 和 ss 的输出也是类似的，都展示了套接字的状态、接收队列、发送队列、本地地址、远端地址、进程 PID 和进程名称等。</p>
+<p>其中，接收队列（Recv-Q）和发送队列（Send-Q）需要你特别关注，它们通常应该是 0。当你发现它们不是 0 时，说明有网络包的堆积发生。当然还要注意，在不同套接字状态下，它们的含义不同。</p>
+<p>当套接字处于连接状态（Established）时，</p>
+<ul>
+<li><p>Recv-Q 表示套接字缓冲还没有被应用程序取走的字节数（即接收队列长度）。</p>
+</li>
+<li><p>而 Send-Q 表示还没有被远端主机确认的字节数（即发送队列长度）。</p>
+</li>
+</ul>
+<p>当套接字处于监听状态（Listening）时，</p>
+<ul>
+<li><p>Recv-Q 表示全连接队列的长度。</p>
+</li>
+<li><p>而 Send-Q 表示全连接队列的最大长度。</p>
+</li>
+</ul>
+<p>所谓全连接，是指服务器收到了客户端的 ACK，完成了 TCP 三次握手，然后就会把这个连接挪到全连接队列中。这些全连接中的套接字，还需要被 accept() 系统调用取走，服务器才可以开始真正处理客户端的请求。</p>
+<p>与全连接队列相对应的，还有一个半连接队列。所谓半连接是指还没有完成 TCP 三次握手的连接，连接只进行了一半。服务器收到了客户端的 SYN 包后，就会把这个连接放到半连接队列中，然后再向客户端发送 SYN+ACK 包。</p>
+<h2 id="协议栈统计信息"><a href="#协议栈统计信息" class="headerlink" title="协议栈统计信息"></a><strong>协议栈统计信息</strong></h2><p>类似的，使用 netstat 或 ss ，也可以查看协议栈的信息：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs tap">$ netstat -s<br>...<br>Tcp:<br>   <span class="hljs-number"> 3244906 </span>active connection openings<br>   <span class="hljs-number"> 23143 </span>passive connection openings<br>   <span class="hljs-number"> 115732 </span>failed connection attempts<br>   <span class="hljs-number"> 2964 </span>connection resets received<br>   <span class="hljs-number"> 1 </span>connections established<br>   <span class="hljs-number"> 13025010 </span>segments received<br>   <span class="hljs-number"> 17606946 </span>segments sent out<br>   <span class="hljs-number"> 44438 </span>segments retransmitted<br>   <span class="hljs-number"> 42 </span>bad segments received<br>   <span class="hljs-number"> 5315 </span>resets sent<br>    InCsumErrors: 42<br>...<br><br>$ ss -s<br>Total:<span class="hljs-number"> 186 </span>(kernel 1446)<br>TCP:  <span class="hljs-number"> 4 </span>(estab 1, closed 0, orphaned 0, synrecv 0, timewait 0/0), ports 0<br><br>Transport Total     IP        IPv6<br>*	 <span class="hljs-number"> 1446 </span>     -         -<br>RAW	 <span class="hljs-number"> 2 </span>       <span class="hljs-number"> 1 </span>        1<br>UDP	 <span class="hljs-number"> 2 </span>       <span class="hljs-number"> 2 </span>        0<br>TCP	 <span class="hljs-number"> 4 </span>       <span class="hljs-number"> 3 </span>        1<br>...<br><br></code></pre></td></tr></table></figure>
+
+<p>这些协议栈的统计信息都很直观。ss 只显示已经连接、关闭、孤儿套接字等简要统计，而netstat 则提供的是更详细的网络协议栈信息。</p>
+<p>比如，上面 netstat 的输出示例，就展示了 TCP 协议的主动连接、被动连接、失败重试、发送和接收的分段数量等各种信息。</p>
+<h2 id="网络吞吐和-PPS"><a href="#网络吞吐和-PPS" class="headerlink" title="网络吞吐和 PPS"></a><strong>网络吞吐和 PPS</strong></h2><p>接下来再来看看如何查看系统当前的网络吞吐量和 PPS。推荐使用 sar，它同时支持排查 CPU、内存和 I&#x2F;O 。</p>
+<p>给 sar 增加 -n 参数就可以查看网络的统计信息，比如网络接口（DEV）、网络接口错误（EDEV）、TCP、UDP、ICMP 等等。执行下面的命令，你就可以得到网络接口统计信息：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment"># 数字1表示每隔1秒输出一组数据</span><br>$ sar -n DEV <span class="hljs-number">1</span><br>Linux <span class="hljs-number">4.15</span>.<span class="hljs-number">0</span>-<span class="hljs-number">1035</span> (ubuntu) 	<span class="hljs-number">01</span><span class="hljs-regexp">/06/</span><span class="hljs-number">19</span> 	_x86_64_	(<span class="hljs-number">2</span> CPU)<br><br><span class="hljs-number">13</span>:<span class="hljs-number">21</span>:<span class="hljs-number">40</span>        IFACE   rxpck<span class="hljs-regexp">/s   txpck/</span>s    rxkB<span class="hljs-regexp">/s    txkB/</span>s   rxcmp<span class="hljs-regexp">/s   txcmp/</span>s  rxmcst/s   %ifutil<br><span class="hljs-number">13</span>:<span class="hljs-number">21</span>:<span class="hljs-number">41</span>         eth0     <span class="hljs-number">18.00</span>     <span class="hljs-number">20.00</span>      <span class="hljs-number">5.79</span>      <span class="hljs-number">4.25</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span><br><span class="hljs-number">13</span>:<span class="hljs-number">21</span>:<span class="hljs-number">41</span>      docker0      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span><br><span class="hljs-number">13</span>:<span class="hljs-number">21</span>:<span class="hljs-number">41</span>           lo      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span>      <span class="hljs-number">0.00</span><br><br></code></pre></td></tr></table></figure>
+
+<p>这儿输出的指标比较多，我来简单解释下它们的含义。</p>
+<ul>
+<li><p>rxpck&#x2F;s 和 txpck&#x2F;s 分别是接收和发送的 PPS，单位为包&#x2F;秒。</p>
+</li>
+<li><p>rxkB&#x2F;s 和 txkB&#x2F;s 分别是接收和发送的吞吐量，单位是KB&#x2F;秒。</p>
+</li>
+<li><p>rxcmp&#x2F;s 和 txcmp&#x2F;s 分别是接收和发送的压缩数据包数，单位是包&#x2F;秒。</p>
+</li>
+<li><p>%ifutil 是网络接口的使用率，即半双工模式下为 (rxkB&#x2F;s+txkB&#x2F;s)&#x2F;Bandwidth，而全双工模式下为 max(rxkB&#x2F;s, txkB&#x2F;s)&#x2F;Bandwidth。</p>
+</li>
+</ul>
+<p>其中，Bandwidth 可以用 ethtool 来查询，它的单位通常是 Gb&#x2F;s 或者 Mb&#x2F;s，不过注意这里小写字母 b ，表示比特而不是字节。我们通常提到的千兆网卡、万兆网卡等，单位也都是比特。如下为千兆网卡：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs 1c">$ ethtool eth0 <span class="hljs-string">| grep Speed</span><br>	Speed: <span class="hljs-number">1000</span>Mb/s<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="连通性和延时"><a href="#连通性和延时" class="headerlink" title="连通性和延时"></a><strong>连通性和延时</strong></h2><p>最后，通常使用 ping ，来测试远程主机的连通性和延时，而这基于 ICMP 协议。比如，执行下面的命令，就可以测试本机到 114.114.114.114 这个 IP 地址的连通性和延时：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment"># -c3表示发送三次ICMP包后停止</span><br>$<span class="hljs-built_in"> ping </span>-c3 114.114.114.114<span class="hljs-built_in"></span><br><span class="hljs-built_in">PING </span>114.114.114.114 (114.114.114.114) 56(84) bytes of data.<br>64 bytes <span class="hljs-keyword">from</span> 114.114.114.114: <span class="hljs-attribute">icmp_seq</span>=1 <span class="hljs-attribute">ttl</span>=54 <span class="hljs-attribute">time</span>=244 ms<br>64 bytes <span class="hljs-keyword">from</span> 114.114.114.114: <span class="hljs-attribute">icmp_seq</span>=2 <span class="hljs-attribute">ttl</span>=47 <span class="hljs-attribute">time</span>=244 ms<br>64 bytes <span class="hljs-keyword">from</span> 114.114.114.114: <span class="hljs-attribute">icmp_seq</span>=3 <span class="hljs-attribute">ttl</span>=67 <span class="hljs-attribute">time</span>=244 ms<br><br>--- 114.114.114.114<span class="hljs-built_in"> ping </span>statistics ---<br>3 packets transmitted, 3 received, 0% packet loss, time 2001ms<br>rtt min/avg/max/mdev = 244.023/244.070/244.105/0.034 ms<br><br></code></pre></td></tr></table></figure>
+
+<p>ping 的输出，可以分为两部分。</p>
+<ul>
+<li><p>第一部分，是每个 ICMP 请求的信息，包括 ICMP 序列号（icmp_seq）、TTL（生存时间，或者跳数）以及往返延时。</p>
+</li>
+<li><p>第二部分，则是三次 ICMP 请求的汇总。</p>
+</li>
+</ul>
+<p>比如上面的示例显示，发送了 3 个网络包，并且接收到 3 个响应，没有丢包发生，这说明测试主机到 114.114.114.114 是连通的；平均往返延时（RTT）是 244ms，也就是从发送 ICMP 开始，到接收到 114.114.114.114 回复的确认，总共经历 244ms。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们通常使用带宽、吞吐量、延时等指标，来衡量网络的性能；相应的，可以用 ifconfig、netstat、ss、sar、ping 等工具，来查看这些网络的性能指标。</p>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><p>你理解的 Linux 网络性能。常用什么指标来衡量网络的性能？又用什么思路分析相应性能问题呢？</p>
+<ul>
+<li>iperf、iperf3:测试带宽，传输量；</li>
+<li>netperf：根据应用的不同，可以进行不同模式的网络性能测试，即批量数据传输（bulk data transfer）模式和请求 &#x2F; 应答（request&#x2F;reponse）模式。</li>
+<li>mtr: 测试丢包率和时延</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>2.关于 Linux 网络基础（下）</div>
+      <div>https://blog.longpi1.com/2022/11/06/网络基础（下）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/06/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%EF%BC%88%E4%B8%8A%EF%BC%89/" title="1.关于 Linux 网络基础（上）">
+                        <span class="hidden-mobile">1.关于 Linux 网络基础（上）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
