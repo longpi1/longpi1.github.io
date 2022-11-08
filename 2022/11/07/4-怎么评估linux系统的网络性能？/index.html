@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="4.怎么评估linux系统的网络性能？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/07/4-%E6%80%8E%E4%B9%88%E8%AF%84%E4%BC%B0linux%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/f0/09/f01dc79465e7f1d03b6fbdabbe4ad109.png?wh=1310*466">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/d0/82/d02b845aa308b7a38a5735f3db8d9682.png?wh=621*530">
+<meta property="article:published_time" content="2022-11-07T14:44:08.000Z">
+<meta property="article:modified_time" content="2022-11-07T14:45:11.879Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/f0/09/f01dc79465e7f1d03b6fbdabbe4ad109.png?wh=1310*466">
+  
+  
+  
+  <title>4.怎么评估linux系统的网络性能？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="4.怎么评估linux系统的网络性能？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-07 22:44" pubdate>
+          2022年11月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">4.怎么评估linux系统的网络性能？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="4-怎么评估linux系统的网络性能？"><a href="#4-怎么评估linux系统的网络性能？" class="headerlink" title="4.怎么评估linux系统的网络性能？"></a>4.怎么评估linux系统的网络性能？</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">&gt; 本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：https:<span class="hljs-regexp">//</span>time.geekbang.org<span class="hljs-regexp">/column/</span>article/<span class="hljs-number">80898</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="性能指标回顾"><a href="#性能指标回顾" class="headerlink" title="性能指标回顾"></a>性能指标回顾</h2><p>在评估网络性能前，先来回顾一下衡量网络性能的指标有哪些。</p>
+<p>首先， <strong>带宽</strong>，表示链路的最大传输速率，单位是 b&#x2F;s（比特&#x2F;秒）。在你为服务器选购网卡时，带宽就是最核心的参考指标。常用的带宽有 1000M、10G、40G、100G 等。</p>
+<p>第二， <strong>吞吐量</strong>，表示没有丢包时的最大数据传输速率，单位通常为 b&#x2F;s （比特&#x2F;秒）或者 B&#x2F;s（字节&#x2F;秒）。吞吐量受带宽的限制，吞吐量&#x2F;带宽也就是该网络链路的使用率。</p>
+<p>第三， <strong>延时</strong>，表示从网络请求发出后，一直到收到远端响应，所需要的时间延迟。这个指标在不同场景中可能会有不同的含义。它可以表示建立连接需要的时间（比如 TCP 握手延时），或者一个数据包往返所需时间（比如 RTT）。</p>
+<p>最后， <strong>PPS</strong>，是 Packet Per Second（包&#x2F;秒）的缩写，表示以网络包为单位的传输速率。PPS 通常用来评估网络的转发能力，而基于 Linux 服务器的转发，很容易受到网络包大小的影响（交换机通常不会受到太大影响，即交换机可以线性转发）。</p>
+<p>这四个指标中，<strong>带宽跟物理网卡配置是直接关联的</strong>。一般来说，网卡确定后，带宽也就确定了（当然，实际带宽会受限于整个网络链路中最小的那个模块）。</p>
+<p>另外，你可能在很多地方听说过“网络带宽测试”，这里测试的实际上不是带宽，而是网络吞吐量。Linux 服务器的网络吞吐量一般会比带宽小，而对交换机等专门的网络设备来说，吞吐量一般会接近带宽。</p>
+<p>最后的 PPS，则是以网络包为单位的网络传输速率，通常用在需要大量转发的场景中。而对 TCP 或者 Web 服务来说，更多会用并发连接数和每秒请求数（QPS，Query per Second）等指标，它们更能反应实际应用程序的性能。</p>
+<h2 id="网络基准测试"><a href="#网络基准测试" class="headerlink" title="网络基准测试"></a>网络基准测试</h2><p>如何通过性能测试来确定这些指标的基准值。</p>
+<p>Linux 网络基于 TCP&#x2F;IP 协议栈，而不同协议层的行为显然不同。那么，测试之前，应该弄清楚，要评估的网络性能，究竟属于协议栈的哪一层？换句话说，你的应用程序基于协议栈的哪一层呢？</p>
+<p>根据前面学过的 TCP&#x2F;IP 协议栈的原理，这个问题应该不难回答。比如：</p>
+<ul>
+<li><p>基于 HTTP 或者 HTTPS 的 Web 应用程序，显然属于应用层，需要我们测试 HTTP&#x2F;HTTPS 的性能；</p>
+</li>
+<li><p>而对大多数游戏服务器来说，为了支持更大的同时在线人数，通常会基于 TCP 或 UDP ，与客户端进行交互，这时就需要测试 TCP&#x2F;UDP 的性能；</p>
+</li>
+<li><p>还有一些场景，是把 Linux 作为一个软交换机或者路由器来用的。这种情况下，你更关注网络包的处理能力（即 PPS），重点关注网络层的转发性能。</p>
+</li>
+</ul>
+<p>接下来，从下往上，了解不同协议层的网络性能测试方法。不过要注意，低层协议是其上的各层网络协议的基础。自然，低层协议的性能，也就决定了高层的网络性能。</p>
+<blockquote>
+<p>注意，以下所有的测试方法，都需要两台 Linux 虚拟机。其中一台，可以当作待测试的目标机器；而另一台，则可以当作正在运行网络服务的客户端，用来运行测试工具。</p>
+</blockquote>
+<h2 id="各协议层的性能测试"><a href="#各协议层的性能测试" class="headerlink" title="各协议层的性能测试"></a>各协议层的性能测试</h2><h3 id="转发性能"><a href="#转发性能" class="headerlink" title="转发性能"></a>转发性能</h3><p>首先来看，网络接口层和网络层，它们主要负责网络包的封装、寻址、路由以及发送和接收。在这两个网络协议层中，每秒可处理的网络包数 PPS，就是最重要的性能指标。特别是 64B 小包的处理能力，值得我们特别关注（小包更能体现pps的性能）。那么，如何来测试网络包的处理能力呢？</p>
+<p>Linux 内核自带的高性能网络测试工具 <a target="_blank" rel="noopener" href="https://wiki.linuxfoundation.org/networking/pktgen">pktgen</a>。pktgen 支持丰富的自定义选项，方便你根据实际需要构造所需网络包，从而更准确地测试出目标服务器的性能。</p>
+<p>不过，在 Linux 系统中，并不能直接找到 pktgen 命令。因为 pktgen 作为一个内核线程来运行，需要你加载 pktgen 内核模块后，再通过 &#x2F;proc 文件系统来交互。下面就是 pktgen 启动的两个内核线程和 &#x2F;proc 文件系统的交互文件：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gradle">$ modprobe pktgen<br>$ ps -ef | <span class="hljs-keyword">grep</span> pktgen | <span class="hljs-keyword">grep</span> -v <span class="hljs-keyword">grep</span><br>root     <span class="hljs-number">26384</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">06</span>:<span class="hljs-number">17</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [kpktgend_0]<br>root     <span class="hljs-number">26385</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">06</span>:<span class="hljs-number">17</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [kpktgend_1]<br>$ ls <span class="hljs-regexp">/proc/</span>net<span class="hljs-regexp">/pktgen/</span><br>kpktgend_0  kpktgend_1  pgctrl<br><br></code></pre></td></tr></table></figure>
+
+<p>pktgen 在每个 CPU 上启动一个内核线程，并可以通过 &#x2F;proc&#x2F;net&#x2F;pktgen 下面的同名文件，跟这些线程交互；而 pgctrl 则主要用来控制这次测试的开启和停止。</p>
+<blockquote>
+<p>如果 modprobe 命令执行失败，说明你的内核没有配置 CONFIG_NET_PKTGEN 选项。这就需要你配置 pktgen 内核模块（即 CONFIG_NET_PKTGEN&#x3D;m）后，重新编译内核，才可以使用。</p>
+</blockquote>
+<p>在使用 pktgen 测试网络性能时，需要先给每个内核线程 kpktgend_X 以及测试网卡，配置 pktgen 选项，然后再通过 pgctrl 启动测试。</p>
+<p>以发包测试为例，假设发包机器使用的网卡是 eth0，而目标机器的 IP 地址为 192.168.0.30，MAC 地址为 11:11:11:11:11:11。</p>
+<p><img src="https://static001.geekbang.org/resource/image/f0/09/f01dc79465e7f1d03b6fbdabbe4ad109.png?wh=1310*466" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>接下来，就是一个发包测试的示例。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment"># 定义一个工具函数，方便后面配置各种测试选项</span><br><span class="hljs-keyword">function</span> pgset() &#123;<br>    local result<br>    echo <span class="hljs-variable">$1</span> &gt; <span class="hljs-variable">$PGDEV</span><br><br>    result=`cat <span class="hljs-variable">$PGDEV</span> | fgrep <span class="hljs-string">&quot;Result: OK:&quot;</span>`<br>    <span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$result&quot;</span> = <span class="hljs-string">&quot;&quot;</span> ]; then<br>         cat <span class="hljs-variable">$PGDEV</span> | fgrep Result:<br>    fi<br>&#125;<br><br><span class="hljs-comment"># 为0号线程绑定eth0网卡</span><br>PGDEV=<span class="hljs-regexp">/proc/</span>net<span class="hljs-regexp">/pktgen/</span>kpktgend_0<br>pgset <span class="hljs-string">&quot;rem_device_all&quot;</span>   <span class="hljs-comment"># 清空网卡绑定</span><br>pgset <span class="hljs-string">&quot;add_device eth0&quot;</span>  <span class="hljs-comment"># 添加eth0网卡</span><br><br><span class="hljs-comment"># 配置eth0网卡的测试选项</span><br>PGDEV=<span class="hljs-regexp">/proc/</span>net<span class="hljs-regexp">/pktgen/</span>eth0<br>pgset <span class="hljs-string">&quot;count 1000000&quot;</span>    <span class="hljs-comment"># 总发包数量</span><br>pgset <span class="hljs-string">&quot;delay 5000&quot;</span>       <span class="hljs-comment"># 不同包之间的发送延迟(单位纳秒)</span><br>pgset <span class="hljs-string">&quot;clone_skb 0&quot;</span>      <span class="hljs-comment"># SKB包复制</span><br>pgset <span class="hljs-string">&quot;pkt_size 64&quot;</span>      <span class="hljs-comment"># 网络包大小</span><br>pgset <span class="hljs-string">&quot;dst 192.168.0.30&quot;</span> <span class="hljs-comment"># 目的IP</span><br>pgset <span class="hljs-string">&quot;dst_mac 11:11:11:11:11:11&quot;</span>  <span class="hljs-comment"># 目的MAC</span><br><br><span class="hljs-comment"># 启动测试</span><br>PGDEV=<span class="hljs-regexp">/proc/</span>net<span class="hljs-regexp">/pktgen/</span>pgctrl<br>pgset <span class="hljs-string">&quot;start&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>稍等一会儿，测试完成后，结果可以从 &#x2F;proc 文件系统中获取。通过下面代码段中的内容，我们可以查看刚才的测试报告：</p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs tcl">$ cat /<span class="hljs-keyword">proc</span>/net/pktgen/eth0<span class="hljs-title"></span><br><span class="hljs-title">Params:</span> count 1000000<span class="hljs-title">  min_pkt_size:</span> 64<span class="hljs-title">  max_pkt_size:</span> 64<span class="hljs-title"></span><br><span class="hljs-title">     frags:</span> 0<span class="hljs-title">  delay:</span> 0<span class="hljs-title">  clone_skb:</span> 0<span class="hljs-title">  ifname:</span> eth0<span class="hljs-title"></span><br><span class="hljs-title">     flows:</span> 0<span class="hljs-title"> flowlen:</span> 0<br>...<span class="hljs-title"></span><br><span class="hljs-title">Current:</span><br><span class="hljs-title">     pkts-sofar:</span> 1000000<span class="hljs-title">  errors:</span> 0<span class="hljs-title"></span><br><span class="hljs-title">     started:</span> 1534853256071us<span class="hljs-title">  stopped:</span> 1534861576098us<span class="hljs-title"> idle:</span> 70673us<br>...<span class="hljs-title"></span><br><span class="hljs-title">Result:</span> OK: 8320027(c8249354+d70673)<span class="hljs-title"> usec,</span> 1000000 (64byte,0frags)<br>  120191pps 61Mb/sec (61537792bps)<span class="hljs-title"> errors:</span> 0<br><br></code></pre></td></tr></table></figure>
+
+<p>测试报告主要分为三个部分：</p>
+<ul>
+<li><p>第一部分的 Params 是测试选项；</p>
+</li>
+<li><p>第二部分的 Current 是测试进度，其中， packts so far（pkts-sofar）表示已经发送了 100 万个包，也就表明测试已完成。</p>
+</li>
+<li><p>第三部分的 Result 是测试结果，包含测试所用时间、网络包数量和分片、PPS、吞吐量以及错误数。</p>
+</li>
+</ul>
+<p>根据上面的结果，PPS 为 12 万，吞吐量为 61 Mb&#x2F;s，没有发生错误。那么，12 万的 PPS 好不好呢？</p>
+<p>作为对比，你可以计算一下千兆交换机的 PPS。交换机可以达到线速（满负载时，无差错转发），它的 PPS 就是 1000Mbit 除以以太网帧的大小，即 1000Mbps&#x2F;((64+20)*8bit) &#x3D; 1.5 Mpps（其中，20B 为以太网帧前导和帧间距的大小）。</p>
+<p>即使是千兆交换机的 PPS，也可以达到 150 万 PPS，比测试得到的 12 万大多了。所以，看到这个数值你并不用担心，现在的多核服务器和万兆网卡已经很普遍了，稍做优化就可以达到数百万的 PPS。而且，如果用了 DPDK 或 XDP ，还能达到千万数量级。</p>
+<h3 id="TCP-x2F-UDP-性能"><a href="#TCP-x2F-UDP-性能" class="headerlink" title="TCP&#x2F;UDP 性能"></a>TCP&#x2F;UDP 性能</h3><p>iperf 和 netperf 都是最常用的网络性能测试工具，测试 TCP 和 UDP 的吞吐量。它们都以客户端和服务器通信的方式，测试一段时间内的平均吞吐量。</p>
+<p>接下来，以 iperf 为例，看一下 TCP 性能的测试方法。目前，iperf 的最新版本为 iperf3，可以运行下面的命令来安装：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-comment"># Ubuntu</span><br>apt-get <span class="hljs-keyword">install</span> iperf3<br><span class="hljs-comment"># CentOS</span><br>yum <span class="hljs-keyword">install</span> iperf3<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，在目标机器上启动 iperf 服务端：</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs crystal"><span class="hljs-comment"># -s表示启动服务端，-i表示汇报间隔，-p表示监听端口</span><br><span class="hljs-variable">$ </span>iperf3 -s -i <span class="hljs-number">1</span> -p <span class="hljs-number">10000</span><br><br></code></pre></td></tr></table></figure>
+
+<p>接着，在另一台机器上运行 iperf 客户端，运行测试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">-c表示启动客户端，192.168.0.30为目标服务器的IP</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">-b表示目标带宽(单位是bits/s)</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">-t表示测试时间</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">-P表示并发数，-p表示目标服务器监听端口</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">iperf3 -c 192.168.0.30 -b 1G -t 15 -P 2 -p 10000</span><br><br></code></pre></td></tr></table></figure>
+
+<p>稍等一会儿（15秒）测试结束后，回到目标服务器，查看 iperf 的报告：</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs excel">[ ID] Interval           Transfer     Bandwidth<br>...<br>[<span class="hljs-built_in">SUM</span>]   <span class="hljs-number">0.00</span>-<span class="hljs-number">15.04</span>  <span class="hljs-built_in">sec</span>  <span class="hljs-number">0.00</span> Bytes  <span class="hljs-number">0.00</span> bits/<span class="hljs-built_in">sec</span>                  sender<br>[<span class="hljs-built_in">SUM</span>]   <span class="hljs-number">0.00</span>-<span class="hljs-number">15.04</span>  <span class="hljs-built_in">sec</span>  <span class="hljs-number">1.51</span> GBytes   <span class="hljs-number">860</span> Mbits/<span class="hljs-built_in">sec</span>                  receiver<br><br></code></pre></td></tr></table></figure>
+
+<p>最后的 SUM 行就是测试的汇总结果，包括测试时间、数据传输量以及带宽等。按照发送和接收，这一部分又分为了 sender 和 receiver 两行。</p>
+<p>从测试结果你可以看到，这台机器 TCP 接收的带宽（吞吐量）为 860 Mb&#x2F;s， 跟目标的 1Gb&#x2F;s 相比，还是有些差距的。</p>
+<h3 id="HTTP-性能"><a href="#HTTP-性能" class="headerlink" title="HTTP 性能"></a>HTTP 性能</h3><p>从传输层再往上，到了应用层。有的应用程序，会直接基于 TCP 或 UDP 构建服务。当然，也有大量的应用，基于应用层的协议来构建服务，HTTP 就是最常用的一个应用层协议。比如，常用的 Apache、Nginx 等各种 Web 服务，都是基于 HTTP。</p>
+<p>要测试 HTTP 的性能，也有大量的工具可以使用，比如 ab、webbench 等，都是常用的 HTTP 压力测试工具。其中，ab 是 Apache 自带的 HTTP 压测工具，主要测试 HTTP 服务的每秒请求数、请求延迟、吞吐量以及请求延迟的分布情况等。</p>
+<p>运行下面的命令，你就可以安装 ab 工具：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-comment"># Ubuntu</span><br>$ apt-get <span class="hljs-keyword">install</span> -y apache2-utils<br><span class="hljs-comment"># CentOS</span><br>$ yum <span class="hljs-keyword">install</span> -y httpd-tools<br><br></code></pre></td></tr></table></figure>
+
+<p>接下来，在目标机器上，使用 Docker 启动一个 Nginx 服务，然后用 ab 来测试它的性能。首先，在目标机器上运行下面的命令：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ docker <span class="hljs-built_in">run</span> -p 80:80 -itd nginx<br><br></code></pre></td></tr></table></figure>
+
+<p>而在另一台机器上，运行 ab 命令，测试 Nginx 的性能：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># -c表示并发请求数为1000，-n表示总的请求数为10000</span><br><span class="hljs-string">$</span> <span class="hljs-string">ab</span> <span class="hljs-string">-c</span> <span class="hljs-number">1000</span> <span class="hljs-string">-n</span> <span class="hljs-number">10000</span> <span class="hljs-string">http://192.168.0.30/</span><br><span class="hljs-string">...</span><br><span class="hljs-attr">Server Software:</span>        <span class="hljs-string">nginx/1.15.8</span><br><span class="hljs-attr">Server Hostname:</span>        <span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.30</span><br><span class="hljs-attr">Server Port:</span>            <span class="hljs-number">80</span><br><br><span class="hljs-string">...</span><br><br><span class="hljs-attr">Requests per second:</span>    <span class="hljs-number">1078.54</span> [<span class="hljs-comment">#/sec] (mean)</span><br><span class="hljs-attr">Time per request:</span>       <span class="hljs-number">927.183</span> [<span class="hljs-string">ms</span>] <span class="hljs-string">(mean)</span><br><span class="hljs-attr">Time per request:</span>       <span class="hljs-number">0.927</span> [<span class="hljs-string">ms</span>] <span class="hljs-string">(mean</span>, <span class="hljs-string">across</span> <span class="hljs-string">all</span> <span class="hljs-string">concurrent</span> <span class="hljs-string">requests)</span><br><span class="hljs-attr">Transfer rate:</span>          <span class="hljs-number">890.00</span> [<span class="hljs-string">Kbytes/sec</span>] <span class="hljs-string">received</span><br><br><span class="hljs-string">Connection</span> <span class="hljs-string">Times</span> <span class="hljs-string">(ms)</span><br>              <span class="hljs-string">min</span>  <span class="hljs-string">mean</span>[<span class="hljs-string">+/-sd</span>] <span class="hljs-string">median</span>   <span class="hljs-string">max</span><br><span class="hljs-attr">Connect:</span>        <span class="hljs-number">0</span>   <span class="hljs-number">27</span> <span class="hljs-number">152.1</span>      <span class="hljs-number">1</span>    <span class="hljs-number">1038</span><br><span class="hljs-attr">Processing:</span>     <span class="hljs-number">9</span>  <span class="hljs-number">207</span> <span class="hljs-number">843.0</span>     <span class="hljs-number">22</span>    <span class="hljs-number">9242</span><br><span class="hljs-attr">Waiting:</span>        <span class="hljs-number">8</span>  <span class="hljs-number">207</span> <span class="hljs-number">843.0</span>     <span class="hljs-number">22</span>    <span class="hljs-number">9242</span><br><span class="hljs-attr">Total:</span>         <span class="hljs-number">15</span>  <span class="hljs-number">233</span> <span class="hljs-number">857.7</span>     <span class="hljs-number">23</span>    <span class="hljs-number">9268</span><br><br><span class="hljs-string">Percentage</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">requests</span> <span class="hljs-string">served</span> <span class="hljs-string">within</span> <span class="hljs-string">a</span> <span class="hljs-string">certain</span> <span class="hljs-string">time</span> <span class="hljs-string">(ms)</span><br>  <span class="hljs-number">50</span><span class="hljs-string">%</span>     <span class="hljs-number">23</span><br>  <span class="hljs-number">66</span><span class="hljs-string">%</span>     <span class="hljs-number">24</span><br>  <span class="hljs-number">75</span><span class="hljs-string">%</span>     <span class="hljs-number">24</span><br>  <span class="hljs-number">80</span><span class="hljs-string">%</span>     <span class="hljs-number">26</span><br>  <span class="hljs-number">90</span><span class="hljs-string">%</span>    <span class="hljs-number">274</span><br>  <span class="hljs-number">95</span><span class="hljs-string">%</span>   <span class="hljs-number">1195</span><br>  <span class="hljs-number">98</span><span class="hljs-string">%</span>   <span class="hljs-number">2335</span><br>  <span class="hljs-number">99</span><span class="hljs-string">%</span>   <span class="hljs-number">4663</span><br> <span class="hljs-number">100</span><span class="hljs-string">%</span>   <span class="hljs-number">9268</span> <span class="hljs-string">(longest</span> <span class="hljs-string">request)</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，ab 的测试结果分为三个部分，分别是请求汇总、连接时间汇总还有请求延迟汇总。以上面的结果为例，我们具体来看。</p>
+<p>在请求汇总部分，可以看到：</p>
+<ul>
+<li><p>Requests per second 为 1074；</p>
+</li>
+<li><p>每个请求的延迟（Time per request）分为两行，第一行的 927 ms 表示平均延迟，包括了线程运行的调度时间和网络请求响应时间，而下一行的 0.927ms ，则表示实际请求的响应时间；</p>
+</li>
+<li><p>Transfer rate 表示吞吐量（BPS）为 890 KB&#x2F;s。</p>
+</li>
+</ul>
+<p>连接时间汇总部分，则是分别展示了建立连接、请求、等待以及汇总等的各类时间，包括最小、最大、平均以及中值处理时间。</p>
+<p>最后的请求延迟汇总部分，则给出了不同时间段内处理请求的百分比，比如， 90% 的请求，都可以在 274ms 内完成。</p>
+<h3 id="应用负载性能"><a href="#应用负载性能" class="headerlink" title="应用负载性能"></a>应用负载性能</h3><p>当用 iperf 或者 ab 等测试工具，得到 TCP、HTTP 等的性能数据后，这些数据是否就能表示应用程序的实际性能呢？</p>
+<p>答案应该是否定的。比如，你的应用程序基于 HTTP 协议，为最终用户提供一个 Web 服务。这时，使用 ab 工具，可以得到某个页面的访问性能，但这个结果跟用户的实际请求，很可能不一致。因为用户请求往往会附带着各种各种的负载（payload），而这些负载会影响 Web 应用程序内部的处理逻辑，从而影响最终性能。</p>
+<p>那么，为了得到应用程序的实际性能，就要求性能工具本身可以模拟用户的请求负载，而iperf、ab 这类工具就无能为力了。幸运的是，我们还可以用 wrk、TCPCopy、Jmeter 或者 LoadRunner 等实现这个目标。</p>
+<p>以 <a target="_blank" rel="noopener" href="https://github.com/wg/wrk">wrk</a> 为例，它是一个 HTTP 性能测试工具，内置了 LuaJIT，方便你根据实际需求，生成所需的请求负载，或者自定义响应的处理方法。</p>
+<p>wrk 工具本身不提供 yum 或 apt 的安装方法，需要通过源码编译来安装。比如，可以运行下面的命令，来编译和安装 wrk：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">https://github.com/wg/wrk</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> wrk</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">apt-get install build-essential -y</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cp</span> wrk /usr/local/bin/</span><br><br></code></pre></td></tr></table></figure>
+
+<p>wrk 的命令行参数比较简单。比如，我们可以用 wrk ，来重新测一下前面已经启动的 Nginx 的性能。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># -c表示并发连接数1000，-t表示线程数为2</span><br>$ wrk -c 1000 -t 2 http://192.168.0.30/<br>Running 10s <span class="hljs-built_in">test</span> @ http://192.168.0.30/<br>  2 threads and 1000 connections<br>  Thread Stats   Avg      Stdev     Max   +/- Stdev<br>    Latency    65.83ms  174.06ms   1.99s    95.85%<br>    Req/Sec     4.87k   628.73     6.78k    69.00%<br>  96954 requests <span class="hljs-keyword">in</span> 10.06s, 78.59MB <span class="hljs-built_in">read</span><br>  Socket errors: connect 0, <span class="hljs-built_in">read</span> 0, write 0, <span class="hljs-built_in">timeout</span> 179<br>Requests/sec:   9641.31<br>Transfer/sec:      7.82MB<br><br></code></pre></td></tr></table></figure>
+
+<p>这里使用 2 个线程、并发 1000 连接，重新测试了 Nginx 的性能。你可以看到，每秒请求数为 9641，吞吐量为 7.82MB，平均延迟为 65ms，比前面 ab 的测试结果要好很多。</p>
+<p>这也说明，性能工具本身的性能，对性能测试也是至关重要的。不合适的性能工具，并不能准确测出应用程序的最佳性能。</p>
+<p>当然，wrk 最大的优势，是其内置的 LuaJIT，可以用来实现复杂场景的性能测试。wrk 在调用 Lua 脚本时，可以将 HTTP 请求分为三个阶段，即 setup、running、done，如下图所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/d0/82/d02b845aa308b7a38a5735f3db8d9682.png?wh=621*530" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>（图片来自 <a target="_blank" rel="noopener" href="https://sq.163yun.com/blog/article/200008406328934400">网易云博客</a>）</p>
+<p>比如，你可以在 setup 阶段，为请求设置认证参数（来自于 wrk 官方 <a target="_blank" rel="noopener" href="https://github.com/wg/wrk/blob/master/scripts/auth.lua">示例</a>）：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs lua"><span class="hljs-comment">-- example script that demonstrates response handling and</span><br><span class="hljs-comment">-- retrieving an authentication token to set on all future</span><br><span class="hljs-comment">-- requests</span><br><br>token = <span class="hljs-literal">nil</span><br><span class="hljs-built_in">path</span>  = <span class="hljs-string">&quot;/authenticate&quot;</span><br><br>request = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>   <span class="hljs-keyword">return</span> wrk.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;GET&quot;</span>, <span class="hljs-built_in">path</span>)<br><span class="hljs-keyword">end</span><br><br>response = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(status, headers, body)</span></span><br>   <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> token <span class="hljs-keyword">and</span> <span class="hljs-built_in">status</span> == <span class="hljs-number">200</span> <span class="hljs-keyword">then</span><br>      token = headers[<span class="hljs-string">&quot;X-Token&quot;</span>]<br>      <span class="hljs-built_in">path</span>  = <span class="hljs-string">&quot;/resource&quot;</span><br>      wrk.headers[<span class="hljs-string">&quot;X-Token&quot;</span>] = token<br>   <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br></code></pre></td></tr></table></figure>
+
+<p>而在执行测试时，通过 -s 选项，执行脚本的路径：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ wrk -c <span class="hljs-number">1000</span> -t <span class="hljs-number">2</span> -s auth.lua http:<span class="hljs-regexp">//</span><span class="hljs-number">192.168</span>.<span class="hljs-number">0.30</span>/<br><br></code></pre></td></tr></table></figure>
+
+<p>wrk 需要你用 Lua 脚本，来构造请求负载。这对于大部分场景来说，可能已经足够了 。不过，它的缺点也正是，所有东西都需要代码来构造，并且工具本身不提供 GUI 环境。</p>
+<p>像 Jmeter 或者 LoadRunner（商业产品），则针对复杂场景提供了脚本录制、回放、GUI 等更丰富的功能，使用起来也更加方便。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>性能评估是优化网络性能的前提，只有在你发现网络性能瓶颈时，才需要进行网络性能优化。根据 TCP&#x2F;IP 协议栈的原理，不同协议层关注的性能重点不完全一样，也就对应不同的性能测试方法。比如，</p>
+<ul>
+<li><p>在应用层，你可以使用 wrk、Jmeter 等模拟用户的负载，测试应用程序的每秒请求数、处理延迟、错误数等；</p>
+</li>
+<li><p>而在传输层，则可以使用 iperf 等工具，测试 TCP 的吞吐情况；</p>
+</li>
+<li><p>再向下，你还可以用 Linux 内核自带的 pktgen ，测试服务器的 PPS。</p>
+</li>
+</ul>
+<p>由于低层协议是高层协议的基础。所以，一般情况下，我们需要从上到下，对每个协议层进行性能测试，然后根据性能测试的结果，结合 Linux 网络协议栈的原理，找出导致性能瓶颈的根源，进而优化网络性能。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>4.怎么评估linux系统的网络性能？</div>
+      <div>https://blog.longpi1.com/2022/11/07/4-怎么评估linux系统的网络性能？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/06/3.C10K%20%E5%92%8C%20C1000K%20%E5%9B%9E%E9%A1%BE/" title="3.C10K 和 C1000K 回顾">
+                        <span class="hidden-mobile">3.C10K 和 C1000K 回顾</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
