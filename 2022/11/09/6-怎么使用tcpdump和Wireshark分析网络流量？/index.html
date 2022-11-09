@@ -1,0 +1,815 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.怎么使用 tcpdump 和 wireshark 分析网络流量？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/09/6-%E6%80%8E%E4%B9%88%E4%BD%BF%E7%94%A8tcpdump%E5%92%8CWireshark%E5%88%86%E6%9E%90%E7%BD%91%E7%BB%9C%E6%B5%81%E9%87%8F%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/85/ff/859d3b5c0071335429620a3fcdde4fff.png?wh=1655*994">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/48/b3/4870a28c032bdd2a26561604ae2f7cb3.png?wh=1660*1129">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/6b/2c/6b854703dcfcccf64c0a69adecf2f42c.png?wh=2316*400">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/59/25/59781a5dc7b1b9234643991365bfc925.png?wh=2230*864">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/07/9d/07bcdba5b563ebae36f5b5b453aacd9d.png?wh=2360*398">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/4e/bb/4ec784752fdbc0cc5ead036a6419cbbb.png?wh=1526*596">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/52/e8/5230fb678fcd3ca6b55d4644881811e8.png?wh=875*976">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/0e/99/0ecb6d11e5e7725107c0291c45aa7e99.png?wh=1898*186">
+<meta property="article:published_time" content="2022-11-09T13:36:18.000Z">
+<meta property="article:modified_time" content="2022-11-09T13:36:53.477Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/85/ff/859d3b5c0071335429620a3fcdde4fff.png?wh=1655*994">
+  
+  
+  
+  <title>6.怎么使用 tcpdump 和 wireshark 分析网络流量？ - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="6.怎么使用 tcpdump 和 wireshark 分析网络流量？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-09 21:36" pubdate>
+          2022年11月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">6.怎么使用 tcpdump 和 wireshark 分析网络流量？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="6-怎么使用-tcpdump-和-Wireshark-分析网络流量？"><a href="#6-怎么使用-tcpdump-和-Wireshark-分析网络流量？" class="headerlink" title="6.怎么使用 tcpdump 和 Wireshark 分析网络流量？"></a>6.怎么使用 tcpdump 和 Wireshark 分析网络流量？</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">&gt; 本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：https:<span class="hljs-regexp">//</span>time.geekbang.org<span class="hljs-regexp">/column/</span>article/<span class="hljs-number">80898</span><br></code></pre></td></tr></table></figure>
+
+<p>之前的文章我们介绍了ping，作为最常用的测试服务延迟的工具。很多情况下，ping 可以帮我们定位出延迟问题，不过有时候遇到网络问题，我们可以抓取ping 命令执行时收发的网络包，然后分析这些网络包，进而找出问题根源。</p>
+<p>tcpdump 和 Wireshark 就是最常用的网络抓包和分析工具，更是分析网络性能必不可少的利器。</p>
+<ul>
+<li><p>tcpdump 仅支持命令行格式使用，常用在服务器中抓取和分析网络包。</p>
+</li>
+<li><p>Wireshark 除了可以抓包外，还提供了强大的图形界面和汇总分析工具，在分析复杂的网络情景时，尤为简单和实用。</p>
+</li>
+</ul>
+<p>因而，在实际分析网络性能时，先用 tcpdump 抓包，后用 Wireshark 分析，也是一种常用的方法。</p>
+<p>让我们通过这篇文章，了解怎么使用 tcpdump 和 Wireshark ，来分析网络的性能问题。</p>
+<h2 id="案例准备"><a href="#案例准备" class="headerlink" title="案例准备"></a>案例准备</h2><p>本次案例还是基于 Ubuntu 18.04，同样适用于其他的 Linux 系统。案例环境如下：</p>
+<ul>
+<li><p>机器配置：2 CPU，8GB 内存。</p>
+</li>
+<li><p>预先安装 tcpdump、Wireshark 等工具，如：</p>
+</li>
+</ul>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-comment"># Ubuntu</span><br>apt-get <span class="hljs-keyword">install</span> tcpdump wireshark<br><br><span class="hljs-comment"># CentOS</span><br>yum <span class="hljs-keyword">install</span> -y tcpdump wireshark<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="再探-ping"><a href="#再探-ping" class="headerlink" title="再探 ping"></a>再探 ping</h2><p>前面讲过，ping 是一种最常用的网络工具，常用来探测网络主机之间的连通性以及延迟。</p>
+<p>不过，虽然 ping 比较简单，但有时候你会发现，ping 工具本身也可能出现异常，比如运行缓慢，但实际网络延迟却并不大的情况。</p>
+<p>接下来，打开一个终端，SSH 登录到案例机器中，执行下面的命令，来测试案例机器与极客时间官网的连通性和延迟。如果一切正常，会看到如下输出：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment"># ping 3 次（默认每次发送间隔1秒）</span><br><span class="hljs-comment"># 假设DNS服务器还是上一期配置的114.114.114.114</span><br>$<span class="hljs-built_in"> ping </span>-c3 geektime.org<span class="hljs-built_in"></span><br><span class="hljs-built_in">PING </span>geektime.org (35.190.27.188) 56(84) bytes of data.<br>64 bytes <span class="hljs-keyword">from</span> 35.190.27.188 (35.190.27.188): <span class="hljs-attribute">icmp_seq</span>=1 <span class="hljs-attribute">ttl</span>=43 <span class="hljs-attribute">time</span>=36.8 ms<br>64 bytes <span class="hljs-keyword">from</span> 35.190.27.188 (35.190.27.188): <span class="hljs-attribute">icmp_seq</span>=2 <span class="hljs-attribute">ttl</span>=43 <span class="hljs-attribute">time</span>=31.1 ms<br>64 bytes <span class="hljs-keyword">from</span> 35.190.27.188 (35.190.27.188): <span class="hljs-attribute">icmp_seq</span>=3 <span class="hljs-attribute">ttl</span>=43 <span class="hljs-attribute">time</span>=31.2 ms<br><br>--- geektime.org<span class="hljs-built_in"> ping </span>statistics ---<br>3 packets transmitted, 3 received, 0% packet loss, time 11049ms<br>rtt min/avg/max/mdev = 31.146/33.074/36.809/2.649 ms<br><br></code></pre></td></tr></table></figure>
+
+<p>假如你运行时发现 ping 很快就结束了，那就执行下面的命令，再重试一下。</p>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig"><span class="hljs-comment"># 禁止接收从DNS服务器发送过来并包含googleusercontent的包</span><br>$ <span class="hljs-string">iptables</span> -<span class="hljs-string">I</span> <span class="hljs-string">INPUT</span> -<span class="hljs-string">p</span> <span class="hljs-string">udp</span> <span class="hljs-built_in">--sport</span> <span class="hljs-string">53</span> -<span class="hljs-string">m</span> <span class="hljs-string">string</span> <span class="hljs-built_in">--string</span> <span class="hljs-string">googleusercontent</span> <span class="hljs-built_in">--algo</span> <span class="hljs-string">bm</span> -<span class="hljs-string">j</span> <span class="hljs-string">DROP</span><br><br></code></pre></td></tr></table></figure>
+
+<p>根据 ping 的输出，可以发现，geektime.org 解析后的 IP 地址是 35.190.27.188，而后三次 ping 请求都得到了响应，延迟（RTT）都是 30ms 多一点。</p>
+<p>但汇总的地方，就有点儿意思了。3次发送，收到3次响应，没有丢包，但三次发送和接受的总时间居然超过了 11s（11049ms），这就有些不可思议了吧。</p>
+<p>这是 DNS 解析缓慢的问题吗？</p>
+<p>再回去看 ping 的输出，三次 ping 请求中，用的都是 IP 地址，说明 ping 只需要在最开始运行时，解析一次得到 IP，后面就可以只用 IP了。</p>
+<p>我们再用 nslookup 试试。在终端中执行下面的 nslookup 命令，注意，这次我们同样加了 time 命令，输出 nslookup 的执行时间：</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs avrasm">$ time nslookup geektime<span class="hljs-meta">.org</span><br><span class="hljs-symbol">Server:</span>		<span class="hljs-number">114.114</span><span class="hljs-number">.114</span><span class="hljs-number">.114</span><br><span class="hljs-symbol">Address:</span>	<span class="hljs-number">114.114</span><span class="hljs-number">.114</span><span class="hljs-number">.114</span><span class="hljs-meta">#53</span><br><br>Non-authoritative answer:<br><span class="hljs-symbol">Name:</span>	geektime<span class="hljs-meta">.org</span><br><span class="hljs-symbol">Address:</span> <span class="hljs-number">35.190</span><span class="hljs-number">.27</span><span class="hljs-number">.188</span><br><br>real	<span class="hljs-number">0</span>m0<span class="hljs-number">.044</span>s<br>user	<span class="hljs-number">0</span>m0<span class="hljs-number">.006</span>s<br>sys	<span class="hljs-number">0</span>m0<span class="hljs-number">.003</span>s<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，域名解析还是很快的，只需要 44ms，显然比 11s 短了很多。</p>
+<p>到这里，再往后该怎么分析呢？</p>
+<p>这时候就可以用 tcpdump 抓包，查看 ping 在收发哪些网络包。</p>
+<p>再打开另一个终端（终端二），SSH 登录案例机器后，执行下面的命令：</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs crystal"><span class="hljs-variable">$ </span>tcpdump -nn udp port <span class="hljs-number">53</span> or host <span class="hljs-number">35.190</span>.<span class="hljs-number">27.188</span><br><br></code></pre></td></tr></table></figure>
+
+<p>知道了 geekbang.org 的 IP 地址是35.190.27.188，也知道 ping 命令会执行 DNS 查询。所以，上面这条命令，就是基于这个规则进行过滤。</p>
+<p>具体解释一下这条命令。</p>
+<ul>
+<li><p>-nn ，表示不解析抓包中的域名（即不反向解析）、协议以及端口号。</p>
+</li>
+<li><p>udp port 53 ，表示只显示 UDP协议的端口号（包括源端口和目的端口）为53的包。</p>
+</li>
+<li><p>host 35.190.27.188 ，表示只显示 IP 地址（包括源地址和目的地址）为35.190.27.188的包。</p>
+</li>
+<li><p>这两个过滤条件中间的“ or ”，表示或的关系，也就是说，只要满足上面两个条件中的任一个，就可以展示出来。</p>
+</li>
+</ul>
+<p>接下来，回到终端一，执行相同的 ping 命令：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ ping -c3 geektime.org<br>...<br>--- geektime.org ping statistics ---<br><span class="hljs-number">3</span> packets transmitted, <span class="hljs-number">3</span> received, <span class="hljs-number">0</span>% packet loss, time <span class="hljs-number">11095</span>ms<br>rtt min<span class="hljs-regexp">/avg/m</span>ax<span class="hljs-regexp">/mdev = 81.473/</span><span class="hljs-number">81.572</span><span class="hljs-regexp">/81.757/</span><span class="hljs-number">0.130</span> ms<br><br></code></pre></td></tr></table></figure>
+
+<p>命令结束后，再回到终端二中，查看 tcpdump 的输出：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">tcpdump</span>: verbose output suppressed, use -v or -vv for full protocol decode<br><span class="hljs-attribute">listening</span> <span class="hljs-literal">on</span> eth0, link-type EN10MB (Ethernet), capture size <span class="hljs-number">262144</span> bytes<br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">31</span>.<span class="hljs-number">100564</span> IP <span class="hljs-number">172.16.3.4</span>.<span class="hljs-number">56669</span> &gt; <span class="hljs-number">114.114.114.114</span>.<span class="hljs-number">53</span>: <span class="hljs-number">36909</span>+ A? geektime.org. (<span class="hljs-number">30</span>)<br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">31</span>.<span class="hljs-number">507699</span> IP <span class="hljs-number">114.114.114.114</span>.<span class="hljs-number">53</span> &gt; <span class="hljs-number">172.16.3.4</span>.<span class="hljs-number">56669</span>: <span class="hljs-number">36909</span> <span class="hljs-number">1</span>/<span class="hljs-number">0</span>/<span class="hljs-number">0</span> A <span class="hljs-number">35.190.27.188</span> (<span class="hljs-number">46</span>)<br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">31</span>.<span class="hljs-number">508164</span> IP <span class="hljs-number">172.16.3.4</span> &gt; <span class="hljs-number">35.190.27.188</span>: ICMP echo request, id <span class="hljs-number">4356</span>, seq <span class="hljs-number">1</span>, length <span class="hljs-number">64</span><br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">31</span>.<span class="hljs-number">539667</span> IP <span class="hljs-number">35.190.27.188</span> &gt; <span class="hljs-number">172.16.3.4</span>: ICMP echo reply, id <span class="hljs-number">4356</span>, seq <span class="hljs-number">1</span>, length <span class="hljs-number">64</span><br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">31</span>.<span class="hljs-number">539995</span> IP <span class="hljs-number">172.16.3.4</span>.<span class="hljs-number">60254</span> &gt; <span class="hljs-number">114.114.114.114</span>.<span class="hljs-number">53</span>: <span class="hljs-number">49932</span>+ PTR? <span class="hljs-number">188.27.190.35</span>.in-addr.arpa. (<span class="hljs-number">44</span>)<br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">36</span>.<span class="hljs-number">545104</span> IP <span class="hljs-number">172.16.3.4</span>.<span class="hljs-number">60254</span> &gt; <span class="hljs-number">114.114.114.114</span>.<span class="hljs-number">53</span>: <span class="hljs-number">49932</span>+ PTR? <span class="hljs-number">188.27.190.35</span>.in-addr.arpa. (<span class="hljs-number">44</span>)<br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">41</span>.<span class="hljs-number">551284</span> IP <span class="hljs-number">172.16.3.4</span> &gt; <span class="hljs-number">35.190.27.188</span>: ICMP echo request, id <span class="hljs-number">4356</span>, seq <span class="hljs-number">2</span>, length <span class="hljs-number">64</span><br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">41</span>.<span class="hljs-number">582363</span> IP <span class="hljs-number">35.190.27.188</span> &gt; <span class="hljs-number">172.16.3.4</span>: ICMP echo reply, id <span class="hljs-number">4356</span>, seq <span class="hljs-number">2</span>, length <span class="hljs-number">64</span><br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">42</span>.<span class="hljs-number">552506</span> IP <span class="hljs-number">172.16.3.4</span> &gt; <span class="hljs-number">35.190.27.188</span>: ICMP echo request, id <span class="hljs-number">4356</span>, seq <span class="hljs-number">3</span>, length <span class="hljs-number">64</span><br><span class="hljs-attribute">14</span>:<span class="hljs-number">02</span>:<span class="hljs-number">42</span>.<span class="hljs-number">583646</span> IP <span class="hljs-number">35.190.27.188</span> &gt; <span class="hljs-number">172.16.3.4</span>: ICMP echo reply, id <span class="hljs-number">4356</span>, seq <span class="hljs-number">3</span>, length <span class="hljs-number">64</span><br><br></code></pre></td></tr></table></figure>
+
+<p>这次输出中，前两行，表示 tcpdump 的选项以及接口的基本信息；从第三行开始，就是抓取到的网络包的输出。这些输出的格式，都是 <code>时间戳 协议 源地址.源端口 &gt; 目的地址.目的端口 网络包详细信息</code>（这是最基本的格式，可以通过选项增加其他字段）。</p>
+<p>网络包的详细信息，本身根据协议的不同而不同。所以，要理解这些网络包的详细含义，就要对常用网络协议的基本格式以及交互原理，有基本的了解。</p>
+<p>比如，第一条表示，从本地 IP 发送到 114.114.114.114 的 A 记录查询请求，它的报文格式记录在 RFC1035 中，可以点击 <a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc1035.txt">这里</a> 查看。在这个 tcpdump 的输出中，</p>
+<ul>
+<li><p>36909+ 表示查询标识值，它也会出现在响应中，加号表示启用递归查询。</p>
+</li>
+<li><p>A? 表示查询 A 记录。</p>
+</li>
+<li><p>geektime.org. 表示待查询的域名。</p>
+</li>
+<li><p>30 表示报文长度。</p>
+</li>
+</ul>
+<p>接下来的一条，则是从 114.114.114.114 发送回来的 DNS 响应——域名 geektime.org. 的 A 记录值为 35.190.27.188。</p>
+<p>第三条和第四条，是 ICMP echo request 和 ICMP echo reply，响应包的时间戳 14:02:31.539667，减去请求包的时间戳 14:02:31.508164 ，就可以得到，这次 ICMP 所用时间为 30ms。这看起来并没有问题。</p>
+<p>但随后的两条反向地址解析 PTR 请求，只看到请求包，却没有应答包。仔细观察它们的时间，会发现，这两条记录都是发出后 5s 才出现下一个网络包，两条 PTR 记录就消耗了 10s。</p>
+<p>再往下看，最后的四个包，则是两次正常的 ICMP 请求和响应，根据时间戳计算其延迟，也是 30ms。</p>
+<p>到这里，也就找到了 ping 缓慢的根源，正是两次 PTR 请求没有得到响应而超时导致的。PTR 反向地址解析的目的，是从 IP 地址反查出域名，但事实上，并非所有IP 地址都会定义 PTR 记录，所以 PTR 查询很可能会失败。</p>
+<p>所以，在你使用 ping 时，如果发现结果中的延迟并不大，而 ping 命令本身却很慢，不要慌，有可能是背后的 PTR 在搞鬼。</p>
+<p>知道问题后，解决起来就比较简单了，只要禁止 PTR 就可以。还是老路子，执行 man ping 命令，查询使用手册，就可以找出相应的方法，即加上 -n 选项禁止名称解析。比如，我们可以在终端中执行如下命令：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$<span class="hljs-built_in"> ping </span>-n -c3 geektime.org<span class="hljs-built_in"></span><br><span class="hljs-built_in">PING </span>geektime.org (35.190.27.188) 56(84) bytes of data.<br>64 bytes <span class="hljs-keyword">from</span> 35.190.27.188: <span class="hljs-attribute">icmp_seq</span>=1 <span class="hljs-attribute">ttl</span>=43 <span class="hljs-attribute">time</span>=33.5 ms<br>64 bytes <span class="hljs-keyword">from</span> 35.190.27.188: <span class="hljs-attribute">icmp_seq</span>=2 <span class="hljs-attribute">ttl</span>=43 <span class="hljs-attribute">time</span>=39.0 ms<br>64 bytes <span class="hljs-keyword">from</span> 35.190.27.188: <span class="hljs-attribute">icmp_seq</span>=3 <span class="hljs-attribute">ttl</span>=43 <span class="hljs-attribute">time</span>=32.8 ms<br><br>--- geektime.org<span class="hljs-built_in"> ping </span>statistics ---<br>3 packets transmitted, 3 received, 0% packet loss, time 2002ms<br>rtt min/avg/max/mdev = 32.879/35.160/39.030/2.755 ms<br><br></code></pre></td></tr></table></figure>
+
+<p>可以发现，现在只需要 2s 就可以结束，比刚才的 11s 可是快多了。</p>
+<p>到这里， 我们就通过 tcpdump ，解决了一个最常见的 ping 工作缓慢的问题。</p>
+<p>案例最后，如果你在开始时，执行了 iptables 命令，那也不要忘了删掉它：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">$ iptables -D INPUT -<span class="hljs-selector-tag">p</span> udp <span class="hljs-attr">--sport</span> <span class="hljs-number">53</span> -m string <span class="hljs-attr">--string</span> googleusercontent <span class="hljs-attr">--algo</span> bm -j DROP<br><br></code></pre></td></tr></table></figure>
+
+<p>不过，明明我们的案例跟 Google 没啥关系，为什么要根据 googleusercontent ，这个毫不相关的字符串来过滤包呢？</p>
+<p>实际上，如果换一个 DNS 服务器，就可以用 PTR 反查到 35.190.27.188 所对应的域名：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs dns"> $ nslookup -type=<span class="hljs-keyword">PTR</span> <span class="hljs-number">35.190.27.188</span> <span class="hljs-number">8.8.8.8</span><br>Server:	<span class="hljs-number">8.8.8.8</span><br>Address:	<span class="hljs-number">8.8.8.8</span>#<span class="hljs-number">53</span><br>Non-authoritative answer:<br><span class="hljs-number">188.27.190.35</span>.in-addr.arpa	name = <span class="hljs-number">188.27.190.35</span>.bc.googleusercontent.com.<br>Authoritative answers can be found from:<br><br></code></pre></td></tr></table></figure>
+
+<p>虽然查到了 PTR 记录，但结果并非 geekbang.org，而是 188.27.190.35.bc.googleusercontent.com。其实，这也是为什么，案例开始时将包含 googleusercontent 的丢弃后，ping 就慢了。因为 iptables ，实际上是把 PTR 响应给丢了，所以会导致 PTR 请求超时。</p>
+<p>tcpdump 可以说是网络性能分析最有效的利器。一起看看 tcpdump 的更多使用方法。</p>
+<h2 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h2><p>tcpdump 作为常用的一个网络分析工具。它基于 <a target="_blank" rel="noopener" href="https://www.tcpdump.org/">libpcap</a> ，利用内核中的 AF_PACKET 套接字，抓取网络接口中传输的网络包；并提供了强大的过滤规则，帮你从大量的网络包中，挑出最想关注的信息。</p>
+<p>tcpdump 展示了每个网络包的详细细节，这就要求，在使用前，必须要对网络协议有基本了解。而要了解网络协议的详细设计和实现细节， <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc-index.html">RFC</a> 当然是最权威的资料。</p>
+<p>不过，RFC 的内容，对初学者来说可能并不友好。如果对网络协议还不太了解，可以先学习《TCP&#x2F;IP详解》，特别是第一卷的 TCP&#x2F;IP 协议族。这是每个程序员都要掌握的核心基础知识。</p>
+<p>再回到 tcpdump工具本身，它的基本使用方法，还是比较简单的，也就是 **tcpdump [选项] [过滤表达式]**。当然，选项和表达式的外面都加了中括号，表明它们都是可选的。</p>
+<p><strong>常用选项如下：</strong></p>
+<p><img src="https://static001.geekbang.org/resource/image/85/ff/859d3b5c0071335429620a3fcdde4fff.png?wh=1655*994" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>比如刚刚用过的是 udp port 53 or host 35.190.27.188 ，表示抓取 DNS 协议的请求和响应包，以及源地址或目的地址为 35.190.27.188 的包。</p>
+<p><strong>常见过滤表达式如下：</strong></p>
+<p><img src="https://static001.geekbang.org/resource/image/48/b3/4870a28c032bdd2a26561604ae2f7cb3.png?wh=1660*1129" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>输出格式如下：</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">时间戳 协议 源地址.源端口 &gt; 目的地址.目的端口 网络包详细信息<br><br></code></pre></td></tr></table></figure>
+
+<p>其中，网络包的详细信息取决于协议，不同协议展示的格式也不同。详细使用方法可查询 tcpdump 的 <a target="_blank" rel="noopener" href="https://www.tcpdump.org/manpages/tcpdump.1.html">man</a> 手册（执行 man tcpdump 也可以得到）。</p>
+<p>tcpdump 虽然功能强大，可是输出格式却并不直观。特别是，当系统中网络包数比较多（比如PPS 超过几千）的时候，你想从 tcpdump 抓取的网络包中分析问题，实在不容易。</p>
+<p>对比之下，Wireshark 则通过图形界面，以及一系列的汇总分析工具，提供了更友好的使用界面，让你可以用更快的速度，摆平网络性能问题。接下来，详细来看看它。</p>
+<h2 id="Wireshark"><a href="#Wireshark" class="headerlink" title="Wireshark"></a>Wireshark</h2><p>Wireshark 作为常用的一个网络分析工具，它最大的好处就是提供了跨平台的图形界面。跟 tcpdump 类似，Wireshark 也提供了强大的过滤规则表达式，同时，还内置了一系列的汇总分析工具。</p>
+<p>比如，拿刚刚的 ping 案例来说，可以执行下面的命令，把抓取的网络包保存到 ping.pcap 文件中：</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs autoit">$ tcpdump -nn udp port <span class="hljs-number">53</span> <span class="hljs-literal">or</span> host <span class="hljs-number">35.190</span><span class="hljs-number">.27</span><span class="hljs-number">.188</span> -w <span class="hljs-built_in">ping</span>.pcap<br><br></code></pre></td></tr></table></figure>
+
+<p>接着，把它拷贝到安装有 Wireshark 的机器中，比如用 scp 把它拷贝到本地来：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ scp host-ip<span class="hljs-regexp">/path/</span>ping.pcap .<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，再用 Wireshark 打开它。打开后，你就可以看到下面这个界面：</p>
+<p><img src="https://static001.geekbang.org/resource/image/6b/2c/6b854703dcfcccf64c0a69adecf2f42c.png?wh=2316*400" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从 Wireshark 的界面里，可以发现，它不仅以更规整的格式，展示了各个网络包的头部信息；还用了不同颜色，展示 DNS 和 ICMP 这两种不同的协议。也可以一眼看出，中间的两条 PTR 查询并没有响应包。</p>
+<p>接着，在网络包列表中选择某一个网络包后，在其下方的网络包详情中，还可以看到，这个包在协议栈各层的详细信息。比如，以编号为 5 的 PTR 包为例：</p>
+<p><img src="https://static001.geekbang.org/resource/image/59/25/59781a5dc7b1b9234643991365bfc925.png?wh=2230*864" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>可以看到，IP 层（Internet Protocol）的源地址和目的地址、传输层的 UDP 协议（User Datagram Protocol）、应用层的 DNS 协议（Domain Name System）的概要信息。</p>
+<p>继续点击每层左边的箭头，就可以看到该层协议头的所有信息。比如点击 DNS 后，就可以看到 Transaction ID、Flags、Queries 等 DNS 协议各个字段的数值以及含义。</p>
+<p>当然，Wireshark 的功能远不止如此。</p>
+<p>接下来看一个 HTTP 的例子，并理解 TCP 三次握手和四次挥手的工作原理。</p>
+<p>这个案例我们将要访问的是 <a target="_blank" rel="noopener" href="http://example.com/">http://example.com/</a> 。进入终端一，执行下面的命令，首先查出 example.com 的 IP。然后，执行 tcpdump 命令，过滤得到的 IP 地址，并将结果保存到 web.pcap 中。</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">$ dig +short example.com<br><span class="hljs-number">93.184.216.34</span><br>$ tcpdump -nn host <span class="hljs-number">93</span>.<span class="hljs-number">184</span>.<span class="hljs-number">216</span>.<span class="hljs-number">34</span> -w web.pcap<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>实际上，你可以在 host 表达式中，直接使用域名，即 <strong>tcpdump -nn host example.com -w web.pcap</strong>。</p>
+</blockquote>
+<p>接下来，切换到终端二，执行下面的 curl 命令，访问 <a target="_blank" rel="noopener" href="http://example.com/">http://example.com</a>：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ curl http:<span class="hljs-regexp">//</span>example.com<br><br></code></pre></td></tr></table></figure>
+
+<p>最后，再回到终端一，按下 Ctrl+C 停止 tcpdump，并把得到的 web.pcap 拷贝出来。</p>
+<p>使用 Wireshark 打开 web.pcap 后，你就可以在 Wireshark 中，看到如下的界面：</p>
+<p><img src="https://static001.geekbang.org/resource/image/07/9d/07bcdba5b563ebae36f5b5b453aacd9d.png?wh=2360*398" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>由于 HTTP 基于 TCP ，所以你最先看到的三个包，分别是 TCP 三次握手的包。接下来，中间的才是 HTTP 请求和响应包，而最后的三个包，则是 TCP 连接断开时的“三次挥手”包。</p>
+<p>从菜单栏中，点击 Statistics -&gt; Flow Graph，然后，在弹出的界面中的 Flow type 选择 TCP Flows，你可以更清晰的看到，整个过程中 TCP 流的执行过程：</p>
+<p><img src="https://static001.geekbang.org/resource/image/4e/bb/4ec784752fdbc0cc5ead036a6419cbbb.png?wh=1526*596" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>这其实跟各种教程上讲到的，TCP 三次握手和四次挥手很类似，作为对比， 通常看到的 TCP 三次握手和四次挥手的流程如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/52/e8/5230fb678fcd3ca6b55d4644881811e8.png?wh=875*976" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>(图片来自 <a target="_blank" rel="noopener" href="https://coolshell.cn/articles/11564.html">酷壳</a>)</p>
+<p>不过，对比这两张图，这里抓到的包跟上面的四次挥手，并不完全一样，实际挥手过程只有三个包，而不是四个。</p>
+<p>其实，之所以有三个包，是因为服务器端收到客户端的 FIN 后，服务器端同时也要关闭连接，这样就可以把 ACK 和 FIN 合并到一起发送，节省了一个包，变成了“三次挥手”。</p>
+<p>而通常情况下，服务器端收到客户端的 FIN 后，很可能还没发送完数据，所以就会先回复客户端一个 ACK 包。稍等一会儿，完成所有数据包的发送后，才会发送 FIN 包。这也就是四次挥手了。</p>
+<p>抓包后， Wireshark 中就会显示下面这个界面（原始网络包来自 Wireshark TCP 4-times close 示例，可以点击 <a target="_blank" rel="noopener" href="https://wiki.wireshark.org/TCP%204-times%20close">这里</a> 下载）：</p>
+<p><img src="https://static001.geekbang.org/resource/image/0e/99/0ecb6d11e5e7725107c0291c45aa7e99.png?wh=1898*186" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>当然，Wireshark 的使用方法绝不只有这些，更多的使用方法，同样可以参考 <a target="_blank" rel="noopener" href="https://www.wireshark.org/docs/">官方文档</a> 以及 <a target="_blank" rel="noopener" href="https://wiki.wireshark.org/">WIKI</a>。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章讲解了 tcpdump 和 Wireshark 的使用方法，并通过几个案例，学会了如何运用这两个工具来分析网络的收发过程，并找出潜在的性能问题。</p>
+<p>当针对相同的网络服务，使用 IP 地址快而换成域名却慢很多时，就要想到，有可能是 DNS 在捣鬼。DNS 的解析，不仅包括从域名解析出 IP 地址的 A 记录请求，还包括性能工具帮你，“聪明”地从 IP 地址反查域名的 PTR 请求。</p>
+<p>实际上， <strong>根据 IP 地址反查域名、根据端口号反查协议名称，是很多网络工具默认的行为，而这往往会导致性能工具的工作缓慢</strong>。所以，通常，网络性能工具都会提供一个选项（比如 -n 或者 -nn），来禁止名称解析。</p>
+<p>在工作中，当你碰到网络性能问题时，不要忘记tcpdump 和 Wireshark 这两个大杀器。可以用它们抓取实际传输的网络包，再排查是否有潜在的性能问题。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p><strong>《Wireshark网络分析就是这么简单》</strong></p>
+<p>《**<a target="_blank" rel="noopener" href="https://www.dell.com/community/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E8%AE%A8%E8%AE%BA%E5%8C%BA/%E5%A6%82%E6%9E%9C%E7%9C%8B%E4%BA%86%E8%BF%99%E4%B8%AA%E4%BD%A0%E8%BF%98%E6%98%AF%E4%B8%8D%E4%BC%9A%E7%94%A8Wireshark-%E9%82%A3%E5%B0%B1%E6%9D%A5%E6%89%BE%E6%88%91%E5%90%A7-8%E6%9C%886%E6%97%A5%E5%AE%8C%E7%BB%93/td-p/7007033">Wireshark使用介绍</a>**》</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>6.怎么使用 tcpdump 和 wireshark 分析网络流量？</div>
+      <div>https://blog.longpi1.com/2022/11/09/6-怎么使用tcpdump和Wireshark分析网络流量？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/09/5.DNS%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D%E4%B8%8E%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/" title="5.dns 基本介绍与性能问题排查">
+                        <span class="hidden-mobile">5.dns 基本介绍与性能问题排查</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
