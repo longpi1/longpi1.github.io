@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10.如何优化 NAT 性能？（下）">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/15/10-%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96NAT%E6%80%A7%E8%83%BD%EF%BC%9F%EF%BC%88%E4%B8%8B%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/70/c6/7081ad1b72535107e94f852ac41e0dc6.png?wh=1632*1032">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/0e/3c/0e844a471ff1062a1db70a303add943c.png?wh=587*851">
+<meta property="article:published_time" content="2022-11-15T14:01:02.000Z">
+<meta property="article:modified_time" content="2022-11-15T14:01:36.635Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/70/c6/7081ad1b72535107e94f852ac41e0dc6.png?wh=1632*1032">
+  
+  
+  
+  <title>10.如何优化 NAT 性能？（下） - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="10.如何优化 NAT 性能？（下）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-15 22:01" pubdate>
+          2022年11月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">10.如何优化 NAT 性能？（下）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="10-如何优化-NAT-性能？（下）"><a href="#10-如何优化-NAT-性能？（下）" class="headerlink" title="10.如何优化 NAT 性能？（下）"></a>10.如何优化 NAT 性能？（下）</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">&gt; 本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：https:<span class="hljs-regexp">//</span>time.geekbang.org<span class="hljs-regexp">/column/</span>article/<span class="hljs-number">80898</span><br></code></pre></td></tr></table></figure>
+
+<p>Linux 中的NAT ，基于内核的连接跟踪模块实现。所以，它维护每个连接状态的同时，也对网络性能有一定影响。那么，碰到 NAT 性能问题时，我们又该怎么办呢？</p>
+<p>接下来，通过一个案例，学习 NAT 性能问题的分析思路。</p>
+<h2 id="案例准备"><a href="#案例准备" class="headerlink" title="案例准备"></a>案例准备</h2><p>下面的案例仍然基于 Ubuntu 18.04，同样适用于其他的 Linux 系统。案例环境如下：</p>
+<ul>
+<li><p>机器配置：2 CPU，8GB 内存。</p>
+</li>
+<li><p>预先安装 docker、tcpdump、curl、ab、SystemTap 等工具，比如</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># Ubuntu</span><br><span class="hljs-variable">$</span> apt<span class="hljs-literal">-get</span> install <span class="hljs-literal">-y</span> docker.io tcpdump <span class="hljs-built_in">curl</span> apache2<span class="hljs-literal">-utils</span><br><br><span class="hljs-comment"># CentOS</span><br><span class="hljs-variable">$</span> <span class="hljs-built_in">curl</span> <span class="hljs-literal">-fsSL</span> https://get.docker.com | sh<br><span class="hljs-variable">$</span> yum install <span class="hljs-literal">-y</span> tcpdump <span class="hljs-built_in">curl</span> httpd<span class="hljs-literal">-tools</span><br><br></code></pre></td></tr></table></figure>
+
+<p>这里简单介绍一下 SystemTap 。</p>
+<p><a target="_blank" rel="noopener" href="https://sourceware.org/systemtap/">SystemTap</a> 是 Linux 的一种动态追踪框架，它把用户提供的脚本，转换为内核模块来执行，用来监测和跟踪内核的行为。安装步骤如下：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs vim"># Ubuntu<br>apt-<span class="hljs-built_in">get</span> install -<span class="hljs-keyword">y</span> systemtap-<span class="hljs-keyword">runtime</span> systemtap<br># Configure ddebs <span class="hljs-keyword">source</span><br><span class="hljs-keyword">echo</span> <span class="hljs-comment">&quot;deb http://ddebs.ubuntu.com $(lsb_release -cs) main restricted universe multiverse</span><br><span class="hljs-keyword">deb</span> http://ddebs.ubuntu.<span class="hljs-keyword">com</span> $(lsb_release -<span class="hljs-keyword">cs</span>)-updates main restricted universe multiverse<br><span class="hljs-keyword">deb</span> http://ddebs.ubuntu.<span class="hljs-keyword">com</span> $(lsb_release -<span class="hljs-keyword">cs</span>)-proposed main restricted universe multiverse<span class="hljs-comment">&quot; | \</span><br>sudo tee -<span class="hljs-keyword">a</span> /etc/apt/sources.<span class="hljs-keyword">list</span>.d/ddebs.<span class="hljs-keyword">list</span><br># Install dbgsym<br>apt-key adv --keyserver keyserver.ubuntu.<span class="hljs-keyword">com</span> --recv-<span class="hljs-built_in">keys</span> F2EDC64DC5AEE1F6B9C621F0C8CAB6595FDFF622<br>apt-<span class="hljs-built_in">get</span> <span class="hljs-keyword">update</span><br>apt install ubuntu-dbgsym-keyring<br>stap-prep<br>apt-<span class="hljs-built_in">get</span> install linux-image-`uname -r`-dbgsym<br><br># CentOS<br>yum install systemtap kernel-devel yum-utils kernel<br>stab-prep<br><br></code></pre></td></tr></table></figure>
+
+<p>本次案例基于 Nginx，并且会用 ab 作为它的客户端，进行压力测试。案例中总共用到两台虚拟机，关系图如下。</p>
+<p><img src="https://static001.geekbang.org/resource/image/70/c6/7081ad1b72535107e94f852ac41e0dc6.png?wh=1632*1032" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>接下来，打开两个终端，分别 SSH 登录到两台机器上（以下步骤，假设终端编号与图示VM 编号一致），并安装上面提到的这些工具。注意，curl 和 ab 只需要在客户端 VM（即 VM2）中安装。</p>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><p>为了对比 NAT 带来的性能问题，我们首先运行一个不用 NAT 的 Nginx 服务，并用 ab 测试它的性能。</p>
+<p>在终端一中，执行下面的命令，启动 Nginx，注意选项 –network&#x3D;host ，表示容器使用 Host 网络模式，即不使用 NAT：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ docker <span class="hljs-built_in">run</span> --name nginx-hostnet --privileged <span class="hljs-attribute">--network</span>=host -itd feisky/nginx:80<br><br></code></pre></td></tr></table></figure>
+
+<p>然后到终端二中，执行 curl 命令，确认 Nginx 正常启动：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml">$ curl http://192.168.0.30/<br>...<br><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">em</span>&gt;</span>Thank you for using nginx.<span class="hljs-tag">&lt;/<span class="hljs-name">em</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>继续在终端二中，执行 ab 命令，对 Nginx 进行压力测试。不过在测试前要注意，Linux 默认允许打开的文件描述数比较小，比如在我的机器中，这个值只有 1024：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">open files</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">ulimit</span> -n</span><br>1024<br><br></code></pre></td></tr></table></figure>
+
+<p>所以，执行 ab 前，先要把这个选项调大，比如调成 65536:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">临时增大当前会话的最大文件描述符数</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">ulimit</span> -n 65536</span><br><br></code></pre></td></tr></table></figure>
+
+<p>接下来，再去执行 ab 命令，进行压力测试：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs tap"><span class="hljs-comment"># -c表示并发请求数为5000，-n表示总的请求数为10万</span><br><span class="hljs-comment"># -r表示套接字接收错误时仍然继续执行，-s表示设置每个请求的超时时间为2s</span><br>$ ab -c<span class="hljs-number"> 5000 </span>-n<span class="hljs-number"> 100000 </span>-r -s<span class="hljs-number"> 2 </span>http://192.168.0.30/<br>...<br>Requests per second:    6576.21 [<span class="hljs-comment">#/sec] (mean)</span><br>Time per request:       760.317 [ms] (mean)<br>Time per request:       0.152 [ms] (mean, across all concurrent requests)<br>Transfer rate:          5390.19 [Kbytes/sec] received<br><br>Connection Times (ms)<br>              min  mean[+/-sd] median   max<br>Connect:       <span class="hljs-number"> 0 </span><span class="hljs-number"> 177 </span>714.3     <span class="hljs-number"> 9 </span>   7338<br>Processing:    <span class="hljs-number"> 0 </span> <span class="hljs-number"> 27 </span> 39.8    <span class="hljs-number"> 19 </span>    961<br>Waiting:       <span class="hljs-number"> 0 </span> <span class="hljs-number"> 23 </span> 39.5    <span class="hljs-number"> 16 </span>    951<br>Total:         <span class="hljs-number"> 1 </span><span class="hljs-number"> 204 </span>716.3    <span class="hljs-number"> 28 </span>   7349<br>...<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看出：</p>
+<ul>
+<li><p>每秒请求数（Requests per second）为 6576；</p>
+</li>
+<li><p>每个请求的平均延迟（Time per request）为 760ms；</p>
+</li>
+<li><p>建立连接的平均延迟（Connect）为 177ms。</p>
+</li>
+</ul>
+<p>记住这几个数值，这将是接下来案例的基准指标。</p>
+<p>接着，回到终端一，停止这个未使用NAT的Nginx应用：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> docker <span class="hljs-built_in">rm</span> <span class="hljs-operator">-f</span> nginx<span class="hljs-literal">-hostnet</span><br><br></code></pre></td></tr></table></figure>
+
+<p>再执行下面的命令，启动今天的案例应用。案例应用监听在 8080 端口，并且使用了 DNAT ，来实现 Host 的 8080 端口，到容器的 8080 端口的映射关系：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">$ docker run <span class="hljs-attr">--name</span> nginx <span class="hljs-attr">--privileged</span> -<span class="hljs-selector-tag">p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">8080</span> -itd feisky/nginx:nat<br><br></code></pre></td></tr></table></figure>
+
+<p>Nginx 启动后，执行 iptables 命令，确认 DNAT 规则已经创建：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs vim">$ iptables -nL -t nat<br>Chain PREROUTING (policy ACCEPT)<br>target     prot <span class="hljs-keyword">opt</span> <span class="hljs-keyword">source</span>               destination<br>DOCKER     <span class="hljs-keyword">all</span>  --  <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            ADDRTYPE <span class="hljs-keyword">match</span> dst-<span class="hljs-built_in">type</span> LOCAL<br><br>...<br><br>Chain DOCKER (<span class="hljs-number">2</span> references)<br>target     prot <span class="hljs-keyword">opt</span> <span class="hljs-keyword">source</span>               destination<br>RETURN     <span class="hljs-keyword">all</span>  --  <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span><br>DNAT       tcp  --  <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            <span class="hljs-number">0.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">0</span>            tcp <span class="hljs-keyword">dp</span><span class="hljs-variable">t:8080</span> <span class="hljs-keyword">to</span>:<span class="hljs-number">172.17</span>.<span class="hljs-number">0.2</span>:<span class="hljs-number">8080</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，在 PREROUTING 链中，目的为本地的请求，会转到 DOCKER 链；而在 DOCKER 链中，目的端口为 8080 的 tcp 请求，会被 DNAT 到 172.17.0.2 的 8080 端口。其中，172.17.0.2 就是 Nginx 容器的 IP 地址。</p>
+<p>接下来，切换到终端二中，执行 curl 命令，确认 Nginx 已经正常启动：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml">$ curl http://192.168.0.30:8080/<br>...<br><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">em</span>&gt;</span>Thank you for using nginx.<span class="hljs-tag">&lt;/<span class="hljs-name">em</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>然后，再次执行上述的 ab 命令，不过这次注意，要把请求的端口号换成 8080：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs tap"><span class="hljs-comment"># -c表示并发请求数为5000，-n表示总的请求数为10万</span><br><span class="hljs-comment"># -r表示套接字接收错误时仍然继续执行，-s表示设置每个请求的超时时间为2s</span><br>$ ab -c<span class="hljs-number"> 5000 </span>-n<span class="hljs-number"> 100000 </span>-r -s<span class="hljs-number"> 2 </span>http://192.168.0.30:8080/<br>...<br>apr_pollset_poll: The timeout specified has expired (70007)<br>Total of<span class="hljs-number"> 5602 </span>requests completed<br><br></code></pre></td></tr></table></figure>
+
+<p>果然，刚才正常运行的 ab ，现在失败了，还报了连接超时的错误。运行 ab 时的-s 参数，设置了每个请求的超时时间为 2s，而从输出可以看到，这次只完成了 5602 个请求。</p>
+<p>既然是为了得到 ab 的测试结果，把超时时间延长，延长到 30s。延迟增大意味着要等更长时间，为了快点得到结果，我们可以同时把总测试次数，也减少到 10000:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">$</span> <span class="hljs-string">ab</span> <span class="hljs-string">-c</span> <span class="hljs-number">5000</span> <span class="hljs-string">-n</span> <span class="hljs-number">10000</span> <span class="hljs-string">-r</span> <span class="hljs-string">-s</span> <span class="hljs-number">30</span> <span class="hljs-string">http://192.168.0.30:8080/</span><br><span class="hljs-string">...</span><br><span class="hljs-attr">Requests per second:</span>    <span class="hljs-number">76.47</span> [<span class="hljs-comment">#/sec] (mean)</span><br><span class="hljs-attr">Time per request:</span>       <span class="hljs-number">65380.868</span> [<span class="hljs-string">ms</span>] <span class="hljs-string">(mean)</span><br><span class="hljs-attr">Time per request:</span>       <span class="hljs-number">13.076</span> [<span class="hljs-string">ms</span>] <span class="hljs-string">(mean</span>, <span class="hljs-string">across</span> <span class="hljs-string">all</span> <span class="hljs-string">concurrent</span> <span class="hljs-string">requests)</span><br><span class="hljs-attr">Transfer rate:</span>          <span class="hljs-number">44.79</span> [<span class="hljs-string">Kbytes/sec</span>] <span class="hljs-string">received</span><br><br><span class="hljs-string">Connection</span> <span class="hljs-string">Times</span> <span class="hljs-string">(ms)</span><br>              <span class="hljs-string">min</span>  <span class="hljs-string">mean</span>[<span class="hljs-string">+/-sd</span>] <span class="hljs-string">median</span>   <span class="hljs-string">max</span><br><span class="hljs-attr">Connect:</span>        <span class="hljs-number">0</span> <span class="hljs-number">1300 </span><span class="hljs-number">5578.0      </span><span class="hljs-number">1</span>   <span class="hljs-number">65184</span><br><span class="hljs-attr">Processing:</span>     <span class="hljs-number">0</span> <span class="hljs-number">37916</span> <span class="hljs-number">59283.2</span>      <span class="hljs-number">1</span>  <span class="hljs-number">130682</span><br><span class="hljs-attr">Waiting:</span>        <span class="hljs-number">0</span>    <span class="hljs-number">2</span>   <span class="hljs-number">8.7</span>      <span class="hljs-number">1</span>     <span class="hljs-number">414</span><br><span class="hljs-attr">Total:</span>          <span class="hljs-number">1</span> <span class="hljs-number">39216</span> <span class="hljs-number">58711.6</span>   <span class="hljs-number">1021  </span><span class="hljs-number">130682</span><br><span class="hljs-string">...</span><br><br></code></pre></td></tr></table></figure>
+
+<p>再重新看看 ab 的输出，这次的结果显示：</p>
+<ul>
+<li><p>每秒请求数（Requests per second）为 76；</p>
+</li>
+<li><p>每个请求的延迟（Time per request）为 65s；</p>
+</li>
+<li><p>建立连接的延迟（Connect）为 1300ms。</p>
+</li>
+</ul>
+<p>显然，每个指标都比前面差了很多。</p>
+<p>回忆一下Netfilter 中，网络包的流向以及 NAT 的原理，会发现，要保证 NAT 正常工作，就至少需要两个步骤：</p>
+<ul>
+<li><p>第一，利用 Netfilter 中的钩子函数（Hook），修改源地址或者目的地址。</p>
+</li>
+<li><p>第二，利用连接跟踪模块 conntrack ，关联同一个连接的请求和响应。</p>
+</li>
+</ul>
+<p>是不是这两个地方出现了问题呢？我们用前面提到的动态追踪工具 SystemTap 来试试。</p>
+<p>由于今天案例是在压测场景下，并发请求数大大降低，并且我们清楚知道 NAT 是罪魁祸首。所以，我们有理由怀疑，内核中发生了丢包现象。</p>
+<p>我们可以回到终端一中，创建一个 dropwatch.stp 的脚本文件，并写入下面的内容：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs clean">#! /usr/bin/env stap<br><br>############################################################<br># Dropwatch.stp<br># Author: Neil Horman &lt;nhorman@redhat.com&gt;<br># An example script to mimic the behavior <span class="hljs-keyword">of</span> the dropwatch utility<br># http:<span class="hljs-comment">//fedorahosted.org/dropwatch</span><br>############################################################<br><br># Array to hold the list <span class="hljs-keyword">of</span> drop points we find<br>global locations<br><br># Note when we turn the monitor on and off<br>probe begin &#123; printf(<span class="hljs-string">&quot;Monitoring for dropped packets\n&quot;</span>) &#125;<br>probe end &#123; printf(<span class="hljs-string">&quot;Stopping dropped packet monitor\n&quot;</span>) &#125;<br><br># increment a drop counter for every location we drop at<br>probe kernel.trace(<span class="hljs-string">&quot;kfree_skb&quot;</span>) &#123; locations[$location] &lt;&lt;&lt; <span class="hljs-number">1</span> &#125;<br><br># Every <span class="hljs-number">5</span> seconds report our drop locations<br>probe timer.sec(<span class="hljs-number">5</span>)<br>&#123;<br>  printf(<span class="hljs-string">&quot;\n&quot;</span>)<br>  foreach (l <span class="hljs-keyword">in</span> locations-) &#123;<br>    printf(<span class="hljs-string">&quot;%d packets dropped at %s\n&quot;</span>,<br>           @count(locations[l]), symname(l))<br>  &#125;<br>  delete locations<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>这个脚本，跟踪内核函数 kfree_skb() 的调用，并统计丢包的位置。文件保存好后，执行下面的 stap 命令，就可以运行丢包跟踪脚本。这里的stap，是 SystemTap 的命令行工具：</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-symbol">$</span> stap --<span class="hljs-keyword">all</span>-modules dropwatch.stp<br>Monitoring <span class="hljs-keyword">for</span> dropped packets<br><br></code></pre></td></tr></table></figure>
+
+<p>当你看到 probe begin 输出的 “Monitoring for dropped packets” 时，表明 SystemTap 已经将脚本编译为内核模块，并启动运行了。</p>
+<p>接着，我们切换到终端二中，再次执行 ab 命令：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs tap">$ ab -c<span class="hljs-number"> 5000 </span>-n<span class="hljs-number"> 10000 </span>-r -s<span class="hljs-number"> 30 </span>http://192.168.0.30:8080/<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，再次回到终端一中，观察 stap 命令的输出：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">10031 </span>packets dropped at nf_hook_slow<br><span class="hljs-symbol">676 </span>packets dropped at tcp_v4_rcv<br><br><span class="hljs-symbol">7284 </span>packets dropped at nf_hook_slow<br><span class="hljs-symbol">268 </span>packets dropped at tcp_v4_rcv<br><br></code></pre></td></tr></table></figure>
+
+<p>会发现，大量丢包都发生在 nf_hook_slow 位置。这是在 Netfilter Hook 的钩子函数中，出现丢包问题了。但是不是 NAT，还不能确定。接下来，我们还得再跟踪 nf_hook_slow 的执行过程，这一步可以通过 perf 来完成。</p>
+<p>我们切换到终端二中，再次执行 ab 命令：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs tap">$ ab -c<span class="hljs-number"> 5000 </span>-n<span class="hljs-number"> 10000 </span>-r -s<span class="hljs-number"> 30 </span>http://192.168.0.30:8080/<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，再次切换回终端一，执行 perf record 和 perf report 命令</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># 记录一会（比如30s）后按Ctrl+C结束</span><br><span class="hljs-variable">$</span> perf record <span class="hljs-literal">-a</span> <span class="hljs-literal">-g</span> <span class="hljs-literal">--</span> <span class="hljs-built_in">sleep</span> <span class="hljs-number">30</span><br><br><span class="hljs-comment"># 输出报告</span><br><span class="hljs-variable">$</span> perf report <span class="hljs-literal">-g</span> graph,<span class="hljs-number">0</span><br><br></code></pre></td></tr></table></figure>
+
+<p>在 perf report 界面中，输入查找命令 &#x2F; 然后，在弹出的对话框中，输入 nf_hook_slow；最后再展开调用栈，就可以得到下面这个调用图：</p>
+<p><img src="https://static001.geekbang.org/resource/image/0e/3c/0e844a471ff1062a1db70a303add943c.png?wh=587*851" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从这个图我们可以看到，nf_hook_slow 调用最多的有三个地方，分别是 ipv4_conntrack_in、br_nf_pre_routing 以及 iptable_nat_ipv4_in。换言之，nf_hook_slow 主要在执行三个动作。</p>
+<ul>
+<li><p>第一，接收网络包时，在连接跟踪表中查找连接，并为新的连接分配跟踪对象（Bucket）。</p>
+</li>
+<li><p>第二，在 Linux 网桥中转发包。这是因为案例 Nginx 是一个 Docker 容器，而容器的网络通过网桥来实现；</p>
+</li>
+<li><p>第三，接收网络包时，执行 DNAT，即把 8080 端口收到的包转发给容器。</p>
+</li>
+</ul>
+<p>到这里，我们其实就找到了性能下降的三个来源。这三个来源，都是 Linux 的内核机制，所以接下来的优化，自然也是要从内核入手。</p>
+<p>Linux 内核为用户提供了大量的可配置选项，这些选项可以通过 proc 文件系统，或者 sys 文件系统，来查看和修改。除此之外，还可以用 sysctl 这个命令行工具，来查看和修改内核配置。</p>
+<p>比如，我们今天的主题是 DNAT，而 DNAT 的基础是 conntrack，所以我们可以先看看，内核提供了哪些 conntrack 的配置选项。</p>
+<p>我们在终端一中，继续执行下面的命令：</p>
+<figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs dos">$ sysctl -a | grep conntrack<br><span class="hljs-built_in">net</span>.netfilter.nf_conntrack_count = <span class="hljs-number">180</span><br><span class="hljs-built_in">net</span>.netfilter.nf_conntrack_max = <span class="hljs-number">1000</span><br><span class="hljs-built_in">net</span>.netfilter.nf_conntrack_buckets = <span class="hljs-number">65536</span><br><span class="hljs-built_in">net</span>.netfilter.nf_conntrack_tcp_timeout_syn_recv = <span class="hljs-number">60</span><br><span class="hljs-built_in">net</span>.netfilter.nf_conntrack_tcp_timeout_syn_sent = <span class="hljs-number">120</span><br><span class="hljs-built_in">net</span>.netfilter.nf_conntrack_tcp_timeout_time_wait = <span class="hljs-number">120</span><br>...<br><br></code></pre></td></tr></table></figure>
+
+<p>这里最重要的三个指标：</p>
+<ul>
+<li><p>net.netfilter.nf_conntrack_count，表示当前连接跟踪数；</p>
+</li>
+<li><p>net.netfilter.nf_conntrack_max，表示最大连接跟踪数；</p>
+</li>
+<li><p>net.netfilter.nf_conntrack_buckets，表示连接跟踪表的大小。</p>
+</li>
+</ul>
+<p>所以，这个输出告诉我们，当前连接跟踪数是 180，最大连接跟踪数是 1000，连接跟踪表的大小，则是 65536。</p>
+<p>回想一下前面的 ab 命令，并发请求数是 5000，而请求数是 100000。显然，跟踪表设置成，只记录 1000 个连接，是远远不够的。</p>
+<p>实际上，内核在工作异常时，会把异常信息记录到日志中。比如前面的 ab 测试，内核已经在日志中报出了 “nf_conntrack: table full” 的错误。执行 dmesg 命令，可以看到：</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-symbol">$</span> dmesg | tail<br>[<span class="hljs-number">104235.156774</span>] nf_conntrack: nf_conntrack: <span class="hljs-keyword">table</span> full, dropping <span class="hljs-comment">packet</span><br>[<span class="hljs-number">104243.800401</span>] net_ratelimit: <span class="hljs-number">3939</span> callbacks suppressed<br>[<span class="hljs-number">104243.800401</span>] nf_conntrack: nf_conntrack: <span class="hljs-keyword">table</span> full, dropping <span class="hljs-comment">packet</span><br>[<span class="hljs-number">104262.962157</span>] nf_conntrack: nf_conntrack: <span class="hljs-keyword">table</span> full, dropping <span class="hljs-comment">packet</span><br><br></code></pre></td></tr></table></figure>
+
+<p>其中，net_ratelimit 表示有大量的日志被压缩掉了，这是内核预防日志攻击的一种措施。而当你看到 “nf_conntrack: table full” 的错误时，就表明 nf_conntrack_max 太小了。</p>
+<p>那是不是，直接把连接跟踪表调大就可以了呢？调节前，得先明白，连接跟踪表，实际上是内存中的一个哈希表。如果连接跟踪数过大，也会耗费大量内存。</p>
+<p>其实，我们上面看到的 nf_conntrack_buckets，就是哈希表的大小。哈希表中的每一项，都是一个链表（称为 Bucket），而链表长度，就等于 nf_conntrack_max 除以 nf_conntrack_buckets。</p>
+<p>比如，我们可以估算一下，上述配置的连接跟踪表占用的内存大小：</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs excel"># 连接跟踪对象大小为<span class="hljs-number">376</span>，链表项大小为<span class="hljs-number">16</span><br>nf_conntrack_max*连接跟踪对象大小+nf_conntrack_buckets*链表项大小<br>= <span class="hljs-number">1000</span>*<span class="hljs-number">376</span>+<span class="hljs-number">65536</span>*<span class="hljs-number">16</span> B<br>= <span class="hljs-number">1.4</span> MB<br><br></code></pre></td></tr></table></figure>
+
+<p>接下来，我们将 nf_conntrack_max 改大一些，比如改成 131072（即nf_conntrack_buckets的2倍）：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ sysctl -w net.netfilter.<span class="hljs-attribute">nf_conntrack_max</span>=131072<br>$ sysctl -w net.netfilter.<span class="hljs-attribute">nf_conntrack_buckets</span>=65536<br><br></code></pre></td></tr></table></figure>
+
+<p>然后再切换到终端二中，重新执行 ab 命令。注意，这次我们把超时时间也改回原来的 2s：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs tap">$ ab -c<span class="hljs-number"> 5000 </span>-n<span class="hljs-number"> 100000 </span>-r -s<span class="hljs-number"> 2 </span>http://192.168.0.30:8080/<br>...<br>Requests per second:    6315.99 [<span class="hljs-comment">#/sec] (mean)</span><br>Time per request:       791.641 [ms] (mean)<br>Time per request:       0.158 [ms] (mean, across all concurrent requests)<br>Transfer rate:          4985.15 [Kbytes/sec] received<br><br>Connection Times (ms)<br>              min  mean[+/-sd] median   max<br>Connect:       <span class="hljs-number"> 0 </span><span class="hljs-number"> 355 </span>793.7    <span class="hljs-number"> 29 </span>   7352<br>Processing:    <span class="hljs-number"> 8 </span><span class="hljs-number"> 311 </span>855.9    <span class="hljs-number"> 51 </span>  14481<br>Waiting:       <span class="hljs-number"> 0 </span><span class="hljs-number"> 292 </span>851.5    <span class="hljs-number"> 36 </span>  14481<br>Total:        <span class="hljs-number"> 15 </span><span class="hljs-number"> 666 </span>1216.3   <span class="hljs-number"> 148 </span>  14645<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<ul>
+<li><p>每秒请求数（Requests per second）为 6315（不用NAT时为6576）；</p>
+</li>
+<li><p>每个请求的延迟（Time per request）为 791ms（不用NAT时为760ms）；</p>
+</li>
+<li><p>建立连接的延迟（Connect）为 355ms（不用NAT时为177ms）。</p>
+</li>
+</ul>
+<p>这个结果，已经比刚才的测试好了很多，也很接近最初不用 NAT 时的基准结果了。</p>
+<p>不过，你可能还是很好奇，连接跟踪表里，到底都包含了哪些东西？这里的东西，又是怎么刷新的呢？</p>
+<p>实际上，你可以用 conntrack 命令行工具，来查看连接跟踪表的内容。比如：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment"># -L表示列表，-o表示以扩展格式显示</span><br>$ conntrack -L -o extended | head<br>ipv4     2 tcp      6 7 TIME_WAIT <span class="hljs-attribute">src</span>=192.168.0.2 <span class="hljs-attribute">dst</span>=192.168.0.96 <span class="hljs-attribute">sport</span>=51744 <span class="hljs-attribute">dport</span>=8080 <span class="hljs-attribute">src</span>=172.17.0.2 <span class="hljs-attribute">dst</span>=192.168.0.2 <span class="hljs-attribute">sport</span>=8080 <span class="hljs-attribute">dport</span>=51744 [ASSURED] <span class="hljs-attribute">mark</span>=0 <span class="hljs-attribute">use</span>=1<br>ipv4     2 tcp      6 6 TIME_WAIT <span class="hljs-attribute">src</span>=192.168.0.2 <span class="hljs-attribute">dst</span>=192.168.0.96 <span class="hljs-attribute">sport</span>=51524 <span class="hljs-attribute">dport</span>=8080 <span class="hljs-attribute">src</span>=172.17.0.2 <span class="hljs-attribute">dst</span>=192.168.0.2 <span class="hljs-attribute">sport</span>=8080 <span class="hljs-attribute">dport</span>=51524 [ASSURED] <span class="hljs-attribute">mark</span>=0 <span class="hljs-attribute">use</span>=1<br><br></code></pre></td></tr></table></figure>
+
+<p>从这里你可以发现，连接跟踪表里的对象，包括了协议、连接状态、源IP、源端口、目的IP、目的端口、跟踪状态等。由于这个格式是固定的，所以我们可以用 awk、sort 等工具，对其进行统计分析。</p>
+<p>比如，我们还是以 ab 为例。在终端二启动 ab 命令后，再回到终端一中，执行下面的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">统计总的连接跟踪数</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">conntrack -L -o extended | <span class="hljs-built_in">wc</span> -l</span><br>14289<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">统计TCP协议各个状态的连接跟踪数</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">conntrack -L -o extended | awk <span class="hljs-string">&#x27;/^.*tcp.*$/ &#123;sum[$6]++&#125; END &#123;for(i in sum) print i, sum[i]&#125;&#x27;</span></span><br>SYN_RECV 4<br>CLOSE_WAIT 9<br>ESTABLISHED 2877<br>FIN_WAIT 3<br>SYN_SENT 2113<br>TIME_WAIT 9283<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">统计各个源IP的连接跟踪数</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">conntrack -L -o extended | awk <span class="hljs-string">&#x27;&#123;print $7&#125;&#x27;</span> | <span class="hljs-built_in">cut</span> -d <span class="hljs-string">&quot;=&quot;</span> -f 2 | <span class="hljs-built_in">sort</span> | <span class="hljs-built_in">uniq</span> -c | <span class="hljs-built_in">sort</span> -nr | <span class="hljs-built_in">head</span> -n 10</span><br>  14116 192.168.0.2<br>    172 192.168.0.96<br><br></code></pre></td></tr></table></figure>
+
+<p>这里统计了总连接跟踪数，TCP协议各个状态的连接跟踪数，以及各个源IP的连接跟踪数。你可以看到，大部分 TCP 的连接跟踪，都处于 TIME_WAIT 状态，并且它们大都来自于 192.168.0.2 这个 IP 地址（也就是运行 ab 命令的 VM2）。</p>
+<p>这些处于 TIME_WAIT 的连接跟踪记录，会在超时后清理，而默认的超时时间是 120s，你可以执行下面的命令来查看：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">$ sysctl net<span class="hljs-selector-class">.netfilter</span><span class="hljs-selector-class">.nf_conntrack_tcp_timeout_time_wait</span><br>net<span class="hljs-selector-class">.netfilter</span><span class="hljs-selector-class">.nf_conntrack_tcp_timeout_time_wait</span> = <span class="hljs-number">120</span><br><br></code></pre></td></tr></table></figure>
+
+<p>所以，如果你的连接数非常大，确实也应该考虑，适当减小超时时间。</p>
+<p>除了上面这些常见配置，conntrack 还包含了其他很多配置选项，可以参考 nf_conntrack 的 <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/networking/nf_conntrack-sysctl.txt">文档</a> 来配置。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>由于 NAT 基于 Linux 内核的连接跟踪机制来实现。所以，在分析 NAT 性能问题时，我们可以先从 conntrack 角度来分析，比如用 systemtap、perf 等，分析内核中 conntrack 的行文；然后，通过调整 netfilter 内核选项的参数，来进行优化。</p>
+<p>其实，Linux 这种通过连接跟踪机制实现的 NAT，也常被称为有状态的 NAT，而维护状态，也带来了很高的性能成本。</p>
+<p>所以，除了调整内核行为外，在不需要状态跟踪的场景下（比如只需要按预定的IP和端口进行映射，而不需要动态映射），我们也可以使用无状态的 NAT （比如用 tc 或基于 DPDK 开发），来进一步提升性能。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>10.如何优化 NAT 性能？（下）</div>
+      <div>https://blog.longpi1.com/2022/11/15/10-如何优化NAT性能？（下）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/11/15/11-%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%EF%BC%88%E4%B8%8A%EF%BC%89/" title="11.网络性能优化的几个思路（上）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">11.网络性能优化的几个思路（上）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/14/9-%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96NAT%E6%80%A7%E8%83%BD%EF%BC%9F%EF%BC%88%E4%B8%8A%EF%BC%89/" title="9.如何优化 NAT 性能？（上）">
+                        <span class="hidden-mobile">9.如何优化 NAT 性能？（上）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
