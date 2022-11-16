@@ -18,29 +18,33 @@
   
     <meta name="description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="11.网络性能优化的几个思路（上）">
-<meta property="og:url" content="https://blog.longpi1.com/2022/11/15/11-%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%EF%BC%88%E4%B8%8A%EF%BC%89/index.html">
+<meta property="og:title" content="Linux指标查看工具">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/16/Linux%E6%8C%87%E6%A0%87%E6%9F%A5%E7%9C%8B%E5%B7%A5%E5%85%B7/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/c7/ac/c7b5b16539f90caabb537362ee7c27ac.png?wh=1092*1316">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/a1/3b/a1eb07e281e5795be83c11d7255c543b.png?wh=1714*1944">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/0d/a0/0d87b39b89a1b7f325fc5477c0182ea0.png?wh=1714*2280">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/a1/3f/a118911721f9b67ce9c83de15666753f.png?wh=1826*1242">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/5f/f0/5f2d4957663dd8bf3410da8180ab18f0.png?wh=1696*959">
-<meta property="article:published_time" content="2022-11-15T14:25:59.000Z">
-<meta property="article:modified_time" content="2022-11-15T14:26:24.539Z">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/b0/01/b07ca95ef8a3d2c89b0996a042d33901.png?wh=3000*2100">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/9a/69/9a211905538faffb5b3221ee01776a69.png?wh=1241*1212">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/28/b0/28cb85011289f83804c51c1fb275dab0.png?wh=1707*2563">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/ee/c0/ee36f73b9213063b3bcdaed2245944c0.png?wh=1581*1760">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/79/f8/79ad5caf0a2c105b7e9ce77877d493f8.png?wh=1653*2198">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/72/3b/723431a944034b51a9ef13a8a1d4d03b.png?wh=2631*808">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/c2/a3/c232dcb4185f7b7ba95c126889cf6fa3.png?wh=1714*2424">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/37/a4/37d04c213acfa650bd7467e3000356a4.png?wh=1983*1104">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/5d/5d/5dde213baffd7811ab73c82883b2a75d.png?wh=1709*2462">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/f0/e9/f094f489049602e1058e02edc708e6e9.png?wh=1500*1050">
+<meta property="article:published_time" content="2022-11-16T12:10:13.000Z">
+<meta property="article:modified_time" content="2022-11-16T12:10:50.857Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="linux">
-<meta property="article:tag" content="网络">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/c7/ac/c7b5b16539f90caabb537362ee7c27ac.png?wh=1092*1316">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/b0/01/b07ca95ef8a3d2c89b0996a042d33901.png?wh=3000*2100">
   
   
   
-  <title>11.网络性能优化的几个思路（上） - lp&#39;s blog</title>
+  <title>Linux指标查看工具 - lp&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -222,7 +226,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="11.网络性能优化的几个思路（上）"></span>
+            <span id="subtitle" data-typed-text="Linux指标查看工具"></span>
           
         </div>
 
@@ -233,8 +237,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-11-15 22:25" pubdate>
-          2022年11月15日 晚上
+        <time datetime="2022-11-16 20:10" pubdate>
+          2022年11月16日 晚上
         </time>
       </span>
     
@@ -245,7 +249,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          1.5k 字
         
       </span>
     
@@ -293,100 +297,65 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">11.网络性能优化的几个思路（上）</h1>
+            <h1 style="display: none">Linux指标查看工具</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="11-网络性能优化的几个思路（上）"><a href="#11-网络性能优化的几个思路（上）" class="headerlink" title="11.网络性能优化的几个思路（上）"></a>11.网络性能优化的几个思路（上）</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">&gt; 本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：https:<span class="hljs-regexp">//</span>time.geekbang.org<span class="hljs-regexp">/column/</span>article/<span class="hljs-number">80898</span><br></code></pre></td></tr></table></figure>
-
-<p>应用层的各种 I&#x2F;O 模型，冗长的网络协议栈和众多的内核选项，抑或是各种复杂的网络环境，都提高了网络的复杂性。</p>
-<p>不过，只要掌握了 Linux 网络的基本原理和常见网络协议的工作流程，再结合各个网络层的性能指标来分析，你会发现，定位网络瓶颈并不难。</p>
-<p>找到网络性能瓶颈后，下一步要做的就是优化了，也就是如何降低网络延迟，并提高网络的吞吐量。接下面我们通过两篇文章分析优化网络性能问题的思路和一些注意事项。</p>
-<h2 id="确定优化目标"><a href="#确定优化目标" class="headerlink" title="确定优化目标"></a>确定优化目标</h2><p>我们观察到的网络性能指标，要达到多少才合适呢？</p>
-<p>实际上，虽然网络性能优化的整体目标，是降低网络延迟（如 RTT）和提高吞吐量（如 BPS 和 PPS），但具体到不同应用中，每个指标的优化标准可能会不同，优先级顺序也大相径庭。</p>
-<p>就拿上一节提到的 NAT 网关来说，由于其直接影响整个数据中心的网络出入性能，所以 NAT 网关通常需要达到或接近线性转发，也就是说， PPS 是最主要的性能目标。</p>
-<p>再如，对于数据库、缓存等系统，快速完成网络收发，即低延迟，是主要的性能目标。</p>
-<p>而对于我们经常访问的 Web 服务来说，则需要同时兼顾<strong>吞吐量和延迟</strong>。</p>
-<p>所以，为了更客观合理地评估优化效果，我们首先应该明确优化的标准，即要对系统和应用程序进行基准测试，得到网络协议栈各层的基准性能。</p>
-<p><img src="https://static001.geekbang.org/resource/image/c7/ac/c7b5b16539f90caabb537362ee7c27ac.png?wh=1092*1316" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>基于上图，在进行基准测试时，我们就可以按照协议栈的每一层来测试。由于底层是其上方各层的基础，底层性能也就决定了高层性能。所以我们要清楚，底层性能指标，其实就是对应高层的极限性能。我们从下到上来理解这一点。</p>
-<p>首先是网络接口层和网络层，它们主要负责网络包的封装、寻址、路由，以及发送和接收。每秒可处理的网络包数 PPS，就是它们最重要的性能指标（特别是在小包的情况下）。可以用内核自带的发包工具 pktgen ，来测试 PPS 的性能。</p>
-<p>再向上到传输层的 TCP 和 UDP，它们主要负责网络传输。对它们而言，吞吐量（BPS）、连接数以及延迟，就是最重要的性能指标。我们可以用 iperf 或 netperf ，来测试传输层的性能。</p>
-<p>不过要注意，网络包的大小，会直接影响这些指标的值。所以，通常，需要测试一系列不同大小网络包的性能。</p>
-<p>最后，再往上到了应用层，最需要关注的是吞吐量（BPS）、每秒请求数以及延迟等指标。可以用 wrk、ab 等工具，来测试应用程序的性能。</p>
-<p>不过，这里要注意的是，测试场景要尽量模拟生产环境，这样的测试才更有价值。比如，可以到生产环境中，录制实际的请求情况，再到测试中回放。</p>
-<p>总之，根据这些基准指标，再结合已经观察到的性能瓶颈，我们就可以明确性能优化的目标。</p>
-<h2 id="网络性能工具"><a href="#网络性能工具" class="headerlink" title="网络性能工具"></a>网络性能工具</h2><p><img src="https://static001.geekbang.org/resource/image/a1/3b/a1eb07e281e5795be83c11d7255c543b.png?wh=1714*1944" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p><img src="https://static001.geekbang.org/resource/image/0d/a0/0d87b39b89a1b7f325fc5477c0182ea0.png?wh=1714*2280" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h2 id="网络性能优化"><a href="#网络性能优化" class="headerlink" title="网络性能优化"></a>网络性能优化</h2><p>总的来说，先要获得网络基准测试报告，然后通过相关性能工具，定位出网络性能瓶颈。再接下来的优化工作，就是水到渠成的事情了。</p>
-<p>Linux 系统的网络协议栈和网络收发流程如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/a1/3f/a118911721f9b67ce9c83de15666753f.png?wh=1826*1242" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>接下来，我们就可以从应用程序、套接字、传输层、网络层以及链路层等几个角度，分别来看网络性能优化的基本思路。</p>
-<h3 id="应用程序"><a href="#应用程序" class="headerlink" title="应用程序"></a>应用程序</h3><p>应用程序，通常通过套接字接口进行网络操作。由于网络收发通常比较耗时，所以应用程序的优化，主要就是对网络 I&#x2F;O 和进程自身的工作模型的优化。</p>
-<p>从网络 I&#x2F;O 的角度来说，主要有下面两种优化思路。</p>
-<p>第一种是最常用的 I&#x2F;O 多路复用技术 epoll，主要用来取代 select 和 poll。这其实是解决 C10K 问题的关键，也是目前很多网络应用默认使用的机制。</p>
-<p>第二种是使用异步 I&#x2F;O（Asynchronous I&#x2F;O，AIO）。AIO 允许应用程序同时发起很多 I&#x2F;O 操作，而不用等待这些操作完成。等到 I&#x2F;O完成后，系统会用事件通知的方式，告诉应用程序结果。不过，AIO 的使用比较复杂，你需要小心处理很多边缘情况。</p>
-<p>而从进程的工作模型来说，也有两种不同的模型用来优化。</p>
-<p>第一种，主进程+多个 worker 子进程。其中，主进程负责管理网络连接，而子进程负责实际的业务处理。这也是最常用的一种模型。</p>
-<p>第二种，监听到相同端口的多进程模型。在这种模型下，所有进程都会监听相同接口，并且开启 SO_REUSEPORT 选项，由内核负责，把请求负载均衡到这些监听进程中去。</p>
-<p>除了网络 I&#x2F;O 和进程的工作模型外，应用层的网络协议优化，也是至关重要的一点。</p>
-<p>常见的几种优化方法如下：</p>
+                <h1 id="Linux指标查看工具"><a href="#Linux指标查看工具" class="headerlink" title="Linux指标查看工具"></a>Linux指标查看工具</h1><blockquote>
+<p>本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/80898">https://time.geekbang.org/column/article/80898</a></p>
+</blockquote>
+<h2 id="性能工具速查"><a href="#性能工具速查" class="headerlink" title="性能工具速查"></a>性能工具速查</h2><p><strong>在选择性能工具时，除了要考虑性能指标这个目的外，还要结合待分析的环境来综合考虑</strong>。比如，实际环境是否允许安装软件包，是否需要新的内核版本等。</p>
+<p>性能工具谱图如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/b0/01/b07ca95ef8a3d2c89b0996a042d33901.png?wh=3000*2100" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>（图片来自 <a target="_blank" rel="noopener" href="http://www.brendangregg.com/linuxperf.html">brendangregg.com</a>）</p>
+<p>这张图从 Linux 内核的各个子系统出发，汇总了对各个子系统进行性能分析时，你可以选择的工具。</p>
+<p><strong>从性能指标出发，根据性能指标的不同，将性能工具划分为不同类型</strong>。比如，最常见的就是可以根据 CPU、内存、磁盘 I&#x2F;O 以及网络的各类性能指标，将这些工具进行分类。</p>
+<h2 id="CPU性能工具"><a href="#CPU性能工具" class="headerlink" title="CPU性能工具"></a>CPU性能工具</h2><p>首先，从 CPU 的角度来说，主要的性能指标就是 CPU 的使用率、上下文切换以及 CPU Cache 的命中率等。下面这张图就列出了常见的 CPU 性能指标。</p>
+<p><img src="https://static001.geekbang.org/resource/image/9a/69/9a211905538faffb5b3221ee01776a69.png?wh=1241*1212" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从这些指标出发，再把 CPU 使用率，划分为系统和进程两个维度，工具表如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/28/b0/28cb85011289f83804c51c1fb275dab0.png?wh=1707*2563" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="内存性能工具"><a href="#内存性能工具" class="headerlink" title="内存性能工具"></a>内存性能工具</h2><p>接着我们来看内存方面。从内存的角度来说，主要的性能指标，就是系统内存的分配和使用、进程内存的分配和使用以及 SWAP 的用量。下面这张图列出了常见的内存性能指标。</p>
+<p><img src="https://static001.geekbang.org/resource/image/ee/c0/ee36f73b9213063b3bcdaed2245944c0.png?wh=1581*1760" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>内存性能工具速查表如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/79/f8/79ad5caf0a2c105b7e9ce77877d493f8.png?wh=1653*2198" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>注：最后一行pcstat的源码链接为 <a target="_blank" rel="noopener" href="https://github.com/tobert/pcstat">https://github.com/tobert/pcstat</a></p>
+<h2 id="磁盘I-x2F-O性能工具"><a href="#磁盘I-x2F-O性能工具" class="headerlink" title="磁盘I&#x2F;O性能工具"></a>磁盘I&#x2F;O性能工具</h2><p>接下来，从文件系统和磁盘 I&#x2F;O 的角度来说，主要性能指标，就是文件系统的使用、缓存和缓冲区的使用，以及磁盘 I&#x2F;O 的使用率、吞吐量和延迟等。下面这张图列出了常见的 I&#x2F;O 性能指标。</p>
+<p><img src="https://static001.geekbang.org/resource/image/72/3b/723431a944034b51a9ef13a8a1d4d03b.png?wh=2631*808" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>文件系统和磁盘 I&#x2F;O 性能工具速查表如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/c2/a3/c232dcb4185f7b7ba95c126889cf6fa3.png?wh=1714*2424" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="网络性能工具"><a href="#网络性能工具" class="headerlink" title="网络性能工具"></a>网络性能工具</h2><p>最后，从网络的角度来说，主要性能指标就是吞吐量、响应时间、连接数、丢包数等。根据 TCP&#x2F;IP 网络协议栈的原理，我们可以把这些性能指标，进一步细化为每层协议的具体指标。</p>
+<p><img src="https://static001.geekbang.org/resource/image/37/a4/37d04c213acfa650bd7467e3000356a4.png?wh=1983*1104" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>网络性能工具速查表如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/5d/5d/5dde213baffd7811ab73c82883b2a75d.png?wh=1709*2462" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="基准测试工具"><a href="#基准测试工具" class="headerlink" title="基准测试工具"></a>基准测试工具</h2><p>除了性能分析外，很多时候，我们还需要对系统性能进行基准测试。比如，</p>
 <ul>
-<li><p>使用长连接取代短连接，可以显著降低 TCP 建立连接的成本。在每秒请求次数较多时，这样做的效果非常明显。</p>
+<li><p>在文件系统和磁盘 I&#x2F;O 模块中，我们使用 fio 工具，测试了磁盘 I&#x2F;O 的性能。</p>
 </li>
-<li><p>使用内存等方式，来缓存不常变化的数据，可以降低网络 I&#x2F;O 次数，同时加快应用程序的响应速度。</p>
+<li><p>在网络模块中，我们使用 iperf、pktgen 等，测试了网络的性能。</p>
 </li>
-<li><p>使用 Protocol Buffer 等序列化的方式，压缩网络 I&#x2F;O 的数据量，可以提高应用程序的吞吐。</p>
-</li>
-<li><p>使用 DNS 缓存、预取、HTTPDNS 等方式，减少 DNS 解析的延迟，也可以提升网络 I&#x2F;O 的整体速度。</p>
+<li><p>而在很多基于 Nginx 的案例中，我们则使用 ab、wrk 等，测试 Nginx 应用的性能。</p>
 </li>
 </ul>
-<h3 id="套接字"><a href="#套接字" class="headerlink" title="套接字"></a>套接字</h3><p>套接字可以屏蔽掉 Linux 内核中不同协议的差异，为应用程序提供统一的访问接口。每个套接字，都有一个读写缓冲区。</p>
+<p>Brendan Gregg 整理的 Linux 基准测试工具图谱如下：</p>
+<p><img src="https://static001.geekbang.org/resource/image/f0/e9/f094f489049602e1058e02edc708e6e9.png?wh=1500*1050" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>（图片来自 <a target="_blank" rel="noopener" href="http://www.brendangregg.com/linuxperf.html">brendangregg.com</a>）</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章梳理了常见的性能工具，并从 CPU、内存、文件系统和磁盘 I&#x2F;O、网络以及基准测试等不同的角度，汇总了各类性能指标所对应的性能工具速查表。</p>
+<p>当分析性能问题时，大的来说，主要有这么两个步骤：</p>
 <ul>
-<li><p>读缓冲区，缓存了远端发过来的数据。如果读缓冲区已满，就不能再接收新的数据。</p>
+<li><p>第一步，从性能瓶颈出发，根据系统和应用程序的运行原理，确认待分析的性能指标。</p>
 </li>
-<li><p>写缓冲区，缓存了要发出去的数据。如果写缓冲区已满，应用程序的写操作就会被阻塞。</p>
+<li><p>第二步，根据这些图表，选出最合适的性能工具，然后了解并使用工具，从而更快观测到需要的性能数据。</p>
 </li>
 </ul>
-<p>所以，为了提高网络的吞吐量，你通常需要调整这些缓冲区的大小。比如：</p>
+<p>虽然 Linux 的性能指标和性能工具都比较多，但熟悉了各指标含义后，自然就会发现这些工具同性能指标间的关联。顺着这个思路往下走，掌握这些工具的选用其实并不难。</p>
+<p>当然，不要把性能工具当成性能分析和优化的全部。</p>
 <ul>
-<li><p>增大每个套接字的缓冲区大小 net.core.optmem_max；</p>
+<li><p>一方面，性能分析和优化的核心，是对系统和应用程序运行原理的掌握，而性能工具只是辅助你更快完成这个过程的帮手。</p>
 </li>
-<li><p>增大套接字接收缓冲区大小 net.core.rmem_max 和发送缓冲区大小 net.core.wmem_max；</p>
-</li>
-<li><p>增大 TCP 接收缓冲区大小 net.ipv4.tcp_rmem 和发送缓冲区大小 net.ipv4.tcp_wmem。</p>
+<li><p>另一方面，完善的监控系统，可以提供绝大部分性能分析所需的基准数据。从这些数据中，你很可能就能大致定位出性能瓶颈，也就不用再去手动执行各类工具了。</p>
 </li>
 </ul>
-<p>套接字的内核选项如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/5f/f0/5f2d4957663dd8bf3410da8180ab18f0.png?wh=1696*959" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>有几点需要注意。</p>
-<ul>
-<li><p>tcp_rmem 和 tcp_wmem 的三个数值分别是 min，default，max，系统会根据这些设置，自动调整TCP接收&#x2F;发送缓冲区的大小。</p>
-</li>
-<li><p>udp_mem 的三个数值分别是 min，pressure，max，系统会根据这些设置，自动调整UDP发送缓冲区的大小。</p>
-</li>
-</ul>
-<p>表格中的数值只提供参考价值，具体应该设置多少，还需要根据实际的网络状况来确定。比如，发送缓冲区大小，理想数值是吞吐量*延迟，这样才可以达到最大网络利用率。</p>
-<p>除此之外，套接字接口还提供了一些配置选项，用来修改网络连接的行为：</p>
-<ul>
-<li><p>为 TCP 连接设置 TCP_NODELAY 后，就可以禁用 Nagle 算法；</p>
-</li>
-<li><p>为 TCP 连接开启 TCP_CORK 后，可以让小包聚合成大包后再发送（注意会阻塞小包的发送）；</p>
-</li>
-<li><p>使用 SO_SNDBUF 和 SO_RCVBUF ，可以分别调整套接字发送缓冲区和接收缓冲区的大小。</p>
-</li>
-</ul>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>在优化网络性能时，可以结合 Linux 系统的网络协议栈和网络收发流程，然后从应用程序、套接字、传输层、网络层再到链路层等，进行逐层优化。</p>
-<p>定位出性能瓶颈后，就可以根据瓶颈所在的协议层进行优化。</p>
-<p>这篇文章主要讲解了应用程序和套接字的优化思路：</p>
-<ul>
-<li><p>在应用程序中，主要优化 I&#x2F;O 模型、工作模型以及应用层的网络协议；</p>
-</li>
-<li><p>在套接字层中，主要优化套接字的缓冲区大小。</p>
-</li>
-</ul>
-<p>下篇文章继续讲解其他各个网络层的优化方法。</p>
 
                 
               </div>
@@ -426,8 +395,6 @@
       
         <a href="/tags/linux/">#linux</a>
       
-        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
-      
     </div>
   
 </div>
@@ -438,8 +405,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>11.网络性能优化的几个思路（上）</div>
-      <div>https://blog.longpi1.com/2022/11/15/11-网络性能优化的几个思路（上）/</div>
+      <div>Linux指标查看工具</div>
+      <div>https://blog.longpi1.com/2022/11/16/Linux指标查看工具/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -452,18 +419,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/11/15/12-%E5%A5%97%E8%B7%AF%E7%AF%87%EF%BC%9A%E7%BD%91%E7%BB%9C%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%EF%BC%88%E4%B8%8B%EF%BC%89/" title="12.套路篇：网络性能优化的几个思路（下）">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">12.套路篇：网络性能优化的几个思路（下）</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/11/15/10-%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96NAT%E6%80%A7%E8%83%BD%EF%BC%9F%EF%BC%88%E4%B8%8B%EF%BC%89/" title="10.如何优化 NAT 性能？（下）">
-                        <span class="hidden-mobile">10.如何优化 NAT 性能？（下）</span>
+                      <a href="/2022/11/16/13-linux%E7%BD%91%E7%BB%9C%E7%9A%84%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" title="13.linux网络的相关问题记录">
+                        <span class="hidden-mobile">13.linux网络的相关问题记录</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
