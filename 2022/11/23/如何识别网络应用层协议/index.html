@@ -16,35 +16,26 @@
   <meta name="author" content="lp">
   <meta name="keywords" content="">
   
-    <meta name="description" content="极客时间Linux 性能优化实战笔记">
+    <meta name="description" content="本篇文章将重点介绍协议识别问题的几个基本概念 ，以及目前主要实现方式各自的优缺点及关键技术和当前具有代表性的实现项目。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux指标查看工具">
-<meta property="og:url" content="https://blog.longpi1.com/2022/11/16/Linux%E6%8C%87%E6%A0%87%E6%9F%A5%E7%9C%8B%E5%B7%A5%E5%85%B7/index.html">
+<meta property="og:title" content="如何识别网络应用层协议?">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/23/%E5%A6%82%E4%BD%95%E8%AF%86%E5%88%AB%E7%BD%91%E7%BB%9C%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="极客时间Linux 性能优化实战笔记">
+<meta property="og:description" content="本篇文章将重点介绍协议识别问题的几个基本概念 ，以及目前主要实现方式各自的优缺点及关键技术和当前具有代表性的实现项目。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/b0/01/b07ca95ef8a3d2c89b0996a042d33901.png?wh=3000*2100">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/9a/69/9a211905538faffb5b3221ee01776a69.png?wh=1241*1212">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/28/b0/28cb85011289f83804c51c1fb275dab0.png?wh=1707*2563">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/ee/c0/ee36f73b9213063b3bcdaed2245944c0.png?wh=1581*1760">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/79/f8/79ad5caf0a2c105b7e9ce77877d493f8.png?wh=1653*2198">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/72/3b/723431a944034b51a9ef13a8a1d4d03b.png?wh=2631*808">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/c2/a3/c232dcb4185f7b7ba95c126889cf6fa3.png?wh=1714*2424">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/37/a4/37d04c213acfa650bd7467e3000356a4.png?wh=1983*1104">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/5d/5d/5dde213baffd7811ab73c82883b2a75d.png?wh=1709*2462">
-<meta property="og:image" content="https://static001.geekbang.org/resource/image/f0/e9/f094f489049602e1058e02edc708e6e9.png?wh=1500*1050">
-<meta property="article:published_time" content="2022-11-16T12:10:13.000Z">
-<meta property="article:modified_time" content="2022-11-16T12:10:50.857Z">
+<meta property="og:image" content="https://images0.cnblogs.com/blog/475022/201309/07223013-5e7d5f5443d747978b9eeb14f7ea98a2.png">
+<meta property="article:published_time" content="2022-11-23T12:25:02.000Z">
+<meta property="article:modified_time" content="2022-11-23T12:29:09.636Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
-<meta property="article:tag" content="笔记">
 <meta property="article:tag" content="linux">
+<meta property="article:tag" content="网络">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/b0/01/b07ca95ef8a3d2c89b0996a042d33901.png?wh=3000*2100">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog/475022/201309/07223013-5e7d5f5443d747978b9eeb14f7ea98a2.png">
   
   
   
-  <title>Linux指标查看工具 - lp&#39;s blog</title>
+  <title>如何识别网络应用层协议? - lp&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -226,7 +217,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Linux指标查看工具"></span>
+            <span id="subtitle" data-typed-text="如何识别网络应用层协议?"></span>
           
         </div>
 
@@ -237,8 +228,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-11-16 20:10" pubdate>
-          2022年11月16日 晚上
+        <time datetime="2022-11-23 20:25" pubdate>
+          2022年11月23日 晚上
         </time>
       </span>
     
@@ -249,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.5k 字
+          1.7k 字
         
       </span>
     
@@ -297,65 +288,30 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Linux指标查看工具</h1>
+            <h1 style="display: none">如何识别网络应用层协议?</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Linux指标查看工具"><a href="#Linux指标查看工具" class="headerlink" title="Linux指标查看工具"></a>Linux指标查看工具</h1><blockquote>
-<p>本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/80898">https://time.geekbang.org/column/article/80898</a></p>
+                <h1 id="如何识别网络应用层协议？"><a href="#如何识别网络应用层协议？" class="headerlink" title="如何识别网络应用层协议？"></a>如何识别网络应用层协议？</h1><blockquote>
+<p>能够标识出 Internet上每个流所使用的应用层协议是一系列网络应用的前提和基础。然而随着网络的高速化和协议的复杂化，传统的基于端 口识别应用层协议的算法已经不够准确，因此各种新的协议识别算法成为研究热点 。</p>
 </blockquote>
-<h2 id="性能工具速查"><a href="#性能工具速查" class="headerlink" title="性能工具速查"></a>性能工具速查</h2><p><strong>在选择性能工具时，除了要考虑性能指标这个目的外，还要结合待分析的环境来综合考虑</strong>。比如，实际环境是否允许安装软件包，是否需要新的内核版本等。</p>
-<p>性能工具谱图如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/b0/01/b07ca95ef8a3d2c89b0996a042d33901.png?wh=3000*2100" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="http://www.brendangregg.com/linuxperf.html">brendangregg.com</a>）</p>
-<p>这张图从 Linux 内核的各个子系统出发，汇总了对各个子系统进行性能分析时，你可以选择的工具。</p>
-<p><strong>从性能指标出发，根据性能指标的不同，将性能工具划分为不同类型</strong>。比如，最常见的就是可以根据 CPU、内存、磁盘 I&#x2F;O 以及网络的各类性能指标，将这些工具进行分类。</p>
-<h2 id="CPU性能工具"><a href="#CPU性能工具" class="headerlink" title="CPU性能工具"></a>CPU性能工具</h2><p>首先，从 CPU 的角度来说，主要的性能指标就是 CPU 的使用率、上下文切换以及 CPU Cache 的命中率等。下面这张图就列出了常见的 CPU 性能指标。</p>
-<p><img src="https://static001.geekbang.org/resource/image/9a/69/9a211905538faffb5b3221ee01776a69.png?wh=1241*1212" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>从这些指标出发，再把 CPU 使用率，划分为系统和进程两个维度，工具表如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/28/b0/28cb85011289f83804c51c1fb275dab0.png?wh=1707*2563" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h2 id="内存性能工具"><a href="#内存性能工具" class="headerlink" title="内存性能工具"></a>内存性能工具</h2><p>接着我们来看内存方面。从内存的角度来说，主要的性能指标，就是系统内存的分配和使用、进程内存的分配和使用以及 SWAP 的用量。下面这张图列出了常见的内存性能指标。</p>
-<p><img src="https://static001.geekbang.org/resource/image/ee/c0/ee36f73b9213063b3bcdaed2245944c0.png?wh=1581*1760" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>内存性能工具速查表如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/79/f8/79ad5caf0a2c105b7e9ce77877d493f8.png?wh=1653*2198" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>注：最后一行pcstat的源码链接为 <a target="_blank" rel="noopener" href="https://github.com/tobert/pcstat">https://github.com/tobert/pcstat</a></p>
-<h2 id="磁盘I-x2F-O性能工具"><a href="#磁盘I-x2F-O性能工具" class="headerlink" title="磁盘I&#x2F;O性能工具"></a>磁盘I&#x2F;O性能工具</h2><p>接下来，从文件系统和磁盘 I&#x2F;O 的角度来说，主要性能指标，就是文件系统的使用、缓存和缓冲区的使用，以及磁盘 I&#x2F;O 的使用率、吞吐量和延迟等。下面这张图列出了常见的 I&#x2F;O 性能指标。</p>
-<p><img src="https://static001.geekbang.org/resource/image/72/3b/723431a944034b51a9ef13a8a1d4d03b.png?wh=2631*808" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>文件系统和磁盘 I&#x2F;O 性能工具速查表如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/c2/a3/c232dcb4185f7b7ba95c126889cf6fa3.png?wh=1714*2424" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h2 id="网络性能工具"><a href="#网络性能工具" class="headerlink" title="网络性能工具"></a>网络性能工具</h2><p>最后，从网络的角度来说，主要性能指标就是吞吐量、响应时间、连接数、丢包数等。根据 TCP&#x2F;IP 网络协议栈的原理，我们可以把这些性能指标，进一步细化为每层协议的具体指标。</p>
-<p><img src="https://static001.geekbang.org/resource/image/37/a4/37d04c213acfa650bd7467e3000356a4.png?wh=1983*1104" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>网络性能工具速查表如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/5d/5d/5dde213baffd7811ab73c82883b2a75d.png?wh=1709*2462" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h2 id="基准测试工具"><a href="#基准测试工具" class="headerlink" title="基准测试工具"></a>基准测试工具</h2><p>除了性能分析外，很多时候，我们还需要对系统性能进行基准测试。比如，</p>
-<ul>
-<li><p>在文件系统和磁盘 I&#x2F;O 模块中，我们使用 fio 工具，测试了磁盘 I&#x2F;O 的性能。</p>
-</li>
-<li><p>在网络模块中，我们使用 iperf、pktgen 等，测试了网络的性能。</p>
-</li>
-<li><p>而在很多基于 Nginx 的案例中，我们则使用 ab、wrk 等，测试 Nginx 应用的性能。</p>
-</li>
-</ul>
-<p>Brendan Gregg 整理的 Linux 基准测试工具图谱如下：</p>
-<p><img src="https://static001.geekbang.org/resource/image/f0/e9/f094f489049602e1058e02edc708e6e9.png?wh=1500*1050" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="http://www.brendangregg.com/linuxperf.html">brendangregg.com</a>）</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章梳理了常见的性能工具，并从 CPU、内存、文件系统和磁盘 I&#x2F;O、网络以及基准测试等不同的角度，汇总了各类性能指标所对应的性能工具速查表。</p>
-<p>当分析性能问题时，大的来说，主要有这么两个步骤：</p>
-<ul>
-<li><p>第一步，从性能瓶颈出发，根据系统和应用程序的运行原理，确认待分析的性能指标。</p>
-</li>
-<li><p>第二步，根据这些图表，选出最合适的性能工具，然后了解并使用工具，从而更快观测到需要的性能数据。</p>
-</li>
-</ul>
-<p>虽然 Linux 的性能指标和性能工具都比较多，但熟悉了各指标含义后，自然就会发现这些工具同性能指标间的关联。顺着这个思路往下走，掌握这些工具的选用其实并不难。</p>
-<p>当然，不要把性能工具当成性能分析和优化的全部。</p>
-<ul>
-<li><p>一方面，性能分析和优化的核心，是对系统和应用程序运行原理的掌握，而性能工具只是辅助你更快完成这个过程的帮手。</p>
-</li>
-<li><p>另一方面，完善的监控系统，可以提供绝大部分性能分析所需的基准数据。从这些数据中，你很可能就能大致定位出性能瓶颈，也就不用再去手动执行各类工具了。</p>
-</li>
-</ul>
+<p>本篇文章将重点介绍协议识别问题的几个基本概念 ，以及目前主要实现方式各自的优缺点及关键技术和当前具有代表性的实现项目。</p>
+<h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h2><h3 id="1-1-流"><a href="#1-1-流" class="headerlink" title="1.1 流"></a>1.1 流</h3><p>指在某一段固定时间间隔内通过网络上一个观测点的 IP报文集合。属于一个特定流的所有报文有一些相同的属性。 应用层协议识别的对象不是单个报文，而是将“流”作为一个整体考虑。</p>
+<h3 id="1-2-协议识别"><a href="#1-2-协议识别" class="headerlink" title="1.2 协议识别"></a>1.2 协议识别</h3><p>标识出网络上每个流所使用的应用层协议 ，其是基于使用类型的流分类的延伸和精化。在基于使用类型的流分类问题中，每个类别可能包含某些属性类似的多种协议 ，但协议识别问题必须对流进行更精细的分类 ， 使得每个类别中的流只使用一种应用层协议。</p>
+<h3 id="1-3-流分类"><a href="#1-3-流分类" class="headerlink" title="1.3 流分类"></a>1.3 流分类</h3><p>指利用流以及流中报文的某些信息将网络上的流分成既定的若干类别 (如长流／短流，快流／慢 流，或者各种使用类型的流)，其是报文分类的扩展。</p>
+<h3 id="1-4-解决协议识别问题的基本思路"><a href="#1-4-解决协议识别问题的基本思路" class="headerlink" title="1.4 解决协议识别问题的基本思路"></a>1.4 解决协议识别问题的基本思路</h3><p>从本质上看 ，协议识别问题是多元统计学中的判别，分析在实际中的应用。首先根据所选择的 维流信息将流分为 k个类别 ，每个 类别对应一个协议，对于新到来的流，计算其 自身的n维流信 息值 ，根据结果将其划分到相应的类别中，给出类别号即协议名。从理论上说 ，流中每个报文的任意字段或流传输过程 中 的任何特性都可以作为一维的流信息即协议识别的依据。但实际使用中，如何选择最有效的流信息维度是面临的最大困难 。</p>
+<h2 id="二、实现方式"><a href="#二、实现方式" class="headerlink" title="二、实现方式"></a>二、实现方式</h2><h3 id="2-1-基于端口识别协议"><a href="#2-1-基于端口识别协议" class="headerlink" title="2.1 基于端口识别协议"></a>2.1 基于端口识别协议</h3><p>这是最简单也是识别正确率最低的一种方式，传统的应用层协议识别算法只利用了端 口号一 维信息，其根据各个应用层协议在中注册的端 口号 来标识 协议 。例 如 ，若某个 TCP流使用 了端 口号 80、8080或 443，则将其标记为 Web流量,53端口识别为dns等。</p>
+<h3 id="2-2-基于负载识别协议"><a href="#2-2-基于负载识别协议" class="headerlink" title="2.2 基于负载识别协议"></a>2.2 基于负载识别协议</h3><p>基于负载的算法仍是一个一元判别 问题 ，其需要事先详细分析待识别的应用层协议，找出其交互过程中不 同于其他任何协议的字段，作为该协议的特征。在识别的过 程中，该类算法检查流中每个报文 TCP首部之后的负载部分 ，若匹配到某协议的特征 ，则将该流标记为相应的协议。基 于负载的算法不仅能识别出使用单一连接进行通信的协议 ，而且能够识别出如 PASVFTP、流媒体等使用多个连接、动态端口进行通信的协议。在这些协议 中，数据传输所使用的端口是在事先建立的控制连接中协商的。基于负载的算法检查控制连接中的每个报文 ，找出协商得到的端口号，并以此端口识别数据连接 。</p>
+<p>优缺点：正确率高，不过当协议规范发生变化或者新协议出现时，寻找特征的工作必须重新进行，工作量非常大，更新困难 ，因此 ，该类算法通常只被用在需准确识别数量较少的协议时，且需要有相当的工作量。</p>
+<h3 id="2-3-基于测度识别协议"><a href="#2-3-基于测度识别协议" class="headerlink" title="2.3 基于测度识别协议"></a>2.3 基于测度识别协议</h3><p>基于测度识别协议的算法利用协议规范的不同所造成的流测度的差异区别各个协 议 。例如 ，Web流一般为短流小报 文 ，而 P2P流一般为长 流大报文 。基 于测度 的算法 要求事先有标准的训练集可用，即要用已按各个协议分类的 报文集合来训练识别器，使其在使用的过程中根据已知的标 准答案和新计算 的流测 度 ，按 照某 种判别算法得出当前流所属的类别 ，即所使用的协议 。</p>
+<p>优缺点：成熟度不够，样本需求大，相关开源实现项目少；</p>
+<h3 id="2-4-基于行为特征的协议识别"><a href="#2-4-基于行为特征的协议识别" class="headerlink" title="2.4 基于行为特征的协议识别"></a>2.4 基于行为特征的协议识别</h3><p>将各个应用层协议的特点进行收集整理，对比数据包，匹配出对应的应用层协议。它需要训练数据集作为输入，构建一个分类器或者分类模型，通过模型识别为哪一种应用层协议</p>
+<h3 id="2-5-综合算法"><a href="#2-5-综合算法" class="headerlink" title="2.5 综合算法"></a>2.5 综合算法</h3><p>综合上述方式实现对应用层协议的解析。</p>
+<h2 id="三、WireShark的识别方式"><a href="#三、WireShark的识别方式" class="headerlink" title="三、WireShark的识别方式"></a>三、WireShark的识别方式</h2><h3 id="3-1-实现过程"><a href="#3-1-实现过程" class="headerlink" title="3.1 实现过程"></a>3.1 实现过程</h3><p>1.基于传输层协议获取可能的应用层协议集合，例如基于udp实现的可能是dns、zookper等，基于tcp可能为http、grpc等；下图为TCP&#x2F;IP详解一书中关于协议的引用。</p>
+<p><img src="https://images0.cnblogs.com/blog/475022/201309/07223013-5e7d5f5443d747978b9eeb14f7ea98a2.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>2.基于负载匹配行为特征</p>
+<h3 id="3-2-源码分析-todo"><a href="#3-2-源码分析-todo" class="headerlink" title="3.2 源码分析 todo"></a>3.2 源码分析 todo</h3><h2 id="四、参考链接"><a href="#四、参考链接" class="headerlink" title="四、参考链接"></a>四、参考链接</h2><p>1.陈 亮 龚 俭 徐 选.   应用层协议识别算法综述</p>
 
                 
               </div>
@@ -374,7 +330,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  <a href="/categories/%E7%BD%91%E7%BB%9C/" class="category-chain-item">网络</a>
   
   
 
@@ -391,9 +347,9 @@
       
         <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
       
-        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
-      
         <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
       
     </div>
   
@@ -405,8 +361,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Linux指标查看工具</div>
-      <div>https://blog.longpi1.com/2022/11/16/Linux指标查看工具/</div>
+      <div>如何识别网络应用层协议?</div>
+      <div>https://blog.longpi1.com/2022/11/23/如何识别网络应用层协议/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -419,18 +375,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/11/23/Go%E9%A1%B9%E7%9B%AE%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E8%AF%A5%E6%80%8E%E4%B9%88%E5%86%99%EF%BC%9F/" title="Go项目目录结构该怎么写？">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Go项目目录结构该怎么写？</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/11/16/13-linux%E7%BD%91%E7%BB%9C%E7%9A%84%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" title="13.linux网络的相关问题记录">
-                        <span class="hidden-mobile">13.linux网络的相关问题记录</span>
+                      <a href="/2022/11/23/Go%E9%A1%B9%E7%9B%AE%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E8%AF%A5%E6%80%8E%E4%B9%88%E5%86%99%EF%BC%9F/" title="Go项目目录结构该怎么写？">
+                        <span class="hidden-mobile">Go项目目录结构该怎么写？</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
