@@ -1,0 +1,764 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="转载自张彦飞大佬的 [127.0.0.1 之本机网络通信过程知多少 ?！](https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;6_OfoeD3ZpyQisY2F-4_bw)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="127.0.0.1 之本机网络通信过程">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/25/127-0-0-1%E4%B9%8B%E6%9C%AC%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="转载自张彦飞大佬的 [127.0.0.1 之本机网络通信过程知多少 ?！](https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;6_OfoeD3ZpyQisY2F-4_bw)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CtNNS4rib0ib9pTra3xou3Zxic3wNhyLdjmS3X7aqst5UGA1fkhge6UNPA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C93plswfSHZf9icick9Php8dhuKyJYp6Bl6SQb5Bmib9icbXCP89yn43IBg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CibkE1WRP30JdSBVqJa9ljuJEmQMhlVBkR9zAPIPDnRhzYqwgGv6qTUg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CNPiaAeicPRxibhHt5jGdSB9MKv643hCyibe0D3tEcRzeZQZU5ibUT5SEBPw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CfgMT8QPLb2WgYrakI0rptOMLicdGia9Nxo6FaKBLtGPbDBqQehlqib9jA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CRmtMBiacq2Ph94hkMD69bQzglgF8VYXAV2ax52dnHg9WiaMv6Lic6lvFw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CD7TD2J1iaJYpjSI7kBbMCTxzqEGnrKAKOt1nUC9369icylPYBnT9Y6Ew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Ctc20kJxUOP9zo3ddG9mQIS6qej4OaHtp5gWICickqec7ic75IYicHDpoA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CtH4JjkvicnMwjfsT8N84tia2iaFicsJeVlA6bHOx0hRb6z1A7jL9ic2vVCA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Ces94YxSDic0LcDhIy4SZJdr0R0RbwdXFiaA23H561DvjhKsLCc4hAcMQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Cr5j7vqZytONcBluZXd5hs2Ue8BqTibnLSP4eC5ubaSz4Cn3uMnNobZg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C3y3FHJWIyHwAzvgQWpLBFXJ5l15ZeDCAanWCAtvUNIsbvEq66mO2gw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CrlAeJXFpBeXmkTiaSUZibFYPslfZf9lsAECbnicqJQJ6RLqcGca35gIicQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C7s16INFrDbRZaBl8WUkQZVvjrrCxRJz7FE2Yibrok5VyyIx9O9HFibZQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5COsndkFVqCeUgibSz6J2yibzfk7Zr2bAoNE1v39neic73BH0Tj5vWofbIA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="article:published_time" content="2022-11-25T12:31:59.000Z">
+<meta property="article:modified_time" content="2022-11-25T12:34:41.444Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="转载">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CtNNS4rib0ib9pTra3xou3Zxic3wNhyLdjmS3X7aqst5UGA1fkhge6UNPA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+  
+  
+  
+  <title>127.0.0.1 之本机网络通信过程 - lp&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="127.0.0.1 之本机网络通信过程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-25 20:31" pubdate>
+          2022年11月25日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.1k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">127.0.0.1 之本机网络通信过程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="127-0-0-1-之本机网络通信过程"><a href="#127-0-0-1-之本机网络通信过程" class="headerlink" title="127.0.0.1 之本机网络通信过程"></a>127.0.0.1 之本机网络通信过程</h1><blockquote>
+<p>转载自张彦飞大佬的 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/6_OfoeD3ZpyQisY2F-4_bw">127.0.0.1 之本机网络通信过程知多少 ?！</a></p>
+</blockquote>
+<h2 id="一、跨机网路通信过程"><a href="#一、跨机网路通信过程" class="headerlink" title="一、跨机网路通信过程"></a>一、跨机网路通信过程</h2><h3 id="1-1-跨机数据发送"><a href="#1-1-跨机数据发送" class="headerlink" title="1.1 跨机数据发送"></a>1.1 跨机数据发送</h3><p>从 send 系统调用开始，直到网卡把数据发送出去，整体流程如下：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CtNNS4rib0ib9pTra3xou3Zxic3wNhyLdjmS3X7aqst5UGA1fkhge6UNPA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>在这幅图中，我们看到用户数据被拷贝到内核态，然后经过协议栈处理后进入到了 RingBuffer 中。随后网卡驱动真正将数据发送了出去。当发送完成的时候，是通过硬中断来通知 CPU，然后清理 RingBuffer。</p>
+<p>不过上面这幅图并没有很好地把内核组件和源码展示出来，我们再从代码的视角看一遍。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C93plswfSHZf9icick9Php8dhuKyJYp6Bl6SQb5Bmib9icbXCP89yn43IBg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>等网络发送完毕之后。网卡在发送完毕的时候，会给 CPU 发送一个硬中断来通知 CPU。收到这个硬中断后会释放 RingBuffer 中使用的内存。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CibkE1WRP30JdSBVqJa9ljuJEmQMhlVBkR9zAPIPDnRhzYqwgGv6qTUg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<h3 id="1-2-跨机数据接收"><a href="#1-2-跨机数据接收" class="headerlink" title="1.2 跨机数据接收"></a>1.2 跨机数据接收</h3><p>当数据包到达另外一台机器的时候，Linux 数据包的接收过程开始了。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CNPiaAeicPRxibhHt5jGdSB9MKv643hCyibe0D3tEcRzeZQZU5ibUT5SEBPw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>当网卡收到数据以后，CPU发起一个中断，以通知 CPU 有数据到达。当CPU收到中断请求后，会去调用网络驱动注册的中断处理函数，触发软中断。ksoftirqd 检测到有软中断请求到达，开始轮询收包，收到后交由各级协议栈处理。当协议栈处理完并把数据放到接收队列的之后，唤醒用户进程（假设是阻塞方式）。</p>
+<p>我们再同样从内核组件和源码视角看一遍。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CfgMT8QPLb2WgYrakI0rptOMLicdGia9Nxo6FaKBLtGPbDBqQehlqib9jA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<h3 id="1-3-跨机网络通信汇总"><a href="#1-3-跨机网络通信汇总" class="headerlink" title="1.3 跨机网络通信汇总"></a>1.3 跨机网络通信汇总</h3><p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CRmtMBiacq2Ph94hkMD69bQzglgF8VYXAV2ax52dnHg9WiaMv6Lic6lvFw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<h2 id="二、本机发送过程"><a href="#二、本机发送过程" class="headerlink" title="二、本机发送过程"></a>二、本机发送过程</h2><p>在第一节中，我们看到了跨机时整个网络发送过程（嫌第一节流程图不过瘾，想继续看源码了解细节的同学可以参考 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247485146&idx=1&sn=e5bfc79ba915df1f6a8b32b87ef0ef78&scene=21#wechat_redirect">拆解 Linux 网络包发送过程</a>） 。</p>
+<p>在本机网络 IO 的过程中，流程会有一些差别。为了突出重点，将不再介绍整体流程，而是只介绍和跨机逻辑不同的地方。有差异的地方总共有两个，分别是<strong>路由</strong>和<strong>驱动程序</strong>。</p>
+<h3 id="2-1-网络层路由"><a href="#2-1-网络层路由" class="headerlink" title="2.1 网络层路由"></a>2.1 网络层路由</h3><p>发送数据会进入协议栈到网络层的时候，网络层入口函数是 ip_queue_xmit。在网络层里会进行路由选择，路由选择完毕后，再设置一些 IP 头、进行一些 netfilter 的过滤后，将包交给邻居子系统。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CD7TD2J1iaJYpjSI7kBbMCTxzqEGnrKAKOt1nUC9369icylPYBnT9Y6Ew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>对于本机网络 IO 来说，特殊之处在于在 local 路由表中就能找到路由项，对应的设备都将使用 loopback 网卡，也就是我们常见的 lo。</p>
+<p>我们来详细看看路由网络层里这段路由相关工作过程。从网络层入口函数 ip_queue_xmit 看起。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">//file: net/ipv4/ip_output.c</span><br><span class="hljs-built_in">int</span> ip<span class="hljs-constructor">_queue_xmit(<span class="hljs-params">struct</span> <span class="hljs-params">sk_buff</span> <span class="hljs-operator">*</span><span class="hljs-params">skb</span>, <span class="hljs-params">struct</span> <span class="hljs-params">flowi</span> <span class="hljs-operator">*</span><span class="hljs-params">fl</span>)</span><br>&#123;<br> <span class="hljs-comment">//检查 socket 中是否有缓存的路由表</span><br> rt = (<span class="hljs-keyword">struct</span> rtable *)<span class="hljs-constructor">__sk_dst_check(<span class="hljs-params">sk</span>, 0)</span>;<br> <span class="hljs-keyword">if</span> (rt<span class="hljs-operator"> == </span>NULL) &#123;<br>  <span class="hljs-comment">//没有缓存则展开查找</span><br>  <span class="hljs-comment">//则查找路由项， 并缓存到 socket 中</span><br>  rt = ip<span class="hljs-constructor">_route_output_ports(<span class="hljs-operator">...</span>)</span>;<br>  sk<span class="hljs-constructor">_setup_caps(<span class="hljs-params">sk</span>, &amp;<span class="hljs-params">rt</span>-&gt;<span class="hljs-params">dst</span>)</span>;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>查找路由项的函数是 ip_route_output_ports，它又依次调用到 ip_route_output_flow、__ip_route_output_key、fib_lookup。调用过程省略掉，直接看 fib_lookup 的关键代码。</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs verilog"><span class="hljs-comment">//file:include/net/ip_fib.h</span><br><span class="hljs-keyword">static</span> inline <span class="hljs-keyword">int</span> fib_lookup(<span class="hljs-keyword">struct</span> net *net, <span class="hljs-keyword">const</span> <span class="hljs-keyword">struct</span> flowi4 *flp,<br>        <span class="hljs-keyword">struct</span> fib_result *res)<br>&#123;<br> <span class="hljs-keyword">struct</span> fib_table *<span class="hljs-keyword">table</span>;<br><br> <span class="hljs-keyword">table</span> = fib_get_table(net, RT_TABLE_LOCAL);<br> <span class="hljs-keyword">if</span> (!fib_table_lookup(<span class="hljs-keyword">table</span>, flp, res, FIB_LOOKUP_NOREF))<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br> <span class="hljs-keyword">table</span> = fib_get_table(net, RT_TABLE_MAIN);<br> <span class="hljs-keyword">if</span> (!fib_table_lookup(<span class="hljs-keyword">table</span>, flp, res, FIB_LOOKUP_NOREF))<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br> <span class="hljs-keyword">return</span> -ENETUNREACH;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在 fib_lookup 将会对 local 和 main 两个路由表展开查询，并且是先查 local 后查询 main。我们在 Linux 上使用命令名可以查看到这两个路由表， 这里只看 local 路由表（因为本机网络 IO 查询到这个表就终止了）。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment">#ip route list table local</span><br><span class="hljs-attribute">local</span> <span class="hljs-number">10</span>.<span class="hljs-number">143</span>.x.y dev eth0 proto kernel scope host src <span class="hljs-number">10</span>.<span class="hljs-number">143</span>.x.y<br><span class="hljs-attribute">local</span> <span class="hljs-number">127.0.0.1</span> dev lo proto kernel scope host src <span class="hljs-number">127.0.0.1</span><br></code></pre></td></tr></table></figure>
+
+<p>从上述结果可以看出，对于目的是 127.0.0.1 的路由在 local 路由表中就能够找到了。fib_lookup 工作完成，返回__ip_route_output_key 继续。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">//file: net/ipv4/route.c</span><br><span class="hljs-keyword">struct</span> rtable *<span class="hljs-constructor">__ip_route_output_key(<span class="hljs-params">struct</span> <span class="hljs-params">net</span> <span class="hljs-operator">*</span><span class="hljs-params">net</span>, <span class="hljs-params">struct</span> <span class="hljs-params">flowi4</span> <span class="hljs-operator">*</span><span class="hljs-params">fl4</span>)</span><br>&#123;<br> <span class="hljs-keyword">if</span> (fib<span class="hljs-constructor">_lookup(<span class="hljs-params">net</span>, <span class="hljs-params">fl4</span>, &amp;<span class="hljs-params">res</span>)</span>) &#123;<br> &#125;<br> <span class="hljs-keyword">if</span> (res.<span class="hljs-keyword">type</span><span class="hljs-operator"> == </span>RTN_LOCAL) &#123;<br>  dev_out = net-&gt;loopback_dev;<span class="hljs-operator"></span><br><span class="hljs-operator">  ...</span><br><span class="hljs-operator"> </span>&#125;<br><br> rth = <span class="hljs-constructor">__mkroute_output(&amp;<span class="hljs-params">res</span>, <span class="hljs-params">fl4</span>, <span class="hljs-params">orig_oif</span>, <span class="hljs-params">dev_out</span>, <span class="hljs-params">flags</span>)</span>;<br> return rth;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于是本机的网络请求，设备将全部都使用 net-&gt;loopback_dev,也就是 lo 虚拟网卡。</p>
+<p>接下来的网络层仍然和跨机网络 IO 一样，最终会经过 ip_finish_output，最终进入到 邻居子系统的入口函数 dst_neigh_output 中。</p>
+<blockquote>
+<p>本机网络 IO 需要进行 IP 分片吗？因为和正常的网络层处理过程一样会经过 ip_finish_output 函数。在这个函数中，如果 skb 大于 MTU 的话，仍然会进行分片。只不过 lo 的 MTU 比 Ethernet 要大很多。通过 ifconfig 命令就可以查到，普通网卡一般为 1500，而 lo 虚拟接口能有 65535。</p>
+</blockquote>
+<p>在邻居子系统函数中经过处理，进入到网络设备子系统（入口函数是 dev_queue_xmit）。</p>
+<h3 id="2-2-网络设备子系统"><a href="#2-2-网络设备子系统" class="headerlink" title="2.2 网络设备子系统"></a>2.2 网络设备子系统</h3><p>网络设备子系统的入口函数是 dev_queue_xmit。简单回忆下之前讲述跨机发送过程的时候，对于真的有队列的物理设备，在该函数中进行了一系列复杂的排队等处理以后，才调用 dev_hard_start_xmit，从这个函数 再进入驱动程序来发送。在这个过程中，甚至还有可能会触发软中断来进行发送，流程如图：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Ctc20kJxUOP9zo3ddG9mQIS6qej4OaHtp5gWICickqec7ic75IYicHDpoA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>但是对于启动状态的回环设备来说（q-&gt;enqueue 判断为 false），就简单多了。没有队列的问题，直接进入 dev_hard_start_xmit。接着进入回环设备的“驱动”里的发送回调函数 loopback_xmit，将 skb “发送”出去。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CtH4JjkvicnMwjfsT8N84tia2iaFicsJeVlA6bHOx0hRb6z1A7jL9ic2vVCA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>我们来看下详细的过程，从网络设备子系统的入口 dev_queue_xmit 看起。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">//file: net/core/dev.c</span><br><span class="hljs-built_in">int</span> dev<span class="hljs-constructor">_queue_xmit(<span class="hljs-params">struct</span> <span class="hljs-params">sk_buff</span> <span class="hljs-operator">*</span><span class="hljs-params">skb</span>)</span><br>&#123;<br> q = rcu<span class="hljs-constructor">_dereference_bh(<span class="hljs-params">txq</span>-&gt;<span class="hljs-params">qdisc</span>)</span>;<br> <span class="hljs-keyword">if</span> (q-&gt;enqueue) &#123;<span class="hljs-comment">//回环设备这里为 false</span><br>  rc = <span class="hljs-constructor">__dev_xmit_skb(<span class="hljs-params">skb</span>, <span class="hljs-params">q</span>, <span class="hljs-params">dev</span>, <span class="hljs-params">txq</span>)</span>;<br>  goto out;<br> &#125;<br><br> <span class="hljs-comment">//开始回环设备处理</span><br> <span class="hljs-keyword">if</span> (dev-&gt;flags &amp; IFF_UP) &#123;<br>  dev<span class="hljs-constructor">_hard_start_xmit(<span class="hljs-params">skb</span>, <span class="hljs-params">dev</span>, <span class="hljs-params">txq</span>, <span class="hljs-operator">...</span>)</span>;<span class="hljs-operator"></span><br><span class="hljs-operator">  ...</span><br><span class="hljs-operator"> </span>&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在 dev_hard_start_xmit 中还是将调用设备驱动的操作函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//file: net/core/dev.c</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dev_hard_start_xmit</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> sk_buff *skb, <span class="hljs-keyword">struct</span> net_device *dev,</span></span><br><span class="hljs-params"><span class="hljs-function">   <span class="hljs-keyword">struct</span> netdev_queue *txq)</span></span><br><span class="hljs-function"></span>&#123;<br> <span class="hljs-comment">//获取设备驱动的回调函数集合 ops</span><br> <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">net_device_ops</span> *ops = dev-&gt;netdev_ops;<br><br> <span class="hljs-comment">//调用驱动的 ndo_start_xmit 来进行发送</span><br> rc = ops-&gt;<span class="hljs-built_in">ndo_start_xmit</span>(skb, dev);<br> ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-“驱动”程序"><a href="#2-3-“驱动”程序" class="headerlink" title="2.3 “驱动”程序"></a>2.3 “驱动”程序</h3><p>对于真实的 igb 网卡来说，它的驱动代码都在 drivers&#x2F;net&#x2F;ethernet&#x2F;intel&#x2F;igb&#x2F;igb_main.c 文件里。顺着这个路子，我找到了 loopback 设备的“驱动”代码位置：drivers&#x2F;net&#x2F;loopback.c。在 drivers&#x2F;net&#x2F;loopback.c</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-comment">//file:drivers/net/loopback.c</span><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">net_device_ops</span> loopback_ops = &#123;<br> .ndo_init      = loopback_dev_init,<br> .ndo_start_xmit= loopback_xmit,<br> .ndo_get_stats64 = loopback_get_stats64,<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>所以对 dev_hard_start_xmit 调用实际上执行的是 loopback “驱动” 里的 loopback_xmit。为什么我把“驱动”加个引号呢，因为 loopback 是一个纯软件性质的虚拟接口，并没有真正意义上的驱动，它的工作流程大致如图。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Ces94YxSDic0LcDhIy4SZJdr0R0RbwdXFiaA23H561DvjhKsLCc4hAcMQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>我们再来看详细的代码。</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-comment">//file:drivers/net/loopback.c</span><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">netdev_tx_t</span> <span class="hljs-title">loopback_xmit</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> sk_buff *skb,</span></span><br><span class="hljs-params"><span class="hljs-function">     <span class="hljs-keyword">struct</span> net_device *dev)</span></span><br><span class="hljs-function"></span>&#123;<br> <span class="hljs-comment">//剥离掉和原 socket 的联系</span><br> <span class="hljs-built_in">skb_orphan</span>(skb);<br><br> <span class="hljs-comment">//调用netif_rx</span><br> <span class="hljs-keyword">if</span> (<span class="hljs-built_in">likely</span>(<span class="hljs-built_in">netif_rx</span>(skb) == NET_RX_SUCCESS)) &#123;<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在 skb_orphan 中先是把 skb 上的 socket 指针去掉了（剥离了出来）。</p>
+<blockquote>
+<p>注意，在本机网络 IO 发送的过程中，传输层下面的 skb 就不需要释放了，直接给接收方传过去就行了。总算是省了一点点开销。不过可惜传输层的 skb 同样节约不了，还是得频繁地申请和释放。</p>
+</blockquote>
+<p>接着调用 netif_rx，在该方法中 中最终会执行到 enqueue_to_backlog 中（netif_rx -&gt; netif_rx_internal -&gt; enqueue_to_backlog）。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//file: net/core/dev.c</span><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title">enqueue_to_backlog</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> sk_buff *skb, <span class="hljs-type">int</span> cpu,</span></span><br><span class="hljs-params"><span class="hljs-function">         <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *qtail)</span></span><br><span class="hljs-function"></span>&#123;<br> sd = &amp;<span class="hljs-built_in">per_cpu</span>(softnet_data, cpu);<br><br> ...<br> __skb_queue_tail(&amp;sd-&gt;input_pkt_queue, skb);<br><br> ...<br> ____napi_schedule(sd, &amp;sd-&gt;backlog);<br></code></pre></td></tr></table></figure>
+
+<p>在 enqueue_to_backlog 把要发送的 skb 插入 softnet_data-&gt;input_pkt_queue 队列中并调用 ____napi_schedule 来触发软中断。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-comment">//file:net/core/dev.c</span><br>static inline void <span class="hljs-built_in">____napi_schedule</span>(struct softnet_data *sd,<br>         struct napi_struct *napi)<br>&#123;<br> <span class="hljs-built_in">list_add_tail</span>(&amp;napi-&gt;poll_list, &amp;sd-&gt;poll_list);<br> <span class="hljs-built_in">__raise_softirq_irqoff</span>(NET_RX_SOFTIRQ);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>只有触发完软中断，发送过程就算是完成了。</p>
+<h2 id="三、本机接收过程"><a href="#三、本机接收过程" class="headerlink" title="三、本机接收过程"></a>三、本机接收过程</h2><p>在跨机的网络包的接收过程中，需要经过硬中断，然后才能触发软中断。而在本机的网络 IO 过程中，由于并不真的过网卡，所以网卡实际传输，硬中断就都省去了。直接从软中断开始，经过 process_backlog 后送进协议栈，大体过程如图。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Cr5j7vqZytONcBluZXd5hs2Ue8BqTibnLSP4eC5ubaSz4Cn3uMnNobZg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>接下来我们再看更详细一点的过程。</p>
+<p>在软中断被触发以后，会进入到 NET_RX_SOFTIRQ 对应的处理方法 net_rx_action 中（至于细节参见 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484058&idx=1&sn=a2621bc27c74b313528eefbc81ee8c0f&scene=21#wechat_redirect">图解Linux网络包接收过程</a> 一文中的 3.2 小节）。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">//file: net/core/dev.c</span><br>static void net<span class="hljs-constructor">_rx_action(<span class="hljs-params">struct</span> <span class="hljs-params">softirq_action</span> <span class="hljs-operator">*</span><span class="hljs-params">h</span>)</span>&#123;<br> <span class="hljs-keyword">while</span> (!<span class="hljs-built_in">list</span><span class="hljs-constructor">_empty(&amp;<span class="hljs-params">sd</span>-&gt;<span class="hljs-params">poll_list</span>)</span>) &#123;<br>  work = n-&gt;poll(n, weight);<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们还记得对于 igb 网卡来说，poll 实际调用的是 igb_poll 函数。那么 loopback 网卡的 poll 函数是谁呢？由于poll_list 里面是 <code>struct softnet_data</code> 对象，我们在 net_dev_init 中找到了蛛丝马迹。</p>
+<figure class="highlight wren"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs wren"><span class="hljs-comment">//file:net/core/dev.c</span><br><span class="hljs-keyword">static</span> int <span class="hljs-variable">__init</span> <span class="hljs-title function_">net_dev_init</span>(<span class="hljs-params">void</span>)<br>&#123;<br> <span class="hljs-title function_">for_each_possible_cpu</span>(<span class="hljs-params">i</span>) &#123;<br>  <span class="hljs-variable">sd</span><span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span><span class="hljs-variable">backlog</span>.<span class="hljs-property">poll</span> <span class="hljs-operator">=</span> <span class="hljs-variable">process_backlog</span>;<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>原来<code>struct softnet_data</code> 默认的 poll 在初始化的时候设置成了 process_backlog 函数，来看看它都干了啥。</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs xl">static int process_backlog(struct napi_struct *napi, int quota)<br>&#123;<br> <span class="hljs-keyword">while</span>()&#123;<br>  <span class="hljs-function"><span class="hljs-title">while</span> ((skb = __skb_dequeue(&amp;sd-&gt;</span>process_queue))) &#123;<br>   __netif_receive_skb(skb);<br>  &#125;<br><br>  <span class="hljs-comment">//skb_queue_splice_tail_init()函数用于将链表a连接到链表b上，</span><br>  <span class="hljs-comment">//形成一个新的链表b，并将原来a的头变成空链表。</span><br>  <span class="hljs-function"><span class="hljs-title">qlen</span> = skb_queue_len(&amp;sd-&gt;</span>input_pkt_queue);<br>  <span class="hljs-keyword">if</span> (qlen)<br>   <span class="hljs-function"><span class="hljs-title">skb_queue_splice_tail_init</span>(&amp;sd-&gt;</span>input_pkt_queue,<br>         &amp;<span class="hljs-function"><span class="hljs-title">sd</span>-&gt;</span>process_queue);<br>  <br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这次先看对 skb_queue_splice_tail_init 的调用。源码就不看了，直接说它的作用是把 sd-&gt;input_pkt_queue 里的 skb 链到 sd-&gt;process_queue 链表上去。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C3y3FHJWIyHwAzvgQWpLBFXJ5l15ZeDCAanWCAtvUNIsbvEq66mO2gw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>然后再看 __skb_dequeue， __skb_dequeue 是从 sd-&gt;process_queue 上取下来包来处理。这样和前面发送过程的结尾处就对上了。发送过程是把包放到了 input_pkt_queue 队列里，接收过程是在从这个队列里取出 skb。</p>
+<p>最后调用 __netif_receive_skb 将 skb(数据) 送往协议栈。在此之后的调用过程就和跨机网络 IO 又一致了。</p>
+<p>送往协议栈的调用链是 __netif_receive_skb &#x3D;&gt; __netif_receive_skb_core &#x3D;&gt; deliver_skb 后 将数据包送入到 ip_rcv 中（详情参见<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484058&idx=1&sn=a2621bc27c74b313528eefbc81ee8c0f&scene=21#wechat_redirect">图解Linux网络包接收过程</a> 一文中的 3.3 小节）。</p>
+<p>网络再往后依次是传输层，最后唤醒用户进程，这里就不多展开了。</p>
+<h2 id="四、本机网络-IO-总结"><a href="#四、本机网络-IO-总结" class="headerlink" title="四、本机网络 IO 总结"></a>四、本机网络 IO 总结</h2><p>我们来总结一下本机网络 IO 的内核执行流程。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CrlAeJXFpBeXmkTiaSUZibFYPslfZf9lsAECbnicqJQJ6RLqcGca35gIicQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p>回想下跨机网络 IO 的流程是</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C7s16INFrDbRZaBl8WUkQZVvjrrCxRJz7FE2Yibrok5VyyIx9O9HFibZQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<h2 id="五、思考题"><a href="#五、思考题" class="headerlink" title="五、思考题"></a>五、思考题</h2><p><strong>1）127.0.0.1 本机网络 IO 需要经过网卡吗？</strong></p>
+<p>通过本文的叙述，我们确定地得出结论，<strong>不需要经过网卡</strong>。即使了把网卡拔了本机网络是否还可以正常使用的。</p>
+<p><strong>2）数据包在内核中是个什么走向，和外网发送相比流程上有啥差别？</strong></p>
+<p>总的来说，本机网络 IO 和跨机 IO 比较起来，确实是节约了一些开销。发送数据不需要进 RingBuffer 的驱动队列，直接把 skb 传给接收协议栈（经过软中断）。但是在内核其它组件上，可是一点都没少，系统调用、协议栈（传输层、网络层等）、网络设备子系统、邻居子系统整个走了一个遍。连“驱动”程序都走了（虽然对于回环设备来说只是一个纯软件的虚拟出来的东东）。所以即使是本机网络 IO，也别误以为没啥开销。</p>
+<p>最后再提一下，业界有公司基于 ebpf 来加速 istio 架构中 sidecar 代理和本地进程之间的通信。通过引入 BPF，才算是绕开了内核协议栈的开销，原理如下。</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5COsndkFVqCeUgibSz6J2yibzfk7Zr2bAoNE1v39neic73BH0Tj5vWofbIA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C/" class="category-chain-item">网络</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AC%E8%BD%BD/">#转载</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>127.0.0.1 之本机网络通信过程</div>
+      <div>https://blog.longpi1.com/2022/11/25/127-0-0-1之本机网络通信过程/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/11/25/Linux%E7%BD%91%E7%BB%9C%E5%8C%85%E6%8E%A5%E6%94%B6%E8%BF%87%E7%A8%8B/" title="Linux 网络包接收过程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 网络包接收过程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/25/UnixDomainSocket%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/" title="Unix Domain Socket 性能分析">
+                        <span class="hidden-mobile">Unix Domain Socket 性能分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
