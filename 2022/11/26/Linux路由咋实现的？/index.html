@@ -23,21 +23,21 @@
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="转载自张彦飞的天天讲路由，那 Linux 路由到底咋实现的！？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgVn0puI1czWh5uo46D642KDyepaOoTTGdkx2xw9icuHjnevT0LZoRU8w/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgUWrhtpQZC9tRJ3YtHnNCpMkapYPPhAPHP1mMic953HwQicaicvtyd2dCA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgDIhCiaGnTQiaOvFIibnfxQLkTwxesj2icGPT6PicuJ5MEQPIavJO88giaIpw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItglib4ORy9hFTIAVKPEMpRMB5Owgib7E17nQURkKVloqLW2fxOUcgfzePQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgjJ6dIUibBFd1zqYq8ictqAicdunuw8nQAPeB4GvFEK4XQZO4ibfHPH6IDw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItg4BpVqk9qumZy2DglfBWGasNUm9xQl00mGcoV8wicAccPUHhVCPKc9QQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItglib4ORy9hFTIAVKPEMpRMB5Owgib7E17nQURkKVloqLW2fxOUcgfzePQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
-<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgMmMaw8PUGJ5MTUrExiag5bqzgMzpNofYpHBJAhDNA2YSwBMPlXfOugQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/gxlGoruaWncq97e.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/kSPnKgTpBymvDi1.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/hkTpKrImJQ9P7S2.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/ZFsjIRLkT2i9pD6.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/9ZJIomsD6BCdS3g.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/2rkU9vgDIOCMq1z.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/ZFsjIRLkT2i9pD6.png">
+<meta property="og:image" content="https://s2.loli.net/2022/11/26/NxQmTVbZfukrciq.png">
 <meta property="article:published_time" content="2022-11-26T09:28:28.000Z">
-<meta property="article:modified_time" content="2022-11-26T09:30:02.022Z">
+<meta property="article:modified_time" content="2022-11-26T09:41:04.465Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="转载">
 <meta property="article:tag" content="网络">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgVn0puI1czWh5uo46D642KDyepaOoTTGdkx2xw9icuHjnevT0LZoRU8w/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta name="twitter:image" content="https://s2.loli.net/2022/11/26/gxlGoruaWncq97e.png">
   
   
   
@@ -304,7 +304,7 @@
 </blockquote>
 <h2 id="一、什么时候需要路由"><a href="#一、什么时候需要路由" class="headerlink" title="一、什么时候需要路由"></a>一、什么时候需要路由</h2><p>先来聊聊 Linux 在什么情况下需要路由过程。其实在发送数据时和接收数据时都会涉及到路由选择，为什么？我们挨个来看。</p>
 <h3 id="1-1-发送数据时选路"><a href="#1-1-发送数据时选路" class="headerlink" title="1.1 发送数据时选路"></a>1.1 发送数据时选路</h3><p>Linux 之所以在发送数据包的时候需要进行路由选择，这是因为服务器上是可能会有多张网卡设备存在的。数据包在发送的时候，一路通过用户态、TCP 层到了 IP 层的时候，就要进行路由选择，以决定使用哪张网卡设备把数据包送出去。详细过程参见<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247485146&idx=1&sn=e5bfc79ba915df1f6a8b32b87ef0ef78&scene=21#wechat_redirect">25 张图，一万字，拆解 Linux 网络包发送过程</a></p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgVn0puI1czWh5uo46D642KDyepaOoTTGdkx2xw9icuHjnevT0LZoRU8w/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/gxlGoruaWncq97e.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>来大致过一下路由相关源码源码。网络层发送的入口函数是 ip_queue_xmit。</p>
 <figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">//file: net/ipv4/ip_output.c</span><br><span class="hljs-built_in">int</span> ip<span class="hljs-constructor">_queue_xmit(<span class="hljs-params">struct</span> <span class="hljs-params">sk_buff</span> <span class="hljs-operator">*</span><span class="hljs-params">skb</span>, <span class="hljs-params">struct</span> <span class="hljs-params">flowi</span> <span class="hljs-operator">*</span><span class="hljs-params">fl</span>)</span><br>&#123;<br> <span class="hljs-comment">// 路由选择过程</span><br> <span class="hljs-comment">// 选择完后记录路由信息到 skb 上</span><br> rt = (<span class="hljs-keyword">struct</span> rtable *)<span class="hljs-constructor">__sk_dst_check(<span class="hljs-params">sk</span>, 0)</span>;<br> <span class="hljs-keyword">if</span> (rt<span class="hljs-operator"> == </span>NULL) &#123;<br>  <span class="hljs-comment">// 没有缓存则查找路由项</span><br>  rt = ip<span class="hljs-constructor">_route_output_ports(<span class="hljs-operator">...</span>)</span>;<br>  sk<span class="hljs-constructor">_setup_caps(<span class="hljs-params">sk</span>, &amp;<span class="hljs-params">rt</span>-&gt;<span class="hljs-params">dst</span>)</span>;<br> &#125;<br> skb<span class="hljs-constructor">_dst_set_noref(<span class="hljs-params">skb</span>, &amp;<span class="hljs-params">rt</span>-&gt;<span class="hljs-params">dst</span>)</span>;<span class="hljs-operator"></span><br><span class="hljs-operator"> ...</span><br><span class="hljs-operator"> </span><span class="hljs-comment">//发送</span><br> ip<span class="hljs-constructor">_local_out(<span class="hljs-params">skb</span>)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -314,9 +314,9 @@
 
 <h3 id="1-2-接收数据时选路"><a href="#1-2-接收数据时选路" class="headerlink" title="1.2 接收数据时选路"></a>1.2 接收数据时选路</h3><p>没错，接收数据包的时候也需要进行路由选择。这是因为 Linux 可能会像路由器一样工作，将收到的数据包通过合适的网卡将其转发出去。</p>
 <p>Linux 在 IP 层的接收入口 ip_rcv 执行后调用到 ip_rcv_finish。在这里展开路由选择。如果发现确实就是本设备的网络包，那么就通过 ip_local_deliver 送到更上层的 TCP 层进行处理。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgUWrhtpQZC9tRJ3YtHnNCpMkapYPPhAPHP1mMic953HwQicaicvtyd2dCA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/kSPnKgTpBymvDi1.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>如果路由后发现非本设备的网络包，那就进入到 ip_forward 进行转发，最后通过 ip_output 发送出去。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgDIhCiaGnTQiaOvFIibnfxQLkTwxesj2icGPT6PicuJ5MEQPIavJO88giaIpw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/hkTpKrImJQ9P7S2.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>具体的代码如下。</p>
 <figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs xl"><span class="hljs-comment">//file: net/ipv4/ip_input.c</span><br>static int ip_rcv_finish(struct sk_buff *skb)&#123;<br>    ...<br>    <span class="hljs-keyword">if</span> (!skb_dst(skb)) &#123;<br>        <span class="hljs-function"><span class="hljs-title">int</span> err = ip_route_input_noref(skb, iph-&gt;</span><span class="hljs-function"><span class="hljs-title">daddr</span>, iph-&gt;</span>saddr,<br>                           <span class="hljs-function"><span class="hljs-title">iph</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">tos</span>, skb-&gt;</span>dev);<br>        ...<br>    &#125;<br>    ...<br>    return dst_input(skb);<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -325,19 +325,19 @@
 
 <p>这里记着 ip_route_input_slow 就行了，后面我们再看。</p>
 <h3 id="1-3-linux-路由小结"><a href="#1-3-linux-路由小结" class="headerlink" title="1.3 linux 路由小结"></a>1.3 linux 路由小结</h3><p>路由在内核协议栈中的位置可以用如下一张图来表示。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItglib4ORy9hFTIAVKPEMpRMB5Owgib7E17nQURkKVloqLW2fxOUcgfzePQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/ZFsjIRLkT2i9pD6.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>网络包在发送的时候，需要从本机的多个网卡设备中选择一个合适的发送出去。网络包在接收的时候，也需要进行路由选择，如果是属于本设备的包就往上层送到网络层、传输层直到 socket 的接收缓存区中。如果不是本设备上的包，就选择合适的设备将其转发出去。</p>
 <h2 id="二、Linux-的路由实现"><a href="#二、Linux-的路由实现" class="headerlink" title="二、Linux 的路由实现"></a>二、Linux 的路由实现</h2><h3 id="2-1-路由表"><a href="#2-1-路由表" class="headerlink" title="2.1 路由表"></a>2.1 路由表</h3><p>路由表（routing table）在内核源码中的另外一个叫法是转发信息库（Forwarding Information Base，FIB）。所以你在源码中看到的 fib 开头的定义基本上就是和路由表相关的功能。</p>
 <p>其中路由表本身是用 struct fib_table 来表示的。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//file: include/net/ip_fib.h</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">fib_table</span> &#123;<br> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">hlist_node</span> tb_hlist;<br> u32   tb_id;<br> <span class="hljs-type">int</span>   tb_default;<br> <span class="hljs-type">int</span>   tb_num_default;<br> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>  tb_data[<span class="hljs-number">0</span>];<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>所有的路由表都通过一个 hash - fib_table_hash 来组织和管理。它是放在网络命名空间 net 下的。这也就说明<strong>每个命名空间都有自己独立的路由表</strong>。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgjJ6dIUibBFd1zqYq8ictqAicdunuw8nQAPeB4GvFEK4XQZO4ibfHPH6IDw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/9ZJIomsD6BCdS3g.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span>file:include<span class="hljs-regexp">/net/</span>net_namespace.h<br>struct net &#123;<br> struct netns_ipv4 ipv4;<br> ...<br>&#125;<br><br><span class="hljs-regexp">//</span>file: include<span class="hljs-regexp">/net/</span>netns/ipv4.h<br>struct netns_ipv4 &#123;<br> <span class="hljs-regexp">//</span> 所有路由表 <br> struct hlist_head *fib_table_hash;<br><br> <span class="hljs-regexp">//</span> netfilter<br> ...<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>在默认情况下，Linux 只有 local 和 main 两个路由表。如果内核编译时支持策略路由，那么管理员最多可以配置  255 个独立的路由表。</p>
 <p>如果你的服务器上创建了多个网络命名空间的话，那么就会存在多套路由表。以除了默认命名网络空间外，又创了了一个新网络命名空间的情况为例，路由表在整个内核数据结构中的关联关系总结如下图所示。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItg4BpVqk9qumZy2DglfBWGasNUm9xQl00mGcoV8wicAccPUHhVCPKc9QQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/2rkU9vgDIOCMq1z.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="2-2-路由查找"><a href="#2-2-路由查找" class="headerlink" title="2.2 路由查找"></a>2.2 路由查找</h3><p>在上面的小节中我们看到，发送过程调用 ip_route_output_ports 来查找路由，接收过程调用 ip_route_input_slow 来查找。但其实这两个函数都又最终会调用到 fib_lookup 这个核心函数，源码如下。</p>
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-comment">//file: net/ipv4/route.c</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">rtable</span> *__ip_route_output_key(<span class="hljs-keyword">struct</span> net *net, <span class="hljs-keyword">struct</span> flowi4 *fl4)<br>&#123;<br> ...<br> <span class="hljs-comment">// 进入 fib_lookup</span><br> <span class="hljs-keyword">if</span> (<span class="hljs-built_in">fib_lookup</span>(net, fl4, &amp;res)) &#123;<br> &#125;<br>&#125;<br><br><span class="hljs-comment">//file: net/ipv4/route.c</span><br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title">ip_route_input_slow</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> sk_buff *skb, __be32 daddr, __be32 saddr,</span></span><br><span class="hljs-params"><span class="hljs-function">          u8 tos, <span class="hljs-keyword">struct</span> net_device *dev)</span></span><br><span class="hljs-function"></span>&#123;<br> ...<br> <span class="hljs-comment">// 进入 fib_lookup</span><br> err = <span class="hljs-built_in">fib_lookup</span>(net, &amp;fl4, &amp;res);<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -390,11 +390,11 @@
 
 <h2 id="本文总结"><a href="#本文总结" class="headerlink" title="本文总结"></a>本文总结</h2><p>在现如今各种网络虚拟化技术里，到处都能看着对路由功能的灵活应用。所以我们今天专门深入研究了一下 Linux 路由工作原理。</p>
 <p>在 Linux 内核中，对于发送过程和接收过程都会涉及路由选择，其中接收过程的路由选择是为了判断是该本地接收还是将它转发出去。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItglib4ORy9hFTIAVKPEMpRMB5Owgib7E17nQURkKVloqLW2fxOUcgfzePQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/ZFsjIRLkT2i9pD6.png" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>默认有 local 和 main 两个路由表，不过如果安装的 linux 开启了 CONFIG_IP_MULTIPLE_TABLES 选项的话，最多能支持 255 张路由表。</p>
 <p>路由选择过程其实不复杂，<strong>就是根据各个路由表的配置找到合适的网卡设备，以及下一跳的地址</strong>，然后把包转发出去就算是完事。</p>
 <p>通过合适地配置路由规则，容器中的网络环境和外部的通信不再是难事。通过大量地干预路由规则就可以实现虚拟网络互通。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwrJl7icFodKcMCzFjMdhhItgMmMaw8PUGJ5MTUrExiag5bqzgMzpNofYpHBJAhDNA2YSwBMPlXfOugQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<p><img src="https://s2.loli.net/2022/11/26/NxQmTVbZfukrciq.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 
                 
               </div>
