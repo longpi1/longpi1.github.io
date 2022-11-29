@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:type" content="article">
@@ -39,15 +39,15 @@
   
   <title>9.如何优化 NAT 性能？（上） - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -61,12 +61,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -82,8 +82,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -121,9 +121,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -201,8 +199,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -212,8 +209,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -261,7 +257,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -338,7 +334,7 @@
 <h2 id="iptables与NAT"><a href="#iptables与NAT" class="headerlink" title="iptables与NAT"></a>iptables与NAT</h2><p>Linux 内核提供的 Netfilter 框架，允许对网络数据包进行修改（比如 NAT）和过滤（比如防火墙）。在这个基础上，iptables、ip6tables、ebtables 等工具，又提供了更易用的命令行接口，以便系统管理员配置和管理 NAT、防火墙的规则。</p>
 <p>其中，iptables 就是最常用的一种配置工具。要掌握 iptables 的原理和使用方法，最核心的就是弄清楚，网络数据包通过 Netfilter 时的工作流向，流程图如下：</p>
 <p><img src="https://static001.geekbang.org/resource/image/c6/56/c6de40c5bd304132a1b508ba669e7b56.png?wh=1415*435" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Iptables">Wikipedia</a>）</p>
+<p>（图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Iptables">Wikipedia</a>）</p>
 <p>在这张图中，绿色背景的方框，表示表（table），用来管理链。Linux 支持 4 种表，包括 filter（用于过滤）、nat（用于NAT）、mangle（用于修改分组数据） 和 raw（用于原始数据包）等。</p>
 <p>跟 table 一起的白色背景方框，则表示链（chain），用来管理具体的 iptables 规则。每个表中可以包含多条链，比如：</p>
 <ul>
@@ -400,7 +396,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -480,7 +476,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -511,7 +507,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -531,7 +527,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -570,8 +566,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -631,8 +626,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -643,13 +638,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -668,7 +663,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -702,7 +697,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -740,9 +735,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -750,7 +745,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:type" content="article">
@@ -42,15 +42,15 @@
   
   <title>3.C10K 和 C1000K 回顾 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -64,12 +64,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -85,8 +85,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -124,9 +124,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -204,8 +202,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -215,8 +212,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -264,7 +260,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -306,7 +302,7 @@
 <blockquote>
 <p>注意，C10K 和 C1000K 的首字母 C 是 Client 的缩写。C10K 就是单机同时处理 1 万个请求（并发连接1万）的问题，而 C1000K 也就是单机支持处理 100 万个请求（并发连接100万）的问题。</p>
 </blockquote>
-<h2 id="C10K"><a href="#C10K" class="headerlink" title="C10K"></a>C10K</h2><p><a target="_blank" rel="noopener" href="http://www.kegel.com/c10k.html">C10K 问题</a> 最早由 Dan Kegel 在 1999年提出。那时的服务器还只是 32 位系统，运行着 Linux 2.2 版本（后来又升级到了 2.4 和 2.6，而 2.6 才支持 x86_64），只配置了很少的内存（2GB）和千兆网卡。</p>
+<h2 id="C10K"><a href="#C10K" class="headerlink" title="C10K"></a>C10K</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.kegel.com/c10k.html">C10K 问题</a> 最早由 Dan Kegel 在 1999年提出。那时的服务器还只是 32 位系统，运行着 Linux 2.2 版本（后来又升级到了 2.4 和 2.6，而 2.6 才支持 x86_64），只配置了很少的内存（2GB）和千兆网卡。</p>
 <p>怎么在这样的系统中支持并发 1 万的请求呢？</p>
 <p>从资源上来说，对2GB 内存和千兆网卡的服务器来说，同时处理 10000 个请求，只要每个请求处理占用不到 200KB（2GB&#x2F;10000）的内存和 100Kbit （1000Mbit&#x2F;10000）的网络带宽就可以。所以，物理资源是足够的，接下来自然是软件的问题，特别是网络的 I&#x2F;O 模型问题。</p>
 <p>在 C10K 以前，Linux 中网络处理都用同步阻塞的方式，也就是每个请求都分配一个进程或者线程。请求数只有 100 个时，这种方式自然没问题，但增加到 10000 个请求时，10000 个进程或线程的调度、上下文切换乃至它们占用的内存，都会成为瓶颈。</p>
@@ -369,7 +365,7 @@
 <p><img src="https://static001.geekbang.org/resource/image/90/bd/90df0945f6ce5c910ae361bf2b135bbd.png?wh=436*462" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>由于内核确保了只有一个进程被唤醒，就不会出现惊群问题了。比如，Nginx 在 1.9.1 中就已经支持了这种模式。</p>
 <p><img src="https://static001.geekbang.org/resource/image/af/38/af2e6c3a19a6e90098772b5df0605b38.png?wh=850*780" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/">Nginx 官网博客</a>）</p>
+<p>（图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/">Nginx 官网博客</a>）</p>
 <p>要注意想要使用SO_REUSEPORT选项，需要用 Linux 3.9 以上的版本才可以。</p>
 <h2 id="C1000K"><a href="#C1000K" class="headerlink" title="C1000K"></a>C1000K</h2><p>基于 I&#x2F;O 多路复用和请求处理的优化，C10K 问题很容易就可以解决。不过，随着摩尔定律带来的服务器性能提升，以及互联网的普及，新兴服务会对性能提出更高的要求。</p>
 <p>很快，原来的 C10K 已经不能满足需求，所以又有了 C100K 和 C1000K，也就是并发从原来的 1 万增加到10 万、乃至 100 万。从 1 万到 10 万，其实还是基于 C10K 的这些理论，epoll 配合线程池，再加上 CPU、内存和网络接口的性能和容量提升。大部分情况下，C100K 很自然就可以达到。</p>
@@ -384,13 +380,13 @@
 <p>其次，从软件资源上来说，大量的连接也会占用大量的软件资源，比如文件描述符的数量、连接状态的跟踪（CONNTRACK）、网络协议栈的缓存大小（比如套接字读写缓存、TCP 读写缓存）等等。</p>
 <p>最后，大量请求带来的中断处理，也会带来非常高的处理成本。这样，就需要多队列网卡、中断负载均衡、CPU 绑定、RPS&#x2F;RFS（软中断负载均衡到多个 CPU 核上），以及将网络包的处理卸载（Offload）到网络设备（如 TSO&#x2F;GSO、LRO&#x2F;GRO、VXLAN OFFLOAD）等各种硬件和软件的优化。</p>
 <p>C1000K 的解决方法，本质上还是构建在 <strong>epoll 的非阻塞 I&#x2F;O 模型上</strong>。只不过，除了 I&#x2F;O 模型之外，还需要从应用程序到 Linux 内核、再到 CPU、内存和网络等各个层次的深度优化，特别是需要借助硬件，来卸载那些原来通过软件处理的大量功能。</p>
-<h2 id="C10M"><a href="#C10M" class="headerlink" title="C10M"></a>C10M</h2><p>显然，人们对于性能的要求是无止境的。再进一步，有没有可能在单机中，同时处理 1000 万的请求呢？这也就是 <a target="_blank" rel="noopener" href="http://c10m.robertgraham.com/p/blog-page.html">C10M</a> 问题。</p>
+<h2 id="C10M"><a href="#C10M" class="headerlink" title="C10M"></a>C10M</h2><p>显然，人们对于性能的要求是无止境的。再进一步，有没有可能在单机中，同时处理 1000 万的请求呢？这也就是 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://c10m.robertgraham.com/p/blog-page.html">C10M</a> 问题。</p>
 <p>实际上，在 C1000K 问题中，各种软件、硬件的优化很可能都已经做到头了。特别是当升级完硬件（比如足够多的内存、带宽足够大的网卡、更多的网络功能卸载等）后，可能会发现，无论怎么优化应用程序和内核中的各种网络参数，想实现 1000 万请求的并发，都是极其困难的。</p>
 <p>究其根本，还是 <strong>Linux 内核协议栈做了太多太繁重的工作</strong>。<strong>从网卡中断带来的硬中断处理程序开始，到软中断中的各层网络协议处理，最后再到应用程序，这个路径实在是太长了，就会导致网络包的处理优化，到了一定程度后，就无法更进一步了</strong>。</p>
-<p>要解决这个问题，最重要就是跳过内核协议栈的冗长路径，把网络包直接送到要处理的应用程序那里去。这里有两种常见的机制，**<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1484793">DPDK 和 XDP</a>**。</p>
+<p>要解决这个问题，最重要就是跳过内核协议栈的冗长路径，把网络包直接送到要处理的应用程序那里去。这里有两种常见的机制，**<a target="_blank" rel="external nofollow noopener noreferrer" href="https://cloud.tencent.com/developer/article/1484793">DPDK 和 XDP</a>**。</p>
 <p>第一种机制，DPDK，是用户态网络的标准。它跳过内核协议栈，直接由用户态进程通过轮询的方式，来处理网络接收。</p>
 <p><img src="https://static001.geekbang.org/resource/image/99/3a/998fd2f52f0a48a910517ada9f2bb23a.png?wh=1600*1532" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="https://blog.selectel.com/introduction-dpdk-architecture-principles/">https://blog.selectel.com/introduction-dpdk-architecture-principles/</a>）</p>
+<p>（图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.selectel.com/introduction-dpdk-architecture-principles/">https://blog.selectel.com/introduction-dpdk-architecture-principles/</a>）</p>
 <p>说起轮询，你肯定会下意识认为它是低效的象征，但是进一步反问下自己，它的低效主要体现在哪里呢？是查询时间明显多于实际工作时间的情况下吧！那么，换个角度来想，如果每时每刻都有新的网络包需要处理，轮询的优势就很明显了。比如：</p>
 <ul>
 <li><p>在 PPS 非常高的场景中，查询时间比实际工作时间少了很多，绝大部分时间都在处理网络包；</p>
@@ -402,8 +398,8 @@
 <p>第二种机制，XDP（eXpress Data Path），则是 Linux 内核提供的一种高性能网络数据路径。它允许网络包，在进入内核协议栈之前，就进行处理，也可以带来更高的性能。XDP 底层跟我们之前用到的 bcc-tools 一样，都是基于 Linux 内核的 eBPF 机制实现的。</p>
 <p>XDP 的原理如下图所示：</p>
 <p><img src="https://static001.geekbang.org/resource/image/06/be/067ef9df4212cd4ede3cffcdac7001be.png?wh=1024*560" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="https://www.iovisor.org/technology/xdp">https://www.iovisor.org/technology/xdp</a>）</p>
-<p>XDP 对内核的要求比较高，需要的是 Linux <a target="_blank" rel="noopener" href="https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md#xdp">4.8 以上版本</a>，并且它也不提供缓存队列。基于 XDP 的应用程序通常是专用的网络应用，常见的有 IDS（入侵检测系统）、DDoS 防御、 <a target="_blank" rel="noopener" href="https://github.com/cilium/cilium">cilium</a> 容器网络插件等。</p>
+<p>（图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.iovisor.org/technology/xdp">https://www.iovisor.org/technology/xdp</a>）</p>
+<p>XDP 对内核的要求比较高，需要的是 Linux <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md#xdp">4.8 以上版本</a>，并且它也不提供缓存队列。基于 XDP 的应用程序通常是专用的网络应用，常见的有 IDS（入侵检测系统）、DDoS 防御、 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cilium/cilium">cilium</a> 容器网络插件等。</p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章回顾了经典的 C10K 问题，并进一步延伸到了C1000K 和 C10M 问题。</p>
 <p>C10K 问题的根源，一方面在于系统有限的资源；另一方面，也是更重要的因素，是同步阻塞的 I&#x2F;O 模型以及轮询的套接字接口，限制了网络事件的处理效率。Linux 2.6 中引入的 epoll ，完美解决了 C10K 的问题，现在的高性能网络方案都基于 epoll。</p>
 <p>从 C10K 到 C100K ，可能只需要增加系统的物理资源就可以满足；但从 C100K 到 C1000K ，就不仅仅是增加物理资源就能解决的问题了。这时，就需要多方面的优化工作了，从硬件的中断处理和网络功能卸载、到网络协议栈的文件描述符数量、连接状态跟踪、缓存队列等内核的优化，再到应用程序的工作模型优化，都是考虑的重点。</p>
@@ -419,7 +415,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -499,7 +495,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -530,7 +526,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -550,7 +546,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -589,8 +585,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -650,8 +645,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -662,13 +657,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -687,7 +682,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -721,7 +716,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -759,9 +754,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -769,7 +764,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

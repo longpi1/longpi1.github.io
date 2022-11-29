@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="Linux网络报文捕获&#x2F;抓包技术对比：napi、libpcap、afpacket、PF_RING、PACKET_MMAP、DPDK、XDP">
 <meta property="og:type" content="article">
@@ -47,15 +47,15 @@
   
   <title>Linux网络报文捕获/抓包技术对比 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -69,12 +69,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -90,8 +90,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -129,9 +129,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -209,8 +207,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -220,8 +217,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -269,7 +265,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -304,7 +300,7 @@
               <div class="markdown-body">
                 
                 <h1 id="Linux网络报文捕获-x2F-抓包技术对比：napi、libpcap、afpacket、PF-RING、PACKET-MMAP、DPDK、XDP"><a href="#Linux网络报文捕获-x2F-抓包技术对比：napi、libpcap、afpacket、PF-RING、PACKET-MMAP、DPDK、XDP" class="headerlink" title="Linux网络报文捕获&#x2F;抓包技术对比：napi、libpcap、afpacket、PF_RING、PACKET_MMAP、DPDK、XDP"></a>Linux网络报文捕获&#x2F;抓包技术对比：napi、libpcap、afpacket、PF_RING、PACKET_MMAP、DPDK、XDP</h1><blockquote>
-<p>转载，原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Rong_Toa/article/details/109275029">https://blog.csdn.net/Rong_Toa/article/details/109275029</a></p>
+<p>转载，原文链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/Rong_Toa/article/details/109275029">https://blog.csdn.net/Rong_Toa/article/details/109275029</a></p>
 </blockquote>
 <h2 id="1-传统linux网络协议栈流程和性能分析"><a href="#1-传统linux网络协议栈流程和性能分析" class="headerlink" title="1.传统linux网络协议栈流程和性能分析"></a>1.传统linux网络协议栈流程和性能分析</h2><p>​    Linux网络协议栈是处理网络数据包的典型系统，它包含了从物理层直到应用层的全过程。</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025161643899.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
@@ -343,7 +339,7 @@
 <p>但由于分组必须等到一个批次已满或定时器期满才会递交给上层，批处理技术的主要问题是延迟抖动以及接收报文时间戳误差的增加.</p>
 <h3 id="亲和性与预取"><a href="#亲和性与预取" class="headerlink" title="亲和性与预取"></a>亲和性与预取</h3><p>由于程序运行的局部性原理，为进程分配的内存必须与正在执行它的处理器操作的内存块一致，这种技术被称为内存的亲和性.<br>CPU亲和性是一种技术，它允许进程或线程在指定的处理器核心上运行.</p>
 <p>在内核与驱动层面，软件和硬件中断可以用同样的方法指定具体的CPU核或处理器来处理，称为中断亲和力.每当一个线程希望访问所接收的数据，如果先前这些数据已被分配到相同CPU核的中断处理程序接收，则它们在本地cache能够更容易被访问到.</p>
-<h2 id="3-经典抓包引擎"><a href="#3-经典抓包引擎" class="headerlink" title="3.经典抓包引擎"></a>3.经典抓包引擎</h2><h3 id="3-1-libpcap"><a href="#3-1-libpcap" class="headerlink" title="3.1 libpcap"></a>3.1 libpcap</h3><p>参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ed6db49a3428">libpcap实现机制及接口函数</a></p>
+<h2 id="3-经典抓包引擎"><a href="#3-经典抓包引擎" class="headerlink" title="3.经典抓包引擎"></a>3.经典抓包引擎</h2><h3 id="3-1-libpcap"><a href="#3-1-libpcap" class="headerlink" title="3.1 libpcap"></a>3.1 libpcap</h3><p>参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.jianshu.com/p/ed6db49a3428">libpcap实现机制及接口函数</a></p>
 <p>libpcap的包捕获机制是在数据链路层增加一个旁路处理，不干扰系统自身的网路协议栈的处理，对发送和接收的数据包通过Linux内核做过滤和缓冲处理，最后直接传递给上层应用程序。</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025161712705.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
 <ol>
@@ -362,7 +358,7 @@
 </li>
 </ol>
 <h3 id="3-2-libpcap-mmap"><a href="#3-2-libpcap-mmap" class="headerlink" title="3.2 libpcap-mmap"></a>3.2 libpcap-mmap</h3><p>libpcap-mmap是对旧的libpcap实现的改进，新版本的libpcap基本都采用packet_mmap机制（见3.4 PACKET_MMAP小节）。PACKET_MMAP通过mmap，减少一次内存拷贝（第4次拷贝没有了），减少了频繁的系统调用，大大提高了报文捕获的效率。</p>
-<h3 id="3-3-PF-RING"><a href="#3-3-PF-RING" class="headerlink" title="3.3 PF_RING"></a>3.3 PF_RING</h3><p>参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/6d3f3cdc2411">PF_RING学习笔记</a></p>
+<h3 id="3-3-PF-RING"><a href="#3-3-PF-RING" class="headerlink" title="3.3 PF_RING"></a>3.3 PF_RING</h3><p>参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.jianshu.com/p/6d3f3cdc2411">PF_RING学习笔记</a></p>
 <p><strong>我们看到之前libpcap有4次内存拷贝。</strong></p>
 <p><strong>libpcap_mmap有3次内存拷贝。</strong></p>
 <p>PF_RING提出的核心解决方案便是减少报文在传输过程中的拷贝次数。</p>
@@ -372,7 +368,7 @@
 <p>通过这样的方式，避免了在内核对数据包缓存，减少了一次拷贝（libpcap的第1次拷贝，DMA到内核缓冲区的拷贝）。这就是完全的零拷贝。</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025161745452.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>其缺点是，只有一个应用可以在某个时间打开DMA ring（请注意，现在的网卡可以具有多个RX &#x2F; TX队列，从而就可以在每个队列上同时一个应用程序），换而言之，用户态的多个应用需要彼此沟通才能分发数据包。</p>
-<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1521276">https://cloud.tencent.com/developer/article/1521276</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://cloud.tencent.com/developer/article/1521276">https://cloud.tencent.com/developer/article/1521276</a></p>
 <p><strong>PF_RING针对libpcap的改进方法</strong>：将网卡接收到的数据包存储在一个环状缓存中，这个<strong>环状缓存</strong>有两个接口，一个供网卡向其中写数据，另一个为应用层程序提供读取数据包的接口，从而减少了内存的拷贝次数，若将收到的数据包分发给多个环形缓冲区则可以实现多线程应用程序的读取。</p>
 <p>每创建一个PF_RING套接字便分配一个环形缓冲区，当套接字结束时释放缓冲区，不同套接字拥有不同缓冲区，将PF_RING套接字绑定到某网卡上，当数据包到达网卡时，将其放入环形缓冲区，若缓冲区已满，则丢弃该数据包。当有新的数据包到达时，直接覆盖掉已经被用户空间读取过的数据包空间。</p>
 <p>网卡接收到新的数据包后，直接写入环形缓冲区，以便应用程序直接读，若应用程序需要向外发送数据包，也可以直接将数据包写入环形缓冲区，以便网卡驱动程序将该数据包发送到相应接口上。</p>
@@ -391,7 +387,7 @@
 <p>PF_RING部分内容分享自微信公众号 - nginx遇上redis（GGame_over_the_world）</p>
 </blockquote>
 <h3 id="3-4-PACKET-MMAP"><a href="#3-4-PACKET-MMAP" class="headerlink" title="3.4 PACKET_MMAP"></a>3.4 PACKET_MMAP</h3><blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dandelionj/article/details/16980571">https://blog.csdn.net/dandelionj/article/details/16980571</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/dandelionj/article/details/16980571">https://blog.csdn.net/dandelionj/article/details/16980571</a></p>
 </blockquote>
 <p>PACKET_MMAP实现的代码都在net&#x2F;packet&#x2F;af_packet.c中，其中一些宏、结构等定义在include&#x2F;linux&#x2F;if_packet.h中。</p>
 <h4 id="PACKET-MMAP的实现原理"><a href="#PACKET-MMAP的实现原理" class="headerlink" title="PACKET_MMAP的实现原理"></a>PACKET_MMAP的实现原理</h4><p>PACKET_MMAP在内核空间中分配一块内核缓冲区，然后用户空间程序调用mmap映射到用户空间。将接收到的skb拷贝到那块内核缓冲区中，这样用户空间的程序就可以直接读到捕获的数据包了。</p>
@@ -399,7 +395,7 @@
 <p>PACKET_MMAP非常高效，它提供一个映射到用户空间的大小可配置的环形缓冲区。这种方式，读取报文只需要等待报文就可以了，大部分情况下不需要系统调用（其实poll也是一次系统调用）。通过内核空间和用户空间共享的缓冲区还可以起到减少数据拷贝的作用。</p>
 <p>当然为了提高捕获的性能，不仅仅只是PACKET_MMAP。如果你在捕获一个高速网络中的数据，你应该检查NIC是否支持一些中断负载缓和机制或者是NAPI，确定开启这些措施。</p>
 <p>PACKET_MMAP减少了系统调用，不用recvmsg就可以读取到捕获的报文，相比原始套接字+recvfrom的方式，减少了一次拷贝和一次系统调用。</p>
-<h4 id="PACKET-MMAP的使用"><a href="#PACKET-MMAP的使用" class="headerlink" title="PACKET_MMAP的使用"></a>PACKET_MMAP的使用</h4><p>从系统调用的角度来看待如何使用PACKET_MMAP，可以从 <a target="_blank" rel="noopener" href="http://blog.chinaunix.net/u/12592/showart_2207614.html">libpcap底层实现变化的分析</a>中strace的中看出来：</p>
+<h4 id="PACKET-MMAP的使用"><a href="#PACKET-MMAP的使用" class="headerlink" title="PACKET_MMAP的使用"></a>PACKET_MMAP的使用</h4><p>从系统调用的角度来看待如何使用PACKET_MMAP，可以从 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.chinaunix.net/u/12592/showart_2207614.html">libpcap底层实现变化的分析</a>中strace的中看出来：</p>
 <figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey">`[setup]:`<br>`socket()   ------&gt; 捕获socket的创建`<br>`setsockopt()  ------&gt; 环形缓冲区的分配`<br>`mmap()   ------&gt; 将分配的缓冲区映射到用户空间中`<br>`[capture]`<br>`poll()   ------&gt; 等待新进的报文`<br>`[shutdown]`<br>`close   ------&gt; 销毁捕获socket和所有相关的资源`<br></code></pre></td></tr></table></figure>
 
 <p>接下来的内容，翻译自<strong>Document&#x2F;networking&#x2F;packet_mmap.txt</strong>，但是根据需要有所删减</p>
@@ -505,7 +501,7 @@
 <p>注:其实在packet处理之前还有一次拷贝过程，在NIC Driver中，创建一个skb，然后NIC把数据DMA到skb的data中。</p>
 <p>在另外一些ZeroCopy实现中(例如 ntz)，如果不希望NIC数据进入协议栈的话，就可以不用考虑skb_shared的问题了，直接将数据从NIC Driver中DMA到制定的一块内存，然后使用mmap到用户空间。这样就只有一次DMA过程，当然DMA也是一种拷贝;-)</p>
 <p>关于数据包如何从NIC Driver到packet_rcv&#x2F;tpacket_rcv，数据包经过中断、软中断等处理，进入netif_receive_skb中对skb进行分发，就会调用dev_add_pack注册的packet_type-&gt;func。</p>
-<h3 id="3-5-DPDK"><a href="#3-5-DPDK" class="headerlink" title="3.5 DPDK"></a>3.5 DPDK</h3><p>参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9b669f7c97ce">DPDK解析—–DPDK，PF_RING对比</a></p>
+<h3 id="3-5-DPDK"><a href="#3-5-DPDK" class="headerlink" title="3.5 DPDK"></a>3.5 DPDK</h3><p>参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.jianshu.com/p/9b669f7c97ce">DPDK解析—–DPDK，PF_RING对比</a></p>
 <p>pf-ring zc和dpdk均可以实现数据包的零拷贝，两者均旁路了内核，但是实现原理略有不同。pf-ring zc通过zc驱动（也在应用层）接管数据包，dpdk基于UIO实现。</p>
 <h4 id="UIO-mmap-实现零拷贝（zero-copy）"><a href="#UIO-mmap-实现零拷贝（zero-copy）" class="headerlink" title="UIO+mmap 实现零拷贝（zero copy）"></a>UIO+mmap 实现零拷贝（zero copy）</h4><p>UIO（Userspace I&#x2F;O）是运行在用户空间的I&#x2F;O技术。Linux系统中一般的驱动设备都是运行在内核空间，而在用户空间用应用程序调用即可，而UIO则是将驱动的很少一部分运行在内核空间，而在用户空间实现驱动的绝大多数功能。<br>采用Linux提供UIO机制，可以旁路Kernel，将所有报文处理的工作在用户空间完成。</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025161801443.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
@@ -517,7 +513,7 @@
 <p>而DPDK采用HugePages ，在x86-64下支持2MB、1GB的页大小，大大降低了总页个数和页表的大小，从而大大降低TLB miss的几率，提升CPU寻址性能。</p>
 <h5 id="其它优化"><a href="#其它优化" class="headerlink" title="其它优化"></a>其它优化</h5><p>SNA（Shared-nothing Architecture），软件架构去中心化，尽量避免全局共享，带来全局竞争，失去横向扩展的能力。NUMA体系下不跨Node远程使用内存。</p>
 <p>SIMD（Single Instruction Multiple Data），从最早的mmx&#x2F;sse到最新的avx2，SIMD的能力一直在增强。DPDK采用批量同时处理多个包，再用向量编程，一个周期内对所有包进行处理。比如，memcpy就使用SIMD来提高速度。<br>cpu affinity</p>
-<h3 id="3-6-XDP-eXpress-Data-Path"><a href="#3-6-XDP-eXpress-Data-Path" class="headerlink" title="3.6 XDP(eXpress Data Path)"></a>3.6 XDP(eXpress Data Path)</h3><p>参考：<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1484793">DPDK and XDP</a></p>
+<h3 id="3-6-XDP-eXpress-Data-Path"><a href="#3-6-XDP-eXpress-Data-Path" class="headerlink" title="3.6 XDP(eXpress Data Path)"></a>3.6 XDP(eXpress Data Path)</h3><p>参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://cloud.tencent.com/developer/article/1484793">DPDK and XDP</a></p>
 <p>xdp代表eXpress数据路径，使用ebpf 做包过滤，相对于dpdk将数据包直接送到用户态，用用户态当做快速数据处理平面，xdp是在驱动层创建了一个数据快速平面。</p>
 <p>在数据被网卡硬件dma到内存，分配skb之前，对数据包进行处理。</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025161821775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
@@ -539,7 +535,7 @@
 <li>复杂网络采样</li>
 <li>高速交易平台</li>
 </ul>
-<h2 id="PS：使用XDP-eXpress-Data-Path-防御DDoS攻击"><a href="#PS：使用XDP-eXpress-Data-Path-防御DDoS攻击" class="headerlink" title="PS：使用XDP(eXpress Data Path)防御DDoS攻击"></a>PS：使用XDP(eXpress Data Path)防御DDoS攻击</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dog250/article/details/77993218">https://blog.csdn.net/dog250/article/details/77993218</a></p>
+<h2 id="PS：使用XDP-eXpress-Data-Path-防御DDoS攻击"><a href="#PS：使用XDP-eXpress-Data-Path-防御DDoS攻击" class="headerlink" title="PS：使用XDP(eXpress Data Path)防御DDoS攻击"></a>PS：使用XDP(eXpress Data Path)防御DDoS攻击</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/dog250/article/details/77993218">https://blog.csdn.net/dog250/article/details/77993218</a></p>
 <p>​       人们总是觉得<strong>Linux协议栈实现得不够好</strong>，特别是性能方面，所以在这种不信任的基调下，人们当然很自信地觉得把数据包从协议栈里拉出来，自己会处理得比内核协议栈要好，但是，真的是这样吗？我来猜测几点背后的原因。</p>
 <p>  首先，这可能是因为Linux协议栈是作为内核一个子系统套件存在的，它无法脱离内核作为一个模块存在，这就意味着如果你改了其实现的细节，就必然要重新编译内核并重启系统，别看这么简单的一个操作，对于很多线上系统是吃不消的，这就跟Windows装完软件要重启系统(重启系统仅仅就是为了重新加载注册表，windows设计者是省事了，用户烦死了！)一样烦人，所以，人们自然而然地需要一种动态HOOK的机制，在里面可以实现一些自己的逻辑。</p>
 <p>  其次，Linux内核协议栈说实话真的扛不住高并发，大流量，特别是它是在20世纪90年代作为一个通用操作系统实现的，只是后来从Linux社区迸发的一种文化让其逐渐深入各个专业的领域，比如大型服务器，专用网络设备等，这必然存在一个逐步进化的过程。一句话，Linux的协议栈不是为1Gbps&#x2F;10Gbps&#x2F;40Gbps这些网络设计的，要想支持它们，你就必须自己做点什么。</p>
@@ -550,15 +546,15 @@
 <p>  那么，什么是门？所谓的门，就是那些开销巨大，你必须花点代价才能过去的点。举几个例子，必须用户态到内核态的系统调用，比如套接字处理的自旋锁，比如内存分配，或者说现实中的深圳罗湖口岸，深圳布吉关，梅林关…</p>
 <p>  按照以上的说法，我来重新把Linux协议栈来分层，有了这个新的层次，在哪里做优化就显而易见了(红色区域开销巨大，是为”门“)：</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025165720535.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>我们看到数据包从接收一直到用户态，主要经历了两个门，其中一个是<em><strong>skb分配</strong>，另一个是</em>*套接字锁定**，在之前那篇《<a target="_blank" rel="noopener" href="http://blog.csdn.net/dog250/article/details/77920696">SYNPROXY抵御DDoS攻击的原理和优化</a>》文章中，我采用的方法显然是绕开了套接字锁定，抗DDoS的性能便得到了很大的提升，然而纵观我几乎所有的文章，基本上都是绕此门而优化的。因为这是一种便宜的方案。</p>
+<p>我们看到数据包从接收一直到用户态，主要经历了两个门，其中一个是<em><strong>skb分配</strong>，另一个是</em>*套接字锁定**，在之前那篇《<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.csdn.net/dog250/article/details/77920696">SYNPROXY抵御DDoS攻击的原理和优化</a>》文章中，我采用的方法显然是绕开了套接字锁定，抗DDoS的性能便得到了很大的提升，然而纵观我几乎所有的文章，基本上都是绕此门而优化的。因为这是一种便宜的方案。</p>
 <h3 id="绕过更低层的门"><a href="#绕过更低层的门" class="headerlink" title="绕过更低层的门"></a>绕过更低层的门</h3><p>早在2014年时，接触过一段时间netmap，当时还调研了基于Tilera做网络处理加速，不管怎样，这些都是跟DPDK类似的方案，DPDK应该都听说过，Intel的一个被吵得火热烫手的专用框架。</p>
 <p>  既然大家都一样，Intel是老大，自然就没有Tilera什么事了(它们的方案又贵，又晦涩)，这就是DPDK被炒火的原因，Intel之类的公司，放个屁都是香的。</p>
 <p>  其实，类似DPDK的加速方案原理都非常简单，那就是完全绕开内核实现的协议栈，把数据包直接从网卡拉到用户态，依靠Intel自身处理器的一些专门优化，来高速处理数据包，你可知道在这类方案中，CPU可是专门处理数据包的，什么内核态，用户态，都无关紧要，采用map机制，专门的处理程序可以非常高效地在任意时间读取并处理数据包，想想CPU的处理速度换算成pps是什么概念吧，如果一个CPU什么都不干，专门处理数据包，那将是非常猛的线速处理了。</p>
 <p>  DPDK没什么大不了的，就跟当年的EJB一样，全靠厂商推动，依赖的是一揽子方案，并非一个朴素通用的框架。你给DPDK做个手术跑在ARM上试试，就算能跑，很多功能也都是废的。</p>
 <p>  总之，在skb还未分配的网卡驱动层面做一些事情是必要的，至于怎么做，做什么，那花样就多了去了。</p>
-<h3 id="XDP"><a href="#XDP" class="headerlink" title="XDP"></a>XDP</h3><p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108993870#XDP%E6%9E%84%E9%80%A0">Linux eBPF和XDP高速处理数据包；使用EBPF编写XDP网络过滤器；高性能ACL</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108993500">介绍Calico eBPF数据平面：Linux内核网络、安全性和跟踪（Kubernetes、kube-proxy</a>）》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108990364">eBPF.io eBPF文档：扩展的数据包过滤器（BPF）</a>》</p>
+<h3 id="XDP"><a href="#XDP" class="headerlink" title="XDP"></a>XDP</h3><p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108993870#XDP%E6%9E%84%E9%80%A0">Linux eBPF和XDP高速处理数据包；使用EBPF编写XDP网络过滤器；高性能ACL</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108993500">介绍Calico eBPF数据平面：Linux内核网络、安全性和跟踪（Kubernetes、kube-proxy</a>）》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108990364">eBPF.io eBPF文档：扩展的数据包过滤器（BPF）</a>》</p>
 <p>解释一个名词，XDP的意思是eXpress Data Path。它能做什么呢？很简单，下图说明：</p>
 <p><img src="https://img-blog.csdnimg.cn/20201025165806776.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JvbmdfVG9h,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>其中，最显而易见的是，竟然可以在如此低的层面上把数据包丢弃或者回弹回去，如果面临DDoS攻击，采用这种方式的话，数据包就没有必要上升到Netfilter层面再被丢弃了。说白了，XDP允许数据包在进入Linux协议栈之前就能受到判决。</p>
@@ -566,17 +562,17 @@
 <p>  <strong>eBPF！</strong><br>  事实上，这相当于在网卡驱动层面运行了一个eBPF程序，该程序决定数据包何去何从。最简单的想法是，假设1000个IP地址是已知的异常地址，我们将其封装在一个高效的查找结构中，然后将这个结构包括查找过程编译成eBPF字节码并注入到网卡，网卡收到数据包后，运行该eBPF字节码，如果数据包源IP地址被找到，则丢弃！</p>
 <p>这不就是n+1模型以及iptables的bpf match中需要的效果吗:</p>
 <ul>
-<li>《<a target="_blank" rel="noopener" href="http://blog.csdn.net/dog250/article/details/77790504">使用iptables的bpf match来优化规则集-HiPAC&#x2F;ipset&#x2F;n+1模型之外的方法</a>》</li>
-<li>《<a target="_blank" rel="noopener" href="http://blog.csdn.net/dog250/article/details/77618319">iptables高性能前端优化-无压力配置1w+条规则</a>》</li>
+<li>《<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.csdn.net/dog250/article/details/77790504">使用iptables的bpf match来优化规则集-HiPAC&#x2F;ipset&#x2F;n+1模型之外的方法</a>》</li>
+<li>《<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.csdn.net/dog250/article/details/77618319">iptables高性能前端优化-无压力配置1w+条规则</a>》</li>
 </ul>
 <p>更加令人兴奋的是，这一切竟然本来就是存在的现成的东西。推荐几个链接：</p>
-<p><a target="_blank" rel="noopener" href="https://netdevconf.org/2.1/slides/apr6/bertin_Netdev-XDP.pdf">https://netdevconf.org/2.1/slides/apr6/bertin_Netdev-XDP.pdf</a><br><a target="_blank" rel="noopener" href="https://netdevconf.org/2.1/papers/Gilberto_Bertin_XDP_in_practice.pdf">https://netdevconf.org/2.1/papers/Gilberto_Bertin_XDP_in_practice.pdf</a><br><a target="_blank" rel="noopener" href="https://github.com/netoptimizer/prototype-kernel">https://github.com/netoptimizer/prototype-kernel</a><br><a target="_blank" rel="noopener" href="https://www.iovisor.org/technology/xdp">https://www.iovisor.org/technology/xdp</a><br>以往，我们认为内核是确定的程序，我们能喂给它的只有数据，虽然Linux内核大部分都跑在冯诺依曼架构为主(如今基本都是混合架构)的机器上，但这种认知反而更像是哈佛架构，冯诺依曼机器本来就是程序和数据统一存储的，现在，eBPF程序可以被灌入网卡驱动了，这简直就跟网卡硬件的Firmware一样为网卡注入了新的功能。不管是你认为程序已经数据化了，还是这种方案真的回归了冯诺依曼模型，都无所谓，重要的是，它提升了性能。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://netdevconf.org/2.1/slides/apr6/bertin_Netdev-XDP.pdf">https://netdevconf.org/2.1/slides/apr6/bertin_Netdev-XDP.pdf</a><br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://netdevconf.org/2.1/papers/Gilberto_Bertin_XDP_in_practice.pdf">https://netdevconf.org/2.1/papers/Gilberto_Bertin_XDP_in_practice.pdf</a><br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/netoptimizer/prototype-kernel">https://github.com/netoptimizer/prototype-kernel</a><br><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.iovisor.org/technology/xdp">https://www.iovisor.org/technology/xdp</a><br>以往，我们认为内核是确定的程序，我们能喂给它的只有数据，虽然Linux内核大部分都跑在冯诺依曼架构为主(如今基本都是混合架构)的机器上，但这种认知反而更像是哈佛架构，冯诺依曼机器本来就是程序和数据统一存储的，现在，eBPF程序可以被灌入网卡驱动了，这简直就跟网卡硬件的Firmware一样为网卡注入了新的功能。不管是你认为程序已经数据化了，还是这种方案真的回归了冯诺依曼模型，都无所谓，重要的是，它提升了性能。</p>
 <p>  请注意，XDP并没有对数据包做Kernel bypass，它只是提前做了一点预检而已，目前它也只能有三种Action，继续去挂号，直接杀掉，或者打道回府，看来这只是减少了挂号服务生的负担…这与DPDK这种半道黄牛是完全不同的，DPDK完全可能把你拉到一个黑诊所…不过，XDP思路非常清晰，后续的可能性谁也无法预估，说不定真有一天XDP会直接接管路由查找甚至TCP握手处理呢。</p>
 <p>  本节的最后，再一次提一下一个熟悉的朋友，那就是Cisco的ACL，我一直都觉得在Cisco的中低端设备上，ACL的匹配就是按照XDP的方式做的，把用户输入的ACL规则编译成eBPF之类的字节码，然后灌入到需要使能的网卡上，我想象不出除了这种方式，还能有什么更高效的方式，也希望Cisco的朋友能有机会告知究竟…</p>
-<h2 id="4-无锁队列技术"><a href="#4-无锁队列技术" class="headerlink" title="4.无锁队列技术"></a>4.无锁队列技术</h2><p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/101508279">【共享内存】基于共享内存的无锁消息队列设计</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108203912">DPDK无锁队列rte_ring相关代码及示例程序（rte_ring.h，rte_ring.c，main.c，makefile）</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://coolshell.cn/articles/8239.html">无锁队列的实现</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/107614630">DPDK ring库：环形缓冲区的解剖</a>》</p>
+<h2 id="4-无锁队列技术"><a href="#4-无锁队列技术" class="headerlink" title="4.无锁队列技术"></a>4.无锁队列技术</h2><p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/101508279">【共享内存】基于共享内存的无锁消息队列设计</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108203912">DPDK无锁队列rte_ring相关代码及示例程序（rte_ring.h，rte_ring.c，main.c，makefile）</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://coolshell.cn/articles/8239.html">无锁队列的实现</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/107614630">DPDK ring库：环形缓冲区的解剖</a>》</p>
 <p>在报文捕获的流程中，无锁队列是一个很重要的数据结构。生产者（网卡）写数据和消费者（用户态程序）读数据，不加锁，能极大提升效率。</p>
 <p>无锁队列实现主要依赖的技术有：</p>
 <ul>
@@ -593,26 +589,26 @@
 <p>使用PF_RING&#x2F;DPDK的设备，它可以将数据包直接从网卡的芯片DMA到你机器上的内存，然后你通过一个应用程序而不是内核协议栈来处理数据包。</p>
 <p>至于说你的应用程序怎么处置数据包，列举几个：</p>
 <p>1.深度解析数据包，按照各种你可以想到的粒度来解析会话，然后记录审计信息；<br>2.提供高性能的入侵检测功能；<br>3.转发数据包，按照路由器的方式。但是不再仅仅通过查询路由表的方式进行IP路由，而是可以通过各种各样的方式，转发表完全由你自己定义，比如实现一个通用的SDN流表；<br>4.根据上面第2点的含义，你可以决定哪些包被丢弃，这就是一个高性能的防火墙。<br>相比内核协议栈的串行解决方案，使用PF_RING&#x2F;DPDK是一个更加高效的方案，不但高效，而且灵活。如果你拥有多核心的处理器，你甚至可以在用户态并行处理数据包的各个层信息。</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>《<a target="_blank" rel="noopener" href="https://coolshell.cn/articles/8239.html">无锁队列的实现</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1521276">PF_RING</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://blog.csdn.net/dandelionj/article/details/16980571">PACKET_MMAP实现原理分析</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://my.oschina.net/moooofly/blog/898798">【原创】图解抓包</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://blog.csdn.net/dog250/article/details/77993218">使用XDP(eXpress Data Path)防御DDoS攻击</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://blog.csdn.net/gengzhikui1992/article/details/103142848">linux报文高速捕获技术对比–napi&#x2F;libpcap&#x2F;afpacket&#x2F;pfring&#x2F;dpdk&#x2F;xdp</a>》</p>
-<p><a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108993870#XDP%E6%9E%84%E9%80%A0">Linux eBPF和XDP高速处理数据包；使用EBPF编写XDP网络过滤器；高性能ACL</a></p>
-<p><a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108993500">介绍Calico eBPF数据平面：Linux内核网络、安全性和跟踪（Kubernetes、kube-proxy）</a></p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108990364">eBPF.io eBPF文档：扩展的数据包过滤器（BPF）</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108897178">iptables详解（1）：iptables概念</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108897396">iptables详解（2）：路由表</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/101508279">【共享内存】基于共享内存的无锁消息队列设计</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/108203912">DPDK无锁队列rte_ring相关代码及示例程序（rte_ring.h，rte_ring.c，main.c，makefile）</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://coolshell.cn/articles/8239.html">无锁队列的实现</a>》</p>
-<p>《<a target="_blank" rel="noopener" href="https://rtoax.blog.csdn.net/article/details/107614630">DPDK ring库：环形缓冲区的解剖</a>》</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://coolshell.cn/articles/8239.html">无锁队列的实现</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://cloud.tencent.com/developer/article/1521276">PF_RING</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/dandelionj/article/details/16980571">PACKET_MMAP实现原理分析</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://my.oschina.net/moooofly/blog/898798">【原创】图解抓包</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/dog250/article/details/77993218">使用XDP(eXpress Data Path)防御DDoS攻击</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.csdn.net/gengzhikui1992/article/details/103142848">linux报文高速捕获技术对比–napi&#x2F;libpcap&#x2F;afpacket&#x2F;pfring&#x2F;dpdk&#x2F;xdp</a>》</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108993870#XDP%E6%9E%84%E9%80%A0">Linux eBPF和XDP高速处理数据包；使用EBPF编写XDP网络过滤器；高性能ACL</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108993500">介绍Calico eBPF数据平面：Linux内核网络、安全性和跟踪（Kubernetes、kube-proxy）</a></p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108990364">eBPF.io eBPF文档：扩展的数据包过滤器（BPF）</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108897178">iptables详解（1）：iptables概念</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108897396">iptables详解（2）：路由表</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/101508279">【共享内存】基于共享内存的无锁消息队列设计</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/108203912">DPDK无锁队列rte_ring相关代码及示例程序（rte_ring.h，rte_ring.c，main.c，makefile）</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://coolshell.cn/articles/8239.html">无锁队列的实现</a>》</p>
+<p>《<a target="_blank" rel="external nofollow noopener noreferrer" href="https://rtoax.blog.csdn.net/article/details/107614630">DPDK ring库：环形缓冲区的解剖</a>》</p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -688,7 +684,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -719,7 +715,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -739,7 +735,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -778,8 +774,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -839,8 +834,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -851,13 +846,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -876,7 +871,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -910,7 +905,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -948,9 +943,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -958,7 +953,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

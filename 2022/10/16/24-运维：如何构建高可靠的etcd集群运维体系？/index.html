@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间etcd课程笔记">
 <meta property="og:type" content="article">
@@ -49,15 +49,15 @@
   
   <title>24.运维：如何构建高可靠的etcd集群运维体系？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -71,12 +71,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -92,8 +92,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -131,9 +131,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -211,8 +209,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -222,8 +219,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -271,7 +267,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -306,7 +302,7 @@
               <div class="markdown-body">
                 
                 <h1 id="24-运维：如何构建高可靠的etcd集群运维体系？"><a href="#24-运维：如何构建高可靠的etcd集群运维体系？" class="headerlink" title="24.运维：如何构建高可靠的etcd集群运维体系？"></a>24.运维：如何构建高可靠的etcd集群运维体系？</h1><blockquote>
-<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
 </blockquote>
 <p>在使用etcd过程中，我们经常会面临着一系列问题与选择，比如：</p>
 <ul>
@@ -339,7 +335,7 @@
 <li>组建集群版（静态配置、动态配置，发现集群其他节点）；</li>
 <li>开启etcd服务，启动etcd集群。</li>
 </ul>
-<p>详细可以参考digitalocean <a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04">这篇博客文章</a>，它介绍了如何使用ansible去部署一个安全的etcd集群，并给出了对应的yaml任务文件。</p>
+<p>详细可以参考digitalocean <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-and-secure-an-etcd-cluster-with-ansible-on-ubuntu-18-04">这篇博客文章</a>，它介绍了如何使用ansible去部署一个安全的etcd集群，并给出了对应的yaml任务文件。</p>
 <p><strong>容器化部署则具有极速的交付效率、更灵活的资源控制、更低的虚拟化开销等一系列优点</strong>。自从Docker诞生后，容器化部署就风靡全球。有的业务直接使用裸Docker容器来跑etcd集群。然而裸Docker容器不具备调度、故障自愈、弹性扩容等特性，存在较大局限性。</p>
 <p>随后为了解决以上问题，诞生了以Kubernetes、Swarm为首的容器编排平台，Kubernetes成为了容器编排之战中的王者，大量业务使用Kubernetes来部署etcd、ZooKeeper等有状态服务。在开源社区中，也诞生了若干个etcd的Kubernetes容器化解决方案，分别如下：</p>
 <ul>
@@ -349,13 +345,13 @@
 <li>openshit&#x2F;cluster-etcd-operator；</li>
 <li>kubeadm。</li>
 </ul>
-<p><a target="_blank" rel="noopener" href="https://github.com/coreos/etcd-operator">etcd-operator</a> 目前已处于Archived状态，无人维护，基本废弃。同时它是基于裸Pod实现的，要做好各种备份。在部分异常情况下存在集群宕机、数据丢失风险，我仅建议你使用它的数据备份etcd-backup-operator。</p>
-<p><strong><a target="_blank" rel="noopener" href="https://bitnami.com/stack/etcd/helm">bitnami etcd</a> 提供了一个helm包一键部署etcd集群，支持各个云厂商，支持使用PV、PVC持久化存储数据，底层基于StatefulSet实现，较稳定。目前不少开源项目使用的是它。</strong></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/coreos/etcd-operator">etcd-operator</a> 目前已处于Archived状态，无人维护，基本废弃。同时它是基于裸Pod实现的，要做好各种备份。在部分异常情况下存在集群宕机、数据丢失风险，我仅建议你使用它的数据备份etcd-backup-operator。</p>
+<p><strong><a target="_blank" rel="external nofollow noopener noreferrer" href="https://bitnami.com/stack/etcd/helm">bitnami etcd</a> 提供了一个helm包一键部署etcd集群，支持各个云厂商，支持使用PV、PVC持久化存储数据，底层基于StatefulSet实现，较稳定。目前不少开源项目使用的是它。</strong></p>
 <p>可以通过如下helm命令，快速在Kubernete集群中部署一个etcd集群。</p>
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs arduino">helm repo add bitnami https:<span class="hljs-comment">//charts.bitnami.com/bitnami</span><br>helm install my-release bitnami/etcd<br><br></code></pre></td></tr></table></figure>
 
-<p><a target="_blank" rel="noopener" href="https://github.com/improbable-eng/etcd-cluster-operator">etcd-cluster-operator</a> 和openshit&#x2F; <a target="_blank" rel="noopener" href="https://github.com/openshift/cluster-etcd-operator">cluster-etcd-operator</a> 比较小众，目前star不多，但是有相应的开发者维护，你可参考下它们的实现思路，与etcd-operator基于Pod、bitnami etcd基于Statefulset实现不一样的是，它们是基于ReplicaSet和Static Pod实现的。</p>
-<p><strong>最后介绍的是 <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/setup-ha-etcd-with-kubeadm/">kubeadm</a>，它是Kubernetes集群中的etcd高可用部署方案的提供者，kubeadm是基于Static Pod部署etcd集群的。Static Pod相比普通Pod有其特殊性，它是直接由节点上的kubelet进程来管理，无需通过kube-apiserver。</strong></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/improbable-eng/etcd-cluster-operator">etcd-cluster-operator</a> 和openshit&#x2F; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openshift/cluster-etcd-operator">cluster-etcd-operator</a> 比较小众，目前star不多，但是有相应的开发者维护，你可参考下它们的实现思路，与etcd-operator基于Pod、bitnami etcd基于Statefulset实现不一样的是，它们是基于ReplicaSet和Static Pod实现的。</p>
+<p><strong>最后介绍的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/setup-ha-etcd-with-kubeadm/">kubeadm</a>，它是Kubernetes集群中的etcd高可用部署方案的提供者，kubeadm是基于Static Pod部署etcd集群的。Static Pod相比普通Pod有其特殊性，它是直接由节点上的kubelet进程来管理，无需通过kube-apiserver。</strong></p>
 <p>创建Static Pod方式有两种，分别是配置文件和HTTP。kubeadm使用的是配置文件，也就是在kubelet监听的静态Pod目录下（一般是&#x2F;etc&#x2F;kubernetes&#x2F;manifests）放置相应的etcd Pod YAML文件即可，如下图所示。</p>
 <p><img src="https://static001.geekbang.org/resource/image/d7/05/d7c28814d3f83ff4ef474df72b10b305.png?wh=1920*1007" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>注意在这种部署方式中，部署etcd的节点需要部署docker、kubelet、kubeadm组件，依赖较重。</p>
@@ -370,11 +366,11 @@
 <p>这个过程就是发现（Discovery）。目前etcd主要通过两种方式来获取以上信息，分别是 <strong>static configuration</strong> 和 <strong>dynamic service discovery</strong>。</p>
 <p><strong>static configuration</strong> 是指集群总成员节点数、成员节点的IP地址都是已知、固定的，根据我们上面介绍的initial-cluster-state原理，有如下两个方法可基于静态配置组建一个集群。</p>
 <ul>
-<li>方法1，三个节点的initial-cluster-state都配置为new，静态启动，initial-cluster参数包含三个节点信息即可，详情你可参考 <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/op-guide/clustering/">社区文档</a>。</li>
+<li>方法1，三个节点的initial-cluster-state都配置为new，静态启动，initial-cluster参数包含三个节点信息即可，详情你可参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://etcd.io/docs/v3.4.0/op-guide/clustering/">社区文档</a>。</li>
 <li>方法2，第一个节点initial-cluster-state设置为new，独立成集群，随后第二和第三个节点都为existing，通过扩容的方式，不断加入到第一个节点所组成的集群中。</li>
 </ul>
 <p>如果成员节点信息是未知的，你可以通过 <strong>dynamic service discovery</strong> 机制解决。</p>
-<p>etcd社区还提供了通过公共服务来发现成员节点信息，组建集群的方案。它的核心是集群内的各个成员节点向公共服务注册成员地址等信息，各个节点通过公共服务来发现彼此，可以参考 <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/dev-internal/discovery_protocol/">官方详细文档。</a></p>
+<p>etcd社区还提供了通过公共服务来发现成员节点信息，组建集群的方案。它的核心是集群内的各个成员节点向公共服务注册成员地址等信息，各个节点通过公共服务来发现彼此，可以参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://etcd.io/docs/v3.4.0/dev-internal/discovery_protocol/">官方详细文档。</a></p>
 <h2 id="监控及告警体系"><a href="#监控及告警体系" class="headerlink" title="监控及告警体系"></a>监控及告警体系</h2><p>当我们把集群部署起来后，在业务开始使用之前，部署监控是必不可少的一个环节，它是保障业务稳定性，提前发现风险、隐患点的重要核心手段。那么要如何快速监控你的etcd集群呢？</p>
 <p>正如之前在14和15里和你介绍延时、内存时所提及的，etcd提供了丰富的metrics来展示整个集群的核心指标、健康度。metrics按模块可划分为磁盘、网络、MVCC事务、gRPC RPC、etcdserver。</p>
 <p>磁盘相关的metrics及含义如下图所示。</p>
@@ -389,7 +385,7 @@
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">curl</span> <span class="hljs-number">127.0.0.1:2379</span>/metrics<br><br></code></pre></td></tr></table></figure>
 
 <p>了解常见的metrics后，我们只需要配置Prometheus服务，采集etcd集群的2379端口的metrics路径。</p>
-<p>采集的方案一般有两种， <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/op-guide/monitoring/">静态配置</a> 和动态配置。</p>
+<p>采集的方案一般有两种， <a target="_blank" rel="external nofollow noopener noreferrer" href="https://etcd.io/docs/v3.4.0/op-guide/monitoring/">静态配置</a> 和动态配置。</p>
 <p>静态配置是指添加待监控的etcd target到Prometheus配置文件，如下所示。</p>
 <figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs 1c">global:<br>  scrape_interval: <span class="hljs-number">10</span>s<br>scrape_configs:<br>  - job_name: test-etcd<br>    static_configs:<br>    - targets:<br> [&#x27;10.240.0.32:<span class="hljs-number">2379</span>&#x27;,&#x27;10.240.0.33:<span class="hljs-number">2379</span>&#x27;,&#x27;10.240.0.34:<span class="hljs-number">2379</span>&#x27;]<br><br></code></pre></td></tr></table></figure>
 
@@ -399,9 +395,9 @@
 <p>答案ServiceMonitor资源通过Namespace、Labels描述了待采集实例对应的Service Endpoint。</p>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">apiVersion:</span> monitoring.coreos.com/v1<br><span class="hljs-symbol">kind:</span> ServiceMonitor<br><span class="hljs-symbol">metadata:</span><br><span class="hljs-symbol">  name:</span> prometheus-prometheus-oper-kube-etcd<br><span class="hljs-symbol">  namespace:</span> monitoring<br><span class="hljs-symbol">spec:</span><br><span class="hljs-symbol">  endpoints:</span><br>  - bearerTokenFile: <span class="hljs-keyword">/var/</span>run<span class="hljs-keyword">/secrets/</span>kubernetes.io<span class="hljs-keyword">/serviceaccount/</span>token<br><span class="hljs-symbol">    port:</span> http-metrics<br><span class="hljs-symbol">    scheme:</span> https<br><span class="hljs-symbol">    tlsConfig:</span><br><span class="hljs-symbol">      caFile:</span> <span class="hljs-keyword">/etc/</span>prometheus<span class="hljs-keyword">/secrets/</span>etcd-certs/ca.crt<br><span class="hljs-symbol">      certFile:</span> <span class="hljs-keyword">/etc/</span>prometheus<span class="hljs-keyword">/secrets/</span>etcd-certs/client.crt<br><span class="hljs-symbol">      insecureSkipVerify:</span> true<br><span class="hljs-symbol">      keyFile:</span> <span class="hljs-keyword">/etc/</span>prometheus<span class="hljs-keyword">/secrets/</span>etcd-certs/client.key<br><span class="hljs-symbol">  jobLabel:</span> jobLabel<br><span class="hljs-symbol">  namespaceSelector:</span><br><span class="hljs-symbol">    matchNames:</span><br>    - kube-system<br><span class="hljs-symbol">  selector:</span><br><span class="hljs-symbol">    matchLabels:</span><br><span class="hljs-symbol">      app:</span> prometheus-operator-kube-etcd<br><span class="hljs-symbol">      release:</span> prometheus<br><br></code></pre></td></tr></table></figure>
 
-<p>采集了metrics监控数据后，下一步就是要基于metrics监控数据告警了。可以通过Prometheus和 <a target="_blank" rel="noopener" href="https://github.com/prometheus/alertmanager">Alertmanager</a> 组件实现，那你应该为哪些核心指标告警呢？</p>
-<p>当然是影响集群可用性的最核心的metric。比如是否有Leader、Leader切换次数、WAL和事务操作延时。etcd社区提供了一个 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/Documentation/op-guide/etcd3_alert.rules">丰富的告警规则</a>，你可以参考下。</p>
-<p>最后，为了方便查看etcd集群运行状况和提升定位问题的效率，可以基于采集的metrics配置个 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/Documentation/op-guide/grafana.json">grafana可视化面板</a>。下面列出了集群是否有Leader、总的key数、总的watcher数、出流量、WAL持久化延时的可视化面板。</p>
+<p>采集了metrics监控数据后，下一步就是要基于metrics监控数据告警了。可以通过Prometheus和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/prometheus/alertmanager">Alertmanager</a> 组件实现，那你应该为哪些核心指标告警呢？</p>
+<p>当然是影响集群可用性的最核心的metric。比如是否有Leader、Leader切换次数、WAL和事务操作延时。etcd社区提供了一个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/Documentation/op-guide/etcd3_alert.rules">丰富的告警规则</a>，你可以参考下。</p>
+<p>最后，为了方便查看etcd集群运行状况和提升定位问题的效率，可以基于采集的metrics配置个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/Documentation/op-guide/grafana.json">grafana可视化面板</a>。下面列出了集群是否有Leader、总的key数、总的watcher数、出流量、WAL持久化延时的可视化面板。</p>
 <p><img src="https://static001.geekbang.org/resource/image/a3/9f/a3b42d1e81dd706897edf32ecbc65f9f.png?wh=848*482" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><img src="https://static001.geekbang.org/resource/image/d3/7d/d3bc1f984ea8b2e301471ef2923d1b7d.png?wh=1306*366" srcset="/img/loading.gif" lazyload alt="img"><img src="https://static001.geekbang.org/resource/image/yy/9f/yy73b00dd4d48d473c1d900c96dd0a9f.png?wh=1308*358" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p><img src="https://static001.geekbang.org/resource/image/2d/25/2d28317yyc38957ae2125e460b83f825.png?wh=1282*362" srcset="/img/loading.gif" lazyload alt="img"></p>
@@ -413,7 +409,7 @@
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl --endpoints <span class="hljs-variable">$ENDPOINT</span><br>snapshot save snapshotdb<br><span class="hljs-attribute">ETCDCTL_API</span>=3 etcdctl <span class="hljs-attribute">--write-out</span>=table snapshot status snapshotdb<br><br></code></pre></td></tr></table></figure>
 
 <p>其次是通过定时任务进行定时备份，建议至少每隔1个小时备份一次。</p>
-<p>然后是通过 <a target="_blank" rel="noopener" href="https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/backup-operator.md#:~:text=etcd%20backup%20operator%20backs%20up,storage%20such%20as%20AWS%20S3.">etcd-backup-operator</a> 进行自动化的备份，类似ServiceMonitor，你可以通过创建一个备份任务CRD实现。CRD如下：</p>
+<p>然后是通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/backup-operator.md#:~:text=etcd%20backup%20operator%20backs%20up,storage%20such%20as%20AWS%20S3.">etcd-backup-operator</a> 进行自动化的备份，类似ServiceMonitor，你可以通过创建一个备份任务CRD实现。CRD如下：</p>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">apiVersion:</span> <span class="hljs-string">&quot;etcd.database.coreos.com/v1beta2&quot;</span><br><span class="hljs-symbol">kind:</span> <span class="hljs-string">&quot;EtcdBackup&quot;</span><br><span class="hljs-symbol">metadata:</span><br><span class="hljs-symbol">  name:</span> example-etcd-cluster-periodic-backup<br><span class="hljs-symbol">spec:</span><br><span class="hljs-symbol">  etcdEndpoints:</span> [<span class="hljs-params">&lt;etcd-cluster-endpoints&gt;</span>]<br><span class="hljs-symbol">  storageType:</span> S3<br><span class="hljs-symbol">  backupPolicy:</span><br>    <span class="hljs-meta"># 0 &gt; enable periodic backup</span><br><span class="hljs-symbol">    backupIntervalInSecond:</span> <span class="hljs-number">125</span><br><span class="hljs-symbol">    maxBackups:</span> <span class="hljs-number">4</span><br><span class="hljs-symbol">  s3:</span><br>    <span class="hljs-meta"># The format of <span class="hljs-string">&quot;path&quot;</span> must be: <span class="hljs-string">&quot;&lt;s3-bucket-name&gt;/&lt;path-to-backup-file&gt;&quot;</span></span><br>    <span class="hljs-meta"># e.g: <span class="hljs-string">&quot;mybucket/etcd.backup&quot;</span></span><br><span class="hljs-symbol">    path:</span> <span class="hljs-params">&lt;full-s3-path&gt;</span><br><span class="hljs-symbol">    awsSecret:</span> <span class="hljs-params">&lt;aws-secret&gt;</span><br><br></code></pre></td></tr></table></figure>
 
 <p>最后可以通过给etcd集群增加Learner节点，实现跨地域热备。因Learner节点属于非投票成员的节点，因此它并不会影响你集群的性能。它的基本工作原理是当Leader收到写请求时，它会通过Raft模块将日志同步给Learner节点。你需要注意的是，在etcd 3.4中目前只支持1个Learner节点，并且只允许串行读。</p>
@@ -455,7 +451,7 @@
 <li>进程相关的。比如模拟进程异常被杀、重启等。之前遇到的一个非常难定位和复现的数据不一致Bug，我们就是通过注入进程异常重启等故障，最后成功复现。</li>
 <li>压力测试相关的。比如模拟CPU高负载、内存使用率等。</li>
 </ul>
-<p>开源社区在混沌工程领域诞生了若干个优秀的混沌工程项目，如chaos-mesh、chaos-blade、litmus。这里重点介绍下 <a target="_blank" rel="noopener" href="https://github.com/chaos-mesh/chaos-mesh">chaos-mesh</a>，它是基于Kubernetes实现的云原生混沌工程平台，下图是其架构图（引用自社区）。</p>
+<p>开源社区在混沌工程领域诞生了若干个优秀的混沌工程项目，如chaos-mesh、chaos-blade、litmus。这里重点介绍下 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/chaos-mesh/chaos-mesh">chaos-mesh</a>，它是基于Kubernetes实现的云原生混沌工程平台，下图是其架构图（引用自社区）。</p>
 <p><img src="https://static001.geekbang.org/resource/image/b8/a7/b87d187ea2ab60d824223662fd6033a7.png?wh=1920*1287" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>为了实现以上异常场景的故障注入，chaos-mesh定义了若干种资源类型，分别如下：</p>
 <ul>
@@ -476,13 +472,13 @@
 <p>备份及还原上，重点介绍了etcd snapshot命令，etcd-backup-operator的备份任务CRD机制，推荐使用后者。</p>
 <p>最后是巡检、混沌工程，它能帮助我们高效治理etcd集群，及时发现潜在隐患，低成本、快速的复现Bug和故障等。</p>
 <p>简单介绍下：etcd一站式治理平台kstone. </p>
-<p>Kstone 是一个针对 etcd 的全方位运维解决方案，提供集群管理（关联已有集群、创建新集群等)、监控、备份、巡检、数据迁移、数据可视化、智能诊断等一系列特性。 Kstone 将帮助你高效管理etcd集群，显著降低运维成本、及时发现潜在隐患、提升k8s etcd存储的稳定性和用户体验。 <a target="_blank" rel="noopener" href="https://github.com/tkestack/kstone,%E3%80%82">https://github.com/tkestack/kstone,。</a></p>
+<p>Kstone 是一个针对 etcd 的全方位运维解决方案，提供集群管理（关联已有集群、创建新集群等)、监控、备份、巡检、数据迁移、数据可视化、智能诊断等一系列特性。 Kstone 将帮助你高效管理etcd集群，显著降低运维成本、及时发现潜在隐患、提升k8s etcd存储的稳定性和用户体验。 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/tkestack/kstone,%E3%80%82">https://github.com/tkestack/kstone,。</a></p>
 <p><img src="https://static001.geekbang.org/resource/image/7b/28/7b54b6ca9134c130bf3940c7db497928.png?wh=1920*1177" srcset="/img/loading.gif" lazyload alt="img"></p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -560,7 +556,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -591,7 +587,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -611,7 +607,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -650,8 +646,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -711,8 +706,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -723,13 +718,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -748,7 +743,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -782,7 +777,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -820,9 +815,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -830,7 +825,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

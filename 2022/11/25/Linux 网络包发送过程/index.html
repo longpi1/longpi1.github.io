@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="转载自张彦飞的[图解 Linux 网络包发送过程]">
 <meta property="og:type" content="article">
@@ -60,15 +60,15 @@
   
   <title>Linux 网络包发送过程 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -82,12 +82,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -103,8 +103,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -142,9 +142,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -222,8 +220,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -233,8 +230,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -282,7 +278,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -317,7 +313,7 @@
               <div class="markdown-body">
                 
                 <h1 id="Linux-网络包发送过程"><a href="#Linux-网络包发送过程" class="headerlink" title="Linux 网络包发送过程"></a>Linux 网络包发送过程</h1><blockquote>
-<p>转载自张彦飞大佬的<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/373060740">图解 Linux 网络包发送过程</a></p>
+<p>转载自张彦飞大佬的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/373060740">图解 Linux 网络包发送过程</a></p>
 </blockquote>
 <p>如下代码是一个典型服务器程序的典型的缩微代码：</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs text">int main()&#123;<br> fd = socket(AF_INET, SOCK_STREAM, 0);<br> bind(fd, ...);<br> listen(fd, ...);<br><br> cfd = accept(fd, ...);<br><br> // 接收用户请求<br> read(cfd, ...);<br><br> // 用户请求处理<br> dosometing(); <br><br> // 给用户返回结果<br> send(cfd, buf, sizeof(buf), 0);<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -361,7 +357,7 @@
 <p><img src="https://pic4.zhimg.com/80/v2-52d6007054ead81044fef43870b3cadb_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>其中代表一条连接的 socket 内核对象更为具体一点的结构图如下。</p>
 <p><img src="https://pic4.zhimg.com/80/v2-c2bdf3847e53d464b53478491968f6ff_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>为了避免喧宾夺主，accept 详细的源码过程这里就不介绍了，感兴趣请参考 **<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/OmRdUgO1guMX76EdZn11UQ">《图解 | 深入揭秘 epoll 是如何实现 IO 多路复用的！》</a>**。一文中的第一部分。</p>
+<p>为了避免喧宾夺主，accept 详细的源码过程这里就不介绍了，感兴趣请参考 **<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/OmRdUgO1guMX76EdZn11UQ" rel="external nofollow noopener noreferrer" target="_blank">《图解 | 深入揭秘 epoll 是如何实现 IO 多路复用的！》</a>**。一文中的第一部分。</p>
 <p>今天我们还是把重点放到数据发送过程上。</p>
 <h2 id="四、发送数据真正开始"><a href="#四、发送数据真正开始" class="headerlink" title="四、发送数据真正开始"></a><strong>四、发送数据真正开始</strong></h2><h3 id="4-1-send-系统调用实现"><a href="#4-1-send-系统调用实现" class="headerlink" title="4.1 send 系统调用实现"></a><strong>4.1 send 系统调用实现</strong></h3><p>send 系统调用的源码位于文件 net&#x2F;socket.c 中。在这个系统调用里，内部其实真正使用的是 sendto 系统调用。整个调用链条虽然不短，但其实主要只干了两件简单的事情，</p>
 <ul>
@@ -504,7 +500,7 @@
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">//file: net/core/dev.c<br>static inline void __netif_reschedule(struct Qdisc *q)<br>&#123;<br> sd = &amp;__get_cpu_var(softnet_data);<br> q-&gt;next_sched = NULL;<br> *sd-&gt;output_queue_tailp = q;<br> sd-&gt;output_queue_tailp = &amp;q-&gt;next_sched;<br><br> ......<br> raise_softirq_irqoff(NET_TX_SOFTIRQ);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>在该函数里在软中断能访问到的 softnet_data 里设置了要发送的数据队列，添加到了 output_queue 里了。紧接着触发了 NET_TX_SOFTIRQ 类型的软中断。（T 代表 transmit 传输）</p>
-<p>软中断的入口代码我这里也不详细扒了，感兴趣的同学参考**<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/GoYDsfy9m0wRoXi_NCfCmg">《图解Linux网络包接收过程》</a>**一文中的 3.2 小节 - ksoftirqd内核线程处理软中断。</p>
+<p>软中断的入口代码我这里也不详细扒了，感兴趣的同学参考**<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/GoYDsfy9m0wRoXi_NCfCmg" rel="external nofollow noopener noreferrer" target="_blank">《图解Linux网络包接收过程》</a>**一文中的 3.2 小节 - ksoftirqd内核线程处理软中断。</p>
 <p>我们直接从 NET_TX_SOFTIRQ softirq 注册的回调函数 net_tx_action讲起。用户态进程触发完软中断之后，会有一个软中断内核线程会执行到 net_tx_action。</p>
 <p><strong>牢记，这以后发送数据消耗的 CPU 就都显示在 si 这里了，不会消耗用户进程的系统时间了</strong>。</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs text">//file: net/core/dev.c<br>static void net_tx_action(struct softirq_action *h)<br>&#123;<br> //通过 softnet_data 获取发送队列<br> struct softnet_data *sd = &amp;__get_cpu_var(softnet_data);<br><br> // 如果 output queue 上有 qdisc<br> if (sd-&gt;output_queue) &#123;<br><br>  // 将 head 指向第一个 qdisc<br>  head = sd-&gt;output_queue;<br><br>  //遍历 qdsics 列表<br>  while (head) &#123;<br>   struct Qdisc *q = head;<br>   head = head-&gt;next_sched;<br><br>   //发送数据<br>   qdisc_run(q);<br>  &#125;<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -526,7 +522,7 @@
 <p>在 igb 网卡驱动源码中，我们找到了。</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">//file: drivers/net/ethernet/intel/igb/igb_main.c<br>static const struct net_device_ops igb_netdev_ops = &#123;<br> .ndo_open  = igb_open,<br> .ndo_stop  = igb_close,<br> .ndo_start_xmit  = igb_xmit_frame, <br> ...<br>&#125;;<br></code></pre></td></tr></table></figure>
 
-<p>也就是说，对于网络设备层定义的 ndo_start_xmit， igb 的实现函数是 igb_xmit_frame。这个函数是在网卡驱动初始化的时候被赋值的。具体初始化过程参见**<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/GoYDsfy9m0wRoXi_NCfCmg">《图解Linux网络包接收过程》</a>**一文中的 2.4 节，网卡驱动初始化。</p>
+<p>也就是说，对于网络设备层定义的 ndo_start_xmit， igb 的实现函数是 igb_xmit_frame。这个函数是在网卡驱动初始化的时候被赋值的。具体初始化过程参见**<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/GoYDsfy9m0wRoXi_NCfCmg" rel="external nofollow noopener noreferrer" target="_blank">《图解Linux网络包接收过程》</a>**一文中的 2.4 节，网卡驱动初始化。</p>
 <p>所以在上面网络设备层调用 ops-&gt;ndo_start_xmit 的时候，会实际上进入 igb_xmit_frame 这个函数中。我们进入这个函数来看看驱动程序是如何工作的。</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs text">//file: drivers/net/ethernet/intel/igb/igb_main.c<br>static netdev_tx_t igb_xmit_frame(struct sk_buff *skb,<br>      struct net_device *netdev)<br>&#123;<br> ......<br> return igb_xmit_frame_ring(skb, igb_tx_queue_mapping(adapter, skb));<br>&#125;<br><br>netdev_tx_t igb_xmit_frame_ring(struct sk_buff *skb,<br>    struct igb_ring *tx_ring)<br>&#123;<br> //获取TX Queue 中下一个可用缓冲区信息<br> first = &amp;tx_ring-&gt;tx_buffer_info[tx_ring-&gt;next_to_use];<br> first-&gt;skb = skb;<br> first-&gt;bytecount = skb-&gt;len;<br> first-&gt;gso_segs = 1;<br><br> //igb_tx_map 函数准备给设备发送的数据。<br> igb_tx_map(tx_ring, first, hdr_len);<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -537,7 +533,7 @@
 
 <p>当所有需要的描述符都已建好，且 skb 的所有数据都映射到 DMA 地址后，驱动就会进入到它的最后一步，触发真实的发送。</p>
 <h3 id="4-8-发送完成硬中断"><a href="#4-8-发送完成硬中断" class="headerlink" title="4.8 发送完成硬中断"></a><strong>4.8 发送完成硬中断</strong></h3><p>当数据发送完成以后，其实工作并没有结束。因为内存还没有清理。当发送完成的时候，网卡设备会触发一个硬中断来释放内存。</p>
-<p>在**<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/GoYDsfy9m0wRoXi_NCfCmg">《图解Linux网络包接收过程》</a>** 一文中的 3.1 和 3.2 小节，我们详细讲述过硬中断和软中断的处理过程。</p>
+<p>在**<a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/GoYDsfy9m0wRoXi_NCfCmg" rel="external nofollow noopener noreferrer" target="_blank">《图解Linux网络包接收过程》</a>** 一文中的 3.1 和 3.2 小节，我们详细讲述过硬中断和软中断的处理过程。</p>
 <p>在发送硬中断里，会执行 RingBuffer 内存的清理工作，如图。</p>
 <p><img src="https://pic1.zhimg.com/80/v2-4a1721e48e34c50390132f018c5ad1d4_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>再回头看一下硬中断触发软中断的源码。</p>
@@ -575,26 +571,26 @@
 </blockquote>
 <p>看到这里，相信内核发送数据包对于你来说，已经不再是一个完全不懂的黑盒了。本文哪怕你只看懂十分之一，你也已经掌握了这个黑盒的打开方式。这在你将来优化网络性能时你就会知道从哪儿下手了。</p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a><strong>参考</strong>链接</h2><ul>
-<li><a href="https://link.zhihu.com/?target=https://blog.packagecloud.io/eng/2017/02/06/monitoring-tuning-linux-networking-stack-sending-data/">Monitoring and Tuning the Linux Networking Stack: Sending Data</a></li>
-<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/qq_34258344/article/details/108956205">上述文章的一个翻译版本,只翻译了一半</a></li>
-<li><a href="https://link.zhihu.com/?target=https://ggaaooppeenngg.github.io/zh-CN/2017/08/07/neighboring-subsystem-%E6%B5%85%E6%9E%90/">翻译的是另外一半，neighboring subsystem 浅析</a></li>
-<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/network_ljr14/">LINUX内核网络数据包发送（四）——LINUX NETDEVICE 子系统</a></li>
-<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/network_ljr13/">LINUX内核网络数据包发送（三）——IP协议层分析</a></li>
-<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/dma_bjq/">LINUX网络子系统中DMA机制的实现</a></li>
-<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/weixin_43722423/article/details/103276437">Linux socket 数据发送过程深入分析</a></li>
-<li><a href="https://link.zhihu.com/?target=https://man7.org/linux/man-pages/man2/send.2.html">send 函数</a></li>
-<li><a href="https://link.zhihu.com/?target=https://ivanzz1001.github.io/records/post/linux/2017/11/04/linux-msghdr">Linux msghdr结构讲解</a></li>
-<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/zhangskd/article/details/48207553">TCP的发送系列 — tcp_sendmsg()的实现（一）</a></li>
-<li><a href="https://link.zhihu.com/?target=https://www.cnblogs.com/myguaiguai/p/12069485.html">参考：send和recv背后数据的收发过程</a></li>
-<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/luckywang1103/article/details/51422664">linux net子系统-协议层（传输层与网络层)</a></li>
-<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/network_ljr_no1/">LINUX内核网络（一）——初探内核网络</a></li>
-<li><a href="https://link.zhihu.com/?target=https://www.cnblogs.com/ouyangxibao/articles/12577177.html">XPS选择发送队列描述详细</a></li>
+<li><a href="https://link.zhihu.com/?target=https://blog.packagecloud.io/eng/2017/02/06/monitoring-tuning-linux-networking-stack-sending-data/" rel="external nofollow noopener noreferrer" target="_blank">Monitoring and Tuning the Linux Networking Stack: Sending Data</a></li>
+<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/qq_34258344/article/details/108956205" rel="external nofollow noopener noreferrer" target="_blank">上述文章的一个翻译版本,只翻译了一半</a></li>
+<li><a href="https://link.zhihu.com/?target=https://ggaaooppeenngg.github.io/zh-CN/2017/08/07/neighboring-subsystem-%E6%B5%85%E6%9E%90/" rel="external nofollow noopener noreferrer" target="_blank">翻译的是另外一半，neighboring subsystem 浅析</a></li>
+<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/network_ljr14/" rel="external nofollow noopener noreferrer" target="_blank">LINUX内核网络数据包发送（四）——LINUX NETDEVICE 子系统</a></li>
+<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/network_ljr13/" rel="external nofollow noopener noreferrer" target="_blank">LINUX内核网络数据包发送（三）——IP协议层分析</a></li>
+<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/dma_bjq/" rel="external nofollow noopener noreferrer" target="_blank">LINUX网络子系统中DMA机制的实现</a></li>
+<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/weixin_43722423/article/details/103276437" rel="external nofollow noopener noreferrer" target="_blank">Linux socket 数据发送过程深入分析</a></li>
+<li><a href="https://link.zhihu.com/?target=https://man7.org/linux/man-pages/man2/send.2.html" rel="external nofollow noopener noreferrer" target="_blank">send 函数</a></li>
+<li><a href="https://link.zhihu.com/?target=https://ivanzz1001.github.io/records/post/linux/2017/11/04/linux-msghdr" rel="external nofollow noopener noreferrer" target="_blank">Linux msghdr结构讲解</a></li>
+<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/zhangskd/article/details/48207553" rel="external nofollow noopener noreferrer" target="_blank">TCP的发送系列 — tcp_sendmsg()的实现（一）</a></li>
+<li><a href="https://link.zhihu.com/?target=https://www.cnblogs.com/myguaiguai/p/12069485.html" rel="external nofollow noopener noreferrer" target="_blank">参考：send和recv背后数据的收发过程</a></li>
+<li><a href="https://link.zhihu.com/?target=https://blog.csdn.net/luckywang1103/article/details/51422664" rel="external nofollow noopener noreferrer" target="_blank">linux net子系统-协议层（传输层与网络层)</a></li>
+<li><a href="https://link.zhihu.com/?target=http://kerneltravel.net/blog/2020/network_ljr_no1/" rel="external nofollow noopener noreferrer" target="_blank">LINUX内核网络（一）——初探内核网络</a></li>
+<li><a href="https://link.zhihu.com/?target=https://www.cnblogs.com/ouyangxibao/articles/12577177.html" rel="external nofollow noopener noreferrer" target="_blank">XPS选择发送队列描述详细</a></li>
 </ul>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -670,7 +666,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -701,7 +697,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -721,7 +717,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -760,8 +756,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -821,8 +816,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -833,13 +828,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -858,7 +853,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -892,7 +887,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -930,9 +925,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -940,7 +935,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

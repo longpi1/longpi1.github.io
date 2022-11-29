@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="关于Kubernetes网络进阶">
 <meta property="og:type" content="article">
@@ -51,15 +51,15 @@
   
   <title>Kubernetes网络模型进阶 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -73,12 +73,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -94,8 +94,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -133,9 +133,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -213,8 +211,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -224,8 +221,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -273,7 +269,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -310,7 +306,7 @@
                 <h1 id="Kubernetes-网络模型进阶"><a href="#Kubernetes-网络模型进阶" class="headerlink" title="Kubernetes 网络模型进阶"></a>Kubernetes 网络模型进阶</h1><h2 id="Underlay-Network-Model"><a href="#Underlay-Network-Model" class="headerlink" title="Underlay Network Model"></a>Underlay Network Model</h2><h3 id="什么是Underlay-Network"><a href="#什么是Underlay-Network" class="headerlink" title="什么是Underlay Network"></a>什么是Underlay Network</h3><p>底层网络 <em>Underlay Network</em> 顾名思义是指网络设备基础设施，如交换机，路由器, <em>DWDM</em> 使用网络介质将其链接成的物理网络拓扑，负责网络之间的数据包传输。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyxjoDlKBvyPVoThkJ42pKhe4t3iaE0U1VgCcn0jybn1TCx6yicMB1efjA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                                  <strong>图：Underlay network topology</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://community.cisco.com/t5/data-center-switches/understanding-underlay-and-overlay-networks/td-p/4295870">https://community.cisco.com/t5/data-center-switches/understanding-underlay-and-overlay-networks/td-p/4295870</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://community.cisco.com/t5/data-center-switches/understanding-underlay-and-overlay-networks/td-p/4295870">https://community.cisco.com/t5/data-center-switches/understanding-underlay-and-overlay-networks/td-p/4295870</a></p>
 <p><em>underlay network</em> 可以是二层，也可以是三层；二层 <em>underlay network</em> 的典型例子是以太网 <em>Ethernet</em>，三层是 <em>underlay network</em> 的典型例子是互联网 <em>Internet</em>。</p>
 <p>而工作与二层的技术是 <em>vlan</em>，工作在三层的技术是由 <em>OSPF</em>, <em>BGP</em> 等协议组成</p>
 <h3 id="kubernetes中的underlay-network"><a href="#kubernetes中的underlay-network" class="headerlink" title="kubernetes中的underlay network"></a>kubernetes中的underlay network</h3><p>在kubernetes中，<em>underlay network</em> 中比较典型的例子是通过将宿主机作为路由器设备，Pod 的网络则通过学习成路由条目从而实现跨节点通讯。</p>
@@ -320,18 +316,18 @@
 <h4 id="flannel-host-gw-1"><a href="#flannel-host-gw-1" class="headerlink" title="flannel host-gw [1]"></a>flannel host-gw [1]</h4><p><em>flannel host-gw</em> 模式中每个Node需要在同一个二层网络中，并将Node作为一个路由器，跨节点通讯将通过路由表方式进行，这样方式下将网络模拟成一个<em>underlay network</em>。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyDLPDv7ZTCW14W1wtUs1SbR9yOcibm3ncwCd6dJV7C076XoSovLehaZA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                                         <strong>图：layer2 ethernet topology</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://www.auvik.com/franklyit/blog/layer-3-switches-layer-2/">https://www.auvik.com/franklyit/blog/layer-3-switches-layer-2/</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.auvik.com/franklyit/blog/layer-3-switches-layer-2/">https://www.auvik.com/franklyit/blog/layer-3-switches-layer-2/</a></p>
 <blockquote>
 <p>Notes：因为是通过路由方式，集群的cidr至少要配置16，因为这样可以保证，跨节点的Node作为一层网络，同节点的Pod作为一个网络。如果不是这种用情况，路由表处于相同的网络中，会存在网络不可达</p>
 </blockquote>
 <h4 id="Calico-BGP-2"><a href="#Calico-BGP-2" class="headerlink" title="Calico BGP [2]"></a>Calico BGP [2]</h4><p>BGP（<em>Border Gateway Protocol</em>）是去中心化自治路由协议。它是通过维护IP路由表或’前缀’表来实现AS （<em>Autonomous System</em>）之间的可访问性，属于向量路由协议。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyGwaHm71fY1JAaOyWcdvfX0gjcO0e61aB56kskOgdjsLSmiayBoaLeQg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                                                  <strong>图：BGP network topology</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://infocenter.nokia.com/public/7705SAR214R1A/index.jsp?topic=/com.sar.routing_protocols%25">https://infocenter.nokia.com/public/7705SAR214R1A/index.jsp?topic=%2Fcom.sar.routing_protocols%</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://infocenter.nokia.com/public/7705SAR214R1A/index.jsp?topic=/com.sar.routing_protocols%25">https://infocenter.nokia.com/public/7705SAR214R1A/index.jsp?topic=%2Fcom.sar.routing_protocols%</a></p>
 <p>与 <em>flannel</em> 不同的是，<em>Calico</em> 提供了的 <em>BGP</em> 网络解决方案，在网络模型上，<em>Calico</em> 与 <em>Flannel host-gw</em> 是近似的，但在软件架构的实现上，<em>flannel</em> 使用 <em>flanneld</em> 进程来维护路由信息；而 <em>Calico</em> 是包含多个守护进程的，其中 <em>Brid</em> 进程是一个 <em>BGP</em> 的客户端 与路由反射器(<em>Router Reflector</em>)，<em>BGP</em> 客户端负责从 <em>Felix</em> 中获取路由并分发到其他 <em>BGP Peer</em>，而反射器在BGP中起了优化的作用。在同一个IBGP中，BGP客户端仅需要和一个 <em>RR</em> 相连，这样减少了<em>AS</em>内部维护的大量的BGP连接。通常情况下，<em>RR</em> 是真实的路由设备，而 <em>Bird</em> 作为 <em>BGP</em> 客户端工作。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyfEXWkGJTBS8TSt3pksPGe18LTicxXWDvCnTZXPibJrJ5Og5oE1wOHibrQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                                                       <strong>图：Calico Network Architecture</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://www.cisco.com/c/en/us/td/docs/dcn/whitepapers/cisco-nx-os-calico-network-design.html">https://www.cisco.com/c/en/us/td/docs/dcn/whitepapers/cisco-nx-os-calico-network-design.html</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cisco.com/c/en/us/td/docs/dcn/whitepapers/cisco-nx-os-calico-network-design.html">https://www.cisco.com/c/en/us/td/docs/dcn/whitepapers/cisco-nx-os-calico-network-design.html</a></p>
 <h4 id="IPVLAN-amp-MACVLAN-4"><a href="#IPVLAN-amp-MACVLAN-4" class="headerlink" title="IPVLAN &amp; MACVLAN [4]"></a>IPVLAN &amp; MACVLAN [4]</h4><p><em>IPVLAN</em> 和 <em>MACVLAN</em> 是一种网卡虚拟化技术，两者之间的区别为， <em>IPVLAN</em> 允许一个物理网卡拥有多个IP地址，并且所有的虚拟接口用同一个MAC地址；而 <em>MACVLAN</em> 则是相反的，其允许同一个网卡拥有多个MAC地址，而虚拟出的网卡可以没有IP地址。</p>
 <p>因为是网卡虚拟化技术，而不是网络虚拟化技术，本质上来说属于 <em>Overlay network</em>，这种方式在虚拟化环境中与<em>Overlay network</em> 相比最大的特点就是可以将Pod的网络拉平到Node网络同级，从而提供更高的性能、低延迟的网络接口。本质上来说其网络模型属于下图中第二个。</p>
 <ul>
@@ -341,7 +337,7 @@
 </ul>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyXl7hJSbrKicdnPZLbNhads4BrWPwDS78RZJIAtodUb5v8m0mWtkmiaDQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                           <strong>图：Virtual networking modes: bridging, multiplexing and SR-IOV</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://thenewstack.io/hackers-guide-kubernetes-networking/">https://thenewstack.io/hackers-guide-kubernetes-networking/</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://thenewstack.io/hackers-guide-kubernetes-networking/">https://thenewstack.io/hackers-guide-kubernetes-networking/</a></p>
 <p>在kubernetes中 <em>IPVLAN</em> 这种网络模型下典型的CNI有，multus 与 danm。</p>
 <h5 id="multus"><a href="#multus" class="headerlink" title="multus"></a>multus</h5><p><em>multus</em> 是 intel 开源的CNI方案，是由传统的 <em>cni</em> 与 <em>multus</em> 组成，并且提供了 SR-IOV CNI 插件使 K8s pod 能够连接到 SR-IOV VF 。这是使用了 <em>IPVLAN&#x2F;MACVLAN</em> 的功能。</p>
 <p>当创建新的Pod后，SR-IOV 插件开始工作。配置 VF 将被移动到新的 CNI 名称空间。该插件根据 CNI 配置文件中的 “name” 选项设置接口名称。最后将VF状态设置为UP。</p>
@@ -353,7 +349,7 @@
 </ul>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxy1fqm6eakBu9XZT59bervsUvIFp2pF4fteTOULSaV24NIaSTFaTCuYA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                      <strong>图：Mutus networking Architecture overlay and SR-IOV</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://builders.intel.com/docs/networkbuilders/enabling_new_features_in_kubernetes_for_NFV.pdf">https://builders.intel.com/docs/networkbuilders/enabling_new_features_in_kubernetes_for_NFV.pdf</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://builders.intel.com/docs/networkbuilders/enabling_new_features_in_kubernetes_for_NFV.pdf">https://builders.intel.com/docs/networkbuilders/enabling_new_features_in_kubernetes_for_NFV.pdf</a></p>
 <blockquote>
 <p>Notes：terminology</p>
 <ul>
@@ -367,12 +363,12 @@
 <p>于此同时，也可以将主机接口直接移动到Pod的网络名称空间，当然这个接口是必须存在，并且不能是与默认网络使用同一个接口。这种情况下，在普通网卡的环境中，就直接将Pod网络与Node网络处于同一个平面内了。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyBpQH5b5UoWxWhM0YKPIVBW25oZLowbR6BuCu8ZGf0zXeiatS7zxudTw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                         <strong>图：Mutus networking Architecture overlay and ipvlan</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://devopstales.github.io/kubernetes/multus/">https://devopstales.github.io/kubernetes/multus/</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://devopstales.github.io/kubernetes/multus/">https://devopstales.github.io/kubernetes/multus/</a></p>
 <h5 id="danm"><a href="#danm" class="headerlink" title="danm"></a>danm</h5><p>DANM是诺基亚开源的CNI项目，目的是将电信级网络引入kubernetes中，与multus相同的是，也提供了SR-IOV&#x2F;DPDK 的硬件技术，并且支持IPVLAN.</p>
 <h2 id="Overlay-Network-Model"><a href="#Overlay-Network-Model" class="headerlink" title="Overlay Network Model"></a>Overlay Network Model</h2><h3 id="什么是Overlay"><a href="#什么是Overlay" class="headerlink" title="什么是Overlay"></a>什么是Overlay</h3><p>叠加网络是使用网络虚拟化技术，在 <em>underlay</em> 网络上构建出的虚拟逻辑网络，而无需对物理网络架构进行更改。本质上来说，<em>overlay network</em> 使用的是一种或多种隧道协议 (<em>tunneling</em>)，通过将数据包封装，实现一个网络到另一个网络中的传输，具体来说隧道协议关注的是数据包（帧）。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxyyGkhSJE7WhbUna4s0mvzghkvGDCgPsPNtmibTUAtIWYfCRLdkGSasGQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>图：overlay network topology</p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://www.researchgate.net/figure/Example-Overlay-Network-built-on-top-of-an-Internet-style-Underlay_fig4_230774628">https://www.researchgate.net/figure/Example-Overlay-Network-built-on-top-of-an-Internet-style-Underlay_fig4_230774628</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.researchgate.net/figure/Example-Overlay-Network-built-on-top-of-an-Internet-style-Underlay_fig4_230774628">https://www.researchgate.net/figure/Example-Overlay-Network-built-on-top-of-an-Internet-style-Underlay_fig4_230774628</a></p>
 <h3 id="常见的网络隧道技术"><a href="#常见的网络隧道技术" class="headerlink" title="常见的网络隧道技术"></a>常见的网络隧道技术</h3><ul>
 <li>通用路由封装 ( <em>Generic Routing Encapsulation</em> ) 用于将来自 IPv4&#x2F;IPv6的数据包封装为另一个协议的数据包中，通常工作与L3网络层中。</li>
 <li>VxLAN (<em>Virtual Extensible LAN</em>)，是一个简单的隧道协议，本质上是将L2的以太网帧封装为L4中UDP数据包的方法，使用 4789 作为默认端口。<em>VxLAN</em> 也是 <em>VLAN</em> 的扩展对于 4096（212 位 <em>VLAN ID</em>） 扩展为1600万（224 位 <em>VNID</em> ）个逻辑网络。</li>
@@ -381,7 +377,7 @@
 <h3 id="IPIP"><a href="#IPIP" class="headerlink" title="IPIP"></a>IPIP</h3><p><em>IP in IP</em> 也是一种隧道协议，与 <em>VxLAN</em> 类似的是，<em>IPIP</em> 的实现也是通过Linux内核功能进行的封装。<em>IPIP</em> 需要内核模块 <code>ipip.ko</code> 使用命令查看内核是否加载IPIP模块<code>lsmod | grep ipip</code> ；使用命令<code>modprobe ipip</code> 加载。</p>
 <p><img src="https://cdn.jsdelivr.net/gh/longpi1/blog-img/640" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>图：A simple IPIP network workflow</p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://ssup2.github.io/theory_analysis/IPIP_GRE_Tunneling/">https://ssup2.github.io/theory_analysis/IPIP_GRE_Tunneling/</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://ssup2.github.io/theory_analysis/IPIP_GRE_Tunneling/">https://ssup2.github.io/theory_analysis/IPIP_GRE_Tunneling/</a></p>
 <p>Kubernetes中 <em>IPIP</em> 与 <em>VxLAN</em> 类似，也是通过网络隧道技术实现的。与 <em>VxLAN</em> 差别就是，<em>VxLAN</em> 本质上是一个 UDP包，而 <em>IPIP</em> 则是将包封装在本身的报文包上。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxybmxBiantAKWVD2nlCUNBHAIQkHSOJZcQeM4znchxeRqicRNvh3pcPIMw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                                                         <strong>图：IPIP in kubernetes</strong></p>
@@ -410,7 +406,7 @@
 <h3 id="weave-vxlan-3"><a href="#weave-vxlan-3" class="headerlink" title="weave vxlan [3]"></a>weave vxlan [3]</h3><p>weave也是使用了 <em>VxLAN</em> 技术完成的包的封装，这个技术在 <em>weave</em> 中称之为 *fastdp (fast data path)*，与 <em>calico</em> 和 <em>flannel</em> 中用到的技术不同的，这里使用的是 Linux 内核中的 <em>openvswitch datapath module</em>，并且weave对网络流量进行了加密。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/D727NicjCjMOfSoHgRPZfL1ZzWoqxIyxy1r4xqNRVbh6Ua8kaalhWPbicCYYI0CcbC3tLeuoMGHxLX6zLqmEOiawA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>​                                                                                           <strong>图：weave fastdp network topology</strong></p>
-<p><em>Source：</em><a target="_blank" rel="noopener" href="https://www.weave.works/docs/net/latest/concepts/fastdp-how-it-works/">https://www.weave.works/docs/net/latest/concepts/fastdp-how-it-works/</a></p>
+<p><em>Source：</em><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.weave.works/docs/net/latest/concepts/fastdp-how-it-works/">https://www.weave.works/docs/net/latest/concepts/fastdp-how-it-works/</a></p>
 <blockquote>
 <p>Notes：fastdp工作在Linux 内核版本 3.12 及更高版本，如果低于此版本的例如CentOS7，weave将工作在用户空间，weave中称之为 <em>sleeve mode</em></p>
 </blockquote>
@@ -421,12 +417,12 @@
 <p>[4] sriov network</p>
 <p>[5] danm</p>
 <p>作者：Cylon</p>
-<p>出处：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/Cylon/p/16595820.html">https://www.cnblogs.com/Cylon/p/16595820.html</a></p>
+<p>出处：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/Cylon/p/16595820.html">https://www.cnblogs.com/Cylon/p/16595820.html</a></p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -502,7 +498,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -533,7 +529,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -553,7 +549,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -592,8 +588,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -653,8 +648,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -665,13 +660,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -690,7 +685,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -724,7 +719,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -762,9 +757,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -772,7 +767,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

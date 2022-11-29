@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="介绍目前go主流的项目结构">
 <meta property="og:type" content="article">
@@ -38,15 +38,15 @@
   
   <title>Go项目目录结构该怎么写？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -60,12 +60,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -81,8 +81,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -120,9 +120,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -200,8 +198,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -211,8 +208,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -260,7 +256,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -301,86 +297,86 @@
 <p>通常有一个小的 <code>main</code> 函数，从 <code>/internal</code> 和 <code>/pkg</code> 目录导入和调用代码，除此之外没有别的东西。</p>
 <p>相关实例：</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/vmware-tanzu/velero/tree/main/cmd">https://github.com/vmware-tanzu/velero/tree/main/cmd</a> (just a really small <code>main</code> function with everything else in packages)</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/moby/moby/tree/master/cmd">https://github.com/moby/moby/tree/master/cmd</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/tree/main/cmd">https://github.com/prometheus/prometheus/tree/main/cmd</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/influxdata/influxdb/tree/master/cmd">https://github.com/influxdata/influxdb/tree/master/cmd</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/tree/master/cmd">https://github.com/kubernetes/kubernetes/tree/master/cmd</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/dapr/dapr/tree/master/cmd">https://github.com/dapr/dapr/tree/master/cmd</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/ethereum/go-ethereum/tree/master/cmd">https://github.com/ethereum/go-ethereum/tree/master/cmd</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/vmware-tanzu/velero/tree/main/cmd">https://github.com/vmware-tanzu/velero/tree/main/cmd</a> (just a really small <code>main</code> function with everything else in packages)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/moby/moby/tree/master/cmd">https://github.com/moby/moby/tree/master/cmd</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/prometheus/prometheus/tree/main/cmd">https://github.com/prometheus/prometheus/tree/main/cmd</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/influxdata/influxdb/tree/master/cmd">https://github.com/influxdata/influxdb/tree/master/cmd</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/kubernetes/tree/master/cmd">https://github.com/kubernetes/kubernetes/tree/master/cmd</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/dapr/dapr/tree/master/cmd">https://github.com/dapr/dapr/tree/master/cmd</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/ethereum/go-ethereum/tree/master/cmd">https://github.com/ethereum/go-ethereum/tree/master/cmd</a></li>
 </ul>
-<h3 id="internal"><a href="#internal" class="headerlink" title="/internal"></a><code>/internal</code></h3><p>私有应用程序和库代码。这是你不希望其他人在其应用程序或库中导入代码。请注意，这个布局模式是由 Go 编译器本身执行的。有关更多细节，可以参阅Go 1.4 <a target="_blank" rel="noopener" href="https://golang.org/doc/go1.4#internalpackages"><code>release notes</code></a> 。注意，并不局限于顶级 <code>internal</code> 目录。在项目树的任何级别上都可以有多个内部目录。</p>
+<h3 id="internal"><a href="#internal" class="headerlink" title="/internal"></a><code>/internal</code></h3><p>私有应用程序和库代码。这是你不希望其他人在其应用程序或库中导入代码。请注意，这个布局模式是由 Go 编译器本身执行的。有关更多细节，可以参阅Go 1.4 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.org/doc/go1.4#internalpackages"><code>release notes</code></a> 。注意，并不局限于顶级 <code>internal</code> 目录。在项目树的任何级别上都可以有多个内部目录。</p>
 <p>可以选择向 internal 包中添加一些额外的结构，以分隔共享和非共享的内部代码。这不是必需的(特别是对于较小的项目)，但是最好有有可视化的线索来显示预期的包的用途。实际应用程序代码可以放在 <code>/internal/app</code> 目录下(例如 <code>/internal/app/myapp</code>)，这些应用程序共享的代码可以放在 <code>/internal/pkg</code> 目录下(例如 <code>/internal/pkg/myprivlib</code>)。</p>
-<h3 id="pkg"><a href="#pkg" class="headerlink" title="/pkg"></a><code>/pkg</code></h3><p>外部应用程序可以使用的库代码(例如 <code>/pkg/mypubliclib</code>)。其他项目会导入这些库，希望它们能正常工作，所以在这里放东西之前要三思:-)注意，<code>internal</code> 目录是确保私有包不可导入的更好方法，因为它是由 Go 强制执行的。<code>/pkg</code> 目录仍然是一种很好的方式，可以显式地表示该目录中的代码对于其他人来说是安全使用的好方法。由 Travis Jeffery  撰写的 <a target="_blank" rel="noopener" href="https://travisjeffery.com/b/2019/11/i-ll-take-pkg-over-internal/"><code>I&#39;ll take pkg over internal</code></a> 博客文章提供了 <code>pkg</code> 和 <code>internal</code> 目录的一个很好的概述，以及什么时候使用它们是有意义的。</p>
-<p>当根目录包含大量非 Go 组件和目录时，这也是一种将 Go 代码分组到一个位置的方法，这使得运行各种 Go 工具变得更加容易（正如在这些演讲中提到的那样: 来自 GopherCon EU 2018 的 <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=PTE4VJIdHPg"><code>Best Practices for Industrial Programming</code></a> , <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=oL6JBUk6tj0">GopherCon 2018: Kat Zien - How Do You Structure Your Go Apps</a> 和 <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=3gQa1LWwuzk">GoLab 2018 - Massimiliano Pippi - Project layout patterns in Go</a> ）。</p>
+<h3 id="pkg"><a href="#pkg" class="headerlink" title="/pkg"></a><code>/pkg</code></h3><p>外部应用程序可以使用的库代码(例如 <code>/pkg/mypubliclib</code>)。其他项目会导入这些库，希望它们能正常工作，所以在这里放东西之前要三思:-)注意，<code>internal</code> 目录是确保私有包不可导入的更好方法，因为它是由 Go 强制执行的。<code>/pkg</code> 目录仍然是一种很好的方式，可以显式地表示该目录中的代码对于其他人来说是安全使用的好方法。由 Travis Jeffery  撰写的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://travisjeffery.com/b/2019/11/i-ll-take-pkg-over-internal/"><code>I&#39;ll take pkg over internal</code></a> 博客文章提供了 <code>pkg</code> 和 <code>internal</code> 目录的一个很好的概述，以及什么时候使用它们是有意义的。</p>
+<p>当根目录包含大量非 Go 组件和目录时，这也是一种将 Go 代码分组到一个位置的方法，这使得运行各种 Go 工具变得更加容易（正如在这些演讲中提到的那样: 来自 GopherCon EU 2018 的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.youtube.com/watch?v=PTE4VJIdHPg"><code>Best Practices for Industrial Programming</code></a> , <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.youtube.com/watch?v=oL6JBUk6tj0">GopherCon 2018: Kat Zien - How Do You Structure Your Go Apps</a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.youtube.com/watch?v=3gQa1LWwuzk">GoLab 2018 - Massimiliano Pippi - Project layout patterns in Go</a> ）。</p>
 <p>这是一种常见的布局模式，但并不是所有人都接受它，一些 Go 社区的人也不推荐它。相关实例如下：</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/jaegertracing/jaeger/tree/master/pkg">https://github.com/jaegertracing/jaeger/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/istio/istio/tree/master/pkg">https://github.com/istio/istio/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/GoogleContainerTools/kaniko/tree/master/pkg">https://github.com/GoogleContainerTools/kaniko/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/google/gvisor/tree/master/pkg">https://github.com/google/gvisor/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/tree/master/pkg">https://github.com/google/syzkaller/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/perkeep/perkeep/tree/master/pkg">https://github.com/perkeep/perkeep/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/minio/minio/tree/master/pkg">https://github.com/minio/minio/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/heptio/ark/tree/master/pkg">https://github.com/heptio/ark/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/argoproj/argo/tree/master/pkg">https://github.com/argoproj/argo/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/heptio/sonobuoy/tree/master/pkg">https://github.com/heptio/sonobuoy/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/helm/helm/tree/master/pkg">https://github.com/helm/helm/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/tree/master/pkg">https://github.com/kubernetes/kubernetes/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes/kops/tree/master/pkg">https://github.com/kubernetes/kops/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/moby/moby/tree/master/pkg">https://github.com/moby/moby/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/grafana/grafana/tree/master/pkg">https://github.com/grafana/grafana/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/influxdata/influxdb/tree/master/pkg">https://github.com/influxdata/influxdb/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/cockroachdb/cockroach/tree/master/pkg">https://github.com/cockroachdb/cockroach/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/derekparker/delve/tree/master/pkg">https://github.com/derekparker/delve/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/master/pkg">https://github.com/etcd-io/etcd/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/oklog/oklog/tree/master/pkg">https://github.com/oklog/oklog/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/flynn/flynn/tree/master/pkg">https://github.com/flynn/flynn/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/jesseduffield/lazygit/tree/master/pkg">https://github.com/jesseduffield/lazygit/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/gopasspw/gopass/tree/master/pkg">https://github.com/gopasspw/gopass/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/sosedoff/pgweb/tree/master/pkg">https://github.com/sosedoff/pgweb/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/GoogleContainerTools/skaffold/tree/master/pkg">https://github.com/GoogleContainerTools/skaffold/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/knative/serving/tree/master/pkg">https://github.com/knative/serving/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/grafana/loki/tree/master/pkg">https://github.com/grafana/loki/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/bloomberg/goldpinger/tree/master/pkg">https://github.com/bloomberg/goldpinger/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/Ne0nd0g/merlin/tree/master/pkg">https://github.com/Ne0nd0g/merlin/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/jenkins-x/jx/tree/master/pkg">https://github.com/jenkins-x/jx/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/DataDog/datadog-agent/tree/master/pkg">https://github.com/DataDog/datadog-agent/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/dapr/dapr/tree/master/pkg">https://github.com/dapr/dapr/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/cortexproject/cortex/tree/master/pkg">https://github.com/cortexproject/cortex/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/dexidp/dex/tree/master/pkg">https://github.com/dexidp/dex/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/pusher/oauth2_proxy/tree/master/pkg">https://github.com/pusher/oauth2_proxy/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/pdfcpu/pdfcpu/tree/master/pkg">https://github.com/pdfcpu/pdfcpu/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/weaveworks/kured/tree/master/pkg">https://github.com/weaveworks/kured/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/weaveworks/footloose/tree/master/pkg">https://github.com/weaveworks/footloose/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/weaveworks/ignite/tree/master/pkg">https://github.com/weaveworks/ignite/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/tmrts/boilr/tree/master/pkg">https://github.com/tmrts/boilr/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/kata-containers/runtime/tree/master/pkg">https://github.com/kata-containers/runtime/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/okteto/okteto/tree/master/pkg">https://github.com/okteto/okteto/tree/master/pkg</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/solo-io/squash/tree/master/pkg">https://github.com/solo-io/squash/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jaegertracing/jaeger/tree/master/pkg">https://github.com/jaegertracing/jaeger/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/istio/istio/tree/master/pkg">https://github.com/istio/istio/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/GoogleContainerTools/kaniko/tree/master/pkg">https://github.com/GoogleContainerTools/kaniko/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/google/gvisor/tree/master/pkg">https://github.com/google/gvisor/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/google/syzkaller/tree/master/pkg">https://github.com/google/syzkaller/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/perkeep/perkeep/tree/master/pkg">https://github.com/perkeep/perkeep/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/minio/minio/tree/master/pkg">https://github.com/minio/minio/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/heptio/ark/tree/master/pkg">https://github.com/heptio/ark/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/argoproj/argo/tree/master/pkg">https://github.com/argoproj/argo/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/heptio/sonobuoy/tree/master/pkg">https://github.com/heptio/sonobuoy/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/helm/helm/tree/master/pkg">https://github.com/helm/helm/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/kubernetes/tree/master/pkg">https://github.com/kubernetes/kubernetes/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/kops/tree/master/pkg">https://github.com/kubernetes/kops/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/moby/moby/tree/master/pkg">https://github.com/moby/moby/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/grafana/grafana/tree/master/pkg">https://github.com/grafana/grafana/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/influxdata/influxdb/tree/master/pkg">https://github.com/influxdata/influxdb/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cockroachdb/cockroach/tree/master/pkg">https://github.com/cockroachdb/cockroach/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/derekparker/delve/tree/master/pkg">https://github.com/derekparker/delve/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/tree/master/pkg">https://github.com/etcd-io/etcd/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/oklog/oklog/tree/master/pkg">https://github.com/oklog/oklog/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/flynn/flynn/tree/master/pkg">https://github.com/flynn/flynn/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jesseduffield/lazygit/tree/master/pkg">https://github.com/jesseduffield/lazygit/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/gopasspw/gopass/tree/master/pkg">https://github.com/gopasspw/gopass/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/sosedoff/pgweb/tree/master/pkg">https://github.com/sosedoff/pgweb/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/GoogleContainerTools/skaffold/tree/master/pkg">https://github.com/GoogleContainerTools/skaffold/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/knative/serving/tree/master/pkg">https://github.com/knative/serving/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/grafana/loki/tree/master/pkg">https://github.com/grafana/loki/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/bloomberg/goldpinger/tree/master/pkg">https://github.com/bloomberg/goldpinger/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/Ne0nd0g/merlin/tree/master/pkg">https://github.com/Ne0nd0g/merlin/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/jenkins-x/jx/tree/master/pkg">https://github.com/jenkins-x/jx/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/DataDog/datadog-agent/tree/master/pkg">https://github.com/DataDog/datadog-agent/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/dapr/dapr/tree/master/pkg">https://github.com/dapr/dapr/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cortexproject/cortex/tree/master/pkg">https://github.com/cortexproject/cortex/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/dexidp/dex/tree/master/pkg">https://github.com/dexidp/dex/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pusher/oauth2_proxy/tree/master/pkg">https://github.com/pusher/oauth2_proxy/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pdfcpu/pdfcpu/tree/master/pkg">https://github.com/pdfcpu/pdfcpu/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/weaveworks/kured/tree/master/pkg">https://github.com/weaveworks/kured/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/weaveworks/footloose/tree/master/pkg">https://github.com/weaveworks/footloose/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/weaveworks/ignite/tree/master/pkg">https://github.com/weaveworks/ignite/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/tmrts/boilr/tree/master/pkg">https://github.com/tmrts/boilr/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kata-containers/runtime/tree/master/pkg">https://github.com/kata-containers/runtime/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/okteto/okteto/tree/master/pkg">https://github.com/okteto/okteto/tree/master/pkg</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/solo-io/squash/tree/master/pkg">https://github.com/solo-io/squash/tree/master/pkg</a></li>
 </ul>
 <p>如果你的应用程序项目真的很小，并且额外的嵌套并不能增加多少价值(除非你真的想要:-)，那就不要使用它。当它变得足够大时，你的根目录会变得非常繁琐时(尤其是当你有很多非 Go 应用组件时)，请考虑一下。</p>
-<h3 id="vendor"><a href="#vendor" class="headerlink" title="/vendor"></a><code>/vendor</code></h3><p>应用程序依赖项(手动管理或使用你喜欢的依赖项管理工具，如新的内置 <a target="_blank" rel="noopener" href="https://github.com/golang/go/wiki/Modules"><code>Go Modules</code></a> 功能)。<code>go mod vendor</code> 命令将为你创建 <code>/vendor</code> 目录。请注意，如果未使用默认情况下处于启用状态的 Go 1.14，则可能需要在 <code>go build</code> 命令中添加 <code>-mod=vendor</code> 标志。</p>
+<h3 id="vendor"><a href="#vendor" class="headerlink" title="/vendor"></a><code>/vendor</code></h3><p>应用程序依赖项(手动管理或使用你喜欢的依赖项管理工具，如新的内置 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/golang/go/wiki/Modules"><code>Go Modules</code></a> 功能)。<code>go mod vendor</code> 命令将为你创建 <code>/vendor</code> 目录。请注意，如果未使用默认情况下处于启用状态的 Go 1.14，则可能需要在 <code>go build</code> 命令中添加 <code>-mod=vendor</code> 标志。</p>
 <p>如果你正在构建一个库，那么不要提交你的应用程序依赖项。</p>
-<p>注意，自从 <a target="_blank" rel="noopener" href="https://golang.org/doc/go1.13#modules"><code>1.13</code></a> 以后，Go 还启用了模块代理功能(默认使用 <a target="_blank" rel="noopener" href="https://proxy.golang.org/"><code>https://proxy.golang.org</code></a> 作为他们的模块代理服务器)。在<a target="_blank" rel="noopener" href="https://blog.golang.org/module-mirror-launch"><code>here</code></a> 阅读更多关于它的信息，看看它是否符合你的所有需求和约束。如果需要，那么你根本不需要 <code>vendor</code> 目录。</p>
-<p>国内模块代理功能默认是被墙的，七牛云有维护专门的的<a target="_blank" rel="noopener" href="https://github.com/goproxy/goproxy.cn/blob/master/README.zh-CN.md"><code>模块代理</code></a> 。</p>
+<p>注意，自从 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.org/doc/go1.13#modules"><code>1.13</code></a> 以后，Go 还启用了模块代理功能(默认使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://proxy.golang.org/"><code>https://proxy.golang.org</code></a> 作为他们的模块代理服务器)。在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.golang.org/module-mirror-launch"><code>here</code></a> 阅读更多关于它的信息，看看它是否符合你的所有需求和约束。如果需要，那么你根本不需要 <code>vendor</code> 目录。</p>
+<p>国内模块代理功能默认是被墙的，七牛云有维护专门的的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/goproxy/goproxy.cn/blob/master/README.zh-CN.md"><code>模块代理</code></a> 。</p>
 <h2 id="服务应用程序目录"><a href="#服务应用程序目录" class="headerlink" title="服务应用程序目录"></a>服务应用程序目录</h2><h3 id="api"><a href="#api" class="headerlink" title="/api"></a><code>/api</code></h3><p>OpenAPI&#x2F;Swagger 规范，JSON 模式文件，协议定义文件。</p>
 <p>相关实例:</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/tree/master/api">https://github.com/kubernetes/kubernetes/tree/master/api</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/moby/moby/tree/master/api">https://github.com/moby/moby/tree/master/api</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/kubernetes/tree/master/api">https://github.com/kubernetes/kubernetes/tree/master/api</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/moby/moby/tree/master/api">https://github.com/moby/moby/tree/master/api</a></li>
 </ul>
 <h2 id="Web-应用程序目录"><a href="#Web-应用程序目录" class="headerlink" title="Web 应用程序目录"></a>Web 应用程序目录</h2><h3 id="web"><a href="#web" class="headerlink" title="/web"></a><code>/web</code></h3><p>特定于 Web 应用程序的组件:静态 Web 资产、服务器端模板和 SPAs。</p>
 <h2 id="通用应用目录"><a href="#通用应用目录" class="headerlink" title="通用应用目录"></a>通用应用目录</h2><h3 id="configs"><a href="#configs" class="headerlink" title="/configs"></a><code>/configs</code></h3><p>配置文件模板或默认配置。</p>
 <p>将你的 <code>confd</code> 或 <code>consul-template</code> 模板文件放在这里。</p>
 <h3 id="init"><a href="#init" class="headerlink" title="/init"></a><code>/init</code></h3><p>System init（systemd，upstart，sysv）和 process manager&#x2F;supervisor（runit，supervisor）配置。</p>
 <h3 id="scripts"><a href="#scripts" class="headerlink" title="/scripts"></a><code>/scripts</code></h3><p>执行各种构建、安装、分析等操作的脚本。</p>
-<p>这些脚本保持了根级别的 Makefile 变得小而简单(例如， <a target="_blank" rel="noopener" href="https://github.com/hashicorp/terraform/blob/master/Makefile"><code>https://github.com/hashicorp/terraform/blob/master/Makefile</code></a> )。</p>
+<p>这些脚本保持了根级别的 Makefile 变得小而简单(例如， <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hashicorp/terraform/blob/master/Makefile"><code>https://github.com/hashicorp/terraform/blob/master/Makefile</code></a> )。</p>
 <p>相关示例。</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/kubernetes/helm/tree/master/scripts">https://github.com/kubernetes/helm/tree/master/scripts</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/cockroachdb/cockroach/tree/master/scripts">https://github.com/cockroachdb/cockroach/tree/master/scripts</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/hashicorp/terraform/tree/master/scripts">https://github.com/hashicorp/terraform/tree/master/scripts</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kubernetes/helm/tree/master/scripts">https://github.com/kubernetes/helm/tree/master/scripts</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cockroachdb/cockroach/tree/master/scripts">https://github.com/cockroachdb/cockroach/tree/master/scripts</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hashicorp/terraform/tree/master/scripts">https://github.com/hashicorp/terraform/tree/master/scripts</a></li>
 </ul>
 <h3 id="build"><a href="#build" class="headerlink" title="/build"></a><code>/build</code></h3><p>打包和持续集成。</p>
 <p>将你的云( AMI )、容器( Docker )、操作系统( deb、rpm、pkg )包配置和脚本放在 <code>/build/package</code> 目录下。</p>
@@ -389,23 +385,23 @@
 <h3 id="test"><a href="#test" class="headerlink" title="/test"></a><code>/test</code></h3><p>额外的外部测试应用程序和测试数据。你可以随时根据需求构造 <code>/test</code> 目录。对于较大的项目，有一个数据子目录是有意义的。例如，你可以使用 <code>/test/data</code> 或 <code>/test/testdata</code> (如果你需要忽略目录中的内容)。请注意，Go 还会忽略以“.”或“_”开头的目录或文件，因此在如何命名测试数据目录方面有更大的灵活性。</p>
 <p>相关示例。</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/openshift/origin/tree/master/test">https://github.com/openshift/origin/tree/master/test</a> (test data is in the <code>/testdata</code> subdirectory)</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openshift/origin/tree/master/test">https://github.com/openshift/origin/tree/master/test</a> (test data is in the <code>/testdata</code> subdirectory)</li>
 </ul>
 <h2 id="其他目录"><a href="#其他目录" class="headerlink" title="其他目录"></a>其他目录</h2><h3 id="docs"><a href="#docs" class="headerlink" title="/docs"></a><code>/docs</code></h3><p>设计和用户文档(除了 godoc 生成的文档之外)。</p>
 <p>有关示例，请参阅 <a href="docs/README.md"><code>/docs</code></a> 目录。</p>
 <h3 id="tools"><a href="#tools" class="headerlink" title="/tools"></a><code>/tools</code></h3><p>这个项目的支持工具。注意，这些工具可以从 <code>/pkg</code> 和 <code>/internal</code> 目录导入代码。</p>
 <p>相关示例。</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/gohugoio/hugo/tree/master/docs">https://github.com/gohugoio/hugo/tree/master/docs</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/openshift/origin/tree/master/docs">https://github.com/openshift/origin/tree/master/docs</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/dapr/dapr/tree/master/docs">https://github.com/dapr/dapr/tree/master/docs</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/gohugoio/hugo/tree/master/docs">https://github.com/gohugoio/hugo/tree/master/docs</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openshift/origin/tree/master/docs">https://github.com/openshift/origin/tree/master/docs</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/dapr/dapr/tree/master/docs">https://github.com/dapr/dapr/tree/master/docs</a></li>
 </ul>
 <h3 id="examples"><a href="#examples" class="headerlink" title="/examples"></a><code>/examples</code></h3><p>你的应用程序和&#x2F;或公共库的示例。</p>
 <p>相关示例。</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/nats-io/nats.go/tree/master/examples">https://github.com/nats-io/nats.go/tree/master/examples</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/docker-slim/docker-slim/tree/master/examples">https://github.com/docker-slim/docker-slim/tree/master/examples</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/hashicorp/packer/tree/master/examples">https://github.com/hashicorp/packer/tree/master/examples</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/nats-io/nats.go/tree/master/examples">https://github.com/nats-io/nats.go/tree/master/examples</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/docker-slim/docker-slim/tree/master/examples">https://github.com/docker-slim/docker-slim/tree/master/examples</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hashicorp/packer/tree/master/examples">https://github.com/hashicorp/packer/tree/master/examples</a></li>
 </ul>
 <h3 id="third-party"><a href="#third-party" class="headerlink" title="/third_party"></a><code>/third_party</code></h3><p>外部辅助工具，分叉代码和其他第三方工具(例如 Swagger UI)。</p>
 <h3 id="githooks"><a href="#githooks" class="headerlink" title="/githooks"></a><code>/githooks</code></h3><p>Git hooks。</p>
@@ -413,21 +409,21 @@
 <h3 id="website"><a href="#website" class="headerlink" title="/website"></a><code>/website</code></h3><p>如果不使用 Github 页面，则在这里放置项目的网站数据。</p>
 <p>相关示例。</p>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/hashicorp/vault/tree/master/website">https://github.com/hashicorp/vault/tree/master/website</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/perkeep/perkeep/tree/master/website">https://github.com/perkeep/perkeep/tree/master/website</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hashicorp/vault/tree/master/website">https://github.com/hashicorp/vault/tree/master/website</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/perkeep/perkeep/tree/master/website">https://github.com/perkeep/perkeep/tree/master/website</a></li>
 </ul>
 <h2 id="不应该拥有的目录"><a href="#不应该拥有的目录" class="headerlink" title="不应该拥有的目录"></a>不应该拥有的目录</h2><h3 id="src"><a href="#src" class="headerlink" title="/src"></a><code>/src</code></h3><p>有些 Go 项目确实有一个 <code>src</code> 文件夹，但这通常发生在开发人员有 Java 背景，在那里它是一种常见的模式。如果可以的话，尽量不要采用这种 Java 模式。你真的不希望你的 Go 代码或 Go 项目看起来像 Java:-)</p>
-<p>不要将项目级别 <code>src</code> 目录与 Go 用于其工作空间的 <code>src</code> 目录(如 <a target="_blank" rel="noopener" href="https://golang.org/doc/code.html"><code>How to Write Go Code</code></a> 中所述)混淆。<code>$GOPATH</code> 环境变量指向你的(当前)工作空间(默认情况下，它指向非 windows 系统上的 <code>$HOME/go</code>)。这个工作空间包括顶层 <code>/pkg</code>, <code>/bin</code> 和 <code>/src</code> 目录。你的实际项目最终是 <code>/src</code> 下的一个子目录，因此，如果你的项目中有 <code>/src</code> 目录，那么项目路径将是这样的: <code>/some/path/to/workspace/src/your_project/src/your_code.go</code>。注意，在 Go 1.11 中，可以将项目放在 <code>GOPATH</code> 之外，但这并不意味着使用这种布局模式是一个好主意。</p>
+<p>不要将项目级别 <code>src</code> 目录与 Go 用于其工作空间的 <code>src</code> 目录(如 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.org/doc/code.html"><code>How to Write Go Code</code></a> 中所述)混淆。<code>$GOPATH</code> 环境变量指向你的(当前)工作空间(默认情况下，它指向非 windows 系统上的 <code>$HOME/go</code>)。这个工作空间包括顶层 <code>/pkg</code>, <code>/bin</code> 和 <code>/src</code> 目录。你的实际项目最终是 <code>/src</code> 下的一个子目录，因此，如果你的项目中有 <code>/src</code> 目录，那么项目路径将是这样的: <code>/some/path/to/workspace/src/your_project/src/your_code.go</code>。注意，在 Go 1.11 中，可以将项目放在 <code>GOPATH</code> 之外，但这并不意味着使用这种布局模式是一个好主意。</p>
 <h2 id="好的开源项目架构示例"><a href="#好的开源项目架构示例" class="headerlink" title="好的开源项目架构示例"></a>好的开源项目架构示例</h2><h3 id="go-gin-api"><a href="#go-gin-api" class="headerlink" title="go-gin-api"></a>go-gin-api</h3><p><img src="https://s2.loli.net/2022/11/22/JQMUV8NkzcIaSWT.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="k8s"><a href="#k8s" class="headerlink" title="k8s"></a>k8s</h3><p><img src="https://s2.loli.net/2022/11/22/4kELthJAS5DiYyX.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/golang-standards/project-layout">https://github.com/golang-standards/project-layout</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/golang-standards/project-layout">https://github.com/golang-standards/project-layout</a></li>
 </ul>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -503,7 +499,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -534,7 +530,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -554,7 +550,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -593,8 +589,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -654,8 +649,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -666,13 +661,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -691,7 +686,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -725,7 +720,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -763,9 +758,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -773,7 +768,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

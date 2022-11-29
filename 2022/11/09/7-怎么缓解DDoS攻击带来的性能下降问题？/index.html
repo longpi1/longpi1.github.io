@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:type" content="article">
@@ -41,15 +41,15 @@
   
   <title>7.怎么缓解DDoS攻击带来的性能下降问题？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -63,12 +63,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -84,8 +84,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -123,9 +123,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -203,8 +201,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -214,8 +211,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -263,7 +259,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -300,7 +296,7 @@
                 <h1 id="7-怎么缓解-DDoS-攻击带来的性能下降问题？"><a href="#7-怎么缓解-DDoS-攻击带来的性能下降问题？" class="headerlink" title="7.怎么缓解 DDoS 攻击带来的性能下降问题？"></a>7.怎么缓解 DDoS 攻击带来的性能下降问题？</h1><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">&gt; 本文笔记来自：「极客时间  Linux 性能优化实战」，原文链接：https:<span class="hljs-regexp">//</span>time.geekbang.org<span class="hljs-regexp">/column/</span>article/<span class="hljs-number">80898</span><br></code></pre></td></tr></table></figure>
 <h2 id="DDoS-简介"><a href="#DDoS-简介" class="headerlink" title="DDoS 简介"></a>DDoS 简介</h2><p>DDoS 的前身是 DoS（Denail of Service），即拒绝服务攻击，指利用大量的合理请求，来占用过多的目标资源，从而使目标服务无法响应正常请求。</p>
 <p>DDoS（Distributed Denial of Service） 则是在 DoS 的基础上，采用了分布式架构，利用多台主机同时攻击目标主机。这样，即使目标服务部署了网络防御设备，面对大量网络请求时，还是无力应对。</p>
-<p>比如，目前已知的最大流量攻击，正是去年 Github 遭受的 <a target="_blank" rel="noopener" href="https://githubengineering.com/ddos-incident-report/">DDoS 攻击</a>，其峰值流量已经达到了 1.35Tbps，PPS 更是超过了 1.2 亿（126.9 million）。</p>
+<p>比如，目前已知的最大流量攻击，正是去年 Github 遭受的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://githubengineering.com/ddos-incident-report/">DDoS 攻击</a>，其峰值流量已经达到了 1.35Tbps，PPS 更是超过了 1.2 亿（126.9 million）。</p>
 <p>从攻击的原理上来看，DDoS 可以分为下面几种类型。</p>
 <p>第一种，耗尽带宽。无论是服务器还是路由器、交换机等网络设备，带宽都有固定的上限。带宽耗尽后，就会发生网络拥堵，从而无法传输其他正常的网络报文。</p>
 <p>第二种，耗尽操作系统的资源。网络服务的正常运行，都需要一定的系统资源，像是CPU、内存等物理资源，以及连接表等软件资源。一旦资源耗尽，系统就不能处理其他正常的网络连接。</p>
@@ -350,7 +346,7 @@
 <p>回到终端一中，执行下面的命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sar -n DEV 1<br>08:55:49        IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil<br>08:55:50      docker0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00<br>08:55:50         eth0  22274.00    629.00   1174.64     37.78      0.00      0.00      0.00      0.02<br>08:55:50           lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00<br><br></code></pre></td></tr></table></figure>
 
-<p>关于 sar 输出中的各列含义，可以点击 <a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/81057">这里</a> 查看，或者执行 man sar 查询手册。</p>
+<p>关于 sar 输出中的各列含义，可以点击 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/81057">这里</a> 查看，或者执行 man sar 查询手册。</p>
 <p>从这次 sar 的输出中，你可以看到，网络接收的 PPS 已经达到了 20000 多，但是 BPS 却只有 1174 kB，这样每个包的大小就只有 54B（1174*1024&#x2F;22274&#x3D;54）。</p>
 <p>这明显就是个小包了，不过具体是个什么样的包呢？那我们就用 tcpdump 抓包看看吧。</p>
 <p>在终端一中，执行下面的 tcpdump 命令：</p>
@@ -369,7 +365,7 @@
 <p>这种等待状态的 TCP 连接，通常也称为半开连接。由于连接表的大小有限，大量的半开连接就会导致连接表迅速占满，从而无法建立新的 TCP 连接。</p>
 <p>参考下面这张 TCP 状态图，此时，服务器端的 TCP 连接，会处于 SYN_RECEIVED 状态：</p>
 <p><img src="https://static001.geekbang.org/resource/image/86/a2/86dabf9cc66b29133fa6a239cfee38a2.png?wh=796*600" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/File:Tcp_state_diagram.png">Wikipedia</a>）</p>
+<p>（图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/File:Tcp_state_diagram.png">Wikipedia</a>）</p>
 <p>这其实提示了我们，查看 TCP 半开连接的方法，关键在于 SYN_RECEIVED 状态的连接。我们可以使用 netstat ，来查看所有连接的状态，不过要注意，SYN_REVEIVED 的状态，通常被缩写为 SYN_RECV。</p>
 <p>继续在终端一中，执行下面的 netstat 命令：</p>
 <figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs tap"><span class="hljs-comment"># -n表示不解析名字，-p表示显示连接所属进程</span><br>$ netstat -n -p | grep SYN_REC<br>tcp       <span class="hljs-number"> 0 </span>    <span class="hljs-number"> 0 </span>192.168.0.30:80          192.168.0.2:12503      SYN_RECV    -<br>tcp       <span class="hljs-number"> 0 </span>    <span class="hljs-number"> 0 </span>192.168.0.30:80          192.168.0.2:13502      SYN_RECV    -<br>tcp       <span class="hljs-number"> 0 </span>    <span class="hljs-number"> 0 </span>192.168.0.30:80          192.168.0.2:15256      SYN_RECV    -<br>tcp       <span class="hljs-number"> 0 </span>    <span class="hljs-number"> 0 </span>192.168.0.30:80          192.168.0.2:18117      SYN_RECV    -<br>...<br><br></code></pre></td></tr></table></figure>
@@ -433,7 +429,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -515,7 +511,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -546,7 +542,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -566,7 +562,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -605,8 +601,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -666,8 +661,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -678,13 +673,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -703,7 +698,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -737,7 +732,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -775,9 +770,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -785,7 +780,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

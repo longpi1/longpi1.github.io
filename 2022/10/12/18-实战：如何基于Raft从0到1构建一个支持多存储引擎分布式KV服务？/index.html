@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间etcd课程笔记">
 <meta property="og:type" content="article">
@@ -42,15 +42,15 @@
   
   <title>18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -64,12 +64,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -85,8 +85,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -124,9 +124,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -204,8 +202,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -215,8 +212,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -264,7 +260,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -299,9 +295,9 @@
               <div class="markdown-body">
                 
                 <h1 id="18-实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？"><a href="#18-实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？" class="headerlink" title="18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？"></a>18.实战：如何基于Raft从0到1构建一个支持多存储引擎分布式KV服务？</h1><blockquote>
-<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
 </blockquote>
-<p>今天聊聊如何实现一个类etcd、支持多存储引擎的KV服务，基于etcd自带的 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/contrib/raftexample">raftexample</a> 项目快速构建它。</p>
+<p>今天聊聊如何实现一个类etcd、支持多存储引擎的KV服务，基于etcd自带的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/tree/v3.4.9/contrib/raftexample">raftexample</a> 项目快速构建它。</p>
 <p>为了方便后面描述，把它命名为metcd（表示微型的etcd），它是raftexample的加强版。希望通过metcd这个小小的实战项目，能够帮助进一步理解etcd乃至分布式存储服务的核心架构、原理、典型问题解决方案。</p>
 <h2 id="整体架构设计"><a href="#整体架构设计" class="headerlink" title="整体架构设计"></a>整体架构设计</h2><p>在和你深入聊代码细节之前，首先我和你从整体上介绍下系统架构。</p>
 <p>下面是我给你画的metcd整体架构设计，它由API层、Raft层的共识模块、逻辑层及存储层组成的状态机组成。</p>
@@ -355,12 +351,12 @@
 <h4 id="leveldb"><a href="#leveldb" class="headerlink" title="leveldb"></a>leveldb</h4><p>那要如何设计适合写多读少的存储引擎呢?</p>
 <p>最简单的思路当然是写内存最快。可是内存有限的，无法支撑大容量的数据存储，不持久化数据会丢失。</p>
 <p>那能否直接将数据顺序追加到文件末尾（AOF）呢？因为磁盘的特点是顺序写性能比较快。</p>
-<p>当然可以。 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bitcask">Bitcask</a> 存储模型就是采用AOF模式，把写请求顺序追加到文件。Facebook的图片存储 <a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Beaver.pdf">Haystack</a> 根据其论文介绍，也是使用类似的方案来解决大规模写入痛点。</p>
+<p>当然可以。 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Bitcask">Bitcask</a> 存储模型就是采用AOF模式，把写请求顺序追加到文件。Facebook的图片存储 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Beaver.pdf">Haystack</a> 根据其论文介绍，也是使用类似的方案来解决大规模写入痛点。</p>
 <p>那在AOF写入模型中如何实现查询数据呢？</p>
 <p>很显然通过遍历文件一个个匹配key是可以的，但是它的性能是极差的。为了实现高性能的查询，最理想的解决方案从直接从内存中查询，但是内存是有限的，那么我们能否通过内存索引来记录一个key-value数据在文件中的偏移量，实现从磁盘快速读取呢？</p>
-<p>是的，这正是 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bitcask">Bitcask</a> 存储模型的查询的实现，它通过内存哈希表维护各个key-value数据的索引，实现了快速查找key-value数据。不过，内存中虽然只保存key索引信息，但是当key较多的时候，其对内存要求依然比较高。</p>
+<p>是的，这正是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Bitcask">Bitcask</a> 存储模型的查询的实现，它通过内存哈希表维护各个key-value数据的索引，实现了快速查找key-value数据。不过，内存中虽然只保存key索引信息，但是当key较多的时候，其对内存要求依然比较高。</p>
 <p>快速了解完存储引擎提升写性能的核心思路（随机写转化为顺序写）之后，那leveldb它的原理是怎样的呢？与Bitcask存储模型有什么不一样？</p>
-<p>leveldb是基于**LSM tree(log-structured merge-tree)**实现的key-value存储，它的架构如下图所示（ <a target="_blank" rel="noopener" href="https://microsoft.github.io/MLOS/notebooks/LevelDbTuning/">引用自微软博客</a>）。</p>
+<p>leveldb是基于**LSM tree(log-structured merge-tree)**实现的key-value存储，它的架构如下图所示（ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://microsoft.github.io/MLOS/notebooks/LevelDbTuning/">引用自微软博客</a>）。</p>
 <p>它提升写性能的核心思路同样是将随机写转化为顺序写磁盘WAL文件和内存，结合了我们上面讨论的写内存和磁盘两种方法。数据持久化到WAL文件是为了确保机器crash后数据不丢失。</p>
 <p><img src="https://static001.geekbang.org/resource/image/05/50/05f01951fe5862a62624b81e2ceea150.png?wh=992*677" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>那么它要如何解决内存不足和查询的痛点问题呢？</p>
@@ -378,13 +374,13 @@
 <li>从Memtable跳跃表中查询key；</li>
 <li>未找到则从Immutable中查找；</li>
 <li>Immutable仍未命中，则按照leveldb的分层属性，因level 0 SSTable文件是直接从Immutable生成的，level 0存在特殊性，因此你需要从level 0遍历SSTable查找key；</li>
-<li>level 0中若未命中，则从level 1乃至更高的层次查找。level大于0时，各个SSTable中的key是不存在相互重叠的。根据manifest记录的key-value范围信息，可快递定位到具体的SSTable。同时leveldb基于 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bloom_filter">bloom filter</a> 实现了快速筛选SSTable，因此查询效率较高。</li>
+<li>level 0中若未命中，则从level 1乃至更高的层次查找。level大于0时，各个SSTable中的key是不存在相互重叠的。根据manifest记录的key-value范围信息，可快递定位到具体的SSTable。同时leveldb基于 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Bloom_filter">bloom filter</a> 实现了快速筛选SSTable，因此查询效率较高。</li>
 </ul>
-<p>更详细原理可以参考一下 <a target="_blank" rel="noopener" href="https://github.com/google/leveldb">leveldb</a> 源码。</p>
+<p>更详细原理可以参考一下 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/google/leveldb">leveldb</a> 源码。</p>
 <h2 id="实现分析"><a href="#实现分析" class="headerlink" title="实现分析"></a>实现分析</h2><p>从API设计、复制状态机、多存储引擎支持等几个方面你介绍了metcd架构设计后，接下来我就和你重点介绍下共识模块、状态机支持多存储引擎模块的核心实现要点。</p>
-<h3 id="Raft算法库"><a href="#Raft算法库" class="headerlink" title="Raft算法库"></a>Raft算法库</h3><p>共识模块使用的是etcd <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/raft">Raft算法库</a>，它是一个经过大量业务生产环境检验、具备良好可扩展性的共识算法库。</p>
+<h3 id="Raft算法库"><a href="#Raft算法库" class="headerlink" title="Raft算法库"></a>Raft算法库</h3><p>共识模块使用的是etcd <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/tree/v3.4.9/raft">Raft算法库</a>，它是一个经过大量业务生产环境检验、具备良好可扩展性的共识算法库。</p>
 <p>它提供了哪些接口给你使用? 如何提交一个提案，并且获取Raft共识模块输出结果呢？</p>
-<h4 id="Raft-API"><a href="#Raft-API" class="headerlink" title="Raft API"></a>Raft API</h4><p>Raft作为一个库，它对外最核心的对象是一个名为 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/node.go#L125:L203">Node</a> 的数据结构。Node表示Raft集群中的一个节点，它的输入与输出接口如下图所示，下面重点介绍它的几个接口功能：</p>
+<h4 id="Raft-API"><a href="#Raft-API" class="headerlink" title="Raft API"></a>Raft API</h4><p>Raft作为一个库，它对外最核心的对象是一个名为 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/node.go#L125:L203">Node</a> 的数据结构。Node表示Raft集群中的一个节点，它的输入与输出接口如下图所示，下面重点介绍它的几个接口功能：</p>
 <ul>
 <li>Campaign，状态转换成Candidate，发起新一轮Leader选举；</li>
 <li>Propose，提交提案接口；</li>
@@ -395,7 +391,7 @@
 <li>ReadIndex，用于实现线性读。</li>
 </ul>
 <p><img src="https://static001.geekbang.org/resource/image/a7/39/a79a97f8cc8294dcb93f9552fb638f39.png?wh=1920*787" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>上面提到的Raft状态机的输出 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/node.go#L52:L90">Ready结构</a> 含有哪些信息呢? 下图是其详细字段，含义如下：</p>
+<p>上面提到的Raft状态机的输出 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/node.go#L52:L90">Ready结构</a> 含有哪些信息呢? 下图是其详细字段，含义如下：</p>
 <ul>
 <li>SoftState，软状态。包括集群Leader和节点状态，不需要持久化到WAL；</li>
 <li>pb.HardState，硬状态。与软状态相反，包括了节点当前Term、Vote等信息，需要持久化到WAL中；</li>
@@ -419,8 +415,8 @@
 <li>commitC，它用来输出Raft共识模块已提交的日志条目消息。</li>
 </ul>
 <p>在metcd项目中因为是直接基于raftexample定制开发，因此日志持久化存储、网络都使用的是etcd自带的WAL和rafthttp模块。</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/wal/wal.go">WAL</a> 模块中提供了核心的保存未持久化的日志条目和快照功能接口。</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/etcdserver/api/rafthttp">rafthttp</a> 模块基于HTTP协议提供了各个节点间的消息发送能力，metcd使用如下：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/wal/wal.go">WAL</a> 模块中提供了核心的保存未持久化的日志条目和快照功能接口。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/tree/v3.4.9/etcdserver/api/rafthttp">rafthttp</a> 模块基于HTTP协议提供了各个节点间的消息发送能力，metcd使用如下：</p>
 <figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">rc.transport = &amp;rafthttp.Transport&#123;<br>   Logger:      zap.<span class="hljs-constructor">NewExample()</span>,<br>   ID:          types.<span class="hljs-constructor">ID(<span class="hljs-params">rc</span>.<span class="hljs-params">id</span>)</span>,<br>   ClusterID:   <span class="hljs-number">0x1000</span>,<br>   Raft:        rc,<br>   ServerStats: stats.<span class="hljs-constructor">NewServerStats(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)</span>,<br>   LeaderStats: stats.<span class="hljs-constructor">NewLeaderStats(<span class="hljs-params">strconv</span>.Itoa(<span class="hljs-params">rc</span>.<span class="hljs-params">id</span>)</span>),<br>   ErrorC:      make(chan error),<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>搞清楚Raft模块的输入、输出API，设计好raftNode结构，复用etcd的WAL、网络等模块后，接下来就只需要实现如下两个循环逻辑，处理业务层发送给proposeC和confChangeC消息、将Raft的Node输出Ready结构进行相对应的处理即可。精简后的代码如下所示：</p>
@@ -438,7 +434,7 @@
 <h4 id="boltdb-1"><a href="#boltdb-1" class="headerlink" title="boltdb"></a>boltdb</h4><p>首先是boltdb存储引擎，它的实现如下。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *boltdbKVStore)</span></span> Put(key, value <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;<br>   s.mu.Lock()<br>   <span class="hljs-keyword">defer</span> s.mu.Unlock()<br>   <span class="hljs-comment">// Start a writable transaction.</span><br>   tx, err := s.db.Begin(<span class="hljs-literal">true</span>)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   <span class="hljs-keyword">defer</span> tx.Rollback()<br><br>   <span class="hljs-comment">// Use the transaction...</span><br>   bucket, err := tx.CreateBucketIfNotExists([]<span class="hljs-type">byte</span>(<span class="hljs-string">&quot;keys&quot;</span>))<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to put key %s, value %s, err is %v&quot;</span>, key, value, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   err = bucket.Put([]<span class="hljs-type">byte</span>(key), []<span class="hljs-type">byte</span>(value))<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to put key %s, value %s, err is %v&quot;</span>, key, value, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br><br>   <span class="hljs-comment">// Commit the transaction and check for error.</span><br>   <span class="hljs-keyword">if</span> err := tx.Commit(); err != <span class="hljs-literal">nil</span> &#123;<br>      log.Printf(<span class="hljs-string">&quot;failed to commit transaction, key %s, err is %v&quot;</span>, key, err)<br>      <span class="hljs-keyword">return</span> err<br>   &#125;<br>   log.Printf(<span class="hljs-string">&quot;backend:%s,put key:%s,value:%s succ&quot;</span>, s.config.backend, key, value)<br>   <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br><br></code></pre></td></tr></table></figure>
 
-<h4 id="leveldb-1"><a href="#leveldb-1" class="headerlink" title="leveldb"></a>leveldb</h4><p>其次是leveldb，我们使用的是 <a target="_blank" rel="noopener" href="https://github.com/syndtr/goleveldb">goleveldb</a>，它基于Google开源的c++ <a target="_blank" rel="noopener" href="https://github.com/google/leveldb">leveldb</a> 版本实现。它提供的常用API如下所示。</p>
+<h4 id="leveldb-1"><a href="#leveldb-1" class="headerlink" title="leveldb"></a>leveldb</h4><p>其次是leveldb，我们使用的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/syndtr/goleveldb">goleveldb</a>，它基于Google开源的c++ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/google/leveldb">leveldb</a> 版本实现。它提供的常用API如下所示。</p>
 <ul>
 <li>通过OpenFile API创建或打开一个leveldb数据库。</li>
 </ul>
@@ -477,12 +473,12 @@
 <p>在整体架构设计上，介绍了API设计核心因素，它们分别是<strong>性能、易用性、开发效率、安全性、幂等性</strong>。其次介绍了复制状态机的原理，它由共识模块、日志模块、存储状态机模块组成。最后深入分析了多存储引擎设计，重点介绍了leveldb原理，它将随机写转换为顺序写日志和内存，通过一系列分层、创新的设计实现了优异的写性能，适合读少写多。</p>
 <p>在实现分析上，重点介绍了Raft算法库的核心对象Node API。对于一个库而言，我们重点关注的是其输入、输出接口，业务逻辑层可通过Propose接口提交提案，通过Ready结构获取Raft算法状态机的输出内容。其次介绍了Raft算法库如何与WAL模块、Raft日志存储模块、网络模块协作完成一个写请求。</p>
 <p>最后为了支持多存储引擎，分别基于boltdb、leveldb实现了KVStore相关接口操作，并通过读写流程图，从整体上介绍了一个读写请求在metcd中是如何工作的。</p>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p> <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/contrib/raftexample">raftexample</a> 启动的时候是如何工作的吗？它的存储引擎内存map是如何保证数据不丢失的呢？</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/tree/v3.4.9/contrib/raftexample">raftexample</a> 启动的时候是如何工作的吗？它的存储引擎内存map是如何保证数据不丢失的呢？</p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -560,7 +556,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -591,7 +587,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -611,7 +607,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -650,8 +646,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -711,8 +706,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -723,13 +718,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -748,7 +743,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -782,7 +777,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -820,9 +815,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -830,7 +825,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

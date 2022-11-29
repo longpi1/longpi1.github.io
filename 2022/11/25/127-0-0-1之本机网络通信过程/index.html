@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="转载自张彦飞的 [127.0.0.1 之本机网络通信过程知多少 ?！]">
 <meta property="og:type" content="article">
@@ -50,15 +50,15 @@
   
   <title>127.0.0.1 之本机网络通信过程 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -72,12 +72,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -93,8 +93,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -132,9 +132,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -212,8 +210,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -223,8 +220,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -272,7 +268,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -307,7 +303,7 @@
               <div class="markdown-body">
                 
                 <h1 id="127-0-0-1-之本机网络通信过程"><a href="#127-0-0-1-之本机网络通信过程" class="headerlink" title="127.0.0.1 之本机网络通信过程"></a>127.0.0.1 之本机网络通信过程</h1><blockquote>
-<p>转载自张彦飞大佬的 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/6_OfoeD3ZpyQisY2F-4_bw">127.0.0.1 之本机网络通信过程知多少 ?！</a></p>
+<p>转载自张彦飞大佬的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://mp.weixin.qq.com/s/6_OfoeD3ZpyQisY2F-4_bw">127.0.0.1 之本机网络通信过程知多少 ?！</a></p>
 </blockquote>
 <h2 id="一、跨机网路通信过程"><a href="#一、跨机网路通信过程" class="headerlink" title="一、跨机网路通信过程"></a>一、跨机网路通信过程</h2><h3 id="1-1-跨机数据发送"><a href="#1-1-跨机数据发送" class="headerlink" title="1.1 跨机数据发送"></a>1.1 跨机数据发送</h3><p>从 send 系统调用开始，直到网卡把数据发送出去，整体流程如下：</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CtNNS4rib0ib9pTra3xou3Zxic3wNhyLdjmS3X7aqst5UGA1fkhge6UNPA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
@@ -322,7 +318,7 @@
 <p>我们再同样从内核组件和源码视角看一遍。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CfgMT8QPLb2WgYrakI0rptOMLicdGia9Nxo6FaKBLtGPbDBqQehlqib9jA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <h3 id="1-3-跨机网络通信汇总"><a href="#1-3-跨机网络通信汇总" class="headerlink" title="1.3 跨机网络通信汇总"></a>1.3 跨机网络通信汇总</h3><p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CRmtMBiacq2Ph94hkMD69bQzglgF8VYXAV2ax52dnHg9WiaMv6Lic6lvFw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
-<h2 id="二、本机发送过程"><a href="#二、本机发送过程" class="headerlink" title="二、本机发送过程"></a>二、本机发送过程</h2><p>在第一节中，我们看到了跨机时整个网络发送过程（嫌第一节流程图不过瘾，想继续看源码了解细节的同学可以参考 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247485146&idx=1&sn=e5bfc79ba915df1f6a8b32b87ef0ef78&scene=21#wechat_redirect">拆解 Linux 网络包发送过程</a>） 。</p>
+<h2 id="二、本机发送过程"><a href="#二、本机发送过程" class="headerlink" title="二、本机发送过程"></a>二、本机发送过程</h2><p>在第一节中，我们看到了跨机时整个网络发送过程（嫌第一节流程图不过瘾，想继续看源码了解细节的同学可以参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247485146&idx=1&sn=e5bfc79ba915df1f6a8b32b87ef0ef78&scene=21#wechat_redirect">拆解 Linux 网络包发送过程</a>） 。</p>
 <p>在本机网络 IO 的过程中，流程会有一些差别。为了突出重点，将不再介绍整体流程，而是只介绍和跨机逻辑不同的地方。有差异的地方总共有两个，分别是<strong>路由</strong>和<strong>驱动程序</strong>。</p>
 <h3 id="2-1-网络层路由"><a href="#2-1-网络层路由" class="headerlink" title="2.1 网络层路由"></a>2.1 网络层路由</h3><p>发送数据会进入协议栈到网络层的时候，网络层入口函数是 ip_queue_xmit。在网络层里会进行路由选择，路由选择完毕后，再设置一些 IP 头、进行一些 netfilter 的过滤后，将包交给邻居子系统。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CD7TD2J1iaJYpjSI7kBbMCTxzqEGnrKAKOt1nUC9369icylPYBnT9Y6Ew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
@@ -377,7 +373,7 @@
 <h2 id="三、本机接收过程"><a href="#三、本机接收过程" class="headerlink" title="三、本机接收过程"></a>三、本机接收过程</h2><p>在跨机的网络包的接收过程中，需要经过硬中断，然后才能触发软中断。而在本机的网络 IO 过程中，由于并不真的过网卡，所以网卡实际传输，硬中断就都省去了。直接从软中断开始，经过 process_backlog 后送进协议栈，大体过程如图。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5Cr5j7vqZytONcBluZXd5hs2Ue8BqTibnLSP4eC5ubaSz4Cn3uMnNobZg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>接下来我们再看更详细一点的过程。</p>
-<p>在软中断被触发以后，会进入到 NET_RX_SOFTIRQ 对应的处理方法 net_rx_action 中（至于细节参见 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484058&idx=1&sn=a2621bc27c74b313528eefbc81ee8c0f&scene=21#wechat_redirect">图解Linux网络包接收过程</a> 一文中的 3.2 小节）。</p>
+<p>在软中断被触发以后，会进入到 NET_RX_SOFTIRQ 对应的处理方法 net_rx_action 中（至于细节参见 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484058&idx=1&sn=a2621bc27c74b313528eefbc81ee8c0f&scene=21#wechat_redirect">图解Linux网络包接收过程</a> 一文中的 3.2 小节）。</p>
 <figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">//file: net/core/dev.c</span><br>static void net<span class="hljs-constructor">_rx_action(<span class="hljs-params">struct</span> <span class="hljs-params">softirq_action</span> <span class="hljs-operator">*</span><span class="hljs-params">h</span>)</span>&#123;<br> <span class="hljs-keyword">while</span> (!<span class="hljs-built_in">list</span><span class="hljs-constructor">_empty(&amp;<span class="hljs-params">sd</span>-&gt;<span class="hljs-params">poll_list</span>)</span>) &#123;<br>  work = n-&gt;poll(n, weight);<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>我们还记得对于 igb 网卡来说，poll 实际调用的是 igb_poll 函数。那么 loopback 网卡的 poll 函数是谁呢？由于poll_list 里面是 <code>struct softnet_data</code> 对象，我们在 net_dev_init 中找到了蛛丝马迹。</p>
@@ -390,7 +386,7 @@
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5C3y3FHJWIyHwAzvgQWpLBFXJ5l15ZeDCAanWCAtvUNIsbvEq66mO2gw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
 <p>然后再看 __skb_dequeue， __skb_dequeue 是从 sd-&gt;process_queue 上取下来包来处理。这样和前面发送过程的结尾处就对上了。发送过程是把包放到了 input_pkt_queue 队列里，接收过程是在从这个队列里取出 skb。</p>
 <p>最后调用 __netif_receive_skb 将 skb(数据) 送往协议栈。在此之后的调用过程就和跨机网络 IO 又一致了。</p>
-<p>送往协议栈的调用链是 __netif_receive_skb &#x3D;&gt; __netif_receive_skb_core &#x3D;&gt; deliver_skb 后 将数据包送入到 ip_rcv 中（详情参见<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484058&idx=1&sn=a2621bc27c74b313528eefbc81ee8c0f&scene=21#wechat_redirect">图解Linux网络包接收过程</a> 一文中的 3.3 小节）。</p>
+<p>送往协议栈的调用链是 __netif_receive_skb &#x3D;&gt; __netif_receive_skb_core &#x3D;&gt; deliver_skb 后 将数据包送入到 ip_rcv 中（详情参见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484058&idx=1&sn=a2621bc27c74b313528eefbc81ee8c0f&scene=21#wechat_redirect">图解Linux网络包接收过程</a> 一文中的 3.3 小节）。</p>
 <p>网络再往后依次是传输层，最后唤醒用户进程，这里就不多展开了。</p>
 <h2 id="四、本机网络-IO-总结"><a href="#四、本机网络-IO-总结" class="headerlink" title="四、本机网络 IO 总结"></a>四、本机网络 IO 总结</h2><p>我们来总结一下本机网络 IO 的内核执行流程。</p>
 <p><img src="https://mmbiz.qpic.cn/mmbiz_png/BBjAFF4hcwpyWdN4tva34saOuQBulk5CrlAeJXFpBeXmkTiaSUZibFYPslfZf9lsAECbnicqJQJ6RLqcGca35gIicQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="图片"></p>
@@ -406,7 +402,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -482,7 +478,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -513,7 +509,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -533,7 +529,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -572,8 +568,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -633,8 +628,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -645,13 +640,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -670,7 +665,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -704,7 +699,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -742,9 +737,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -752,7 +747,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

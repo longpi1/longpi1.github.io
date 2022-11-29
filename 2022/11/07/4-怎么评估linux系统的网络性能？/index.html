@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:type" content="article">
@@ -39,15 +39,15 @@
   
   <title>4.怎么评估linux系统的网络性能？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -61,12 +61,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -82,8 +82,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -121,9 +121,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -201,8 +199,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -212,8 +209,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -261,7 +257,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -321,7 +317,7 @@
 <p>注意，以下所有的测试方法，都需要两台 Linux 虚拟机。其中一台，可以当作待测试的目标机器；而另一台，则可以当作正在运行网络服务的客户端，用来运行测试工具。</p>
 </blockquote>
 <h2 id="各协议层的性能测试"><a href="#各协议层的性能测试" class="headerlink" title="各协议层的性能测试"></a>各协议层的性能测试</h2><h3 id="转发性能"><a href="#转发性能" class="headerlink" title="转发性能"></a>转发性能</h3><p>首先来看，网络接口层和网络层，它们主要负责网络包的封装、寻址、路由以及发送和接收。在这两个网络协议层中，每秒可处理的网络包数 PPS，就是最重要的性能指标。特别是 64B 小包的处理能力，值得我们特别关注（小包更能体现pps的性能）。那么，如何来测试网络包的处理能力呢？</p>
-<p>Linux 内核自带的高性能网络测试工具 <a target="_blank" rel="noopener" href="https://wiki.linuxfoundation.org/networking/pktgen">pktgen</a>。pktgen 支持丰富的自定义选项，方便你根据实际需要构造所需网络包，从而更准确地测试出目标服务器的性能。</p>
+<p>Linux 内核自带的高性能网络测试工具 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://wiki.linuxfoundation.org/networking/pktgen">pktgen</a>。pktgen 支持丰富的自定义选项，方便你根据实际需要构造所需网络包，从而更准确地测试出目标服务器的性能。</p>
 <p>不过，在 Linux 系统中，并不能直接找到 pktgen 命令。因为 pktgen 作为一个内核线程来运行，需要你加载 pktgen 内核模块后，再通过 &#x2F;proc 文件系统来交互。下面就是 pktgen 启动的两个内核线程和 &#x2F;proc 文件系统的交互文件：</p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gradle">$ modprobe pktgen<br>$ ps -ef | <span class="hljs-keyword">grep</span> pktgen | <span class="hljs-keyword">grep</span> -v <span class="hljs-keyword">grep</span><br>root     <span class="hljs-number">26384</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">06</span>:<span class="hljs-number">17</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [kpktgend_0]<br>root     <span class="hljs-number">26385</span>     <span class="hljs-number">2</span>  <span class="hljs-number">0</span> <span class="hljs-number">06</span>:<span class="hljs-number">17</span> ?        <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> [kpktgend_1]<br>$ ls <span class="hljs-regexp">/proc/</span>net<span class="hljs-regexp">/pktgen/</span><br>kpktgend_0  kpktgend_1  pgctrl<br><br></code></pre></td></tr></table></figure>
 
@@ -391,7 +387,7 @@
 <h3 id="应用负载性能"><a href="#应用负载性能" class="headerlink" title="应用负载性能"></a>应用负载性能</h3><p>当用 iperf 或者 ab 等测试工具，得到 TCP、HTTP 等的性能数据后，这些数据是否就能表示应用程序的实际性能呢？</p>
 <p>答案应该是否定的。比如，你的应用程序基于 HTTP 协议，为最终用户提供一个 Web 服务。这时，使用 ab 工具，可以得到某个页面的访问性能，但这个结果跟用户的实际请求，很可能不一致。因为用户请求往往会附带着各种各种的负载（payload），而这些负载会影响 Web 应用程序内部的处理逻辑，从而影响最终性能。</p>
 <p>那么，为了得到应用程序的实际性能，就要求性能工具本身可以模拟用户的请求负载，而iperf、ab 这类工具就无能为力了。幸运的是，我们还可以用 wrk、TCPCopy、Jmeter 或者 LoadRunner 等实现这个目标。</p>
-<p>以 <a target="_blank" rel="noopener" href="https://github.com/wg/wrk">wrk</a> 为例，它是一个 HTTP 性能测试工具，内置了 LuaJIT，方便你根据实际需求，生成所需的请求负载，或者自定义响应的处理方法。</p>
+<p>以 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/wg/wrk">wrk</a> 为例，它是一个 HTTP 性能测试工具，内置了 LuaJIT，方便你根据实际需求，生成所需的请求负载，或者自定义响应的处理方法。</p>
 <p>wrk 工具本身不提供 yum 或 apt 的安装方法，需要通过源码编译来安装。比如，可以运行下面的命令，来编译和安装 wrk：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">https://github.com/wg/wrk</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> wrk</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">apt-get install build-essential -y</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cp</span> wrk /usr/local/bin/</span><br><br></code></pre></td></tr></table></figure>
 
@@ -402,8 +398,8 @@
 <p>这也说明，性能工具本身的性能，对性能测试也是至关重要的。不合适的性能工具，并不能准确测出应用程序的最佳性能。</p>
 <p>当然，wrk 最大的优势，是其内置的 LuaJIT，可以用来实现复杂场景的性能测试。wrk 在调用 Lua 脚本时，可以将 HTTP 请求分为三个阶段，即 setup、running、done，如下图所示：</p>
 <p><img src="https://static001.geekbang.org/resource/image/d0/82/d02b845aa308b7a38a5735f3db8d9682.png?wh=621*530" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>（图片来自 <a target="_blank" rel="noopener" href="https://sq.163yun.com/blog/article/200008406328934400">网易云博客</a>）</p>
-<p>比如，你可以在 setup 阶段，为请求设置认证参数（来自于 wrk 官方 <a target="_blank" rel="noopener" href="https://github.com/wg/wrk/blob/master/scripts/auth.lua">示例</a>）：</p>
+<p>（图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://sq.163yun.com/blog/article/200008406328934400">网易云博客</a>）</p>
+<p>比如，你可以在 setup 阶段，为请求设置认证参数（来自于 wrk 官方 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/wg/wrk/blob/master/scripts/auth.lua">示例</a>）：</p>
 <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs lua"><span class="hljs-comment">-- example script that demonstrates response handling and</span><br><span class="hljs-comment">-- retrieving an authentication token to set on all future</span><br><span class="hljs-comment">-- requests</span><br><br>token = <span class="hljs-literal">nil</span><br><span class="hljs-built_in">path</span>  = <span class="hljs-string">&quot;/authenticate&quot;</span><br><br>request = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>   <span class="hljs-keyword">return</span> wrk.<span class="hljs-built_in">format</span>(<span class="hljs-string">&quot;GET&quot;</span>, <span class="hljs-built_in">path</span>)<br><span class="hljs-keyword">end</span><br><br>response = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(status, headers, body)</span></span><br>   <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> token <span class="hljs-keyword">and</span> <span class="hljs-built_in">status</span> == <span class="hljs-number">200</span> <span class="hljs-keyword">then</span><br>      token = headers[<span class="hljs-string">&quot;X-Token&quot;</span>]<br>      <span class="hljs-built_in">path</span>  = <span class="hljs-string">&quot;/resource&quot;</span><br>      wrk.headers[<span class="hljs-string">&quot;X-Token&quot;</span>] = token<br>   <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br><br></code></pre></td></tr></table></figure>
 
 <p>而在执行测试时，通过 -s 选项，执行脚本的路径：</p>
@@ -425,7 +421,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -505,7 +501,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -536,7 +532,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -556,7 +552,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -595,8 +591,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -656,8 +651,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -668,13 +663,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -693,7 +688,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -727,7 +722,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -765,9 +760,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -775,7 +770,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间etcd课程笔记">
 <meta property="og:type" content="article">
@@ -46,15 +46,15 @@
   
   <title>15.内存：为什么你的etcd内存占用那么高？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -68,12 +68,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -89,8 +89,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -128,9 +128,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -208,8 +206,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -219,8 +216,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -268,7 +264,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -303,7 +299,7 @@
               <div class="markdown-body">
                 
                 <h1 id="15-内存：为什么你的etcd内存占用那么高？"><a href="#15-内存：为什么你的etcd内存占用那么高？" class="headerlink" title="15.内存：为什么你的etcd内存占用那么高？"></a>15.内存：为什么你的etcd内存占用那么高？</h1><blockquote>
-<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
 </blockquote>
 <p>在使用etcd的过程中，你是否被异常内存占用等现象困扰过？比如etcd中只保存了1个1MB的key-value，但是经过若干次修改后，最终etcd内存可能达到数G。它是由什么原因导致的？如何分析呢？</p>
 <p>今天要分享的主题：etcd的内存。 帮助你掌握etcd内存抖动、异常背后的常见原因和分析方法，当遇到类似问题时，能独立定位、解决。同时，帮助在实际业务场景中，为集群节点配置充足的内存资源，遵循最佳实践，尽量减少expensive request，避免etcd内存出现突增，导致OOM。</p>
@@ -343,7 +339,7 @@
 <p>从图中可以看到，Raft模块的输入是一个消息&#x2F;Msg，输出统一为Ready结构。etcd会把此请求封装成一个消息，提交到Raft模块。</p>
 <p>Raft模块收到此请求后，会把此消息追加到raftLog的unstable存储的entry内存数组中（图中流程2），并且将待持久化的此消息封装到Ready结构内，通过管道通知到etcdserver（图中流程3）。</p>
 <p>etcdserver取出消息，持久化到WAL中，并追加到raftLog的内存存储storage的entry数组中（图中流程5）。</p>
-<p>下面是 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/log.go#L24:L45">raftLog</a> 的核心数据结构，它由storage、unstable、committed、applied等组成。storage存储已经持久化到WAL中的日志条目，unstable存储未持久化的条目和快照，一旦持久化会及时删除日志条目，因此不存在过多内存占用的问题。</p>
+<p>下面是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/raft/log.go#L24:L45">raftLog</a> 的核心数据结构，它由storage、unstable、committed、applied等组成。storage存储已经持久化到WAL中的日志条目，unstable存储未持久化的条目和快照，一旦持久化会及时删除日志条目，因此不存在过多内存占用的问题。</p>
 <figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">type</span> raftLog struct &#123;<br>   // <span class="hljs-keyword">storage</span> contains <span class="hljs-keyword">all</span> <span class="hljs-keyword">stable</span> entries since the last <span class="hljs-keyword">snapshot</span>.<br>   <span class="hljs-keyword">storage</span> <span class="hljs-keyword">Storage</span><br><br>   // unstable contains <span class="hljs-keyword">all</span> unstable entries <span class="hljs-keyword">and</span> <span class="hljs-keyword">snapshot</span>.<br>   // they will be saved <span class="hljs-keyword">into</span> <span class="hljs-keyword">storage</span>.<br>   unstable unstable<br><br>   // <span class="hljs-keyword">committed</span> <span class="hljs-keyword">is</span> the highest <span class="hljs-keyword">log</span> position that <span class="hljs-keyword">is</span> known <span class="hljs-keyword">to</span> be <span class="hljs-keyword">in</span><br>   // <span class="hljs-keyword">stable</span> <span class="hljs-keyword">storage</span> <span class="hljs-keyword">on</span> a quorum <span class="hljs-keyword">of</span> nodes.<br>   <span class="hljs-keyword">committed</span> uint64<br>   // applied <span class="hljs-keyword">is</span> the highest <span class="hljs-keyword">log</span> position that the application has<br>   // been instructed <span class="hljs-keyword">to</span> apply <span class="hljs-keyword">to</span> its state machine.<br>   // Invariant: applied &lt;= <span class="hljs-keyword">committed</span><br>   applied uint64<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>从上面raftLog结构体中，可以看到，存储稳定的日志条目的storage类型是Storage，Storage定义了存储Raft日志条目的核心API接口，业务应用层可根据实际场景进行定制化实现。etcd使用的是Raft算法库本身提供的MemoryStorage，其定义如下，核心是使用了一个数组来存储已经持久化后的日志条目。</p>
@@ -386,7 +382,7 @@
 </ul>
 <figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs armasm"><span class="hljs-symbol">memory</span> = <span class="hljs-built_in">c1</span> * number_of_conn + <span class="hljs-built_in">c2</span> *<br><span class="hljs-symbol">avg_number_of_stream_per_conn</span> + <span class="hljs-built_in">c3</span> *<br><span class="hljs-symbol">avg_number_of_watch_stream</span><br><br></code></pre></td></tr></table></figure>
 
-<p>根据etcd社区的 <a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4.0/benchmarks/etcd-3-watch-memory-benchmark/">压测报告</a>，大概估算出Watch机制中c1、c2、c3占用的内存分别如下：</p>
+<p>根据etcd社区的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://etcd.io/docs/v3.4.0/benchmarks/etcd-3-watch-memory-benchmark/">压测报告</a>，大概估算出Watch机制中c1、c2、c3占用的内存分别如下：</p>
 <ul>
 <li>每个client连接消耗大约17kb的内存(c1)；</li>
 <li>每个gRPC Stream消耗大约18kb的内存(c2)；</li>
@@ -420,7 +416,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -498,7 +494,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -529,7 +525,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -549,7 +545,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -588,8 +584,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -649,8 +644,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -661,13 +656,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -686,7 +681,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -720,7 +715,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -758,9 +753,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -768,7 +763,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

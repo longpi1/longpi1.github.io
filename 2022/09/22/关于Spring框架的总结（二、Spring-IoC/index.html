@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="关于Spring框架的总结">
 <meta property="og:type" content="article">
@@ -37,15 +37,15 @@
   
   <title>关于Spring框架的总结(二、Spring IoC) - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -59,12 +59,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -80,8 +80,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -119,9 +119,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -199,8 +197,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -210,8 +207,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -259,7 +255,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -297,14 +293,14 @@
 <h2 id="2-Spring-IoC"><a href="#2-Spring-IoC" class="headerlink" title="2.Spring IoC"></a>2.Spring IoC</h2><blockquote>
 <p>Spring IoC<br>2.1.Spring IoC的基本概念<br>2.2.Spring IoC容器<br>2.3.Spring IoC中的bean标签<br>2.4.依赖注入</p>
 </blockquote>
-<h2 id="2-1-Spring-IoC的基本概念"><a href="#2-1-Spring-IoC的基本概念" class="headerlink" title="2.1.Spring IoC的基本概念"></a><strong>2.1.Spring IoC的基本概念</strong></h2><p>控制反转(Inversion of Control, IoC)是一个比较抽象的概念，是Spring框架的核心，用来消减计算机程序的精合问题。<font color=red>对于spring框架来说，就是由spring来负责控制对象的生命周期和对象间的关系。</font >依赖注入(Dpendency Injection,DI)是IOC的另一种说法，只是换了种角度来描述相同的概念，下面举一个例子来解释IOC和DI。</p>
+<h2 id="2-1-Spring-IoC的基本概念"><a href="#2-1-Spring-IoC的基本概念" class="headerlink" title="2.1.Spring IoC的基本概念"></a><strong>2.1.Spring IoC的基本概念</strong></h2><p>控制反转(Inversion of Control, IoC)是一个比较抽象的概念，是Spring框架的核心，用来消减计算机程序的精合问题。<font color="red">对于spring框架来说，就是由spring来负责控制对象的生命周期和对象间的关系。</font>依赖注入(Dpendency Injection,DI)是IOC的另一种说法，只是换了种角度来描述相同的概念，下面举一个例子来解释IOC和DI。</p>
 <p>当人们需要一件东西时， 第一反应就是找东西， 例如想吃面包。在没有面包店和有面包店两种情况下，您会怎么做?在没有面包店时，最直观的做法可能是您按照自己的口味制作面包，也就是一个面包需要主动制作。然而时至今日，各种网店、实体店盛行，已经没有必要自己制作面包。想吃面包了，去网店或实体店把自己的口味告诉店家，一会就可以吃到面包了。注意，您并没有制作面包，而是由店家制作，但是完全符合您的口味。</p>
 <p>
 上面只是列举了一个非常简单的例子，但包含了控制反转的思想，即把制作面包等主动权交给店家。下面通过面向对象编程思想继续探讨这两个概念
 
 
-<p>当某个Java对象(调用者，例如您)需要调用另一个Java 对象(被调用者，即被依赖对象，例如面包)时，在传统编程模式下，调用者通常会采用“new被调用者”的代码方式来创建对象(例如您自已制作面包)。这种方式会增加调用者与被调用者之间的耦合性，不利于后期代码的升级与维护。</p>
-<p><font color=red>当Spring框架出现后，对象的实例不再由调用者来创建，而是由Spring容器(例如面包店)来创建。Spring容器会负责控制程序之间的关系(例如面包店负责控制您与面包的关系)，而不是由调用者的程序代码直接控制。这样，控制权由调用者转移到Spring容器，控制权发生了反转，这就是Spring的控制反转。</p>
+</p><p>当某个Java对象(调用者，例如您)需要调用另一个Java 对象(被调用者，即被依赖对象，例如面包)时，在传统编程模式下，调用者通常会采用“new被调用者”的代码方式来创建对象(例如您自已制作面包)。这种方式会增加调用者与被调用者之间的耦合性，不利于后期代码的升级与维护。</p>
+<p><font color="red">当Spring框架出现后，对象的实例不再由调用者来创建，而是由Spring容器(例如面包店)来创建。Spring容器会负责控制程序之间的关系(例如面包店负责控制您与面包的关系)，而不是由调用者的程序代码直接控制。这样，控制权由调用者转移到Spring容器，控制权发生了反转，这就是Spring的控制反转。</font></p>
 <p>从Spring容器角度来看，Spring容器负责将被依赖对象赋值给调用者的成员变量，相当于为调用者注入它所依赖的实例，这就是Spring的依赖注入。</p>
 <p>综上所述，控制反转是种通过描述 (在 Spring中可以是XML或注解)并通过第三方去产生或获取特定对象的方式。在Spring中实现控制反转的是loC容器，其实现方法是依赖注入。</p>
 <h2 id="2-2-Spring-IoC容器"><a href="#2-2-Spring-IoC容器" class="headerlink" title="2.2.Spring IoC容器"></a><strong>2.2.Spring IoC容器</strong></h2><p><strong>1.Spring IoC容器设计主要是基于BeanFactoty和ApplicationContext两个接口。下图为spring工厂的类结构体</strong><br><img src="https://img-blog.csdnimg.cn/20200712110712194.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQyMDA5MjYy,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
@@ -374,19 +370,19 @@
 </tbody></table>
 <p><strong>2.bean 的作用范围和生命周期</strong><br>scope：指定对象的作用范围。</p>
 <ul>
-<li><font color=red>singleton :默认值，单例的.</li>
-<li><font color=red> prototype :多例的.</li>
+<li><font color="red">singleton :默认值，单例的.</font></li>
+<li><font color="red"> prototype :多例的.</font></li>
 <li>request :WEB 项目中,Spring 创建一个 Bean 的对象,将对象存入到 request 域中.</li>
 <li>session :WEB 项目中,Spring 创建一个 Bean 的对象,将对象存入到 session 域中.</li>
 <li>global session :WEB 项目中,应用在 Portlet 环境.如果没有 Portlet 环境那么<br>globalSession 相当于 session.</li>
 </ul>
-<p><font color=red>单例对象：scope&#x3D;”singleton”</font><br>一个应用只有一个对象的实例。它的作用范围就是整个引用。<br>生命周期：</p>
+<p><font color="red">单例对象：scope&#x3D;”singleton”</font><br>一个应用只有一个对象的实例。它的作用范围就是整个引用。<br>生命周期：</p>
 <ul>
 <li>对象出生：当应用加载，创建容器时，对象就被创建了。</li>
 <li>对象活着：只要容器在，对象一直活着。</li>
 <li>对象死亡：当应用卸载，销毁容器时，对象就被销毁了。</li>
 </ul>
-<p><font color=red>多例对象：scope&#x3D;”prototype”</font><br>每次访问对象时，都会重新创建对象实例。<br>生命周期：</p>
+<p><font color="red">多例对象：scope&#x3D;”prototype”</font><br>每次访问对象时，都会重新创建对象实例。<br>生命周期：</p>
 <ul>
 <li>对象出生：当使用对象时，创建新的对象实例。</li>
 <li>对象活着：只要对象在使用中，就一直活着。</li>
@@ -428,7 +424,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -506,7 +502,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -537,7 +533,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -557,7 +553,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -596,8 +592,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -657,8 +652,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -669,13 +664,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -694,7 +689,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -728,7 +723,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -766,9 +761,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -776,7 +771,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

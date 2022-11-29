@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间etcd课程笔记">
 <meta property="og:type" content="article">
@@ -41,15 +41,15 @@
   
   <title>22.配置及服务发现：解析etcd在API Gateway开源项目中应用 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -63,12 +63,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -84,8 +84,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -123,9 +123,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -203,8 +201,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -214,8 +211,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -263,7 +259,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -298,10 +294,10 @@
               <div class="markdown-body">
                 
                 <h1 id="22-配置及服务发现：解析etcd在API-Gateway开源项目中应用"><a href="#22-配置及服务发现：解析etcd在API-Gateway开源项目中应用" class="headerlink" title="22.配置及服务发现：解析etcd在API Gateway开源项目中应用"></a>22.配置及服务发现：解析etcd在API Gateway开源项目中应用</h1><blockquote>
-<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
 </blockquote>
 <p>在软件开发的过程中，为了提升代码的灵活性和开发效率，我们大量使用配置去控制程序的运行行为。</p>
-<p>从简单的数据库账号密码配置，到 <a target="_blank" rel="noopener" href="https://github.com/kelseyhightower/confd">confd</a> 支持以etcd为后端存储的本地配置及模板管理，再到 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix">Apache APISIX</a> 等API Gateway项目使用etcd存储服务配置、路由信息等，最后到Kubernetes更实现了Secret和ConfigMap资源对象来解决配置管理的问题。</p>
+<p>从简单的数据库账号密码配置，到 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/kelseyhightower/confd">confd</a> 支持以etcd为后端存储的本地配置及模板管理，再到 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix">Apache APISIX</a> 等API Gateway项目使用etcd存储服务配置、路由信息等，最后到Kubernetes更实现了Secret和ConfigMap资源对象来解决配置管理的问题。</p>
 <p>那么它们是如何实现实时、动态调整服务配置而不需要重启相关服务的呢？</p>
 <p>接下来将以开源项目Apache APISIX为例，分析服务发现的原理，带你了解etcd的key-value模型，Watch机制，鉴权机制，Lease特性，事务特性在其中的应用。</p>
 <h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><p>首先聊聊服务发现，服务发现是指什么？为什么需要它呢?</p>
@@ -362,15 +358,15 @@
 <p>它的本质是一个无状态、高性能、实时、动态、可水平扩展的API网关。核心原理就是基于你配置的服务信息、路由规则等信息，将收到的请求通过一系列规则后，正确转发给后端的服务。</p>
 <p>Apache APISIX其实就是上面服务发现原理架构图中的proxy组件，如下图红色虚线框所示。</p>
 <p><img src="https://static001.geekbang.org/resource/image/20/fd/20a539bdd37db2d4632c7b0c5f4119fd.png?wh=1920*1246" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>Apache APISIX详细架构图如下（ <a target="_blank" rel="noopener" href="https://github.com/apache/apisix">引用自社区项目文档</a>）。从图中可以看到，它由控制面和数据面组成。</p>
+<p>Apache APISIX详细架构图如下（ <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix">引用自社区项目文档</a>）。从图中可以看到，它由控制面和数据面组成。</p>
 <p>控制面顾名思义，就是你通过Admin API下发服务、路由、安全配置的操作。控制面默认的服务发现存储是etcd，当然也支持consul、nacos等。</p>
-<p>如果没有使用过Apache APISIX的话，可以参考下这个 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix-docker/tree/master/example">example</a>，快速、直观的了解下Apache APISIX是如何通过Admin API下发服务和路由配置的。</p>
+<p>如果没有使用过Apache APISIX的话，可以参考下这个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix-docker/tree/master/example">example</a>，快速、直观的了解下Apache APISIX是如何通过Admin API下发服务和路由配置的。</p>
 <p>数据面是在实现基于服务路由信息数据转发的基础上，提供了限速、鉴权、安全、日志等一系列功能，也就是解决了我们上面提的分布式及微服务架构中的典型痛点。</p>
 <p><img src="https://static001.geekbang.org/resource/image/83/f4/834502c6ed7e59fe0b4643c11b2d31f4.png?wh=1746*838" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>那么当我们通过控制面API新增一个服务时，Apache APISIX是是如何实现实时、动态调整服务配置，而不需要重启网关服务的呢？</p>
 <p>下面，我就和你聊聊etcd在Apache APISIX项目中的应用。</p>
 <h3 id="etcd在Apache-APISIX中的应用"><a href="#etcd在Apache-APISIX中的应用" class="headerlink" title="etcd在Apache APISIX中的应用"></a>etcd在Apache APISIX中的应用</h3><p>在搞懂这个问题之前，我们先看看Apache APISIX在etcd中，都存储了哪些数据呢？它的数据存储格式是怎样的？</p>
-<h4 id="数据存储格式"><a href="#数据存储格式" class="headerlink" title="数据存储格式"></a>数据存储格式</h4><p>下面我参考Apache APISIX的 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix-docker/tree/master/example">example</a> 案例（apisix:2.3），通过Admin API新增了两个服务、路由规则后，执行如下查看etcd所有key的命令：</p>
+<h4 id="数据存储格式"><a href="#数据存储格式" class="headerlink" title="数据存储格式"></a>数据存储格式</h4><p>下面我参考Apache APISIX的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix-docker/tree/master/example">example</a> 案例（apisix:2.3），通过Admin API新增了两个服务、路由规则后，执行如下查看etcd所有key的命令：</p>
 <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs vim">etcdctl <span class="hljs-built_in">get</span> <span class="hljs-string">&quot;&quot;</span> --prefix --<span class="hljs-built_in">keys</span>-<span class="hljs-keyword">only</span><br><br></code></pre></td></tr></table></figure>
 
 <p>etcd输出结果如下：</p>
@@ -393,7 +389,7 @@
 <h4 id="鉴权机制的应用"><a href="#鉴权机制的应用" class="headerlink" title="鉴权机制的应用"></a>鉴权机制的应用</h4><p>除了Watch机制，Apache APISIX项目还使用了鉴权，毕竟配置网关是个高危操作，那它是如何使用etcd鉴权机制的呢？ <strong>etcd鉴权机制</strong> 中最容易踩的坑是什么呢？</p>
 <p>答案是不复用client和鉴权token，频繁发起Authenticate操作，导致etcd高负载。正如之前介绍的，一个8核32G的高配节点在100个连接时，Authenticate QPS仅为8。可想而知，你如果不复用token，那么出问题就很自然不过了。</p>
 <p>Apache APISIX是否也踩了这个坑呢？</p>
-<p>Apache APISIX是基于Lua构建的，使用的是 <a target="_blank" rel="noopener" href="https://github.com/api7/lua-resty-etcd/blob/master/lib/resty/etcd/v3.lua">lua-resty-etcd</a> 这个项目访问etcd，从相关 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix/issues/2899">issue</a> 反馈看，的确也踩了这个坑。社区用户反馈后，随后通过复用client、更完善的token复用机制解决了Authenticate的性能瓶颈，详细信息可参考 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix/pull/2932">PR 2932</a>、 <a target="_blank" rel="noopener" href="https://github.com/api7/lua-resty-etcd/pull/100">PR 100</a>。</p>
+<p>Apache APISIX是基于Lua构建的，使用的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/api7/lua-resty-etcd/blob/master/lib/resty/etcd/v3.lua">lua-resty-etcd</a> 这个项目访问etcd，从相关 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix/issues/2899">issue</a> 反馈看，的确也踩了这个坑。社区用户反馈后，随后通过复用client、更完善的token复用机制解决了Authenticate的性能瓶颈，详细信息可参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix/pull/2932">PR 2932</a>、 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/api7/lua-resty-etcd/pull/100">PR 100</a>。</p>
 <p>除了以上介绍的Watch机制、鉴权机制，Apache APISIX还使用了etcd的Lease特性和事务接口。</p>
 <h4 id="Lease特性的应用"><a href="#Lease特性的应用" class="headerlink" title="Lease特性的应用"></a>Lease特性的应用</h4><p>为什么Apache APISIX项目需要Lease特性呢？</p>
 <p>服务发现的核心工作原理是服务启动的时候将地址信息登录到注册中心，服务异常时自动从注册中心删除。</p>
@@ -410,7 +406,7 @@
 <p>核心依然是我们前面课程中一直强调的<strong>mod_revision</strong>，它会比较事务提交时的mod_revision与预期是否一致，一致才能执行put操作，Apache APISIX相关使用代码如下：</p>
 <figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-built_in">local</span> <span class="hljs-built_in">compare</span> = &#123;<br>    &#123;<br>        <span class="hljs-built_in">key</span> = <span class="hljs-built_in">key</span>,<br>        target = <span class="hljs-string">&quot;MOD&quot;</span>,<br>        result = <span class="hljs-string">&quot;EQUAL&quot;</span>,<br>        mod_revision = mod_revision,<br>    &#125;<br>&#125;<br><span class="hljs-built_in">local</span> success = &#123;<br>    &#123;<br>        requestPut = &#123;<br>            <span class="hljs-built_in">key</span> = <span class="hljs-built_in">key</span>,<br>            value = value,<br>            lease = lease_id,<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-built_in">local</span> res, err = etcd_cli:txn(<span class="hljs-built_in">compare</span>, success)<br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> res <span class="hljs-keyword">then</span><br>    <span class="hljs-built_in">return</span> nil, err<br>end<br><br></code></pre></td></tr></table></figure>
 
-<p>关于Apache APISIX事务特性的引入、背景以及更详细的实现，也可以参考 <a target="_blank" rel="noopener" href="https://github.com/apache/apisix/pull/2216">PR 2216</a>。</p>
+<p>关于Apache APISIX事务特性的引入、背景以及更详细的实现，也可以参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/apache/apisix/pull/2216">PR 2216</a>。</p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>闪现介绍了服务部署架构的演进，从单体架构的缺陷开始、到分布式及微服务架构的诞生，分享了分布式及微服务架构中面临的一系列痛点（如服务发现，鉴权，安全，限速等等）。</p>
 <p>而开源项目Apache APISIX正是一个基于etcd的项目，它为后端存储提供了一系列的解决方案，通过它的架构图为你介绍了其控制面和数据面的工作原理。</p>
 <p>随后从数据存储格式、Watch机制、鉴权机制、Lease特性以及事务特性维度，分析了它们在Apache APISIX项目中的应用。</p>
@@ -436,7 +432,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -514,7 +510,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -545,7 +541,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -565,7 +561,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -604,8 +600,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -665,8 +660,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -677,13 +672,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -702,7 +697,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -736,7 +731,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -774,9 +769,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -784,7 +779,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

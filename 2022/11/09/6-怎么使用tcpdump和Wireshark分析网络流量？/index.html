@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间Linux 性能优化实战笔记">
 <meta property="og:type" content="article">
@@ -45,15 +45,15 @@
   
   <title>6.怎么使用 tcpdump 和 wireshark 分析网络流量？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -67,12 +67,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -88,8 +88,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -127,9 +127,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -207,8 +205,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -218,8 +215,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -267,7 +263,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -363,7 +359,7 @@
 
 <p>这次输出中，前两行，表示 tcpdump 的选项以及接口的基本信息；从第三行开始，就是抓取到的网络包的输出。这些输出的格式，都是 <code>时间戳 协议 源地址.源端口 &gt; 目的地址.目的端口 网络包详细信息</code>（这是最基本的格式，可以通过选项增加其他字段）。</p>
 <p>网络包的详细信息，本身根据协议的不同而不同。所以，要理解这些网络包的详细含义，就要对常用网络协议的基本格式以及交互原理，有基本的了解。</p>
-<p>比如，第一条表示，从本地 IP 发送到 114.114.114.114 的 A 记录查询请求，它的报文格式记录在 RFC1035 中，可以点击 <a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc1035.txt">这里</a> 查看。在这个 tcpdump 的输出中，</p>
+<p>比如，第一条表示，从本地 IP 发送到 114.114.114.114 的 A 记录查询请求，它的报文格式记录在 RFC1035 中，可以点击 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ietf.org/rfc/rfc1035.txt">这里</a> 查看。在这个 tcpdump 的输出中，</p>
 <ul>
 <li><p>36909+ 表示查询标识值，它也会出现在响应中，加号表示启用递归查询。</p>
 </li>
@@ -394,8 +390,8 @@
 
 <p>虽然查到了 PTR 记录，但结果并非 geekbang.org，而是 188.27.190.35.bc.googleusercontent.com。其实，这也是为什么，案例开始时将包含 googleusercontent 的丢弃后，ping 就慢了。因为 iptables ，实际上是把 PTR 响应给丢了，所以会导致 PTR 请求超时。</p>
 <p>tcpdump 可以说是网络性能分析最有效的利器。一起看看 tcpdump 的更多使用方法。</p>
-<h2 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h2><p>tcpdump 作为常用的一个网络分析工具。它基于 <a target="_blank" rel="noopener" href="https://www.tcpdump.org/">libpcap</a> ，利用内核中的 AF_PACKET 套接字，抓取网络接口中传输的网络包；并提供了强大的过滤规则，帮你从大量的网络包中，挑出最想关注的信息。</p>
-<p>tcpdump 展示了每个网络包的详细细节，这就要求，在使用前，必须要对网络协议有基本了解。而要了解网络协议的详细设计和实现细节， <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc-index.html">RFC</a> 当然是最权威的资料。</p>
+<h2 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h2><p>tcpdump 作为常用的一个网络分析工具。它基于 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tcpdump.org/">libpcap</a> ，利用内核中的 AF_PACKET 套接字，抓取网络接口中传输的网络包；并提供了强大的过滤规则，帮你从大量的网络包中，挑出最想关注的信息。</p>
+<p>tcpdump 展示了每个网络包的详细细节，这就要求，在使用前，必须要对网络协议有基本了解。而要了解网络协议的详细设计和实现细节， <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.rfc-editor.org/rfc-index.html">RFC</a> 当然是最权威的资料。</p>
 <p>不过，RFC 的内容，对初学者来说可能并不友好。如果对网络协议还不太了解，可以先学习《TCP&#x2F;IP详解》，特别是第一卷的 TCP&#x2F;IP 协议族。这是每个程序员都要掌握的核心基础知识。</p>
 <p>再回到 tcpdump工具本身，它的基本使用方法，还是比较简单的，也就是 **tcpdump [选项] [过滤表达式]**。当然，选项和表达式的外面都加了中括号，表明它们都是可选的。</p>
 <p><strong>常用选项如下：</strong></p>
@@ -406,7 +402,7 @@
 <p><strong>输出格式如下：</strong></p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">时间戳 协议 源地址.源端口 &gt; 目的地址.目的端口 网络包详细信息<br><br></code></pre></td></tr></table></figure>
 
-<p>其中，网络包的详细信息取决于协议，不同协议展示的格式也不同。详细使用方法可查询 tcpdump 的 <a target="_blank" rel="noopener" href="https://www.tcpdump.org/manpages/tcpdump.1.html">man</a> 手册（执行 man tcpdump 也可以得到）。</p>
+<p>其中，网络包的详细信息取决于协议，不同协议展示的格式也不同。详细使用方法可查询 tcpdump 的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.tcpdump.org/manpages/tcpdump.1.html">man</a> 手册（执行 man tcpdump 也可以得到）。</p>
 <p>tcpdump 虽然功能强大，可是输出格式却并不直观。特别是，当系统中网络包数比较多（比如PPS 超过几千）的时候，你想从 tcpdump 抓取的网络包中分析问题，实在不容易。</p>
 <p>对比之下，Wireshark 则通过图形界面，以及一系列的汇总分析工具，提供了更友好的使用界面，让你可以用更快的速度，摆平网络性能问题。接下来，详细来看看它。</p>
 <h2 id="Wireshark"><a href="#Wireshark" class="headerlink" title="Wireshark"></a>Wireshark</h2><p>Wireshark 作为常用的一个网络分析工具，它最大的好处就是提供了跨平台的图形界面。跟 tcpdump 类似，Wireshark 也提供了强大的过滤规则表达式，同时，还内置了一系列的汇总分析工具。</p>
@@ -425,13 +421,13 @@
 <p>继续点击每层左边的箭头，就可以看到该层协议头的所有信息。比如点击 DNS 后，就可以看到 Transaction ID、Flags、Queries 等 DNS 协议各个字段的数值以及含义。</p>
 <p>当然，Wireshark 的功能远不止如此。</p>
 <p>接下来看一个 HTTP 的例子，并理解 TCP 三次握手和四次挥手的工作原理。</p>
-<p>这个案例我们将要访问的是 <a target="_blank" rel="noopener" href="http://example.com/">http://example.com/</a> 。进入终端一，执行下面的命令，首先查出 example.com 的 IP。然后，执行 tcpdump 命令，过滤得到的 IP 地址，并将结果保存到 web.pcap 中。</p>
+<p>这个案例我们将要访问的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://example.com/">http://example.com/</a> 。进入终端一，执行下面的命令，首先查出 example.com 的 IP。然后，执行 tcpdump 命令，过滤得到的 IP 地址，并将结果保存到 web.pcap 中。</p>
 <figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">$ dig +short example.com<br><span class="hljs-number">93.184.216.34</span><br>$ tcpdump -nn host <span class="hljs-number">93</span>.<span class="hljs-number">184</span>.<span class="hljs-number">216</span>.<span class="hljs-number">34</span> -w web.pcap<br><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>实际上，你可以在 host 表达式中，直接使用域名，即 <strong>tcpdump -nn host example.com -w web.pcap</strong>。</p>
 </blockquote>
-<p>接下来，切换到终端二，执行下面的 curl 命令，访问 <a target="_blank" rel="noopener" href="http://example.com/">http://example.com</a>：</p>
+<p>接下来，切换到终端二，执行下面的 curl 命令，访问 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://example.com/">http://example.com</a>：</p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ curl http:<span class="hljs-regexp">//</span>example.com<br><br></code></pre></td></tr></table></figure>
 
 <p>最后，再回到终端一，按下 Ctrl+C 停止 tcpdump，并把得到的 web.pcap 拷贝出来。</p>
@@ -442,24 +438,24 @@
 <p><img src="https://static001.geekbang.org/resource/image/4e/bb/4ec784752fdbc0cc5ead036a6419cbbb.png?wh=1526*596" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>这其实跟各种教程上讲到的，TCP 三次握手和四次挥手很类似，作为对比， 通常看到的 TCP 三次握手和四次挥手的流程如下：</p>
 <p><img src="https://static001.geekbang.org/resource/image/52/e8/5230fb678fcd3ca6b55d4644881811e8.png?wh=875*976" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>(图片来自 <a target="_blank" rel="noopener" href="https://coolshell.cn/articles/11564.html">酷壳</a>)</p>
+<p>(图片来自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://coolshell.cn/articles/11564.html">酷壳</a>)</p>
 <p>不过，对比这两张图，这里抓到的包跟上面的四次挥手，并不完全一样，实际挥手过程只有三个包，而不是四个。</p>
 <p>其实，之所以有三个包，是因为服务器端收到客户端的 FIN 后，服务器端同时也要关闭连接，这样就可以把 ACK 和 FIN 合并到一起发送，节省了一个包，变成了“三次挥手”。</p>
 <p>而通常情况下，服务器端收到客户端的 FIN 后，很可能还没发送完数据，所以就会先回复客户端一个 ACK 包。稍等一会儿，完成所有数据包的发送后，才会发送 FIN 包。这也就是四次挥手了。</p>
-<p>抓包后， Wireshark 中就会显示下面这个界面（原始网络包来自 Wireshark TCP 4-times close 示例，可以点击 <a target="_blank" rel="noopener" href="https://wiki.wireshark.org/TCP%204-times%20close">这里</a> 下载）：</p>
+<p>抓包后， Wireshark 中就会显示下面这个界面（原始网络包来自 Wireshark TCP 4-times close 示例，可以点击 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://wiki.wireshark.org/TCP%204-times%20close">这里</a> 下载）：</p>
 <p><img src="https://static001.geekbang.org/resource/image/0e/99/0ecb6d11e5e7725107c0291c45aa7e99.png?wh=1898*186" srcset="/img/loading.gif" lazyload alt="img"></p>
-<p>当然，Wireshark 的使用方法绝不只有这些，更多的使用方法，同样可以参考 <a target="_blank" rel="noopener" href="https://www.wireshark.org/docs/">官方文档</a> 以及 <a target="_blank" rel="noopener" href="https://wiki.wireshark.org/">WIKI</a>。</p>
+<p>当然，Wireshark 的使用方法绝不只有这些，更多的使用方法，同样可以参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.wireshark.org/docs/">官方文档</a> 以及 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://wiki.wireshark.org/">WIKI</a>。</p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章讲解了 tcpdump 和 Wireshark 的使用方法，并通过几个案例，学会了如何运用这两个工具来分析网络的收发过程，并找出潜在的性能问题。</p>
 <p>当针对相同的网络服务，使用 IP 地址快而换成域名却慢很多时，就要想到，有可能是 DNS 在捣鬼。DNS 的解析，不仅包括从域名解析出 IP 地址的 A 记录请求，还包括性能工具帮你，“聪明”地从 IP 地址反查域名的 PTR 请求。</p>
 <p>实际上， <strong>根据 IP 地址反查域名、根据端口号反查协议名称，是很多网络工具默认的行为，而这往往会导致性能工具的工作缓慢</strong>。所以，通常，网络性能工具都会提供一个选项（比如 -n 或者 -nn），来禁止名称解析。</p>
 <p>在工作中，当你碰到网络性能问题时，不要忘记tcpdump 和 Wireshark 这两个大杀器。可以用它们抓取实际传输的网络包，再排查是否有潜在的性能问题。</p>
 <h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p><strong>《Wireshark网络分析就是这么简单》</strong></p>
-<p>《**<a target="_blank" rel="noopener" href="https://www.dell.com/community/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E8%AE%A8%E8%AE%BA%E5%8C%BA/%E5%A6%82%E6%9E%9C%E7%9C%8B%E4%BA%86%E8%BF%99%E4%B8%AA%E4%BD%A0%E8%BF%98%E6%98%AF%E4%B8%8D%E4%BC%9A%E7%94%A8Wireshark-%E9%82%A3%E5%B0%B1%E6%9D%A5%E6%89%BE%E6%88%91%E5%90%A7-8%E6%9C%886%E6%97%A5%E5%AE%8C%E7%BB%93/td-p/7007033">Wireshark使用介绍</a>**》</p>
+<p>《**<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.dell.com/community/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E8%AE%A8%E8%AE%BA%E5%8C%BA/%E5%A6%82%E6%9E%9C%E7%9C%8B%E4%BA%86%E8%BF%99%E4%B8%AA%E4%BD%A0%E8%BF%98%E6%98%AF%E4%B8%8D%E4%BC%9A%E7%94%A8Wireshark-%E9%82%A3%E5%B0%B1%E6%9D%A5%E6%89%BE%E6%88%91%E5%90%A7-8%E6%9C%886%E6%97%A5%E5%AE%8C%E7%BB%93/td-p/7007033">Wireshark使用介绍</a>**》</p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -539,7 +535,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -570,7 +566,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -590,7 +586,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -629,8 +625,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -690,8 +685,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -702,13 +697,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -727,7 +722,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -761,7 +756,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -799,9 +794,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -809,7 +804,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="如何对API服务进行性能测试和调优？">
 <meta property="og:type" content="article">
@@ -43,15 +43,15 @@
   
   <title>Go 性能分析（下）：API Server性能测试和调优实战 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -65,12 +65,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -86,8 +86,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -125,9 +125,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -205,8 +203,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -216,8 +213,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -265,7 +261,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -300,7 +296,7 @@
               <div class="markdown-body">
                 
                 <h1 id="Go-性能分析（下）：API-Server性能测试和调优实战"><a href="#Go-性能分析（下）：API-Server性能测试和调优实战" class="headerlink" title="Go 性能分析（下）：API Server性能测试和调优实战"></a>Go 性能分析（下）：API Server性能测试和调优实战</h1><blockquote>
-<p>本文章主要内容引用自：1.孔令飞，<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/410205">Go 语言项目开发实战</a></p>
+<p>本文章主要内容引用自：1.孔令飞，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/410205">Go 语言项目开发实战</a></p>
 </blockquote>
 <p>学习了如何分析Go代码的性能。掌握了性能分析的基本知识之后，再来看下如何分析API接口的性能。</p>
 <p>在API上线之前，我们需要知道API的性能，以便知道API服务器所能承载的最大请求量、性能瓶颈，再根据业务对性能的要求，来对API进行性能调优或者扩缩容。通过这些，可以使API稳定地对外提供服务，并且让请求在合理的时间内返回。这一讲，我就介绍如何用wrk工具来测试API Server接口的性能，并给出分析方法和结果。</p>
@@ -378,7 +374,7 @@
 <li>QPS &amp; TTLB图： <code>X</code> 轴为并发数（Concurrent）， <code>Y</code> 轴为每秒查询数（QPS）和请求响应时间（TTLB）。</li>
 <li>成功率图： <code>X</code> 轴为并发数（Concurrent）， <code>Y</code> 轴为请求成功率。</li>
 </ul>
-<p>为了方便测试API接口性能，将性能测试和绘图逻辑封装在 <a target="_blank" rel="noopener" href="https://github.com/marmotedu/iam/blob/v1.0.8/scripts/wrktest.sh">scripts&#x2F;wrktest.sh</a> 脚本中，可以在iam源码根目录下执行如下命令，生成性能测试数据和性能图表：</p>
+<p>为了方便测试API接口性能，将性能测试和绘图逻辑封装在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/marmotedu/iam/blob/v1.0.8/scripts/wrktest.sh">scripts&#x2F;wrktest.sh</a> 脚本中，可以在iam源码根目录下执行如下命令，生成性能测试数据和性能图表：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ scripts/wrktest.sh http://10.0.4.57:8080/healthz<br><br></code></pre></td></tr></table></figure>
 
 <p>上面的命令会执行性能测试，记录性能测试数据，并根据这些性能测试数据绘制出QPS和成功率图。</p>
@@ -441,7 +437,7 @@
 <p>上图中， <code>X</code> 轴为并发数（Concurrent）， <code>Y</code> 轴为请求成功率。</p>
 <p>通过上面两张图，你可以看到，API Server在并发数为 <code>200</code> 时，QPS最大；并发数为 <code>500</code>，平均响应时间为 <code>56.33ms</code>，成功率为 <code>100.00%</code> 。在并发数达到 <code>1000</code> 时，成功率开始下降。一些详细数据从图里看不到，你可以直接查看 <code>apiserver.dat</code> 文件，里面记录了每个并发下具体的QPS、TTLB和成功率数据。</p>
 <p>现在我们有了API Server的性能数据，那么该API Server的QPS处于什么水平呢？一方面，你可以根据自己的业务需要来对比；另一方面，可以和性能更好的Web框架进行对比，总之需要有个参照。</p>
-<p>这里用net&#x2F;http构建最简单的HTTP服务器，使用相同的测试工具和测试服务器，测试性能并作对比。HTTP服务源码为（位于文件 <a target="_blank" rel="noopener" href="https://github.com/marmotedu/iam/blob/v1.0.8/tools/httptest/main.go">tools&#x2F;httptest&#x2F;main.go</a> 中）：</p>
+<p>这里用net&#x2F;http构建最简单的HTTP服务器，使用相同的测试工具和测试服务器，测试性能并作对比。HTTP服务源码为（位于文件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/marmotedu/iam/blob/v1.0.8/tools/httptest/main.go">tools&#x2F;httptest&#x2F;main.go</a> 中）：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;log&quot;</span><br>	<span class="hljs-string">&quot;net/http&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	http.HandleFunc(<span class="hljs-string">&quot;/healthz&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;<br>		message := <span class="hljs-string">`&#123;&quot;status&quot;:&quot;ok&quot;&#125;`</span><br>		fmt.Fprint(w, message)<br>	&#125;)<br><br>	addr := <span class="hljs-string">&quot;:6667&quot;</span><br>	fmt.Printf(<span class="hljs-string">&quot;Serving http service on %s\n&quot;</span>, addr)<br>	log.Fatal(http.ListenAndServe(addr, <span class="hljs-literal">nil</span>))<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>我们将上述HTTP服务的请求路径设置为 <code>/healthz</code>，并且返回 <code>&#123;&quot;status&quot;:&quot;ok&quot;&#125;</code>，跟API Server的接口返回数据完全一样。通过这种方式，你可以排除因为返回数据大小不同而造成的性能差异。</p>
@@ -496,12 +492,12 @@
 <h3 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h3><p>在做性能&#x2F;压力测试时，为了不影响生产环境，要确保在测试环境进行压测，并且测试环境的网络不能影响到生产环境的网络。另外，为了更好地进行性能对比和分析，也要保证我们的测试方法和测试环境是一致的。这就要求我们最好将性能测试自动化，并且每次在同一个测试环境进行测试。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在项目上线前，我们需要对API接口进行性能测试。通常API接口的性能延时要小于 <code>500ms</code> ，如果大于这个值，需要考虑优化性能。在进行性能测试时，需要确保每次测试都有一个一致的测试环境，这样不同测试之间的数据才具有可对比性。推荐了一个比较优秀的性能测试工具 <code>wrk</code> ，我们可以编写shell脚本，将wrk的性能测试数据自动绘制成图，方便我们查看、对比性能。</p>
 <p>如果发现API接口的性能不符合预期，我们可以借助 <code>go tool pprof</code> 工具来分析性能。在 <code>go tool pprof</code> 交互界面，执行 <code>top -cum</code> 命令查看累积采样时间，根据累积采样时间确定影响性能的代码，并优化代码。优化后，再进行测试，如果不满足，继续分析API接口的性能。如此往复，直到API接口的性能满足预期为止。</p>
-<h2 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h2><p>1.孔令飞，<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/410205">Go 语言项目开发实战</a></p>
+<h2 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h2><p>1.孔令飞，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/410205">Go 语言项目开发实战</a></p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -558,6 +554,12 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2022/11/29/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E8%83%BD%E8%A2%AB%E8%B0%B7%E6%AD%8C%E7%99%BE%E5%BA%A6%E8%AE%BF%E9%97%AE%E5%88%B0/" title="如何让你的个人博客能被谷歌百度访问到">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">如何让你的个人博客能被谷歌百度访问到</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
@@ -571,7 +573,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -602,7 +604,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -622,7 +624,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -661,8 +663,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -722,8 +723,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -734,13 +735,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -759,7 +760,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -793,7 +794,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -831,9 +832,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -841,7 +842,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

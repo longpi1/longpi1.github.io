@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="极客时间etcd课程笔记">
 <meta property="og:type" content="article">
@@ -38,15 +38,15 @@
   
   <title>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？ - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -60,12 +60,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -81,8 +81,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -120,9 +120,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -200,8 +198,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -211,8 +208,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -260,7 +256,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -295,13 +291,13 @@
               <div class="markdown-body">
                 
                 <h1 id="21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"><a href="#21-分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？" class="headerlink" title="21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？"></a>21.分布式锁：为什么基于etcd实现分布式锁比Redis锁更安全？</h1><blockquote>
-<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="noopener" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
+<p>本文笔记来自：「极客时间ETCD实战课」，原文链接：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/354292?cid=100069901">https://time.geekbang.org/column/article/354292?cid=100069901</a></p>
 </blockquote>
 <p>在软件开发过程中，我们经常会遇到各种场景要求对共享资源进行互斥操作，否则整个系统的数据一致性就会出现问题。典型场景如商品库存操作、Kubernertes调度器为Pod分配运行的Node。</p>
 <p>那要如何实现对共享资源进行互斥操作呢？</p>
 <p>锁就是其中一个非常通用的解决方案。在单节点多线程环境，你使用本地的互斥锁就可以完成资源的互斥操作。然而单节点存在单点故障，为了保证服务高可用，你需要多节点部署。在多节点部署的分布式架构中，你就需要使用分布式锁来解决资源互斥操作了。</p>
 <p>但是为什么有的业务使用了分布式锁还会出现各种严重超卖事故呢？分布式锁的实现和使用过程需要注意什么？</p>
-<h2 id="从茅台超卖案例看分布式锁要素"><a href="#从茅台超卖案例看分布式锁要素" class="headerlink" title="从茅台超卖案例看分布式锁要素"></a>从茅台超卖案例看分布式锁要素</h2><p>首先我们从去年一个因Redis分布式锁实现问题导致 <a target="_blank" rel="noopener" href="https://juejin.cn/post/6854573212831842311">茅台超卖案例</a> 说起，在这个真实案例中，因茅台的稀缺性，事件最终定级为P0级生产事故，后果影响严重。</p>
+<h2 id="从茅台超卖案例看分布式锁要素"><a href="#从茅台超卖案例看分布式锁要素" class="headerlink" title="从茅台超卖案例看分布式锁要素"></a>从茅台超卖案例看分布式锁要素</h2><p>首先我们从去年一个因Redis分布式锁实现问题导致 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://juejin.cn/post/6854573212831842311">茅台超卖案例</a> 说起，在这个真实案例中，因茅台的稀缺性，事件最终定级为P0级生产事故，后果影响严重。</p>
 <p>那么它是如何导致超卖的呢？</p>
 <p>首先简单介绍下此案例中的Redis简易分布式锁实现方案，它使用了Redis SET命令来实现。</p>
 <figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs coq">SET key value [EX seconds|<span class="hljs-type">PX</span> milliseconds|<span class="hljs-type">EXAT</span> timestamp|<span class="hljs-type">PXAT</span> milliseconds-timestamp|<span class="hljs-type">KEEPTTL</span>] [NX|<span class="hljs-type">XX</span>]<br>[GET]<br><br></code></pre></td></tr></table></figure>
@@ -332,7 +328,7 @@
 <p>再看第三个问题，为什么使用了Set key value EX 10 NX命令，还出现了超卖呢？</p>
 <p>原来是抢购活动开始后，加锁逻辑中的业务流程1访问的用户身份服务出现了高负载，导致阻塞在校验用户身份流程中(超时30秒)，然而锁10秒后就自动过期了，因此其他client能获取到锁。关键是阻塞的请求执行完后，它又把其他client的锁释放掉了，导致进入一个恶性循环。</p>
 <p>因此申请锁时，写入的value应确保唯一性（随机值等）。client在释放锁时，应通过Lua脚本原子校验此锁的value与自己写入的value一致，若一致才能执行释放工作。</p>
-<p>更关键的是库存校验是通过get and compare方式，它压根就无法防止超卖。正确的解决方案应该是通过LUA脚本实现Redis比较库存、扣减库存操作的原子性（或者在每次只能抢购一个的情况下，通过判断 <a target="_blank" rel="noopener" href="https://redis.io/commands/DECR">Redis Decr命令</a> 的返回值即可。此命令会返回扣减后的最新库存，若小于0则表示超卖）。</p>
+<p>更关键的是库存校验是通过get and compare方式，它压根就无法防止超卖。正确的解决方案应该是通过LUA脚本实现Redis比较库存、扣减库存操作的原子性（或者在每次只能抢购一个的情况下，通过判断 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://redis.io/commands/DECR">Redis Decr命令</a> 的返回值即可。此命令会返回扣减后的最新库存，若小于0则表示超卖）。</p>
 <p><strong>从这个问题中我们可以看到，分布式锁实现具备一定的复杂度，它不仅依赖存储服务提供的核心机制，同时依赖业务领域的实现。无论是遭遇高负载、还是宕机、网络分区等故障，都需确保锁的互斥性、安全性，否则就会出现严重的超卖生产事故。</strong></p>
 <p>再看最后一个问题，为什么大家都比较喜欢使用Redis做分布式锁的实现呢?</p>
 <p>考虑到在秒杀等业务场景上存在大量的瞬间、高并发请求，加锁与释放锁的过程应是高性能、高可用的。而Redis核心优点就是<strong>快、简单</strong>，是随处可见的基础设施，部署、使用也及其方便，因此广受开发者欢迎。</p>
@@ -350,16 +346,16 @@
 <p><img src="/images/350285/cb4cb52cf2244d2000884ef5f5ff3db1.png" srcset="/img/loading.gif" lazyload></p>
 <p><strong>主备切换、脑裂是Redis分布式锁的两个典型不安全的因素，本质原因是Redis为了满足高性能，采用了主备异步复制协议，同时也与负责主备切换的Redis Sentinel服务是否合理部署有关。</strong></p>
 <p>有没有其他方案解决呢？</p>
-<p>当然有，Redis作者为了解决SET key value [EX] 10 [NX]命令实现分布式锁不安全的问题，提出了 <a target="_blank" rel="noopener" href="https://redis.io/topics/distlock">RedLock算法</a>。它是基于多个独立的Redis Master节点的一种实现（一般为5）。client依次向各个节点申请锁，若能从多数个节点中申请锁成功并满足一些条件限制，那么client就能获取锁成功。</p>
+<p>当然有，Redis作者为了解决SET key value [EX] 10 [NX]命令实现分布式锁不安全的问题，提出了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://redis.io/topics/distlock">RedLock算法</a>。它是基于多个独立的Redis Master节点的一种实现（一般为5）。client依次向各个节点申请锁，若能从多数个节点中申请锁成功并满足一些条件限制，那么client就能获取锁成功。</p>
 <p>它通过独立的N个Master节点，避免了使用主备异步复制协议的缺陷，只要多数Redis节点正常就能正常工作，显著提升了分布式锁的安全性、可用性。</p>
-<p>但是，它的实现建立在一个不安全的系统模型上的，它依赖系统时间，当时钟发生跳跃时，也可能会出现安全性问题。你要有兴趣的话，可以详细阅读下分布式存储专家Martin对 <a target="_blank" rel="noopener" href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">RedLock的分析文章</a>，Redis作者的也专门写了 <a target="_blank" rel="noopener" href="http://antirez.com/news/101">一篇文章进行了反驳</a>。</p>
+<p>但是，它的实现建立在一个不安全的系统模型上的，它依赖系统时间，当时钟发生跳跃时，也可能会出现安全性问题。你要有兴趣的话，可以详细阅读下分布式存储专家Martin对 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html">RedLock的分析文章</a>，Redis作者的也专门写了 <a target="_blank" rel="external nofollow noopener noreferrer" href="http://antirez.com/news/101">一篇文章进行了反驳</a>。</p>
 <h2 id="分布式锁常见实现方案"><a href="#分布式锁常见实现方案" class="headerlink" title="分布式锁常见实现方案"></a>分布式锁常见实现方案</h2><p>了解完Redis分布式锁的一系列问题和实现方案后，我们再看看还有哪些典型的分布式锁实现。</p>
 <p>除了Redis分布式锁，其他使用最广的应该是ZooKeeper分布式锁和etcd分布式锁。</p>
 <p>ZooKeeper也是一个典型的分布式元数据存储服务，它的分布式锁实现基于ZooKeeper的临时节点和顺序特性。</p>
 <p>首先什么是临时节点呢？</p>
 <p>临时节点具备数据自动删除的功能。当client与ZooKeeper连接和session断掉时，相应的临时节点就会被删除。</p>
 <p>其次ZooKeeper也提供了Watch特性可监听key的数据变化。</p>
-<p><a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/atc10/tech/full_papers/Hunt.pdf">使用Zookeeper加锁的伪代码如下</a>：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.usenix.org/legacy/event/atc10/tech/full_papers/Hunt.pdf">使用Zookeeper加锁的伪代码如下</a>：</p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs awk">Lock<br><span class="hljs-number">1</span> n = create(l + “/lock-”, EPHEMERAL|SEQUENTIAL)<br><span class="hljs-number">2</span> C = getChildren(l, false)<br><span class="hljs-number">3</span> <span class="hljs-keyword">if</span> n is lowest znode <span class="hljs-keyword">in</span> C, <span class="hljs-keyword">exit</span><br><span class="hljs-number">4</span> p = znode <span class="hljs-keyword">in</span> C ordered just before n<br><span class="hljs-number">5</span> <span class="hljs-keyword">if</span> exists(p, true) wait <span class="hljs-keyword">for</span> watch event<br><span class="hljs-number">6</span> goto <span class="hljs-number">2</span><br>Unlock<br><span class="hljs-number">1</span> <span class="hljs-keyword">delete</span>(n)<br><br></code></pre></td></tr></table></figure>
 
 <p>接下来重点介绍一下基于etcd的分布式锁实现。</p>
@@ -384,7 +380,7 @@
 <figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs maxima"><span class="hljs-built_in">var</span> wr v3.WatchResponse<br>wch := client.Watch(cctx, <span class="hljs-built_in">key</span>, v3.WithRev(rev))<br><span class="hljs-keyword">for</span> wr = <span class="hljs-built_in">range</span> wch &#123;<br>   <span class="hljs-keyword">for</span> <span class="hljs-symbol">_</span>, <span class="hljs-built_in">ev</span> := <span class="hljs-built_in">range</span> wr.Events &#123;<br>      <span class="hljs-keyword">if</span> <span class="hljs-built_in">ev</span>.Type == mvccpb.DELETE &#123;<br>         <span class="hljs-built_in">return</span> nil<br>      &#125;<br>   &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <h3 id="etcd自带的concurrency包"><a href="#etcd自带的concurrency包" class="headerlink" title="etcd自带的concurrency包"></a>etcd自带的concurrency包</h3><p>为了简化分布式锁、分布式选举、分布式事务的实现，etcd社区提供了一个名为concurrency包实现更简单、正确地使用分布式锁、分布式选举。</p>
-<p>下面简单介绍下分布式锁 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/tree/v3.4.9/clientv3/concurrency">concurrency</a> 包的使用和实现，它的使用非常简单，如下代码所示，核心流程如下：</p>
+<p>下面简单介绍下分布式锁 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/tree/v3.4.9/clientv3/concurrency">concurrency</a> 包的使用和实现，它的使用非常简单，如下代码所示，核心流程如下：</p>
 <ul>
 <li>首先通过concurrency.NewSession方法创建Session，本质是创建了一个TTL为10的Lease。</li>
 <li>其次得到session对象后，通过concurrency.NewMutex创建了一个mutex对象，包含Lease、key prefix等信息。</li>
@@ -399,7 +395,7 @@
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs stylus">m<span class="hljs-selector-class">.myKey</span> = fmt<span class="hljs-selector-class">.Sprintf</span>(<span class="hljs-string">&quot;%s%x&quot;</span>, m<span class="hljs-selector-class">.pfx</span>, s<span class="hljs-selector-class">.Lease</span>())<br>cmp := v3<span class="hljs-selector-class">.Compare</span>(v3<span class="hljs-selector-class">.CreateRevision</span>(m.myKey), <span class="hljs-string">&quot;=&quot;</span>, <span class="hljs-number">0</span>)<br><span class="hljs-comment">// put self in lock waiters via myKey; oldest waiter holds lock</span><br>put := v3<span class="hljs-selector-class">.OpPut</span>(m<span class="hljs-selector-class">.myKey</span>, <span class="hljs-string">&quot;&quot;</span>, v3<span class="hljs-selector-class">.WithLease</span>(s<span class="hljs-selector-class">.Lease</span>()))<br><span class="hljs-comment">// reuse key in case this session already holds the lock</span><br>get := v3<span class="hljs-selector-class">.OpGet</span>(m.myKey)<br><span class="hljs-comment">// fetch current holder to complete uncontended path with only one RPC</span><br>getOwner := v3<span class="hljs-selector-class">.OpGet</span>(m<span class="hljs-selector-class">.pfx</span>, v3<span class="hljs-selector-class">.WithFirstCreate</span>()...)<br>resp, err := client<span class="hljs-selector-class">.Txn</span>(ctx)<span class="hljs-selector-class">.If</span>(cmp)<span class="hljs-selector-class">.Then</span>(put, getOwner)<span class="hljs-selector-class">.Else</span>(get, getOwner)<span class="hljs-selector-class">.Commit</span>()<br><span class="hljs-keyword">if</span> err != nil &#123;<br>   return err<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>那未获得锁的client是如何等待的呢?</p>
-<p>答案是通过Watch机制各自监听prefix相同，revision比自己小的key，因为只有revision比自己小的key释放锁，才能有机会获得锁，如下代码所示，其中waitDelete会使用上面的介绍的Watch去监听比自己小的key，详细代码可参考 <a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/blob/v3.4.9/clientv3/concurrency/mutex.go">concurrency mutex</a> 的实现。</p>
+<p>答案是通过Watch机制各自监听prefix相同，revision比自己小的key，因为只有revision比自己小的key释放锁，才能有机会获得锁，如下代码所示，其中waitDelete会使用上面的介绍的Watch去监听比自己小的key，详细代码可参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/etcd-io/etcd/blob/v3.4.9/clientv3/concurrency/mutex.go">concurrency mutex</a> 的实现。</p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-comment">// wait for deletion revisions prior to myKey</span><br>hdr, werr := <span class="hljs-built_in">waitDeletes</span>(ctx, client, m<span class="hljs-selector-class">.pfx</span>, m.myRev-<span class="hljs-number">1</span>)<br><span class="hljs-comment">// release lock key if wait failed</span><br><span class="hljs-keyword">if</span> werr != nil &#123;<br>   m<span class="hljs-selector-class">.Unlock</span>(client<span class="hljs-selector-class">.Ctx</span>())<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>   m<span class="hljs-selector-class">.hdr</span> = hdr<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>首先通过一个Redis分布式锁实现问题——茅台超卖案例，介绍了分布式锁的三个主要核心要素，它们分别如下：</p>
@@ -423,7 +419,7 @@
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -501,7 +497,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -532,7 +528,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -552,7 +548,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -591,8 +587,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -652,8 +647,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -664,13 +659,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -689,7 +684,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -723,7 +718,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -761,9 +756,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -771,7 +766,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   

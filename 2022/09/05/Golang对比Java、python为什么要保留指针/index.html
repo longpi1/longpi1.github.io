@@ -1,7 +1,7 @@
 
 
 <!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
+<html lang="zh-CN" data-default-color-scheme="auto">
 
 
 
@@ -14,7 +14,7 @@
   
   <meta name="theme-color" content="#2f4154">
   <meta name="author" content="lp">
-  <meta name="keywords" content="">
+  <meta name="keywords" content>
   
     <meta name="description" content="go为什么要保留指针">
 <meta property="og:type" content="article">
@@ -35,15 +35,15 @@
   
   <title>Golang对比Java、python为什么要保留指针 - lp&#39;s blog</title>
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
 
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
 
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
 
 
 
@@ -57,12 +57,12 @@
 <link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
 
 
-<link  rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/main.css">
 
 
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
   
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
   
 
 
@@ -78,8 +78,8 @@
       Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
   
 
   
@@ -117,9 +117,7 @@
       <strong>lp&#39;s blog</strong>
     </a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -197,8 +195,7 @@
         
         
           <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
-                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
           </li>
         
       </ul>
@@ -208,8 +205,7 @@
 
   
 
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -257,7 +253,7 @@
 </div>
 
 
-    <a target="_blank" rel="noopener" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
 
   </header>
 
@@ -297,25 +293,25 @@
 <li><strong>保证参数传递的自由，可以在传递重量级对象时使用指针</strong></li>
 </ul>
 <p>但Go 保留指针不仅仅是为了解决传递参数的问题，还跟它的语言特性有密不可分的联系。</p>
-<h2 id="值语义"><a href="#值语义" class="headerlink" title="值语义"></a>值语义</h2><p>Go 里面的变量是<strong>值语义</strong>，这个跟 C&#x2F;C++是一脉相承的。比如一个结构体变量赋值给另外一个变量就是一次内存拷贝，而不是只拷贝一个指针，因此需要指针来表达引用语义，关于拷贝的具体实现可以了解<a target="_blank" rel="noopener" href="https://gfw.go101.org/article/value-part.html">直接值部与间接值部的实现</a>。</p>
+<h2 id="值语义"><a href="#值语义" class="headerlink" title="值语义"></a>值语义</h2><p>Go 里面的变量是<strong>值语义</strong>，这个跟 C&#x2F;C++是一脉相承的。比如一个结构体变量赋值给另外一个变量就是一次内存拷贝，而不是只拷贝一个指针，因此需要指针来表达引用语义，关于拷贝的具体实现可以了解<a target="_blank" rel="external nofollow noopener noreferrer" href="https://gfw.go101.org/article/value-part.html">直接值部与间接值部的实现</a>。</p>
 <p>关于值语义(value semantics)：<strong>值语义</strong>指的是对象的拷贝与原对象无关，就像拷贝 int 一样。C++ 的内置类型(bool&#x2F;int&#x2F;double&#x2F;char)都是值语义，标准库里的 complex&lt;&gt; 、pair&lt;&gt;、vector&lt;&gt;、map&lt;&gt;、string 等等类型也都是值语意，拷贝之后就与原对象脱离关系。同样，Java 语言的 primitive types 也是值语义。</p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p><strong>复杂的高级类型占用的内存往往相对较大，存储在 <a target="_blank" rel="noopener" href="https://www.zhihu.com/search?q=heap&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22answer%22,%22sourceId%22:1665421830%7D">heap</a> 中，GC 回收频率相对较低，代价也较大，因此传引用&#x2F;指针可以避免进行成本较高的复制操作，并且节省内存，提高程序运行效率。</strong></p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p><strong>复杂的高级类型占用的内存往往相对较大，存储在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/search?q=heap&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22answer%22,%22sourceId%22:1665421830%7D">heap</a> 中，GC 回收频率相对较低，代价也较大，因此传引用&#x2F;指针可以避免进行成本较高的复制操作，并且节省内存，提高程序运行效率。</strong></p>
 <p>为什么要保留值语义，而不是像 Java 或者 Python 一样让复合类型默认都是指针类型呢？因为值语义带来了如下好处：</p>
 <ul>
-<li><strong><a target="_blank" rel="noopener" href="https://www.zhihu.com/search?q=%E7%BB%93%E6%9E%84%E4%BD%93&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22answer%22,%22sourceId%22:2242103027%7D">结构体</a>可以直接用来比较相等，而非比较指针，Java 里面的 &#x3D;&#x3D; 操作符除了基本类型有用，其他类型几乎没用。</strong></li>
+<li><strong><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/search?q=%E7%BB%93%E6%9E%84%E4%BD%93&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22answer%22,%22sourceId%22:2242103027%7D">结构体</a>可以直接用来比较相等，而非比较指针，Java 里面的 &#x3D;&#x3D; 操作符除了基本类型有用，其他类型几乎没用。</strong></li>
 <li><strong>与 C 语言更好地交互。Go 可以通过 cgo 与 C 语言无缝交互。Go 里面的结构体基本上不用特殊处理就能传递给 C 的函数使用。主要得益于 Go 的结构体和 C 的一样都是值类型。</strong></li>
 <li><strong>开发者能更好的掌控内存布局。一个结构体数组就是一段连续内存，而不是一个指针数组。</strong></li>
 <li><strong>减轻 GC 压力。紧凑的内存布局减少了 GC 对象的个数，比如一个100w 长度的结构体数组就是一个 GC 对象，而不是100w 个。</strong></li>
 <li><strong>减轻堆内存的分配压力。函数通过传值的方式传递参数后，原变量不会发生逃逸，可以被分配在栈上</strong></li>
 </ul>
-<p>Go 为了内存安全，虽然有指针，但不支持指针算数，但结合 unsafe.Pointer 也可以完成一些非常规情景下的精细内存操作。比如结合 <a target="_blank" rel="noopener" href="https://www.zhihu.com/search?q=mmap&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22answer%22,%22sourceId%22:2242103027%7D">mmap</a> 实现堆外内存管理，runtime 里面的内存管理就是这么来的，完全不用另外用 C 语言来实现。 这也是可以使用 Go 语言来写操作系统（<a href="https://link.zhihu.com/?target=https://github.com/icexin/eggos">eggos</a>）的原因。</p>
+<p>Go 为了内存安全，虽然有指针，但不支持指针算数，但结合 unsafe.Pointer 也可以完成一些非常规情景下的精细内存操作。比如结合 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/search?q=mmap&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22:%22answer%22,%22sourceId%22:2242103027%7D">mmap</a> 实现堆外内存管理，runtime 里面的内存管理就是这么来的，完全不用另外用 C 语言来实现。 这也是可以使用 Go 语言来写操作系统（<a href="https://link.zhihu.com/?target=https://github.com/icexin/eggos" rel="external nofollow noopener noreferrer" target="_blank">eggos</a>）的原因。</p>
 <h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p><strong>Go 的指针一方面提供了引用语义，另一方面像 C 语言一样给了开发者灵活管理内存的能力。</strong></p>
-<p>参考链接：樊冰心：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/399589293/answer/2242103027">https://www.zhihu.com/question/399589293/answer/2242103027</a></p>
+<p>参考链接：樊冰心：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.zhihu.com/question/399589293/answer/2242103027">https://www.zhihu.com/question/399589293/answer/2242103027</a></p>
 
                 
               </div>
             
-            <hr/>
+            <hr>
             <div>
               <div class="post-metas my-3">
   
@@ -393,7 +389,7 @@
                   </article>
                 </div>
               
-            </div>
+            </article></div>
 
             
   <article id="comments" lazyload>
@@ -424,7 +420,7 @@
   </article>
 
 
-          </article>
+          
         </div>
       </div>
     </div>
@@ -444,7 +440,7 @@
 
     </div>
   </div>
-</div>
+
 
 
 
@@ -483,8 +479,7 @@
     
 
     
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -544,8 +539,8 @@
 
   <!-- Scripts -->
   
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
 
   <script>
     NProgress.configure({"showSpinner":false,"trickleSpeed":100})
@@ -556,13 +551,13 @@
   </script>
 
 
-<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
 
 
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
   <script>
     (function (window, document) {
       var typing = Fluid.plugins.typing;
@@ -581,7 +576,7 @@
 
 
   
-    <script  src="/js/img-lazyload.js" ></script>
+    <script src="/js/img-lazyload.js"></script>
   
 
 
@@ -615,7 +610,7 @@
 </script>
 
 
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
 
   <script>Fluid.plugins.codeWidget();</script>
 
@@ -653,9 +648,9 @@
 
   <script>Fluid.plugins.imageCaption();</script>
 
-  <script defer src="/js/leancloud.js" ></script>
+  <script defer src="/js/leancloud.js"></script>
 
-  <script  src="/js/local-search.js" ></script>
+  <script src="/js/local-search.js"></script>
 
 
 
@@ -663,7 +658,7 @@
 
 <!-- 主题的启动项，将它保持在最底部 -->
 <!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
+<script src="/js/boot.js"></script>
 
 
   
