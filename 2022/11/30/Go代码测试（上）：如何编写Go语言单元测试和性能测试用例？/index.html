@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="如何编写 Go 语言单元测试和性能测试用例？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/11/30/Go%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95%EF%BC%88%E4%B8%8A%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E7%BC%96%E5%86%99Go%E8%AF%AD%E8%A8%80%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E5%92%8C%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="如何编写 Go 语言单元测试和性能测试用例？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/48/b2/4830b21b55d194eccf1ec74637ee3eb2.png?wh=538x516">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/3c/01/3c11a0d41d6ed736f364c1693a2eff01.png?wh=1920x366">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/f0/5e/f089f5d44ba06f052c1c46c858c2b75e.png?wh=1524x1075">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/b3/ab/b374d392abfe62459d2c22e6ff76c0ab.jpg?wh=1920x1570">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/8f/fa/8f06e0a1bf2638a9255467a29e6dfcfa.jpg?wh=1920x688">
+<meta property="article:published_time" content="2022-11-30T12:24:17.000Z">
+<meta property="article:modified_time" content="2022-11-30T12:25:44.271Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="golang">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/48/b2/4830b21b55d194eccf1ec74637ee3eb2.png?wh=538x516">
+  
+  
+  
+  <title>Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？ - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-30 20:24" pubdate>
+          2022年11月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Go-代码测试（上）：如何编写-Go-语言单元测试和性能测试用例？"><a href="#Go-代码测试（上）：如何编写-Go-语言单元测试和性能测试用例？" class="headerlink" title="Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？"></a>Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？</h1><blockquote>
+<p>本文章主要内容引用自：1.孔令飞，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/410205">Go 语言项目开发实战</a>  </p>
+</blockquote>
+<p>在Go项目开发中，我们不仅要开发功能，更重要的是确保这些功能稳定可靠，并且拥有一个不错的性能。要确保这些，就要对代码进行测试。开发人员通常会进行单元测试和性能测试，分别用来测试代码的功能是否正常和代码的性能是否满足需求。</p>
+<p>每种语言通常都有自己的测试包&#x2F;模块，Go语言也不例外。在Go中，我们可以通过 <code>testing</code> 包对代码进行单元测试和性能测试。在这篇文章中会用一些示例来讲解如何编写单元测试和性能测试用例，下一讲则会深入了解单元测试其他类型及项目测试实战</p>
+<h2 id="何时编写和执行单元测试用例？"><a href="#何时编写和执行单元测试用例？" class="headerlink" title="何时编写和执行单元测试用例？"></a>何时编写和执行单元测试用例？</h2><h3 id="编码前：TDD"><a href="#编码前：TDD" class="headerlink" title="编码前：TDD"></a>编码前：TDD</h3><p><img src="https://static001.geekbang.org/resource/image/48/b2/4830b21b55d194eccf1ec74637ee3eb2.png?wh=538x516" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>Test-Driven Development，也就是测试驱动开发，是敏捷开发的⼀项核心实践和技术，也是⼀种设计方法论。简单来说，TDD原理就是：开发功能代码之前，先编写测试用例代码，然后针对测试用例编写功能代码，使其能够通过。这样做的好处在于，通过测试的执行代码肯定满足需求，而且有助于面向接口编程，降低代码耦合，也极大降低了bug的出现几率。</p>
+<p>然而，TDD的坏处也显而易见：由于测试用例是在进行代码设计之前写的，很有可能限制开发者对代码的整体设计；并且，由于TDD对开发⼈员要求非常高，体现的思想跟传统开发思维也不⼀样，因此实施起来比较困难；此外，因为要先编写测试用例，TDD也可能会影响项目的研发进度。所以，在客观情况不满足的情况下，不应该盲目追求对业务代码使用TDD的开发模式。</p>
+<h3 id="与编码同步进行：增量"><a href="#与编码同步进行：增量" class="headerlink" title="与编码同步进行：增量"></a>与编码同步进行：增量</h3><p>及时为增量代码写单测是一种良好的习惯。一方面是因为，此时我们对需求有一定的理解，能够更好地写出单元测试来验证正确性。并且，在单测阶段就发现问题，而不是等到联调测试中才发现，修复的成本也是最小的。</p>
+<p>另一方面，在写单测的过程中，我们也能够反思业务代码的正确性、合理性，推动我们在实现的过程中更好地反思代码的设计，并及时调整。</p>
+<h3 id="编码后：存量"><a href="#编码后：存量" class="headerlink" title="编码后：存量"></a>编码后：存量</h3><p>在完成业务需求后，我们可能会遇到这种情况：因为上线时间比较紧张、没有单测相关规划，开发阶段只手动测试了代码是否符合功能。</p>
+<p>如果这部分存量代码出现较大的新需求，或者维护已经成为问题，需要大规模重构，这正是推动补全单测的好时机。为存量代码补充上单测，一方面能够推进重构者进一步理解原先的逻辑，另一方面也能够增强重构者重构代码后的信心，降低风险。</p>
+<p>但是，补充存量单测可能需要再次回忆理解需求和逻辑设计等细节，而有时写单测的人并不是原编码的设计者，所以编码后编写和执行单元测试用例也有一定的不足。</p>
+<h2 id="测试覆盖率"><a href="#测试覆盖率" class="headerlink" title="测试覆盖率"></a>测试覆盖率</h2><p>我们写单元测试的时候应该想得很全面，能够覆盖到所有的测试用例，但有时也会漏过一些 case，Go提供了cover工具来统计测试覆盖率。具体可以分为两大步骤。</p>
+<p>第一步，生成测试覆盖率数据：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go <span class="hljs-built_in">test</span> -coverprofile=coverage.out<br><span class="hljs-keyword">do</span> some setup<br>PASS<br>coverage: 40.0% of statements<br><span class="hljs-keyword">do</span> some cleanup<br>ok  	github.com/marmotedu/gopractise-demo/test	0.003s<br><br></code></pre></td></tr></table></figure>
+
+<p>上面的命令在当前目录下生成了 <code>coverage.out</code> 覆盖率数据文件。</p>
+<p><img src="https://static001.geekbang.org/resource/image/3c/01/3c11a0d41d6ed736f364c1693a2eff01.png?wh=1920x366" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>第二步，分析覆盖率文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go tool cover -func=coverage.out<br><span class="hljs-keyword">do</span> some setup<br>PASS<br>coverage: 40.0% of statements<br><span class="hljs-keyword">do</span> some cleanup<br>ok  	github.com/marmotedu/gopractise-demo/test	0.003s<br>[colin@dev <span class="hljs-built_in">test</span>]$ go tool cover -func=coverage.out<br>github.com/marmotedu/gopractise-demo/test/math.go:9:	Abs		100.0%<br>github.com/marmotedu/gopractise-demo/test/math.go:14:	Max		100.0%<br>github.com/marmotedu/gopractise-demo/test/math.go:19:	Min		0.0%<br>github.com/marmotedu/gopractise-demo/test/math.go:24:	RandInt		0.0%<br>github.com/marmotedu/gopractise-demo/test/math.go:29:	Floor		0.0%<br>total:							(statements)	40.0%<br><br></code></pre></td></tr></table></figure>
+
+<p>在上述命令的输出中，我们可以查看到哪些函数没有测试，哪些函数内部的分支没有测试完全。cover工具会根据被执行代码的行数与总行数的比例计算出覆盖率。可以看到，Abs和Max函数的测试覆盖率为100%，Min和RandInt的测试覆盖率为0。</p>
+<p>我们还可以使用 <code>go tool cover -html</code> 生成 <code>HTML</code> 格式的分析文件，可以更加清晰地展示代码的测试情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go tool cover -html=coverage.out -o coverage.html<br><br></code></pre></td></tr></table></figure>
+
+<p>上述命令会在当前目录下生成一个 <code>coverage.html</code> 文件，用浏览器打开 <code>coverage.html</code> 文件，可以更加清晰地看到代码的测试情况，如下图所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/f0/5e/f089f5d44ba06f052c1c46c858c2b75e.png?wh=1524x1075" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>通过上图，我们可以知道红色部分的代码没有被测试到，可以让我们接下来有针对性地添加测试用例，而不是一头雾水，不知道需要为哪些代码编写测试用例。</p>
+<p>在Go项目开发中，我们往往会把测试覆盖率作为代码合并的一个强制要求，所以需要在进行代码测试时，同时生成代码覆盖率数据文件。在进行代码测试时，可以通过分析该文件，来判断我们的代码测试覆盖率是否满足要求，如果不满足则代码测试失败。</p>
+<h2 id="如何测试-Go-代码？"><a href="#如何测试-Go-代码？" class="headerlink" title="如何测试 Go 代码？"></a>如何测试 Go 代码？</h2><p>Go语言有自带的测试框架 <code>testing</code>，可以用来实现单元测试（T类型）和性能测试（B类型），通过 <code>go test</code> 命令来执行单元测试和性能测试。</p>
+<p>go test 执行测试用例时，是以go包为单位进行测试的。执行时需要指定包名，比如 <code>go test 包名</code>，如果没有指定包名，默认会选择执行命令时所在的包。go test在执行时，会遍历以 <code>_test.go</code> 结尾的源码文件，执行其中以 <code>Test</code>、 <code>Benchmark</code>、 <code>Example</code> 开头的测试函数。</p>
+<p>为了演示如何编写测试用例，预先编写了4个函数。假设这些函数保存在test目录下的 <code>math.go</code> 文件中，包名为 <code>test</code>，math.go代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> test<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;math&quot;</span><br>	<span class="hljs-string">&quot;math/rand&quot;</span><br>)<br><br><span class="hljs-comment">// Abs returns the absolute value of x.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Abs</span><span class="hljs-params">(x <span class="hljs-type">float64</span>)</span></span> <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-keyword">return</span> math.Abs(x)<br>&#125;<br><br><span class="hljs-comment">// Max returns the larger of x or y.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Max</span><span class="hljs-params">(x, y <span class="hljs-type">float64</span>)</span></span> <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-keyword">return</span> math.Max(x, y)<br>&#125;<br><br><span class="hljs-comment">// Min returns the smaller of x or y.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Min</span><span class="hljs-params">(x, y <span class="hljs-type">float64</span>)</span></span> <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-keyword">return</span> math.Min(x, y)<br>&#125;<br><br><span class="hljs-comment">// RandInt returns a non-negative pseudo-random int from the default Source.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">RandInt</span><span class="hljs-params">()</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">return</span> rand.Int()<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="测试命名规范"><a href="#测试命名规范" class="headerlink" title="测试命名规范"></a>测试命名规范</h2><p>在我们对Go代码进行测试时，需要编写测试文件、测试函数、测试变量，它们都需要遵循一定的规范。这些规范有些来自于官方，有些则来自于社区。这里，分别介绍下测试文件、包、测试函数和测试变量的命名规范。</p>
+<h3 id="测试文件的命名规范"><a href="#测试文件的命名规范" class="headerlink" title="测试文件的命名规范"></a>测试文件的命名规范</h3><p>Go的测试文件名必须以 <code>_test.go</code> 结尾。例如，如果我们有一个名为 <code>person.go</code> 的文件，那它的测试文件必须命名为 <code>person_test.go</code>。这样做是因为，Go需要区分哪些文件是测试文件。这些测试文件可以被go test命令行工具加载，用来测试我们编写的代码，但会被Go的构建程序忽略掉，因为Go程序的运行不需要这些测试代码。</p>
+<h3 id="包的命名规范"><a href="#包的命名规范" class="headerlink" title="包的命名规范"></a>包的命名规范</h3><p>Go的测试可以分为白盒测试和黑盒测试。</p>
+<ul>
+<li><strong>白盒测试：</strong> 将测试和生产代码放在同一个Go包中，这使我们可以同时测试Go包中可导出和不可导出的标识符。当我们编写的单元测试需要访问Go包中不可导出的变量、函数和方法时，就需要编写白盒测试用例。</li>
+<li><strong>黑盒测试：</strong> 将测试和生产代码放在不同的Go包中。这时，我们仅可以测试Go包的可导出标识符。这意味着我们的测试包将无法访问生产代码中的任何内部函数、变量或常量。</li>
+</ul>
+<p>在白盒测试中，Go的测试包名称需要跟被测试的包名保持一致，例如： <code>person.go</code> 定义了一个 <code>person</code> 包，则 <code>person_test.go</code> 的包名也要为 <code>person</code>，这也意味着 <code>person.go</code> 和 <code>person_test.go</code> 都要在同一个目录中。</p>
+<p>在黑盒测试中，Go的测试包名称需要跟被测试的包名不同，但仍然可以存放在同一个目录下。比如， <code>person.go</code> 定义了一个 <code>person</code> 包，则 <code>person_test.go</code> 的包名需要跟 <code>person</code> 不同，通常我们命名为 <code>person_test</code>。</p>
+<p>如果不是需要使用黑盒测试，我们在做单元测试时要尽量使用白盒测试。一方面，这是go test工具的默认行为；另一方面，使用白盒测试，我们可以测试和使用不可导出的标识符。</p>
+<p>测试文件和包的命名规范，由Go语言及go test工具来强制约束。</p>
+<h3 id="函数的命名规范"><a href="#函数的命名规范" class="headerlink" title="函数的命名规范"></a>函数的命名规范</h3><p>测试用例函数必须以 <code>Test</code>、 <code>Benchmark</code>、 <code>Example</code> 开头，例如 <code>TestXxx</code>、 <code>BenchmarkXxx</code>、 <code>ExampleXxx</code>， <code>Xxx</code> 部分为任意字母数字的组合，首字母大写。这是由Go语言和go test工具来进行约束的， <code>Xxx</code> 一般是需要测试的函数名。</p>
+<p>除此之外，还有一些社区的约束，这些约束不是强制的，但是遵循这些约束会让我们的测试函数名更加易懂。例如，我们有以下函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">type</span> Person <span class="hljs-keyword">struct</span> &#123;<br>	age  <span class="hljs-type">int64</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p *Person)</span></span> older(other *Person) <span class="hljs-type">bool</span> &#123;<br>	<span class="hljs-keyword">return</span> p.age &gt; other.age<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>很显然，我们可以把测试函数命名为 <code>TestOlder</code>，这个名称可以很清晰地说明它是 <code>Older</code> 函数的测试用例。但是，如果我们想用多个测试用例来测试 <code>TestOlder</code> 函数，这些测试用例该如何命名呢？也许你会说，我们命名为 <code>TestOlder1</code>、 <code>TestOlder2</code> 不就行了？</p>
+<p>其实，还有其他更好的命名方法。比如，这种情况下，我们可以将函数命名为 <code>TestOlderXxx</code>，其中 <code>Xxx</code> 代表 <code>Older</code> 函数的某个场景描述。例如， <code>strings.Compare</code> 函数有如下测试函数： <code>TestCompare</code>、 <code>TestCompareIdenticalString</code>、 <code>TestCompareStrings</code>。</p>
+<h3 id="变量的命名规范"><a href="#变量的命名规范" class="headerlink" title="变量的命名规范"></a>变量的命名规范</h3><p>Go语言和go test没有对变量的命名做任何约束。但是，在编写单元测试用例时，还是有一些规范值得我们去遵守。</p>
+<p>单元测试用例通常会有一个实际的输出，在单元测试中，我们会将预期的输出跟实际的输出进行对比，来判断单元测试是否通过。为了清晰地表达函数的实际输出和预期输出，可以将这两类输出命名为 <code>expected/actual</code>，或者 <code>got/want</code>。例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> c.expected != actual &#123;<br>  t.Fatalf(<span class="hljs-string">&quot;Expected User-Agent &#x27;%s&#x27; does not match &#x27;%s&#x27;&quot;</span>, c.expected, actual)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>或者：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> got, want := diags[<span class="hljs-number">3</span>].Description().Summary, undeclPlural; got != want &#123;<br>  t.Errorf(<span class="hljs-string">&quot;wrong summary for diagnostic 3\ngot:  %s\nwant: %s&quot;</span>, got, want)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>其他的变量命名，我们可以遵循Go语言推荐的变量命名方法，例如：</p>
+<ul>
+<li>Go中的变量名应该短而不是长，对于范围有限的局部变量来说尤其如此。</li>
+<li>变量离声明越远，对名称的描述性要求越高。</li>
+<li>像循环、索引之类的变量，名称可以是单个字母（i）。如果是不常见的变量和全局变量，变量名就需要具有更多的描述性。</li>
+</ul>
+<p>上面，我介绍了Go测试的一些基础知识。接下来，我们来看看如何编写单元测试用例和性能测试用例。</p>
+<h2 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h2><p>单元测试用例函数以 <code>Test</code> 开头，例如 <code>TestXxx</code> 或 <code>Test_xxx</code> （ <code>Xxx</code> 部分为任意字母数字组合，首字母大写）。函数参数必须是 <code>*testing.T</code>，可以使用该类型来记录错误或测试状态。</p>
+<p>我们可以调用 <code>testing.T</code> 的 <code>Error</code> 、 <code>Errorf</code> 、 <code>FailNow</code> 、 <code>Fatal</code> 、 <code>FatalIf</code> 方法，来说明测试不通过；调用 <code>Log</code> 、 <code>Logf</code> 方法来记录测试信息。函数列表和相关描述如下表所示：</p>
+<p><img src="https://static001.geekbang.org/resource/image/b3/ab/b374d392abfe62459d2c22e6ff76c0ab.jpg?wh=1920x1570" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>下面的代码是两个简单的单元测试函数（函数位于文件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/marmotedu/gopractise-demo">math_test.go</a> 中）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestAbs</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    got := Abs(<span class="hljs-number">-1</span>)<br>    <span class="hljs-keyword">if</span> got != <span class="hljs-number">1</span> &#123;<br>        t.Errorf(<span class="hljs-string">&quot;Abs(-1) = %f; want 1&quot;</span>, got)<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestMax</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    got := Max(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br>    <span class="hljs-keyword">if</span> got != <span class="hljs-number">2</span> &#123;<br>        t.Errorf(<span class="hljs-string">&quot;Max(1, 2) = %f; want 2&quot;</span>, got)<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>执行 <code>go test</code> 命令来执行如上单元测试用例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">$ <span class="hljs-keyword">go</span> test<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/<span class="hljs-number">31</span>/test    <span class="hljs-number">0.002</span>s<br><br></code></pre></td></tr></table></figure>
+
+<p><code>go test</code> 命令自动搜集所有的测试文件，也就是格式为 <code>*_test.go</code> 的文件，从中提取全部测试函数并执行。</p>
+<p>go test还支持下面三个参数。</p>
+<ul>
+<li>-v，显示所有测试函数的运行细节：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go">$ <span class="hljs-keyword">go</span> test -v<br>=== RUN   TestAbs<br>--- PASS: TestAbs (<span class="hljs-number">0.00</span>s)<br>=== RUN   TestMax<br>--- PASS: TestMax (<span class="hljs-number">0.00</span>s)<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/<span class="hljs-number">31</span>/test    <span class="hljs-number">0.002</span>s<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>-run &lt; regexp&gt;，指定要执行的测试函数：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go">$ <span class="hljs-keyword">go</span> test -v -run=<span class="hljs-string">&#x27;TestA.*&#x27;</span><br>=== RUN   TestAbs<br>--- PASS: TestAbs (<span class="hljs-number">0.00</span>s)<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/<span class="hljs-number">31</span>/test    <span class="hljs-number">0.001</span>s<br><br></code></pre></td></tr></table></figure>
+
+<p>上面的例子中，我们只运行了以 <code>TestA</code> 开头的测试函数。</p>
+<ul>
+<li>-count N，指定执行测试函数的次数：</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go">$ <span class="hljs-keyword">go</span> test -v -run=<span class="hljs-string">&#x27;TestA.*&#x27;</span> -count=<span class="hljs-number">2</span><br>=== RUN   TestAbs<br>--- PASS: TestAbs (<span class="hljs-number">0.00</span>s)<br>=== RUN   TestAbs<br>--- PASS: TestAbs (<span class="hljs-number">0.00</span>s)<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/<span class="hljs-number">31</span>/test    <span class="hljs-number">0.002</span>s<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="多个输入的测试用例"><a href="#多个输入的测试用例" class="headerlink" title="多个输入的测试用例"></a>多个输入的测试用例</h3><p>前面介绍的单元测试用例只有一个输入，但是很多时候，我们需要测试一个函数在多种不同输入下是否能正常返回。这时候，我们可以编写一个稍微复杂点的测试用例，用来支持多输入下的用例测试。例如，我们可以将 <code>TestAbs</code> 改造成如下函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestAbs_2</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    tests := []<span class="hljs-keyword">struct</span> &#123;<br>        x    <span class="hljs-type">float64</span><br>        want <span class="hljs-type">float64</span><br>    &#125;&#123;<br>        &#123;<span class="hljs-number">-0.3</span>, <span class="hljs-number">0.3</span>&#125;,<br>        &#123;<span class="hljs-number">-2</span>, <span class="hljs-number">2</span>&#125;,<br>        &#123;<span class="hljs-number">-3.1</span>, <span class="hljs-number">3.1</span>&#125;,<br>        &#123;<span class="hljs-number">5</span>, <span class="hljs-number">5</span>&#125;,<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>        <span class="hljs-keyword">if</span> got := Abs(tt.x); got != tt.want &#123;<br>            t.Errorf(<span class="hljs-string">&quot;Abs() = %f, want %v&quot;</span>, got, tt.want)<br>        &#125;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>上述测试用例函数中，我们定义了一个结构体数组，数组中的每一个元素代表一次测试用例。数组元素的的值包含输入和预期的返回值：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go">tests := []<span class="hljs-keyword">struct</span> &#123;<br>    x    <span class="hljs-type">float64</span><br>    want <span class="hljs-type">float64</span><br>&#125;&#123;<br>    &#123;<span class="hljs-number">-0.3</span>, <span class="hljs-number">0.3</span>&#125;,<br>    &#123;<span class="hljs-number">-2</span>, <span class="hljs-number">2</span>&#125;,<br>    &#123;<span class="hljs-number">-3.1</span>, <span class="hljs-number">3.1</span>&#125;,<br>    &#123;<span class="hljs-number">5</span>, <span class="hljs-number">5</span>&#125;,<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>上述测试用例，将被测函数放在for循环中执行：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>     <span class="hljs-keyword">if</span> got := Abs(tt.x); got != tt.want &#123;<br>         t.Errorf(<span class="hljs-string">&quot;Abs() = %f, want %v&quot;</span>, got, tt.want)<br>     &#125;<br> &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>上面的代码将输入传递给被测函数，并将被测函数的返回值跟预期的返回值进行比较。如果相等，则说明此次测试通过，如果不相等则说明此次测试不通过。通过这种方式，我们就可以在一个测试用例中，测试不同的输入和输出，也就是不同的测试用例。如果要新增一个测试用例，根据需要添加输入和预期的返回值就可以了，这些测试用例都共享其余的测试代码。</p>
+<p>上面的测试用例中，我们通过 <code>got != tt.want</code> 来对比实际返回结果和预期返回结果。我们也可以使用 <code>github.com/stretchr/testify/assert</code> 包中提供的函数来做结果对比，例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestAbs_3</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    tests := []<span class="hljs-keyword">struct</span> &#123;<br>        x    <span class="hljs-type">float64</span><br>        want <span class="hljs-type">float64</span><br>    &#125;&#123;<br>        &#123;<span class="hljs-number">-0.3</span>, <span class="hljs-number">0.3</span>&#125;,<br>        &#123;<span class="hljs-number">-2</span>, <span class="hljs-number">2</span>&#125;,<br>        &#123;<span class="hljs-number">-3.1</span>, <span class="hljs-number">3.1</span>&#125;,<br>        &#123;<span class="hljs-number">5</span>, <span class="hljs-number">5</span>&#125;,<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>        got := Abs(tt.x)<br>        assert.Equal(t, got, tt.want)<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>assert</code> 来对比结果，有下面这些好处：</p>
+<ul>
+<li>友好的输出结果，易于阅读。</li>
+<li>因为少了 <code>if got := Xxx(); got != tt.wang &#123;&#125;</code> 的判断，代码变得更加简洁。</li>
+<li>可以针对每次断言，添加额外的消息说明，例如 <code>assert.Equal(t, got, tt.want, &quot;Abs test&quot;)</code>。</li>
+</ul>
+<p>assert包还提供了很多其他函数，供开发者进行结果对比，例如 <code>Zero</code>、 <code>NotZero</code>、 <code>Equal</code>、 <code>NotEqual</code>、 <code>Less</code>、 <code>True</code>、 <code>Nil</code>、 <code>NotNil</code> 等。如果想了解更多函数，你可以参考 <code>go doc github.com/stretchr/testify/assert</code>。</p>
+<h3 id="自动生成单元测试用例"><a href="#自动生成单元测试用例" class="headerlink" title="自动生成单元测试用例"></a>自动生成单元测试用例</h3><p>通过上面的学习，你也许可以发现，测试用例其实可以抽象成下面的模型：</p>
+<p><img src="https://static001.geekbang.org/resource/image/8f/fa/8f06e0a1bf2638a9255467a29e6dfcfa.jpg?wh=1920x688" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>用代码可表示为：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestXxx</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    <span class="hljs-keyword">type</span> args <span class="hljs-keyword">struct</span> &#123;<br>        <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Add function input parameter definition.</span><br>    &#125;<br><br>    <span class="hljs-keyword">type</span> want <span class="hljs-keyword">struct</span> &#123;<br>         <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Add function return parameter definition.</span><br>    &#125;<br>    tests := []<span class="hljs-keyword">struct</span> &#123;<br>        name <span class="hljs-type">string</span><br>        args args<br>        want want<br>    &#125;&#123;<br>        <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Add test cases.</span><br>    &#125;<br>    <span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>        t.Run(tt.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>            <span class="hljs-keyword">if</span> got := Xxx(tt.args); got != tt.want &#123;<br>                t.Errorf(<span class="hljs-string">&quot;Xxx() = %v, want %v&quot;</span>, got, tt.want)<br>            &#125;<br>        &#125;)<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>既然测试用例可以抽象成一些模型，那么我们就可以基于这些模型来自动生成测试代码。Go社区中有一些优秀的工具可以自动生成测试代码，我推荐你使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cweill/gotests">gotests</a> 工具。</p>
+<p>下面，讲讲gotests工具的使用方法，可以分成三个步骤。</p>
+<p>第一步，安装gotests工具：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go get -u github.com/cweill/gotests/...<br><br></code></pre></td></tr></table></figure>
+
+<p>gotests命令执行格式为： <code>gotests [options] [PATH] [FILE] ...</code>。gotests可以为 <code>PATH</code> 下的所有Go源码文件中的函数生成测试代码，也可以只为某个 <code>FILE</code> 中的函数生成测试代码。</p>
+<p>第二步，进入测试代码目录，执行gotests生成测试用例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ gotests -all -w .<br><br></code></pre></td></tr></table></figure>
+
+<p>上面的命令会为当前目录下所有Go源码文件中的函数生成测试代码。</p>
+<p>第三步，添加测试用例：</p>
+<p>生成完测试用例，你只需要添加需要测试的输入和预期的输出就可以了。下面的测试用例是通过gotests生成的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestUnpointer</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    <span class="hljs-keyword">type</span> args <span class="hljs-keyword">struct</span> &#123;<br>        offset *<span class="hljs-type">int64</span><br>        limit  *<span class="hljs-type">int64</span><br>    &#125;<br>    tests := []<span class="hljs-keyword">struct</span> &#123;<br>        name <span class="hljs-type">string</span><br>        args args<br>        want *LimitAndOffset<br>    &#125;&#123;<br>        <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> Add test cases.</span><br>    &#125;<br>    <span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>        t.Run(tt.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>            <span class="hljs-keyword">if</span> got := Unpointer(tt.args.offset, tt.args.limit); !reflect.DeepEqual(got, tt.want) &#123;<br>                t.Errorf(<span class="hljs-string">&quot;Unpointer() = %v, want %v&quot;</span>, got, tt.want)<br>            &#125;<br>        &#125;)<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>我们只需要补全 <code>TODO</code> 位置的测试数据即可，补全后的测试用例见 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/marmotedu/iam/blob/v1.0.8/internal/pkg/util/gormutil/gorm_test.go">gorm_test.go</a> 文件。</p>
+<h2 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h2><p>接下来我们来看下性能测试，它是用来测试代码的性能是否满足需求的。</p>
+<p>性能测试的用例函数必须以 <code>Benchmark</code> 开头，例如 <code>BenchmarkXxx</code> 或 <code>Benchmark_Xxx</code>（ <code>Xxx</code> 部分为任意字母数字组合，首字母大写）。</p>
+<p>函数参数必须是 <code>*testing.B</code>，函数内以 <code>b.N</code> 作为循环次数，其中 <code>N</code> 会在运行时动态调整，直到性能测试函数可以持续足够长的时间，以便能够可靠地计时。下面的代码是一个简单的性能测试函数（函数位于文件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/marmotedu/gopractise-demo/blob/master/test/math_test.go">math_test.go</a> 中）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BenchmarkRandInt</span><span class="hljs-params">(b *testing.B)</span></span> &#123;<br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; b.N; i++ &#123;<br>        RandInt()<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><code>go test</code> 命令默认不会执行性能测试函数，需要通过指定参数 <code>-bench &lt;pattern&gt;</code> 来运行性能测试函数。 <code>-bench</code> 后可以跟正则表达式，选择需要执行的性能测试函数，例如 <code>go test -bench=&quot;.*&quot;</code> 表示执行所有的压力测试函数。执行 <code>go test -bench=&quot;.*&quot;</code> 后输出如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go <span class="hljs-built_in">test</span> -bench=<span class="hljs-string">&quot;.*&quot;</span><br>goos: linux<br>goarch: amd64<br>pkg: github.com/marmotedu/gopractise-demo/31/test<br>BenchmarkRandInt-4      97384827                12.4 ns/op<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/31/test    1.223s<br><br></code></pre></td></tr></table></figure>
+
+<p>上面的结果只显示了性能测试函数的执行结果。 <code>BenchmarkRandInt</code> 性能测试函数的执行结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">BenchmarkRandInt-4   	90848414	        12.8 ns/op<br><br></code></pre></td></tr></table></figure>
+
+<p>每个函数的性能执行结果一共有3列，分别代表不同的意思，这里用上面的函数举例子：</p>
+<ul>
+<li><code>BenchmarkRandInt-4</code>， <code>BenchmarkRandInt</code> 表示所测试的测试函数名，4表示有4个CPU线程参与了此次测试，默认是 <code>GOMAXPROCS</code> 的值。</li>
+<li><code>90848414</code> ，说明函数中的循环执行了 <code>90848414</code> 次。</li>
+<li><code>12.8 ns/op</code>，说明每次循环的执行平均耗时是 <code>12.8</code> 纳秒，该值越小，说明代码性能越高。</li>
+</ul>
+<p>如果我们的性能测试函数在执行循环前，需要做一些耗时的准备工作，我们就需要重置性能测试时间计数，例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BenchmarkBigLen</span><span class="hljs-params">(b *testing.B)</span></span> &#123;<br>    big := NewBig()<br>    b.ResetTimer()<br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; b.N; i++ &#123;<br>        big.Len()<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>当然，我们也可以先停止性能测试的时间计数，然后再开始时间计数，例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">BenchmarkBigLen</span><span class="hljs-params">(b *testing.B)</span></span> &#123;<br>	b.StopTimer() <span class="hljs-comment">// 调用该函数停止压力测试的时间计数</span><br>	big := NewBig()<br>	b.StartTimer() <span class="hljs-comment">// 重新开始时间</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; b.N; i++ &#123;<br>		big.Len()<br>	&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>B类型的性能测试还支持下面 4 个参数。</p>
+<ul>
+<li>benchmem，输出内存分配统计：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go <span class="hljs-built_in">test</span> -bench=<span class="hljs-string">&quot;.*&quot;</span> -benchmem<br>goos: linux<br>goarch: amd64<br>pkg: github.com/marmotedu/gopractise-demo/31/test<br>BenchmarkRandInt-4      96776823                12.8 ns/op             0 B/op          0 allocs/op<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/31/test    1.255s<br><br></code></pre></td></tr></table></figure>
+
+<p>指定了 <code>-benchmem</code> 参数后，执行结果中又多了两列： 0 B&#x2F;op，表示每次执行分配了多少内存（字节），该值越小，说明代码内存占用越小；0 allocs&#x2F;op，表示每次执行分配了多少次内存，该值越小，说明分配内存次数越少，意味着代码性能越高。</p>
+<ul>
+<li>benchtime，指定测试时间和循环执行次数（格式需要为Nx，例如100x）：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go <span class="hljs-built_in">test</span> -bench=<span class="hljs-string">&quot;.*&quot;</span> -benchtime=10s <span class="hljs-comment"># 指定测试时间</span><br>goos: linux<br>goarch: amd64<br>pkg: github.com/marmotedu/gopractise-demo/31/test<br>BenchmarkRandInt-4      910328618               13.1 ns/op<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/31/test    13.260s<br>$ go <span class="hljs-built_in">test</span> -bench=<span class="hljs-string">&quot;.*&quot;</span> -benchtime=100x <span class="hljs-comment"># 指定循环执行次数</span><br>goos: linux<br>goarch: amd64<br>pkg: github.com/marmotedu/gopractise-demo/31/test<br>BenchmarkRandInt-4           100                16.9 ns/op<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/31/test    0.003s<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>cpu，指定GOMAXPROCS。</li>
+<li>timeout，指定测试函数执行的超时时间：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go <span class="hljs-built_in">test</span> -bench=<span class="hljs-string">&quot;.*&quot;</span> -<span class="hljs-built_in">timeout</span>=10s<br>goos: linux<br>goarch: amd64<br>pkg: github.com/marmotedu/gopractise-demo/31/test<br>BenchmarkRandInt-4      97375881                12.4 ns/op<br>PASS<br>ok      github.com/marmotedu/gopractise-demo/31/test    1.224s<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>代码开发完成之后，我们需要为代码编写单元测试用例，并根据需要，给一些函数编写性能测试用例。Go语言提供了 <code>testing</code> 包，供我们编写测试用例，并通过 <code>go test</code> 命令来执行这些测试用例。</p>
+<p>go test在执行测试用例时，会查找具有固定格式的Go源码文件名，并执行其中具有固定格式的函数，这些函数就是测试用例。这就要求我们的测试文件名、函数名要符合 <code>go test</code> 工具的要求：Go的测试文件名必须以 <code>_test.go</code> 结尾；测试用例函数必须以 <code>Test</code> 、 <code>Benchmark</code> 、 <code>Example</code> 开头。此外，我们在编写测试用例时，还要注意包和变量的命名规范。</p>
+<p>Go项目开发中，编写得最多的是单元测试用例。单元测试用例函数以 <code>Test</code> 开头，例如 <code>TestXxx</code> 或 <code>Test_xxx</code> （ <code>Xxx</code> 部分为任意字母数字组合，首字母大写）。函数参数必须是 <code>*testing.T</code> ，可以使用该类型来记录错误或测试状态。我们可以调用 <code>testing.T</code> 的 <code>Error</code> 、 <code>Errorf</code> 、 <code>FailNow</code> 、 <code>Fatal</code> 、 <code>FatalIf</code> 方法，来说明测试不通过；调用 <code>Log</code> 、 <code>Logf</code> 方法来记录测试信息。</p>
+<p>下面是一个简单的单元测试函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestAbs</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>    got := Abs(<span class="hljs-number">-1</span>)<br>    <span class="hljs-keyword">if</span> got != <span class="hljs-number">1</span> &#123;<br>        t.Errorf(<span class="hljs-string">&quot;Abs(-1) = %f; want 1&quot;</span>, got)<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>编写完测试用例之后，可以使用 <code>go test</code> 命令行工具来执行这些测试用例。</p>
+<p>此外，我们还可以使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cweill/gotests">gotests</a> 工具，来自动地生成单元测试用例，从而减少编写测试用例的工作量。</p>
+<p>我们在Go项目开发中，还经常需要编写性能测试用例。性能测试用例函数必须以 <code>Benchmark</code> 开头，以 <code>*testing.B</code> 作为函数入参，通过 <code>go test -bench &lt;pattern&gt;</code> 运行。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/golang/" class="category-chain-item">golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/golang/">#golang</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Go 代码测试（上）：如何编写 Go 语言单元测试和性能测试用例？</div>
+      <div>https://blog.longpi1.com/2022/11/30/Go代码测试（上）：如何编写Go语言单元测试和性能测试用例？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/11/30/Go%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9A%E6%B7%B1%E5%85%A5Go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%B1%BB%E5%9E%8B%E5%8F%8A%E9%A1%B9%E7%9B%AE%E6%B5%8B%E8%AF%95%E5%AE%9E%E6%88%98/" title="Go 代码测试（下）：深入 Go 单元测试类型及项目测试实战">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Go 代码测试（下）：深入 Go 单元测试类型及项目测试实战</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/29/%E5%A6%82%E4%BD%95%E8%AE%A9%E4%BD%A0%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E8%83%BD%E8%A2%AB%E8%B0%B7%E6%AD%8C%E7%99%BE%E5%BA%A6%E8%AE%BF%E9%97%AE%E5%88%B0/" title="如何让你的个人博客能被谷歌百度访问到">
+                        <span class="hidden-mobile">如何让你的个人博客能被谷歌百度访问到</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
