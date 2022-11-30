@@ -24,7 +24,7 @@
 <meta property="og:description" content="极客时间左耳听风的相关笔记">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-09-04T10:23:24.000Z">
-<meta property="article:modified_time" content="2022-09-04T10:24:18.107Z">
+<meta property="article:modified_time" content="2022-11-30T12:49:23.455Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="左耳听风">
@@ -287,7 +287,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="编程范式之泛型编程"><a href="#编程范式之泛型编程" class="headerlink" title="编程范式之泛型编程"></a>编程范式之泛型编程</h1><h3 id="C-语言的泛型"><a href="#C-语言的泛型" class="headerlink" title="C 语言的泛型"></a>C 语言的泛型</h3><h3 id="一个泛型的示例-swap-函数"><a href="#一个泛型的示例-swap-函数" class="headerlink" title="一个泛型的示例 - swap 函数"></a>一个泛型的示例 - swap 函数</h3><p>好了，我们再看下，C 语言是如何泛型的。C 语言的类型泛型基本上来说就是使用<code>void *</code>关键字或是使用宏定义。</p>
+                <meta name="referrer" content="no-referrer">
+#  编程范式之泛型编程
+
+<h3 id="C-语言的泛型"><a href="#C-语言的泛型" class="headerlink" title="C 语言的泛型"></a>C 语言的泛型</h3><h3 id="一个泛型的示例-swap-函数"><a href="#一个泛型的示例-swap-函数" class="headerlink" title="一个泛型的示例 - swap 函数"></a>一个泛型的示例 - swap 函数</h3><p>好了，我们再看下，C 语言是如何泛型的。C 语言的类型泛型基本上来说就是使用<code>void *</code>关键字或是使用宏定义。</p>
 <p>下面是一个使用了<code>void*</code>泛型版本的 swap 函数。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">void</span> <span class="hljs-title function_">swap</span><span class="hljs-params">(<span class="hljs-type">void</span>* x, <span class="hljs-type">void</span>* y, <span class="hljs-type">size_t</span> size)</span><br>&#123;<br>     <span class="hljs-type">char</span> tmp[size];<br>     <span class="hljs-built_in">memcpy</span>(tmp, y, size);<br>     <span class="hljs-built_in">memcpy</span>(y, x, size);<br>     <span class="hljs-built_in">memcpy</span>(x, tmp, size);<br>&#125;<br></code></pre></td></tr></table></figure>
 

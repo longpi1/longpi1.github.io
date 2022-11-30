@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/b0/4c/b0b7624a7922cea801de63b865f6ed4c.jpg?wh=1920x437">
 <meta property="og:image" content="https://static001.geekbang.org/resource/image/81/23/81765c7e56cb45d03a0a61de5835d823.png?wh=1920x576">
 <meta property="article:published_time" content="2022-11-27T11:05:31.000Z">
-<meta property="article:modified_time" content="2022-11-28T13:35:38.799Z">
+<meta property="article:modified_time" content="2022-11-30T12:49:23.420Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="golang">
@@ -297,7 +297,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="Go-性能分析（上）：如何分析-Go-代码的性能？"><a href="#Go-性能分析（上）：如何分析-Go-代码的性能？" class="headerlink" title="Go 性能分析（上）：如何分析 Go 代码的性能？"></a>Go 性能分析（上）：如何分析 Go 代码的性能？</h1><blockquote>
+                <meta name="referrer" content="no-referrer">
+# Go 性能分析（上）：如何分析 Go 代码的性能？
+
+<blockquote>
 <p>本文章主要内容引用自：1.孔令飞，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/410205">Go 语言项目开发实战</a>  ，2.郝林，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/69812">Go 语言核心 36 讲</a></p>
 </blockquote>
 <h2 id="为什么要关注性能？"><a href="#为什么要关注性能？" class="headerlink" title="为什么要关注性能？"></a>为什么要关注性能？</h2><p>作为开发人员，我们一般都局限在功能上的单元测试中，对一些性能上的细节往往不会太关注。但是，如果我们在上线的时候对项目的整体性能没有一个全面的了解，随着请求量越来越大，可能会出现各种各样的问题，比如CPU占用高、内存使用率高、请求延时高等。为了避免这些性能瓶颈，我们在开发的过程中需要通过一定的手段，来对程序进行性能分析。</p>

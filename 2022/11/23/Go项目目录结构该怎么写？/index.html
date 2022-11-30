@@ -27,7 +27,7 @@
 <meta property="og:image" content="https://s2.loli.net/2022/11/22/JQMUV8NkzcIaSWT.png">
 <meta property="og:image" content="https://s2.loli.net/2022/11/22/4kELthJAS5DiYyX.png">
 <meta property="article:published_time" content="2022-11-23T12:23:45.000Z">
-<meta property="article:modified_time" content="2022-11-23T12:24:37.393Z">
+<meta property="article:modified_time" content="2022-11-30T12:49:23.645Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="golang">
@@ -290,7 +290,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="Go项目目录结构该怎么写？"><a href="#Go项目目录结构该怎么写？" class="headerlink" title="Go项目目录结构该怎么写？"></a>Go项目目录结构该怎么写？</h1><h2 id="Go-目录"><a href="#Go-目录" class="headerlink" title="Go 目录"></a>Go 目录</h2><p><img src="https://s2.loli.net/2022/11/22/IiQuegzXAqyxhT6.png" srcset="/img/loading.gif" lazyload alt="image-20221122220821657.png"></p>
+                <meta name="referrer" content="no-referrer">
+#                                         Go项目目录结构该怎么写？
+
+<h2 id="Go-目录"><a href="#Go-目录" class="headerlink" title="Go 目录"></a>Go 目录</h2><p><img src="https://s2.loli.net/2022/11/22/IiQuegzXAqyxhT6.png" srcset="/img/loading.gif" lazyload alt="image-20221122220821657.png"></p>
 <h3 id="cmd"><a href="#cmd" class="headerlink" title="/cmd"></a><code>/cmd</code></h3><p>项目的主干。</p>
 <p>每个应用程序的目录名应该与想要的可执行文件的名称相匹配(例如，<code>/cmd/myapp</code>)。</p>
 <p>不要在这个目录中放置太多代码。如果认为代码可以导入并在其他项目中使用，那么它应该位于 <code>/pkg</code> 目录中。如果代码不是可重用的，或者不希望其他人重用它，将该代码放到 <code>/internal</code> 目录中。</p>

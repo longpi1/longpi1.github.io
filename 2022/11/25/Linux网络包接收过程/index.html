@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-3726d27ee32843df86d0555ec7971592_1440w.webp">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-7a531f2411838cb2f5840b28662702a0_1440w.webp">
 <meta property="article:published_time" content="2022-11-25T12:35:17.000Z">
-<meta property="article:modified_time" content="2022-11-26T09:29:23.020Z">
+<meta property="article:modified_time" content="2022-11-30T12:49:23.431Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="转载">
 <meta property="article:tag" content="网络">
@@ -299,7 +299,10 @@
             
               <div class="markdown-body">
                 
-                <h1 id="Linux网络包接收过程"><a href="#Linux网络包接收过程" class="headerlink" title="Linux网络包接收过程"></a>Linux网络包接收过程</h1><blockquote>
+                <meta name="referrer" content="no-referrer">
+#                                   Linux网络包接收过程
+
+<blockquote>
 <p>转载自张彦飞大佬的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/373060740">图解Linux网络包接收过程</a></p>
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-type">int</span> serverSocketFd = socket(AF_INET, SOCK_DGRAM, <span class="hljs-number">0</span>);<br>    bind(serverSocketFd, ...);<br><br>    <span class="hljs-type">char</span> buff[BUFFSIZE];<br>    <span class="hljs-type">int</span> readCount = recvfrom(serverSocketFd, buff, BUFFSIZE, <span class="hljs-number">0</span>, ...);<br>    buff[readCount] = <span class="hljs-string">&#x27;\0&#x27;</span>;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Receive from client:%s\n&quot;</span>, buff);<br>&#125;<br></code></pre></td></tr></table></figure>
