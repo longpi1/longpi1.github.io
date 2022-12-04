@@ -1,0 +1,671 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="如何通过consul实现watch机制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于consul实现watch机制">
+<meta property="og:url" content="https://blog.longpi1.com/2022/12/04/%E5%9F%BA%E4%BA%8Econsul%E5%AE%9E%E7%8E%B0watch%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="如何通过consul实现watch机制">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-12-04T05:06:11.000Z">
+<meta property="article:modified_time" content="2022-12-04T05:07:26.995Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="golang">
+<meta property="article:tag" content="consul">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>基于consul实现watch机制 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于consul实现watch机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-04 13:06" pubdate>
+          2022年12月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">基于consul实现watch机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="基于consul实现watch机制"><a href="#基于consul实现watch机制" class="headerlink" title="基于consul实现watch机制"></a>基于consul实现watch机制</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>consul常常被用来作服务注册与服务发现，而它的watch机制则可被用来监控一些数据的更新，实时获取最新的数据。另外，在监控到数据变化后，还可以调用外部处理程序，此处理程序可以是任何可执行文件或HTTP调用，具体说明可见<a href="https://link.juejin.cn/?target=https://www.consul.io/docs/dynamic-app-config/watches" rel="external nofollow noopener noreferrer" target="_blank">官网</a>。</p>
+<p> 当前consul支持以下watch类型如下所示：</p>
+<ul>
+<li>key 监听一个consul kv中的key</li>
+<li>keyprefix 监听consul kv中的key的前缀</li>
+<li>services 监听有效服务的变化</li>
+<li>nodes 监听节点的变化</li>
+<li>service 监听服务的变化</li>
+<li>checks 监听check的变化</li>
+<li>event 监听自定义事件的变化</li>
+</ul>
+<p>从以上可以看出consul提供非常丰富的监听类型，通过这些类型我们可以实时观测到consul整个集群中的变化，从而实现一些特别的需求，比如：实时更新、服务告警等功能。</p>
+<h2 id="基于Golang-实现watch-对服务变化的监控"><a href="#基于Golang-实现watch-对服务变化的监控" class="headerlink" title="基于Golang 实现watch 对服务变化的监控"></a>基于Golang 实现watch 对服务变化的监控</h2><p>consul官方提供了<a href="https://link.juejin.cn/?target=https://pkg.go.dev/github.com/hashicorp/consul/api/watch" rel="external nofollow noopener noreferrer" target="_blank">Golang版的watch包</a>。其实际上也是对watch机制进行了一层封装，最终代码实现的只是对consul HTTP API 的 <code>endpoints</code>的使用，不涉及数据变化后的相关处理，封装程度不够。</p>
+<p>接下来我将基于封装了的相关处理函数的工具包进行解决，详细代码可通过<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/consul-tool">https://github.com/longpi1/consul-tool</a> 进行下载查看。</p>
+<p>1.客户端client.go 用于初始consul相关配置以及封装consul的api库的基础操作</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> backends<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;encoding/json&quot;</span><br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;github.com/hashicorp/consul/api&quot;</span><br>	errors <span class="hljs-string">&quot;github.com/longpi1/consul-tool/pkg/error&quot;</span><br>	<span class="hljs-string">&quot;github.com/longpi1/consul-tool/pkg/log&quot;</span><br>	<span class="hljs-string">&quot;strings&quot;</span><br>	<span class="hljs-string">&quot;sync&quot;</span><br>	<span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-comment">// Option ...</span><br><span class="hljs-keyword">type</span> Option <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(opt *Config)</span></span><br><br><span class="hljs-comment">// NewConfig 初始化consul配置</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewConfig</span><span class="hljs-params">(opts ...Option)</span></span> *Config &#123;<br>	c := &amp;Config&#123;<br>		conf:     api.DefaultConfig(),<br>		watchers: <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*watcher),<br>		logger:   log.NewLogger(),<br>	&#125;<br><br>	<span class="hljs-keyword">for</span> _, o := <span class="hljs-keyword">range</span> opts &#123;<br>		o(c)<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> c<br>&#125;<br><br><span class="hljs-comment">// Config 相关配置的结构体</span><br><span class="hljs-keyword">type</span> Config <span class="hljs-keyword">struct</span> &#123;<br>	sync.RWMutex<br>	logger   log.Logger<br>	kv       *api.KV<br>	conf     *api.Config<br>	watchers <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*watcher<br>	prefix   <span class="hljs-type">string</span><br>&#125;<br><br><span class="hljs-comment">// 循环监听</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> watcherLoop(path <span class="hljs-type">string</span>) &#123;<br>	c.logger.Info(<span class="hljs-string">&quot;watcher start...&quot;</span>, <span class="hljs-string">&quot;path&quot;</span>, path)<br><br>	w := c.getWatcher(path)<br>	<span class="hljs-keyword">if</span> w == <span class="hljs-literal">nil</span> &#123;<br>		c.logger.Error(<span class="hljs-string">&quot;watcher not found&quot;</span>, <span class="hljs-string">&quot;path&quot;</span>, path)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">if</span> err := w.run(c.conf.Address, c.conf); err != <span class="hljs-literal">nil</span> &#123;<br>			c.logger.Warn(<span class="hljs-string">&quot;watcher connect error&quot;</span>, <span class="hljs-string">&quot;path&quot;</span>, path, <span class="hljs-string">&quot;error&quot;</span>, err)<br>			time.Sleep(time.Second * <span class="hljs-number">3</span>)<br>		&#125;<br><br>		w = c.getWatcher(path)<br>		<span class="hljs-keyword">if</span> w == <span class="hljs-literal">nil</span> &#123;<br>			c.logger.Info(<span class="hljs-string">&quot;watcher stop&quot;</span>, <span class="hljs-string">&quot;path&quot;</span>, path)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		c.logger.Warn(<span class="hljs-string">&quot;watcher reconnect...&quot;</span>, <span class="hljs-string">&quot;path&quot;</span>, path)<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 重置consul的watcher</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> Reset() <span class="hljs-type">error</span> &#123;<br>	watchMap := c.getAllWatchers()<br><br>	<span class="hljs-keyword">for</span> _, w := <span class="hljs-keyword">range</span> watchMap &#123;<br>		w.stop()<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> c.Init()<br>&#125;<br><br><span class="hljs-comment">// Init 初始化consul客户端</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> Init() <span class="hljs-type">error</span> &#123;<br>	client, err := api.NewClient(c.conf)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;init fail: %w&quot;</span>, err)<br>	&#125;<br><br>	c.kv = client.KV()<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// Put 插入该路径的kv</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> Put(path <span class="hljs-type">string</span>, value <span class="hljs-keyword">interface</span>&#123;&#125;) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-keyword">var</span> (<br>		data []<span class="hljs-type">byte</span><br>		err  <span class="hljs-type">error</span><br>	)<br><br>	data, err = json.Marshal(value)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		data = []<span class="hljs-type">byte</span>(fmt.Sprintf(<span class="hljs-string">&quot;%v&quot;</span>, value))<br>	&#125;<br><br>	p := &amp;api.KVPair&#123;Key: c.absPath(path), Value: data&#125;<br>	_, err = c.kv.Put(p, <span class="hljs-literal">nil</span>)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;put fail: %w&quot;</span>, err)<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// Get 获取该路径的kv</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> Get(keys ...<span class="hljs-type">string</span>) (ret *KV) &#123;<br>	<span class="hljs-keyword">var</span> (<br>		path   = c.absPath(keys...) + <span class="hljs-string">&quot;/&quot;</span><br>		fields []<span class="hljs-type">string</span><br>	)<br><br>	ret = &amp;KV&#123;&#125;<br>	ks, err := c.list()<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		ret.err = fmt.Errorf(<span class="hljs-string">&quot;get list fail: %w&quot;</span>, err)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">for</span> _, k := <span class="hljs-keyword">range</span> ks &#123;<br>		<span class="hljs-keyword">if</span> !strings.HasPrefix(path, k+<span class="hljs-string">&quot;/&quot;</span>) &#123;<br>			ret.err = errors.ErrKeyNotFound<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br>		field := strings.TrimSuffix(strings.TrimPrefix(path, k+<span class="hljs-string">&quot;/&quot;</span>), <span class="hljs-string">&quot;/&quot;</span>)<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(field) != <span class="hljs-number">0</span> &#123;<br>			fields = strings.Split(field, <span class="hljs-string">&quot;/&quot;</span>)<br>		&#125;<br><br>		kvPair, _, err := c.kv.Get(k, <span class="hljs-literal">nil</span>)<br>		ret.value = kvPair.Value<br>		ret.key = strings.TrimSuffix(strings.TrimPrefix(path, c.prefix+<span class="hljs-string">&quot;/&quot;</span>), <span class="hljs-string">&quot;/&quot;</span>)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			err = fmt.Errorf(<span class="hljs-string">&quot;get fail: %w&quot;</span>, err)<br>		&#125;<br>		ret.err = err<br>		<span class="hljs-keyword">break</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(fields) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	ret.key += <span class="hljs-string">&quot;/&quot;</span> + strings.Join(fields, <span class="hljs-string">&quot;/&quot;</span>)<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-comment">// Delete 删除该路径的kv</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> Delete(path <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;<br>	_, err := c.kv.Delete(c.absPath(path), <span class="hljs-literal">nil</span>)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;delete fail: %w&quot;</span>, err)<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// Watch   实现监听</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> Watch(path <span class="hljs-type">string</span>, handler <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(*KV)</span></span>) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-comment">// 初始化watcher</span><br>	watcher, err := newWatcher(c.absPath(path))<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;watch fail: %w&quot;</span>, err)<br>	&#125;<br>	<span class="hljs-comment">// 对应的路径发生变化时，调用对应的处理函数</span><br>	watcher.setHybridHandler(c.prefix, handler)<br>	<span class="hljs-comment">// 相应路径下添加对应的wathcer用于实现watch机制</span><br>	err = c.addWatcher(path, watcher)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	<span class="hljs-comment">// 调用协程循环监听</span><br>	<span class="hljs-keyword">go</span> c.watcherLoop(path)<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// StopWatch 停止监听</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> StopWatch(path ...<span class="hljs-type">string</span>) &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(path) == <span class="hljs-number">0</span> &#123;<br>		c.cleanWatcher()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">for</span> _, p := <span class="hljs-keyword">range</span> path &#123;<br>		wp := c.getWatcher(p)<br>		<span class="hljs-keyword">if</span> wp == <span class="hljs-literal">nil</span> &#123;<br>			c.logger.Info(<span class="hljs-string">&quot;watcher already stop&quot;</span>, <span class="hljs-string">&quot;path&quot;</span>, p)<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		c.removeWatcher(p)<br>		wp.stop()<br>		<span class="hljs-keyword">for</span> !wp.IsStopped() &#123;<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 获取绝对路径</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> absPath(keys ...<span class="hljs-type">string</span>) <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(keys) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> c.prefix<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(keys[<span class="hljs-number">0</span>]) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> c.prefix<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(c.prefix) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> strings.Join(keys, <span class="hljs-string">&quot;/&quot;</span>)<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> c.prefix + <span class="hljs-string">&quot;/&quot;</span> + strings.Join(keys, <span class="hljs-string">&quot;/&quot;</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> list() ([]<span class="hljs-type">string</span>, <span class="hljs-type">error</span>) &#123;<br>	keyPairs, _, err := c.kv.List(c.prefix, <span class="hljs-literal">nil</span>)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	list := <span class="hljs-built_in">make</span>([]<span class="hljs-type">string</span>, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(keyPairs))<br>	<span class="hljs-keyword">for</span> _, v := <span class="hljs-keyword">range</span> keyPairs &#123;<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(v.Value) != <span class="hljs-number">0</span> &#123;<br>			list = <span class="hljs-built_in">append</span>(list, v.Key)<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> list, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-comment">// WithPrefix ...</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithPrefix</span><span class="hljs-params">(prefix <span class="hljs-type">string</span>)</span></span> Option &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *Config)</span></span> &#123;<br>		c.prefix = prefix<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// WithAddress ...</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">WithAddress</span><span class="hljs-params">(address <span class="hljs-type">string</span>)</span></span> Option &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *Config)</span></span> &#123;<br>		c.conf.Address = address<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// Withlogger ...</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Withlogger</span><span class="hljs-params">(logger log.Logger)</span></span> Option &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *Config)</span></span> &#123;<br>		c.logger = logger<br>	&#125;<br>&#125;<br><br><br><span class="hljs-comment">// CheckWatcher ...</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> CheckWatcher(path <span class="hljs-type">string</span>) <span class="hljs-type">error</span> &#123;<br>	c.RLock()<br>	<span class="hljs-keyword">defer</span> c.RUnlock()<br><br>	<span class="hljs-keyword">if</span> _, ok := c.watchers[c.absPath(path)]; ok &#123;<br>		<span class="hljs-keyword">return</span> errors.ErrAlreadyWatch<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> getWatcher(path <span class="hljs-type">string</span>) *watcher &#123;<br>	c.RLock()<br>	<span class="hljs-keyword">defer</span> c.RUnlock()<br><br>	<span class="hljs-keyword">return</span> c.watchers[c.absPath(path)]<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> addWatcher(path <span class="hljs-type">string</span>, w *watcher) <span class="hljs-type">error</span> &#123;<br>	c.Lock()<br>	<span class="hljs-keyword">defer</span> c.Unlock()<br><br>	<span class="hljs-keyword">if</span> _, ok := c.watchers[c.absPath(path)]; ok &#123;<br>		<span class="hljs-keyword">return</span> errors.ErrAlreadyWatch<br>	&#125;<br><br>	c.watchers[c.absPath(path)] = w<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> removeWatcher(path <span class="hljs-type">string</span>) &#123;<br>	c.Lock()<br>	<span class="hljs-keyword">defer</span> c.Unlock()<br><br>	<span class="hljs-built_in">delete</span>(c.watchers, c.absPath(path))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> cleanWatcher() &#123;<br>	c.Lock()<br>	<span class="hljs-keyword">defer</span> c.Unlock()<br><br>	<span class="hljs-keyword">for</span> k, w := <span class="hljs-keyword">range</span> c.watchers &#123;<br>		w.stop()<br>		<span class="hljs-built_in">delete</span>(c.watchers, k)<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 获取所有的watcher</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *Config)</span></span> getAllWatchers() []*watcher &#123;<br>	c.RLock()<br>	<span class="hljs-keyword">defer</span> c.RUnlock()<br><br>	watchers := <span class="hljs-built_in">make</span>([]*watcher, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(c.watchers))<br>	<span class="hljs-keyword">for</span> _, w := <span class="hljs-keyword">range</span> c.watchers &#123;<br>		watchers = <span class="hljs-built_in">append</span>(watchers, w)<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> watchers<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+
+<p>2.watcher.go实现对watch机制相关函数的封装。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> backends<br><br><span class="hljs-keyword">import</span> (<br>   <span class="hljs-string">&quot;bytes&quot;</span><br>   <span class="hljs-string">&quot;fmt&quot;</span><br>   <span class="hljs-string">&quot;strings&quot;</span><br>   <span class="hljs-string">&quot;sync&quot;</span><br><br>   <span class="hljs-string">&quot;github.com/hashicorp/consul/api&quot;</span><br>   <span class="hljs-string">&quot;github.com/hashicorp/consul/api/watch&quot;</span><br>)<br><br><span class="hljs-comment">//初始化对应的watcher ，这里设置的是监听路径的类型，也可以支持service、node等，通过更改type</span><br><span class="hljs-comment">//支持的type类型有</span><br><span class="hljs-comment">//key - Watch a specific KV pair</span><br><span class="hljs-comment">//keyprefix - Watch a prefix in the KV store</span><br><span class="hljs-comment">//services - Watch the list of available services</span><br><span class="hljs-comment">//nodes - Watch the list of nodes</span><br><span class="hljs-comment">//service- Watch the instances of a service</span><br><span class="hljs-comment">//checks - Watch the value of health checks</span><br><span class="hljs-comment">//event - Watch for custom user events</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newWatcher</span><span class="hljs-params">(path <span class="hljs-type">string</span>)</span></span> (*watcher, <span class="hljs-type">error</span>) &#123;<br>   wp, err := watch.Parse(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;&#123;<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;keyprefix&quot;</span>, <span class="hljs-string">&quot;prefix&quot;</span>: path&#125;)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>   &#125;<br><br>   <span class="hljs-keyword">return</span> &amp;watcher&#123;<br>      Plan:       wp,<br>      lastValues: <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>][]<span class="hljs-type">byte</span>),<br>      err:        <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">error</span>, <span class="hljs-number">1</span>),<br>   &#125;, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newServiceWatcher</span><span class="hljs-params">(serviceName <span class="hljs-type">string</span>)</span></span> (*watcher, <span class="hljs-type">error</span>) &#123;<br>   wp, err := watch.Parse(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-keyword">interface</span>&#123;&#125;&#123;<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;service&quot;</span>, <span class="hljs-string">&quot;service&quot;</span>: serviceName&#125;)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>   &#125;<br>   <span class="hljs-keyword">return</span> &amp;watcher&#123;<br>      Plan:       wp,<br>      lastValues: <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>][]<span class="hljs-type">byte</span>),<br>      err:        <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">error</span>, <span class="hljs-number">1</span>),<br>   &#125;, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-keyword">type</span> watcher <span class="hljs-keyword">struct</span> &#123;<br>   sync.RWMutex<br>   *watch.Plan<br>   lastValues    <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>][]<span class="hljs-type">byte</span><br>   hybridHandler watch.HybridHandlerFunc  <span class="hljs-comment">// 当对于路径发生变化时，调用相应函数</span><br>   stopChan      <span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;<br>   err           <span class="hljs-keyword">chan</span> <span class="hljs-type">error</span><br>&#125;<br><br><span class="hljs-comment">//获取value</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(w *watcher)</span></span> getValue(path <span class="hljs-type">string</span>) []<span class="hljs-type">byte</span> &#123;<br>   w.RLock()<br>   <span class="hljs-keyword">defer</span> w.RUnlock()<br><br>   <span class="hljs-keyword">return</span> w.lastValues[path]<br>&#125;<br><br><span class="hljs-comment">//更新value</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(w *watcher)</span></span> updateValue(path <span class="hljs-type">string</span>, value []<span class="hljs-type">byte</span>) &#123;<br>   w.Lock()<br>   <span class="hljs-keyword">defer</span> w.Unlock()<br><br>   <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(value) == <span class="hljs-number">0</span> &#123;<br>      <span class="hljs-built_in">delete</span>(w.lastValues, path)<br>   &#125; <span class="hljs-keyword">else</span> &#123;<br>      w.lastValues[path] = value<br>   &#125;<br>&#125;<br><br><span class="hljs-comment">//用于设置对应的处理函数</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(w *watcher)</span></span> setHybridHandler(prefix <span class="hljs-type">string</span>, handler <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(*KV)</span></span>) &#123;<br>   w.hybridHandler = <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(bp watch.BlockingParamVal, data <span class="hljs-keyword">interface</span>&#123;&#125;)</span></span> &#123;<br>      kvPairs := data.(api.KVPairs)<br>      ret := &amp;KV&#123;&#125;<br><br>      <span class="hljs-keyword">for</span> _, k := <span class="hljs-keyword">range</span> kvPairs &#123;<br>         path := strings.TrimSuffix(strings.TrimPrefix(k.Key, prefix+<span class="hljs-string">&quot;/&quot;</span>), <span class="hljs-string">&quot;/&quot;</span>)<br>         v := w.getValue(path)<br><br>         <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(k.Value) == <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-built_in">len</span>(v) == <span class="hljs-number">0</span> &#123;<br>            <span class="hljs-keyword">continue</span><br>         &#125;<br><br>         <span class="hljs-keyword">if</span> bytes.Equal(k.Value, v) &#123;<br>            <span class="hljs-keyword">continue</span><br>         &#125;<br><br>         ret.value = k.Value<br>         ret.key = path<br>         w.updateValue(path, k.Value)<br>         handler(ret)<br>      &#125;<br>   &#125;<br>&#125;<br><br><span class="hljs-comment">//运行watcher机制</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(w *watcher)</span></span> run(address <span class="hljs-type">string</span>, conf *api.Config) <span class="hljs-type">error</span> &#123;<br>   w.stopChan = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;)<br>   w.Plan.HybridHandler = w.hybridHandler<br><br>   <span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>      w.err &lt;- w.RunWithConfig(address, conf)<br>   &#125;()<br><br>   <span class="hljs-keyword">select</span> &#123;<br>   <span class="hljs-keyword">case</span> err := &lt;-w.err:<br>      <span class="hljs-keyword">return</span> fmt.Errorf(<span class="hljs-string">&quot;run fail: %w&quot;</span>, err)<br>   <span class="hljs-keyword">case</span> &lt;-w.stopChan:<br>      w.Stop()<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>   &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(w *watcher)</span></span> stop() &#123;<br>   <span class="hljs-built_in">close</span>(w.stopChan)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>3.main.go，初始化consul配置信息后，实现对test路径下的Key进行监听；</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs stata">package main<br><br>import (<br>	<span class="hljs-string">&quot;github.com/longpi1/consul-tool/internal/backends&quot;</span><br>	<span class="hljs-string">&quot;log&quot;</span><br>	<span class="hljs-string">&quot;os&quot;</span><br>	<span class="hljs-string">&quot;os/signal&quot;</span><br>	<span class="hljs-string">&quot;syscall&quot;</span><br>	<span class="hljs-string">&quot;time&quot;</span><br>)<br><br>func main() &#123;<br>	<span class="hljs-comment">// 初始化consul配置信息</span><br>	<span class="hljs-keyword">cli</span> := backends.NewConfig(backends.WithPrefix(<span class="hljs-string">&quot;kvTest&quot;</span>))<br>	<span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> := <span class="hljs-keyword">cli</span>.Init(); <span class="hljs-keyword">err</span> != nil &#123;<br>		<span class="hljs-keyword">log</span>.Fatalln(<span class="hljs-keyword">err</span>)<br>	&#125;<br>	<span class="hljs-comment">//监听consul中的key： test</span><br>	<span class="hljs-keyword">err</span> := <span class="hljs-keyword">cli</span>.Watch(<span class="hljs-string">&quot;test&quot;</span>, func(r *backends.KV) &#123;<br>		<span class="hljs-keyword">log</span>.Printf(<span class="hljs-string">&quot;该key： %s 已经更新&quot;</span>, r.Key())<br>	&#125;)<br>	<span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> != nil &#123;<br>		<span class="hljs-keyword">log</span>.Fatalln(<span class="hljs-keyword">err</span>)<br>	&#125;<br>	<span class="hljs-comment">//插入key</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-keyword">err</span> := <span class="hljs-keyword">cli</span>.Put(<span class="hljs-string">&quot;test&quot;</span>, <span class="hljs-string">&quot;value&quot;</span>); <span class="hljs-keyword">err</span> != nil &#123;<br>		<span class="hljs-keyword">log</span>.Fatalln(<span class="hljs-keyword">err</span>)<br>	&#125;<br>	<span class="hljs-comment">//读取key</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-keyword">ret</span> := <span class="hljs-keyword">cli</span>.<span class="hljs-built_in">Get</span>(<span class="hljs-string">&quot;test&quot;</span>); <span class="hljs-keyword">ret</span>.<span class="hljs-keyword">Err</span>() != nil &#123;<br>		<span class="hljs-keyword">log</span>.Fatalln(<span class="hljs-keyword">ret</span>.<span class="hljs-keyword">Err</span>())<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		println(<span class="hljs-keyword">ret</span>.Value())<br>	&#125;<br><br>	c := make(chan os.Signal, 1)<br>	<span class="hljs-comment">// 监听退出相关的syscall</span><br>	signal.Notify(c, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)<br>	<span class="hljs-keyword">for</span> &#123;<br>		s := &lt;-c<br>		<span class="hljs-keyword">log</span>.Printf(<span class="hljs-string">&quot;exit with signal %s&quot;</span>, s.<span class="hljs-built_in">String</span>())<br>		switch s &#123;<br>		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT:<br>			<span class="hljs-comment">//停止监听对应的路径</span><br>			<span class="hljs-keyword">cli</span>.StopWatch(<span class="hljs-string">&quot;test&quot;</span>)<br>			time.<span class="hljs-keyword">Sleep</span>(time.Second * 2)<br>			<span class="hljs-keyword">close</span>(c)<br>			<span class="hljs-keyword">return</span><br>		case syscall.SIGHUP:<br>		default:<br>			<span class="hljs-keyword">close</span>(c)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li>JackBai233，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://juejin.cn/post/6984378158347157512">使用Consul的watch机制监控注册的服务变化</a></li>
+<li>风车，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/111673886">深入Consul Watch功能</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/consul/" class="category-chain-item">consul</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/golang/">#golang</a>
+      
+        <a href="/tags/consul/">#consul</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于consul实现watch机制</div>
+      <div>https://blog.longpi1.com/2022/12/04/基于consul实现watch机制/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/30/Go%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95%EF%BC%88%E4%B8%8B%EF%BC%89%EF%BC%9A%E6%B7%B1%E5%85%A5Go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%B1%BB%E5%9E%8B%E5%8F%8A%E9%A1%B9%E7%9B%AE%E6%B5%8B%E8%AF%95%E5%AE%9E%E6%88%98/" title="Go 代码测试（下）：深入 Go 单元测试类型及项目测试实战">
+                        <span class="hidden-mobile">Go 代码测试（下）：深入 Go 单元测试类型及项目测试实战</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
