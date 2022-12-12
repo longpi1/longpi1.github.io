@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Go的切片容量是怎么扩大的？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 切片容量是怎么扩大的？">
+<meta property="og:url" content="https://blog.longpi1.com/2022/12/12/Golang%E5%88%87%E7%89%87%E5%AE%B9%E9%87%8F%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A9%E5%A4%A7%E7%9A%84%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Go的切片容量是怎么扩大的？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://golang.design/go-questions/slice/assets/0.png">
+<meta property="article:published_time" content="2022-12-12T13:44:28.000Z">
+<meta property="article:modified_time" content="2022-12-12T13:45:15.548Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="golang">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://golang.design/go-questions/slice/assets/0.png">
+  
+  
+  
+  <title>Golang 切片容量是怎么扩大的？ - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Golang 切片容量是怎么扩大的？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-12 21:44" pubdate>
+          2022年12月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Golang 切片容量是怎么扩大的？</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-切片容量是怎么扩大的？"><a href="#Golang-切片容量是怎么扩大的？" class="headerlink" title="Golang 切片容量是怎么扩大的？"></a>Golang 切片容量是怎么扩大的？</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在Go中，数组就是一片连续的内存， slice 实际上是一个结构体，包含三个字段：长度、容量、底层数组。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// runtime/slice.go</span><br><span class="hljs-keyword">type</span> slice <span class="hljs-keyword">struct</span> &#123;<br>	array unsafe.Pointer <span class="hljs-comment">// 元素指针</span><br>	<span class="hljs-built_in">len</span>   <span class="hljs-type">int</span> <span class="hljs-comment">// 长度 </span><br>	<span class="hljs-built_in">cap</span>   <span class="hljs-type">int</span> <span class="hljs-comment">// 容量</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>切片的数据结构如下：</p>
+<p><img src="https://golang.design/go-questions/slice/assets/0.png" srcset="/img/loading.gif" lazyload></p>
+<p>切片的数据结构中，包含一个指向数组的指针 <code>array</code> ，当前长度 <code>len</code> ，以及最大容量 <code>cap</code> 。在使用 <code>make([]int, len)</code> 创建切片时，实际上还有第三个可选参数 <code>cap</code> ，也即 <code>make([]int, len, cap)</code> 。在不声明 <code>cap</code> 的情况下，默认 <code>cap=len</code> 。当切片长度没有超过容量时，对切片新增数据，不会改变 <code>array</code> 指针的值。</p>
+<p>当对切片进行 <code>append</code> 操作，导致长度超出容量时，就会创建新的数组，这会导致和原有切片的分离。</p>
+<p>需要注意的是，底层数组是可以被多个 slice 同时指向的，因此对一个 slice 的元素进行操作是有可能影响到其他 slice 的。为了避免因为切片是否发生扩容的问题导致bug，最好的处理办法还是在必要时使用 <code>copy</code> 来复制数据，保证得到一个新的切片，以避免后续操作带来预料之外的副作用。</p>
+<p>下面看看用 <code>a := []int&#123;&#125;</code> 这种方式来创建切片会是什么情况。</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs tap">a := []int&#123;&#125;<br>for i := 0; i &lt; 16; i++ &#123;<br>    a = append(a, i)<br>    fmt.Print(cap(a), &quot; &quot;)<br>&#125;<br>//<span class="hljs-number"> 1 </span>2<span class="hljs-number"> 4 </span>4<span class="hljs-number"> 8 </span>8<span class="hljs-number"> 8 </span>8<span class="hljs-number"> 16 </span>16<span class="hljs-number"> 16 </span>16<span class="hljs-number"> 16 </span>16<span class="hljs-number"> 16 </span>16<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，空切片的容量为0，但后面向切片中添加元素时，并不是每次切片的容量都发生了变化。这是因为，如果增大容量，也即需要创建新数组，这时还需要将原数组中的所有元素复制到新数组中，开销很大，所以GoLang设计了一套扩容机制，以减少需要创建新数组的次数。但这导致无法很直接地判断 <code>append</code> 时是否创建了新数组。</p>
+<h2 id="Golang的扩容机制"><a href="#Golang的扩容机制" class="headerlink" title="Golang的扩容机制"></a>Golang的扩容机制</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>使用 append 可以向 slice 追加元素，实际上是往底层数组添加元素。但是底层数组的长度是固定的，如果索引 <code>len-1</code> 所指向的元素已经是底层数组的最后一个元素，就没法再添加了。</p>
+<p>这时，slice 会迁移到新的内存位置，新底层数组的长度也会增加，这样就可以放置新增的元素。同时，为了应对未来可能再次发生的 append 操作，新的底层数组的长度，也就是新 <code>slice</code> 的容量是留了一定的 <code>buffer</code> 的。否则，每次添加元素的时候，都会发生迁移，成本太高。</p>
+<p>新 slice 预留的 <code>buffer</code> 大小是有一定规律的。在golang1.18版本更新之前网上大多数的文章都是这样描述slice的扩容策略的：</p>
+<blockquote>
+<p>当原 slice 容量小于 <code>1024</code> 的时候，新 slice 容量变成原来的 <code>2</code> 倍；原 slice 容量超过 <code>1024</code>，新 slice 容量变成原来的<code>1.25</code>倍。</p>
+</blockquote>
+<p>在1.18版本更新之后，slice的扩容策略变为了：</p>
+<blockquote>
+<p>当原slice容量(oldcap)小于256的时候，新slice(newcap)容量为原来的2倍；原slice容量超过256，新slice容量newcap &#x3D; oldcap+(oldcap+3*256)&#x2F;4</p>
+</blockquote>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p><strong>golang版本1.9</strong></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// go 1.9 src/runtime/slice.go:82</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">growslice</span><span class="hljs-params">(et *_type, old slice, <span class="hljs-built_in">cap</span> <span class="hljs-type">int</span>)</span></span> slice &#123;<br>    <span class="hljs-comment">// ……</span><br>    newcap := old.<span class="hljs-built_in">cap</span><br>	doublecap := newcap + newcap<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">cap</span> &gt; doublecap &#123;<br>		newcap = <span class="hljs-built_in">cap</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">if</span> old.<span class="hljs-built_in">len</span> &lt; <span class="hljs-number">1024</span> &#123;<br>			newcap = doublecap<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-keyword">for</span> newcap &lt; <span class="hljs-built_in">cap</span> &#123;<br>				newcap += newcap / <span class="hljs-number">4</span><br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">// ……</span><br>	<br>	capmem = roundupsize(<span class="hljs-type">uintptr</span>(newcap) * ptrSize)<br>	newcap = <span class="hljs-type">int</span>(capmem / ptrSize)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>golang版本1.18</strong></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// go 1.18 src/runtime/slice.go:178</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">growslice</span><span class="hljs-params">(et *_type, old slice, <span class="hljs-built_in">cap</span> <span class="hljs-type">int</span>)</span></span> slice &#123;<br>    <span class="hljs-comment">// ……</span><br>    newcap := old.<span class="hljs-built_in">cap</span><br>	doublecap := newcap + newcap<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">cap</span> &gt; doublecap &#123;<br>		newcap = <span class="hljs-built_in">cap</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">const</span> threshold = <span class="hljs-number">256</span><br>		<span class="hljs-keyword">if</span> old.<span class="hljs-built_in">cap</span> &lt; threshold &#123;<br>			newcap = doublecap<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-keyword">for</span> <span class="hljs-number">0</span> &lt; newcap &amp;&amp; newcap &lt; <span class="hljs-built_in">cap</span> &#123;<br>                <span class="hljs-comment">// Transition from growing 2x for small slices</span><br>				<span class="hljs-comment">// to growing 1.25x for large slices. This formula</span><br>				<span class="hljs-comment">// gives a smooth-ish transition between the two.</span><br>				newcap += (newcap + <span class="hljs-number">3</span>*threshold) / <span class="hljs-number">4</span><br>			&#125;<br>			<span class="hljs-keyword">if</span> newcap &lt;= <span class="hljs-number">0</span> &#123;<br>				newcap = <span class="hljs-built_in">cap</span><br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">// ……</span><br>    <br>	capmem = roundupsize(<span class="hljs-type">uintptr</span>(newcap) * ptrSize)<br>	newcap = <span class="hljs-type">int</span>(capmem / ptrSize)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li>切片的容量是怎么增长的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions/slice/grow/">https://golang.design/go-questions/slice/grow/</a></li>
+<li>GoLang中的切片扩容机制，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://studygolang.com/articles/21396">https://studygolang.com/articles/21396</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/golang/" class="category-chain-item">golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/golang/">#golang</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Golang 切片容量是怎么扩大的？</div>
+      <div>https://blog.longpi1.com/2022/12/12/Golang切片容量是怎么扩大的？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/12/08/Go%E7%BB%8F%E5%85%B8%E6%A0%A1%E9%AA%8C%E5%BA%93validator/" title="Go 经典校验库 validator">
+                        <span class="hidden-mobile">Go 经典校验库 validator</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
