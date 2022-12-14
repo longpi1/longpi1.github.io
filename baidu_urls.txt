@@ -1,3 +1,4 @@
+https://blog.longpi1.com/2022/12/14/Golang%E4%B8%ADmap%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/
 https://blog.longpi1.com/2022/12/12/Golang%E5%88%87%E7%89%87%E5%AE%B9%E9%87%8F%E6%98%AF%E6%80%8E%E4%B9%88%E6%89%A9%E5%A4%A7%E7%9A%84%EF%BC%9F/
 https://blog.longpi1.com/2022/12/08/Go%E7%BB%8F%E5%85%B8%E6%A0%A1%E9%AA%8C%E5%BA%93validator/
 https://blog.longpi1.com/2022/12/04/%E5%9F%BA%E4%BA%8Econsul%E5%AE%9E%E7%8E%B0watch%E6%9C%BA%E5%88%B6/
