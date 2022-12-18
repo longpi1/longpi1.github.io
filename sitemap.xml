@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://blog.longpi1.com/2022/12/17/Golang%E7%9A%84%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7%E4%B8%8E%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B/</loc>
+    
+    <lastmod>2022-12-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://blog.longpi1.com/2022/12/17/Go%E4%B8%ADmap%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%E6%93%8D%E4%BD%9C%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/</loc>
     
     <lastmod>2022-12-17</lastmod>
@@ -742,7 +751,7 @@
 
   <url>
     <loc>https://blog.longpi1.com/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -750,168 +759,168 @@
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E5%8E%9F%E5%88%9B/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E5%86%85%E6%8E%A8/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/Kubernetes/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E8%BD%AC%E8%BD%BD/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/golang/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/RPC/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E5%B7%A6%E8%80%B3%E5%90%AC%E9%A3%8E/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/hexo/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/java/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/spring/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/etcd/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/raft/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/consul/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/Zookeeper/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/github/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/linux/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E7%BD%91%E7%BB%9C/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E5%AE%89%E5%85%A8/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/tags/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -920,119 +929,119 @@
   
   <url>
     <loc>https://blog.longpi1.com/categories/Kubernetes/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/golang/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/RPC/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/%E5%88%86%E5%B8%83%E5%BC%8F/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/hexo/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/%E7%BC%96%E7%A8%8B%E8%8C%83%E5%BC%8F/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/golang-vs-java/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/java/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/etcd/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/raft/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/github/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/linux/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/%E7%BD%91%E7%BB%9C/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.longpi1.com/categories/consul/</loc>
-    <lastmod>2022-12-17</lastmod>
+    <lastmod>2022-12-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
