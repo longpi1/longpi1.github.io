@@ -16,23 +16,25 @@
   <meta name="author" content="lp">
   <meta name="keywords" content>
   
-    <meta name="description" content="Golang的语言特性与鸭子类型的关系">
+    <meta name="description" content="Golang接口底层是如何实现的？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Golang的语言特性与鸭子类型">
-<meta property="og:url" content="https://blog.longpi1.com/2022/12/17/Golang%E7%9A%84%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7%E4%B8%8E%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:title" content="Golang接口的底层实现">
+<meta property="og:url" content="https://blog.longpi1.com/2022/12/18/Golang%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="Golang的语言特性与鸭子类型的关系">
+<meta property="og:description" content="Golang接口底层是如何实现的？">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-12-17T13:28:32.000Z">
-<meta property="article:modified_time" content="2022-12-17T13:29:19.593Z">
+<meta property="og:image" content="https://golang.design/go-questions/interface/assets/0.png">
+<meta property="article:published_time" content="2022-12-18T14:20:59.000Z">
+<meta property="article:modified_time" content="2022-12-18T14:21:40.398Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="golang">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://golang.design/go-questions/interface/assets/0.png">
   
   
   
-  <title>Golang的语言特性与鸭子类型 - lp&#39;s blog</title>
+  <title>Golang接口的底层实现 - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -210,7 +212,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Golang的语言特性与鸭子类型"></span>
+            <span id="subtitle" data-typed-text="Golang接口的底层实现"></span>
           
         </div>
 
@@ -221,8 +223,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-12-17 21:28" pubdate>
-          2022年12月17日 晚上
+        <time datetime="2022-12-18 22:20" pubdate>
+          2022年12月18日 晚上
         </time>
       </span>
     
@@ -233,7 +235,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.4k 字
+          2k 字
         
       </span>
     
@@ -281,36 +283,36 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Golang的语言特性与鸭子类型</h1>
+            <h1 style="display: none">Golang接口的底层实现</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="Golang的语言特性与鸭子类型"><a href="#Golang的语言特性与鸭子类型" class="headerlink" title="Golang的语言特性与鸭子类型"></a>Golang的语言特性与鸭子类型</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="什么是鸭子类型？"><a href="#什么是鸭子类型？" class="headerlink" title="什么是鸭子类型？"></a>什么是鸭子类型？</h3><blockquote>
-<p><em>Suppose you see a bird walking around in a farm yard. This bird has no label that says ‘duck’. But the bird certainly looks like a duck. Also, he goes to the pond and you notice that he swims like a duck. Then he opens his beak and quacks like a duck. Well, by this time you have probably reached the conclusion that the bird is a duck, whether he’s wearing a label or not.</em></p>
-</blockquote>
-<p>上述是对于<strong>鸭子类型</strong>的最有名的阐述。意思是对于事物类型的判断， 不取决于事物本身预设的标签（label）， 而取决于判断者判断时需要用到的条件， 如果事物拥有符合条件的属性，那么在判断者眼中它就是那种类型。</p>
-<p>在程序设计中，鸭子类型（英语：Duck typing）是动态类型和某些静态语言的一种对象推断风格。这种风格适用于动态语言(比如PHP、Python、Ruby、Typescript、Lua、JavaScript、Java、Groovy、C#等)和静态语言(比如Golang来说，静态类型语言在编译时便已确定了变量的类型，但是Golang的实现是：在编译时推断变量的类型)，支持”鸭子类型”的语言的解释器&#x2F;编译器将会在解析(Parse)或编译时，推断对象的类型。</p>
-<p>动态语言和静态语言的差别在此就有所体现。<strong>静态语言在编译期间就能发现类型不匹配的错误，不像动态语言，必须要运行到那一行代码才会报错</strong>。静态语言要求程序员在编码阶段就要按照规定来编写程序，为每个变量规定数据类型，这在某种程度上，加大了工作量，也加长了代码量。动态语言则没有这些要求，可以让人更专注在代码逻辑上。</p>
-<p>Go 语言作为一门现代静态语言，是有后发优势的。它引入了动态语言的便利，同时又会进行静态语言的类型检查。Go 采用了折中的做法：<strong>不要求类型显示地声明实现了某个接口，只要实现了相关的方法即可，编译器就能检测到。</strong></p>
-<h2 id="动态语言-python-的duck-typing"><a href="#动态语言-python-的duck-typing" class="headerlink" title="动态语言(python)的duck typing"></a>动态语言(python)的duck typing</h2><p>假如有个叫<code>say_quack</code>的<code>Python</code>函数, 它接受一个接口参数，参数的类型不固定，只要有<code>quack</code>方法就可以啦。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">say_quack</span>(<span class="hljs-params">duck</span>)<br>    duck.quack()<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">RealDcuk</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">quack</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;quack quack&quot;</span>)<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ToyDuck</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">quack</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;squee squee&quot;</span>)<br><br>duck = RealDuck()<br>say_quack(duck)<br><br>toyDuck = ToyDuck()<br>say_quack(duck)<br></code></pre></td></tr></table></figure>
+                <h1 id="Golang接口的底层实现"><a href="#Golang接口的底层实现" class="headerlink" title="Golang接口的底层实现"></a>Golang接口的底层实现</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>接口是高级语言中的一个规约，是一组方法签名的集合。在Golang中， 接口是非侵入式的，具体类型实现 interface 不需要在语法上显式的声明，只需要具体类型的方法集合是 interface 方法集合的超集，就表示该类实现了这一 interface。编译器在编译时会进行 interface 校验。interface 和具体类型不同，它不能实现具体逻辑，也不能定义字段。</p>
+<h2 id="底层数据结构"><a href="#底层数据结构" class="headerlink" title="底层数据结构"></a>底层数据结构</h2><p>Golang中接口的底层结构体有两种，分别是<code>iface</code> 和 <code>eface</code>，其中<code>iface</code> 描述的接口包含方法，而 <code>eface</code> 则是不包含任何方法的空接口：<code>interface&#123;&#125;</code>。</p>
+<h3 id="iface源码"><a href="#iface源码" class="headerlink" title="iface源码"></a>iface源码</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">type</span> iface <span class="hljs-keyword">struct</span> &#123;<br>	tab  *itab  <span class="hljs-comment">// 存放类型、方法等信息</span><br>	data unsafe.Pointer  <span class="hljs-comment">//  指针指向的 iface 绑定对象的原始数据的副本</span><br>&#125;<br><br><span class="hljs-keyword">type</span> itab <span class="hljs-keyword">struct</span> &#123;<br>	inter  *interfacetype<br>	_type  *_type<br>	link   *itab<br>	hash   <span class="hljs-type">uint32</span> <span class="hljs-comment">// copy of _type.hash. Used for type switches.</span><br>	bad    <span class="hljs-type">bool</span>   <span class="hljs-comment">// type does not implement interface</span><br>	inhash <span class="hljs-type">bool</span>   <span class="hljs-comment">// has this itab been added to hash?</span><br>	unused [<span class="hljs-number">2</span>]<span class="hljs-type">byte</span><br>	fun    [<span class="hljs-number">1</span>]<span class="hljs-type">uintptr</span> <span class="hljs-comment">// variable sized</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>可以看出动态语言的duck typing非常灵活方便，类型的检测和使用不依赖于编译器的静态检测，而是依赖文档、清晰的代码和测试来确保正确使用。这样其实是牺牲了安全性来换取灵活性。 假设你没有认真看文档，不知道<code>say_quack</code>方法的<code>duck</code>参数是需要<code>quack</code>方法， 你编写了一个其他类，它只有一个<code>run</code>方法， 你把它的对象当成参数给<code>say_quack</code>编译时也是不会报错的。只有在运行时才会报错， 这样就存在很大的安全隐患。</p>
-<p>所以，有没有一种折中（tradeoff）， 兼顾这种duck typing的灵活性和静态检测的安全性呢？</p>
-<h2 id="go语言接口的隐式实现"><a href="#go语言接口的隐式实现" class="headerlink" title="go语言接口的隐式实现"></a>go语言接口的隐式实现</h2><p>假如你有个golang的接口叫Duck：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Duck <span class="hljs-keyword">interface</span> &#123;<br>    quack()<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>iface</code> 内部维护两个指针，tab 中存放的是类型、方法等信息。data 指针指向的 iface 绑定对象的原始数据的副本。这里同样遵循 Go 的统一规则，值传递。tab 是 itab 类型的指针。</p>
+<p>itab 中包含 5 个字段。inner 存的是 interface 自己的静态类型。_type 存的是 interface 对应具体对象的类型。itab 中的 _type 和 iface 中的 data 能简要描述一个变量。_type 是这个变量对应的类型，data 是这个变量的值。这里的 hash 字段和 _type 中存的 hash 字段是完全一致的，这么做的目的是为了类型断言(下文会提到)。fun 是一个函数指针，它指向的是具体类型的函数方法。虽然这里只有一个函数指针，但是它可以调用很多方法。在这个指针对应内存地址的后面依次存储了多个方法，利用指针偏移便可以找到它们。</p>
+<p>由于 Go 语言是强类型语言，编译时对每个变量的类型信息做强校验，所以每个类型的元信息要用一个结构体描述。再者 Go 的反射也是基于类型的元信息实现的。_type 就是所有类型最原始的元信息。</p>
+<p>整体结构如下：</p>
+<p><img src="https://golang.design/go-questions/interface/assets/0.png" srcset="/img/loading.gif" lazyload alt="iface 结构体全景"></p>
+<h3 id="eface源码"><a href="#eface源码" class="headerlink" title="eface源码"></a>eface源码</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">type</span> eface <span class="hljs-keyword">struct</span> &#123;<br>    _type *_type<br>    data  unsafe.Pointer<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>任何拥有<code>quack</code>方法的类型， 都隐式地（implicitly）实现了<code>Duck</code>接口， 并能当做Duck接口使用。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> Duck <span class="hljs-keyword">interface</span> &#123;<br>    quack()<br>&#125;<br><br><span class="hljs-keyword">type</span> RealDuck <span class="hljs-keyword">struct</span> &#123;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(d RealDuck)</span></span> quack() &#123;<br>    fmt.Println(<span class="hljs-string">&quot;quack quack&quot;</span>)<br>&#125;<br><br><span class="hljs-keyword">type</span> ToyDuck <span class="hljs-keyword">struct</span> &#123;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(d ToyDuck)</span></span> quack() &#123;<br>    fmt.Println(<span class="hljs-string">&quot;squee squee&quot;</span>)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sayQuack</span><span class="hljs-params">(d Duck)</span></span> &#123;<br>    d.quack()<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    realDuck := RealDuck&#123;&#125;<br>    toyDuck := ToyDuck&#123;&#125;<br><br>    sayQuack(realDuck)<br><br>    sayQuack(toyDuck)<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>eface作为空的 inferface{} 是没有方法集的接口。所以不需要 itab 数据结构。它只需要存类型和类型对应的值即可。对应的数据结构如下：</p>
+<p>从这个数据结构可以看出，只有当 2 个字段都为 nil，空接口才为 nil。空接口的主要目的有 2 个，一是实现“泛型”，二是使用反射。<strong>所以空接口并不等于nil</strong>，这是常见的犯错点。</p>
+<h3 id="关于type的结构体"><a href="#关于type的结构体" class="headerlink" title="关于type的结构体"></a>关于type的结构体</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">type</span> _type <span class="hljs-keyword">struct</span> &#123;<br>    <span class="hljs-comment">// 类型大小</span><br>	size       <span class="hljs-type">uintptr</span><br>    ptrdata    <span class="hljs-type">uintptr</span><br>    <span class="hljs-comment">// 类型的 hash 值</span><br>    hash       <span class="hljs-type">uint32</span><br>    <span class="hljs-comment">// 类型的 flag，和反射相关</span><br>    tflag      tflag<br>    <span class="hljs-comment">// 内存对齐相关</span><br>    align      <span class="hljs-type">uint8</span><br>    fieldalign <span class="hljs-type">uint8</span><br>    <span class="hljs-comment">// 类型的编号，有bool, slice, struct 等等等等</span><br>	kind       <span class="hljs-type">uint8</span><br>	alg        *typeAlg<br>	<span class="hljs-comment">// gc 相关</span><br>	gcdata    *<span class="hljs-type">byte</span><br>	str       nameOff<br>	ptrToThis typeOff<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>如果你有一个<code>Dog</code>类型， 它没有quack方法， 当你用它做sayQuack参数时， 编译时就会报错。另外来说， 如果接口使用者定义了一个新的接口也拥有quack方法， 那上面的<code>RealDuck</code>和<code>ToyDuck</code>也可以当做新的接口来使用。</p>
-<p>这样就达到了一个灵活性和安全性的平衡。因为go对接口的实现是隐式的， 所以它的接口类型在使用之前是不固定的， 它可以灵活的变成各种接口类型，只要它满足使用者的对接口的要求。 又因为使用者使用接口时在编译时就对接口实现者有没有满足接口需求进行了检测，所以又兼顾了安全性。</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>   1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions/interface/duck-typing/">go语言与鸭子类型的关系</a></p>
-<ol start="2">
-<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://my.oschina.net/chinaliuhan/blog/3123026">Golang 的 interface 及 duck typing 鸭子类型</a></li>
-</ol>
+<p>Go 语言各种数据类型都是在 <code>_type</code> 字段的基础上，增加一些额外的字段来进行管理的，这些数据类型的结构体定义，也是反射实现的基础。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">//数组类型</span><br><span class="hljs-keyword">type</span> arraytype <span class="hljs-keyword">struct</span> &#123;<br>	typ   _type<br>	elem  *_type<br>	slice *_type<br>	<span class="hljs-built_in">len</span>   <span class="hljs-type">uintptr</span><br>&#125;<br><br><span class="hljs-comment">//通道类型</span><br><span class="hljs-keyword">type</span> chantype <span class="hljs-keyword">struct</span> &#123;<br>	typ  _type<br>	elem *_type<br>	dir  <span class="hljs-type">uintptr</span><br>&#125;<br><br><span class="hljs-comment">//切片类型</span><br><span class="hljs-keyword">type</span> slicetype <span class="hljs-keyword">struct</span> &#123;<br>	typ  _type<br>	elem *_type<br>&#125;<br><br><span class="hljs-comment">//结构体类型</span><br><span class="hljs-keyword">type</span> structtype <span class="hljs-keyword">struct</span> &#123;<br>	typ     _type<br>	pkgPath name<br>	fields  []structfield<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions/interface/iface-eface/">iface与eface的区别是什么</a></p>
+<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://halfrost.com/go_interface/">深入研究 Go interface 底层实现</a></p>
 
                 
               </div>
@@ -358,8 +360,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Golang的语言特性与鸭子类型</div>
-      <div>https://blog.longpi1.com/2022/12/17/Golang的语言特性与鸭子类型/</div>
+      <div>Golang接口的底层实现</div>
+      <div>https://blog.longpi1.com/2022/12/18/Golang接口的底层实现/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -372,18 +374,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/12/18/Golang%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/" title="Golang接口的底层实现">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Golang接口的底层实现</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/12/17/Go%E4%B8%ADmap%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%E6%93%8D%E4%BD%9C%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" title="Golang中map增删改查操作的实现原理">
-                        <span class="hidden-mobile">Golang中map增删改查操作的实现原理</span>
+                      <a href="/2022/12/17/Golang%E7%9A%84%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7%E4%B8%8E%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B/" title="Golang的语言特性与鸭子类型">
+                        <span class="hidden-mobile">Golang的语言特性与鸭子类型</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
