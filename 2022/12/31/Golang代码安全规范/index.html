@@ -24,7 +24,7 @@
 <meta property="og:description" content="Golang代码有哪些需要注意的安全规范？">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-12-31T01:26:15.000Z">
-<meta property="article:modified_time" content="2022-12-31T01:27:25.307Z">
+<meta property="article:modified_time" content="2022-12-31T01:31:42.031Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="转载">
 <meta property="article:tag" content="golang">
@@ -320,12 +320,12 @@
 <li><a href="#2.1.6">1.6 响应输出</a></li>
 <li><a href="#2.1.7">1.7 会话管理</a></li>
 <li><a href="#2.1.8">1.8 访问控制</a></li>
-<li><a href="#2.1.9">1.9 并发保护</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<li><a href="#2.1.9">1.9 并发保护</a></li></ul></li></ul></li></ul></details>
+
+
+
+
+
 <h1 id="通用类"><a href="#通用类" class="headerlink" title="通用类"></a>通用类</h1><h2 id="1-代码实现类"><a href="#1-代码实现类" class="headerlink" title="1. 代码实现类"></a>1. 代码实现类</h2><h3 id="1-1-内存管理"><a href="#1-1-内存管理" class="headerlink" title="1.1 内存管理"></a>1.1 内存管理</h3><h4 id="1-1-1【必须】切片长度校验"><a href="#1-1-1【必须】切片长度校验" class="headerlink" title="1.1.1【必须】切片长度校验"></a>1.1.1【必须】切片长度校验</h4><ul>
 <li>在对slice进行操作时，必须判断长度是否合法，防止程序panic</li>
 </ul>
@@ -583,7 +583,7 @@
 <ul>
 <li>使用<code>sync/atomic</code>执行原子操作</li>
 </ul>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// good</span><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;sync&quot;</span><br>	<span class="hljs-string">&quot;sync/atomic&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-keyword">type</span> Map <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span><br>	<span class="hljs-keyword">var</span> m atomic.Value<br>	m.Store(<span class="hljs-built_in">make</span>(Map))<br>	<span class="hljs-keyword">var</span> mu sync.Mutex <span class="hljs-comment">// used only by writers</span><br>	read := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(key <span class="hljs-type">string</span>)</span></span> (val <span class="hljs-type">string</span>) &#123;<br>		m1 := m.Load().(Map)<br>		<span class="hljs-keyword">return</span> m1[key]<br>	&#125;<br>	insert := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(key, val <span class="hljs-type">string</span>)</span></span> &#123;<br>		mu.Lock() <span class="hljs-comment">// 与潜在写入同步</span><br>		<span class="hljs-keyword">defer</span> mu.Unlock()<br>		m1 := m.Load().(Map) <span class="hljs-comment">// 导入struct当前数据</span><br>		m2 := <span class="hljs-built_in">make</span>(Map)      <span class="hljs-comment">// 创建新值</span><br>		<span class="hljs-keyword">for</span> k, v := <span class="hljs-keyword">range</span> m1 &#123;<br>			m2[k] = v<br>		&#125;<br>		m2[key] = val<br>		m.Store(m2) <span class="hljs-comment">// 用新的替代当前对象</span><br>	&#125;<br>	_, _ = read, insert<br>&#125;<br></code></pre></td></tr></table></figure></details>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// good</span><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;sync&quot;</span><br>	<span class="hljs-string">&quot;sync/atomic&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-keyword">type</span> Map <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">string</span><br>	<span class="hljs-keyword">var</span> m atomic.Value<br>	m.Store(<span class="hljs-built_in">make</span>(Map))<br>	<span class="hljs-keyword">var</span> mu sync.Mutex <span class="hljs-comment">// used only by writers</span><br>	read := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(key <span class="hljs-type">string</span>)</span></span> (val <span class="hljs-type">string</span>) &#123;<br>		m1 := m.Load().(Map)<br>		<span class="hljs-keyword">return</span> m1[key]<br>	&#125;<br>	insert := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(key, val <span class="hljs-type">string</span>)</span></span> &#123;<br>		mu.Lock() <span class="hljs-comment">// 与潜在写入同步</span><br>		<span class="hljs-keyword">defer</span> mu.Unlock()<br>		m1 := m.Load().(Map) <span class="hljs-comment">// 导入struct当前数据</span><br>		m2 := <span class="hljs-built_in">make</span>(Map)      <span class="hljs-comment">// 创建新值</span><br>		<span class="hljs-keyword">for</span> k, v := <span class="hljs-keyword">range</span> m1 &#123;<br>			m2[k] = v<br>		&#125;<br>		m2[key] = val<br>		m.Store(m2) <span class="hljs-comment">// 用新的替代当前对象</span><br>	&#125;<br>	_, _ = read, insert<br>&#125;<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -643,6 +643,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/01/01/Golang%E4%B8%ADnew%E5%92%8Cmake%E5%85%B3%E9%94%AE%E5%AD%97%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F/" title="Golang中new和make关键字有什么区别？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Golang中new和make关键字有什么区别？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
