@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>传输层协议：TCP与UDP协议的区别</title>
+    <link href="/2023/01/07/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ATCP%E4%B8%8EUDP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
+    <url>/2023/01/07/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ATCP%E4%B8%8EUDP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
+    
+    <content type="html"><![CDATA[<h1 id="传输层协议：TCP与UDP协议的区别"><a href="#传输层协议：TCP与UDP协议的区别" class="headerlink" title="传输层协议：TCP与UDP协议的区别"></a>传输层协议：TCP与UDP协议的区别</h1><h2 id="TCP和UDP有哪些区别？"><a href="#TCP和UDP有哪些区别？" class="headerlink" title="TCP和UDP有哪些区别？"></a>TCP和UDP有哪些区别？</h2><p>关于TCP与UDP协议两个协议的区别，大部分人会回答，TCP是面向连接的，UDP是面向无连接的。</p><p>什么叫面向连接，什么叫无连接呢？在互通之前，面向连接的协议会先建立连接。例如，TCP会三次握手，而UDP不会。为什么要建立连接呢？你TCP三次握手，我UDP也可以发三个包玩玩，有什么区别吗？</p><p><strong>所谓的建立连接，是为了在客户端和服务端维护连接，而建立一定的数据结构来维护双方交互的状态，用这样的数据结构来保证所谓的面向连接的特性。</strong></p><ul><li><strong>TCP提供可靠交付</strong>。通过TCP连接传输的数据，无差错、不丢失、不重复、并且按序到达。而 <strong>UDP继承了IP包的特性，不可靠，不保证不丢失，不保证按顺序到达。</strong></li><li><strong>TCP是面向字节流的</strong>。发送的时候发的是一个流，没头没尾。IP包可不是一个流，而是一个个的IP包。之所以变成了流，这也是TCP自己的状态维护做的事情。而 <strong>UDP继承了IP的特性，基于数据报的，一个一个地发，一个一个地收。</strong></li><li><strong>TCP是可以拥塞控制</strong>。它意识到包丢弃了或者网络的环境不好了，就会根据情况调整自己的行为，看看是不是发快了，要不要发慢点。 <strong>UDP就不会，应用让我发，我就发，管它洪水滔天，所以udp速度也更快</strong></li><li><strong>TCP只支持单播传输</strong>，每条TCP传输连接只能有两个端点，只能进行点对点的数据传输，不支持多播和广播传输方式。UDP 不止支持一对一的传输方式，同样支持一对多，多对多，多对一的方式，也就是说 <strong>UDP 提供了单播，多播，广播的功能</strong>。</li><li><strong>TCP首部开销20字节;UDP的首部开销小，只有8个字节</strong></li></ul><p>具体细节可见下表：</p><table><thead><tr><th align="left"></th><th align="left">TCP</th><th>UDP</th></tr></thead><tbody><tr><td align="left">可靠性</td><td align="left">可靠</td><td>不可靠</td></tr><tr><td align="left">连接性</td><td align="left">面向连接</td><td>无连接</td></tr><tr><td align="left">报文</td><td align="left">面向字节流</td><td>面向报文</td></tr><tr><td align="left">资源占用</td><td align="left">首部开销20字节</td><td>UDP的首部开销更小，只有8个字节</td></tr><tr><td align="left">效率</td><td align="left">传输效率低</td><td>传输效率高</td></tr><tr><td align="left">传播方式</td><td align="left">只支持单播</td><td>一对一、一对多、多对一、多对多</td></tr><tr><td align="left">流量控制</td><td align="left">滑动窗口</td><td>无</td></tr><tr><td align="left">拥塞控制</td><td align="left">慢开始、拥塞避免、快重传、快恢复</td><td>无</td></tr><tr><td align="left">传输效率</td><td align="left">慢</td><td>快</td></tr></tbody></table><p>因而 <strong>TCP其实是一个有状态服务</strong>，通俗地讲就是有脑子的，里面精确地记着发送了没有，接收到没有，发送到哪个了，应该接收哪个了，错一点儿都不行。而 <strong>UDP则是无状态服务</strong>。通俗地说是没脑子的，天真无邪的，发出去就发出去了。</p><p>我们可以这样比喻，如果MAC层定义了本地局域网的传输行为，IP层定义了整个网络端到端的传输行为，这两层基本定义了这样的基因：网络传输是以包为单位的，二层叫帧，网络层叫包，传输层叫段。我们笼统地称为包。包单独传输，自行选路，在不同的设备封装解封装，不保证到达。基于这个基因，生下来的孩子UDP完全继承了这些特性，几乎没有自己的思想。</p><h2 id="如何选择TCP还是UDP协议？"><a href="#如何选择TCP还是UDP协议？" class="headerlink" title="如何选择TCP还是UDP协议？"></a>如何选择TCP还是UDP协议？</h2><p><strong>根据两个协议的优点，我们可以在传输层有必要实现可靠传输的情况下用TCP协议；在那些对高速传输和实时性有较高要求的通信或者对准确性要求低的情况下用UDP协议。</strong>TCP 和 UDP 应该根据应用的目的按需使用。</p><p>例如，当对网络通讯质量有要求的时候，比如：整个数据要准确无误的传递给对方，这往往用于一些要求可靠的应用，比如<strong>HTTP、HTTPS、FTP</strong>等传输文件的协议选择使用<strong>TCP</strong>协议，<strong>POP、SMTP</strong>等邮件传输的协议。当对网络通讯质量要求不高的时候，要求网络通讯速度能尽量的快，这时就可以使用<strong>UDP</strong>（如视频传输、实时通信等）。</p><p><img src="https://s6.51cto.com/oss/202105/14/26c5f19079fba62b5682f613b94c8df3.jpg" alt="img"></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a href="https://time.geekbang.org/column/article/8924">https://time.geekbang.org/column/article/8924</a></p><p>2.<a href="https://www.51cto.com/article/662343.html">https://www.51cto.com/article/662343.html</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>网络</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>原创</tag>
+      
+      <tag>网络</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>关于ICMP与ping：计算机网络中的侦察兵</title>
     <link href="/2023/01/02/%E5%85%B3%E4%BA%8EICMP%E4%B8%8Eping%EF%BC%9A%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E4%BE%A6%E5%AF%9F%E5%85%B5/"/>
     <url>/2023/01/02/%E5%85%B3%E4%BA%8EICMP%E4%B8%8Eping%EF%BC%9A%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E4%BE%A6%E5%AF%9F%E5%85%B5/</url>
