@@ -16,25 +16,25 @@
   <meta name="author" content="lp">
   <meta name="keywords" content>
   
-    <meta name="description" content="传输层协议TCP与UDP协议的区别以及各自的应用场景">
+    <meta name="description" content="本篇文章主要介绍UDP协议的结构、主要特点以及应用场景。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="传输层协议：TCP与UDP协议的区别">
-<meta property="og:url" content="https://blog.longpi1.com/2023/01/07/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ATCP%E4%B8%8EUDP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%8C%BA%E5%88%AB/index.html">
+<meta property="og:title" content="传输层协议：UDP协议">
+<meta property="og:url" content="https://blog.longpi1.com/2023/01/07/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AUDP%E5%8D%8F%E8%AE%AE/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="传输层协议TCP与UDP协议的区别以及各自的应用场景">
+<meta property="og:description" content="本篇文章主要介绍UDP协议的结构、主要特点以及应用场景。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s6.51cto.com/oss/202105/14/26c5f19079fba62b5682f613b94c8df3.jpg">
-<meta property="article:published_time" content="2023-01-07T07:39:45.000Z">
-<meta property="article:modified_time" content="2023-01-07T07:42:03.279Z">
+<meta property="og:image" content="https://s2.loli.net/2023/01/07/ZcromS8aTj7Cyqw.png">
+<meta property="article:published_time" content="2023-01-07T10:08:32.000Z">
+<meta property="article:modified_time" content="2023-01-07T10:09:38.766Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="网络">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s6.51cto.com/oss/202105/14/26c5f19079fba62b5682f613b94c8df3.jpg">
+<meta name="twitter:image" content="https://s2.loli.net/2023/01/07/ZcromS8aTj7Cyqw.png">
   
   
   
-  <title>传输层协议：TCP与UDP协议的区别 - lp&#39;s blog</title>
+  <title>传输层协议：UDP协议 - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -212,7 +212,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="传输层协议：TCP与UDP协议的区别"></span>
+            <span id="subtitle" data-typed-text="传输层协议：UDP协议"></span>
           
         </div>
 
@@ -223,8 +223,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-01-07 15:39" pubdate>
-          2023年1月7日 下午
+        <time datetime="2023-01-07 18:08" pubdate>
+          2023年1月7日 晚上
         </time>
       </span>
     
@@ -235,7 +235,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.4k 字
+          2k 字
         
       </span>
     
@@ -283,84 +283,46 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">传输层协议：TCP与UDP协议的区别</h1>
+            <h1 style="display: none">传输层协议：UDP协议</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="传输层协议：TCP与UDP协议的区别"><a href="#传输层协议：TCP与UDP协议的区别" class="headerlink" title="传输层协议：TCP与UDP协议的区别"></a>传输层协议：TCP与UDP协议的区别</h1><h2 id="TCP和UDP有哪些区别？"><a href="#TCP和UDP有哪些区别？" class="headerlink" title="TCP和UDP有哪些区别？"></a>TCP和UDP有哪些区别？</h2><p>关于TCP与UDP协议两个协议的区别，大部分人会回答，TCP是面向连接的，UDP是面向无连接的。</p>
-<p>什么叫面向连接，什么叫无连接呢？在互通之前，面向连接的协议会先建立连接。例如，TCP会三次握手，而UDP不会。为什么要建立连接呢？你TCP三次握手，我UDP也可以发三个包玩玩，有什么区别吗？</p>
-<p><strong>所谓的建立连接，是为了在客户端和服务端维护连接，而建立一定的数据结构来维护双方交互的状态，用这样的数据结构来保证所谓的面向连接的特性。</strong></p>
+                <h1 id="传输层协议：UDP协议"><a href="#传输层协议：UDP协议" class="headerlink" title="传输层协议：UDP协议"></a>传输层协议：UDP协议</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><strong>用户数据报协议</strong>（英语：<strong>U</strong>ser <strong>D</strong>atagram <strong>P</strong>rotocol，缩写：<strong>UDP</strong>；又称<strong>用户数据包协议</strong>）是一个简单的面向<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B3%87%E6%96%99%E5%8C%85">数据包</a>的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE">通信协议</a>，位于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/OSI%E6%A8%A1%E5%9E%8B">OSI模型</a>的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E5%B1%82">传输层</a>。该协议由<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=David_P._Reed&action=edit&redlink=1">David P. Reed</a>在1980年设计且在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://tools.ietf.org/html/rfc768">RFC 768</a>中被规范。典型网络上的众多使用UDP协议的关键应用在一定程度上是相似的。</p>
+<p>是一个与 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/zh-CN/docs/Glossary/IPv6">IP 协议</a> 一起使用的长期<a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.mozilla.org/zh-CN/docs/Glossary/Protocol">协议</a>，用于在传输速度和效率比安全性和可靠性更重要的场合下发送数据。</p>
+<h2 id="UDP的报头是怎么样的？"><a href="#UDP的报头是怎么样的？" class="headerlink" title="UDP的报头是怎么样的？"></a>UDP的报头是怎么样的？</h2><p>当我们发送 UDP 包到达目标机器后，发现 MAC 地址匹配，于是就取下来，将剩下的包传给处理 IP 层的代码。把 IP 头取下来，发现目标 IP 匹配，接下来这里面的数据包是给谁呢？</p>
+<p>发送的时候，我知道我发的是一个 UDP 的包，收到的那台机器咋知道的呢？所以在 IP 头里面有个 8 位协议，这里会存放，数据里面到底是 TCP 还是 UDP，当然这里是 UDP。所以，如果我们知道 UDP 头的格式，就能从数据里面，将它解析出来。解析出来以后呢？数据给谁处理呢？</p>
+<p><strong>UDP报头结构如下</strong>：</p>
+<p><img src="https://s2.loli.net/2023/01/07/ZcromS8aTj7Cyqw.png" srcset="/img/loading.gif" lazyload alt="报头分组结构"></p>
+<p>UDP报头包括4个字段，每个字段占用2个字节（即16个二进制位）。在IPv4中，“来源连接端口”和“校验和”是可选字段（以粉色背景标出）。在IPv6中，只有来源连接端口是可选字段。 各16<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BD%8D%E5%85%83">bit</a>的来源端口和目的端口用来标记发送和接受的应用进程。因为UDP不需要应答，所以来源端口是可选的，如果来源端口不用，那么置为零。在目的端口后面是长度固定的以字节为单位的长度域，用来指定UDP数据报包括数据部分的长度，长度最小值为8byte。首部剩下地16bit是用来对首部和数据部分一起做<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%A0%A1%E9%AA%8C%E5%92%8C">校验和</a>（Checksum）的，这部分是可选的，但在实际应用中一般都使用这一功能。</p>
 <ul>
-<li><strong>TCP提供可靠交付</strong>。通过TCP连接传输的数据，无差错、不丢失、不重复、并且按序到达。而 <strong>UDP继承了IP包的特性，不可靠，不保证不丢失，不保证按顺序到达。</strong></li>
-<li><strong>TCP是面向字节流的</strong>。发送的时候发的是一个流，没头没尾。IP包可不是一个流，而是一个个的IP包。之所以变成了流，这也是TCP自己的状态维护做的事情。而 <strong>UDP继承了IP的特性，基于数据报的，一个一个地发，一个一个地收。</strong></li>
-<li><strong>TCP是可以拥塞控制</strong>。它意识到包丢弃了或者网络的环境不好了，就会根据情况调整自己的行为，看看是不是发快了，要不要发慢点。 <strong>UDP就不会，应用让我发，我就发，管它洪水滔天，所以udp速度也更快</strong></li>
-<li><strong>TCP只支持单播传输</strong>，每条TCP传输连接只能有两个端点，只能进行点对点的数据传输，不支持多播和广播传输方式。UDP 不止支持一对一的传输方式，同样支持一对多，多对多，多对一的方式，也就是说 <strong>UDP 提供了单播，多播，广播的功能</strong>。</li>
-<li><strong>TCP首部开销20字节;UDP的首部开销小，只有8个字节</strong></li>
+<li><p>报文长度</p>
+<p>该字段指定UDP报头和数据总共占用的长度。可能的最小长度是8字节，因为UDP报头已经占用了8字节。由于这个字段的存在，UDP报文总长不可能超过65535字节（包括8字节的报头，和65527字节的数据）。实际上通过<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/IPv4">IPv4</a>协议传输时，由于IPv4的头部信息要占用20字节，因此数据长度不可能超过65507字节（65,535 − 8字节UDP报头 − 20字节<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/IPv4#.E9.A6.96.E9.83.A8">IP头部</a>）。在IPv6的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=Jumbogram&action=edit&redlink=1">jumbogram</a>中，是有可能传输超过65535字节的UDP数据包的。依据<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/RFC">RFC</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://tools.ietf.org/html/rfc2675">2675</a>，如果这种情况发生，报文长度应被填写为0。</p>
+</li>
+<li><p>校验和</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%A0%A1%E9%AA%8C%E5%92%8C">校验和</a>字段可以用于发现头部信息和数据中的传输错误。该字段在IPv4中是可选的，在IPv6中则是强制的。如果不使用校验和，该字段应被填充为全0。</p>
+</li>
 </ul>
-<p>具体细节可见下表：</p>
-<table>
-<thead>
-<tr>
-<th align="left"></th>
-<th align="left">TCP</th>
-<th>UDP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">可靠性</td>
-<td align="left">可靠</td>
-<td>不可靠</td>
-</tr>
-<tr>
-<td align="left">连接性</td>
-<td align="left">面向连接</td>
-<td>无连接</td>
-</tr>
-<tr>
-<td align="left">报文</td>
-<td align="left">面向字节流</td>
-<td>面向报文</td>
-</tr>
-<tr>
-<td align="left">资源占用</td>
-<td align="left">首部开销20字节</td>
-<td>UDP的首部开销更小，只有8个字节</td>
-</tr>
-<tr>
-<td align="left">效率</td>
-<td align="left">传输效率低</td>
-<td>传输效率高</td>
-</tr>
-<tr>
-<td align="left">传播方式</td>
-<td align="left">只支持单播</td>
-<td>一对一、一对多、多对一、多对多</td>
-</tr>
-<tr>
-<td align="left">流量控制</td>
-<td align="left">滑动窗口</td>
-<td>无</td>
-</tr>
-<tr>
-<td align="left">拥塞控制</td>
-<td align="left">慢开始、拥塞避免、快重传、快恢复</td>
-<td>无</td>
-</tr>
-<tr>
-<td align="left">传输效率</td>
-<td align="left">慢</td>
-<td>快</td>
-</tr>
-</tbody></table>
-<p>因而 <strong>TCP其实是一个有状态服务</strong>，通俗地讲就是有脑子的，里面精确地记着发送了没有，接收到没有，发送到哪个了，应该接收哪个了，错一点儿都不行。而 <strong>UDP则是无状态服务</strong>。通俗地说是没脑子的，天真无邪的，发出去就发出去了。</p>
-<p>我们可以这样比喻，如果MAC层定义了本地局域网的传输行为，IP层定义了整个网络端到端的传输行为，这两层基本定义了这样的基因：网络传输是以包为单位的，二层叫帧，网络层叫包，传输层叫段。我们笼统地称为包。包单独传输，自行选路，在不同的设备封装解封装，不保证到达。基于这个基因，生下来的孩子UDP完全继承了这些特性，几乎没有自己的思想。</p>
-<h2 id="如何选择TCP还是UDP协议？"><a href="#如何选择TCP还是UDP协议？" class="headerlink" title="如何选择TCP还是UDP协议？"></a>如何选择TCP还是UDP协议？</h2><p><strong>根据两个协议的优点，我们可以在传输层有必要实现可靠传输的情况下用TCP协议；在那些对高速传输和实时性有较高要求的通信或者对准确性要求低的情况下用UDP协议。</strong>TCP 和 UDP 应该根据应用的目的按需使用。</p>
-<p>例如，当对网络通讯质量有要求的时候，比如：整个数据要准确无误的传递给对方，这往往用于一些要求可靠的应用，比如<strong>HTTP、HTTPS、FTP</strong>等传输文件的协议选择使用<strong>TCP</strong>协议，<strong>POP、SMTP</strong>等邮件传输的协议。当对网络通讯质量要求不高的时候，要求网络通讯速度能尽量的快，这时就可以使用<strong>UDP</strong>（如视频传输、实时通信等）。</p>
-<p><img src="https://s6.51cto.com/oss/202105/14/26c5f19079fba62b5682f613b94c8df3.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/8924">https://time.geekbang.org/column/article/8924</a></p>
-<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.51cto.com/article/662343.html">https://www.51cto.com/article/662343.html</a></p>
+<h2 id="主要特点"><a href="#主要特点" class="headerlink" title="主要特点"></a>主要特点</h2><ul>
+<li><strong>无连接</strong>，即发送数据之前不需要建立连接(发送数据结束时也没有连接可释放)，减少了开销和发送数据之前的时延</li>
+<li><strong>尽最大努力交付</strong>，即不保证可靠交付，主机不需要维持复杂的连接状态表，例如流媒体，实时多人游戏和IP语音（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/VoIP">VoIP</a>）是经常使用UDP的应用程序。 在这些特定应用中，丢包通常不是重大问题。如果应用程序需要高度可靠性，则可以使用诸如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">TCP</a>之类的协议。</li>
+<li><strong>面向报文</strong>，发送方的 UDP 对应用程序交下来的报文，在添加首部后就向下交付 IP 层。UDP 对应用层交下来的报文，既不合并，也不拆分，而是保留这些报文的边界</li>
+<li>支持<strong>一对一、一对多、多对一和多对多的交互通信</strong></li>
+<li><strong>首部开销小</strong>，只有8个字节，比 TCP 的20个字节的首部要短</li>
+<li>缺乏<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6">拥塞控制</a>，所以需要基于网络的机制来减少因失控和高速UDP流量负荷而导致的拥塞崩溃效应。换句话说，因为UDP发送端无法检测拥塞，所以像使用包队列和丢弃技术的路由器之类的网络基础设备会被用于降低UDP过大流量。<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">数据拥塞控制协议</a>（DCCP）设计成通过在诸如流媒体类型的高速率UDP流中增加主机拥塞控制，来减小这个潜在的问题。</li>
+</ul>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>许多关键的互联网应用程序使用UDP[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%8D%8F%E8%AE%AE#cite_note-kuroseross-2">2]</a>，包括：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F">域名系统</a>（DNS），其中查询阶段必须快速，并且只包含单个请求，后跟单个回复数据包；</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%8A%A8%E6%80%81%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE%E5%8D%8F%E8%AE%AE">动态主机配置协议</a>（DHCP），用于动态分配<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/IP%E5%9C%B0%E5%9D%80">IP地址</a>；</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%AE%80%E5%8D%95%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E5%8D%8F%E8%AE%AE">简单网络管理协议</a>（SNMP）；</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1%E4%BF%A1%E6%81%AF%E5%8D%8F%E8%AE%AE">路由信息协议</a>（RIP）；</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%B6%B2%E8%B7%AF%E6%99%82%E9%96%93%E5%8D%94%E5%AE%9A">网络时间协议</a>（NTP）。</li>
+</ul>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%B8%B2%E6%B5%81%E5%AA%92%E9%AB%94">流媒体</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%B7%9A%E4%B8%8A%E9%81%8A%E6%88%B2">在线游戏</a>流量通常使用UDP传输。 实时视频流和音频流应用程序旨在处理偶尔丢失、错误的数据包，因此只会发生质量轻微下降，而避免了重传<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E5%8C%85">数据包</a>带来的高<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%BB%B6%E9%81%B2">延迟</a>。 由于TCP和UDP都在同一网络上运行，因此一些企业发现来自这些实时应用程序的UDP流量影响了使用TCP的应用程序的性能，例如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E9%94%80%E5%94%AE">销售</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%9A%E8%AE%A1">会计</a>和<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F">数据库系统</a>。 当TCP检测到数据包丢失时，它将限制其数据速率使用率。由于实时和业务应用程序对企业都很重要，因此一些人认为开发<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%9C%8D%E5%8A%A1%E8%B4%A8%E9%87%8F">服务质量</a>解决方案至关重要。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%8D%8F%E8%AE%AE#cite_note-3">3]</a></p>
+<p>一些<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/VPN">VPN</a>应用（如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/OpenVPN">OpenVPN</a>）使用UDP并可以在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F">应用程序</a>级别实现可靠连接和错误检查。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%8D%8F%E8%AE%AE">https://zh.wikipedia.org/wiki/%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%8A%A5%E5%8D%8F%E8%AE%AE</a></p>
 
                 
               </div>
@@ -408,8 +370,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>传输层协议：TCP与UDP协议的区别</div>
-      <div>https://blog.longpi1.com/2023/01/07/传输层协议：TCP与UDP协议的区别/</div>
+      <div>传输层协议：UDP协议</div>
+      <div>https://blog.longpi1.com/2023/01/07/传输层协议：UDP协议/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -422,18 +384,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/01/07/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AUDP%E5%8D%8F%E8%AE%AE/" title="传输层协议：UDP协议">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">传输层协议：UDP协议</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/01/02/%E5%85%B3%E4%BA%8EICMP%E4%B8%8Eping%EF%BC%9A%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E4%BE%A6%E5%AF%9F%E5%85%B5/" title="关于ICMP与ping：计算机网络中的侦察兵">
-                        <span class="hidden-mobile">关于ICMP与ping：计算机网络中的侦察兵</span>
+                      <a href="/2023/01/07/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ATCP%E4%B8%8EUDP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%8C%BA%E5%88%AB/" title="传输层协议：TCP与UDP协议的区别">
+                        <span class="hidden-mobile">传输层协议：TCP与UDP协议的区别</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
