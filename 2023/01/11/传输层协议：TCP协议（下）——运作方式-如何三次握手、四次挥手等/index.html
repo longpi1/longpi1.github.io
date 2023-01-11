@@ -1,0 +1,800 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="本篇文章主要介绍TCP如何三次握手、四次挥手、拥塞控制等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等)">
+<meta property="og:url" content="https://blog.longpi1.com/2023/01/11/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ATCP%E5%8D%8F%E8%AE%AE%EF%BC%88%E4%B8%8B%EF%BC%89%E2%80%94%E2%80%94%E8%BF%90%E4%BD%9C%E6%96%B9%E5%BC%8F-%E5%A6%82%E4%BD%95%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E3%80%81%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%E7%AD%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="本篇文章主要介绍TCP如何三次握手、四次挥手、拥塞控制等。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/c0/08/c067fe62f49e8152368c7be9d91adc08.jpg?wh=1693*1093">
+<meta property="og:image" content="https://static001.geekbang.org/resource/image/bf/13/bf1254f85d527c77cc4088a35ac11d13.jpg?wh=1693*1534">
+<meta property="og:image" content="https://s2.loli.net/2023/01/11/wgjGiDf14uvYLlh.png">
+<meta property="og:image" content="https://s2.loli.net/2023/01/08/jlBeg6TA1hwaEFu.png">
+<meta property="og:image" content="https://s2.loli.net/2023/01/08/PeOYlnvUZfFzyEN.png">
+<meta property="og:image" content="https://s2.loli.net/2023/01/11/5oWpVFqYEgcHNBb.png">
+<meta property="og:image" content="https://s2.loli.net/2023/01/11/4OPjtgHQJzbIlSf.png">
+<meta property="article:published_time" content="2023-01-11T12:22:10.000Z">
+<meta property="article:modified_time" content="2023-01-11T12:24:51.520Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://static001.geekbang.org/resource/image/c0/08/c067fe62f49e8152368c7be9d91adc08.jpg?wh=1693*1093">
+  
+  
+  
+  <title>传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等) - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-01-11 20:22" pubdate>
+          2023年1月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等)</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="传输层协议：TCP协议（下）——运作方式-如何三次握手、四次挥手等"><a href="#传输层协议：TCP协议（下）——运作方式-如何三次握手、四次挥手等" class="headerlink" title="传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等)"></a>传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等)</h1><h2 id="运作方式"><a href="#运作方式" class="headerlink" title="运作方式"></a>运作方式</h2><p>TCP协议的运行可划分为三个阶段：连接创建(<em>connection establishment</em>)、数据传送（<em>data transfer</em>）和连接终止（<em>connection termination</em>）。操作系统将TCP连接抽象为<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Berkeley%E5%A5%97%E6%8E%A5%E5%AD%97">套接字</a>表示的本地端点（local end-point），作为编程接口给程序使用。在TCP连接的生命期内，本地端点要经历一系列的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#%E7%8A%B6%E6%80%81%E7%BC%96%E7%A0%81">状态</a>改变。</p>
+<h3 id="创建通路-——-三次握手"><a href="#创建通路-——-三次握手" class="headerlink" title="创建通路 —— 三次握手"></a>创建通路 —— 三次握手</h3><p>TCP用三次<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%8F%A1%E6%89%8B_(%E6%8A%80%E6%9C%AF)">握手</a>（或称三路握手，three-way handshake）过程创建一个连接。在连接创建过程中，很多参数要被初始化，例如序号被初始化以保证按序传输和连接的强壮性。</p>
+<p><img src="https://static001.geekbang.org/resource/image/c0/08/c067fe62f49e8152368c7be9d91adc08.jpg?wh=1693*1093" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>TCP连接的正常创建</p>
+<p>一对终端同时初始化一个它们之间的连接是可能的。但通常是由一端（服务器端）打开一个<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Berkeley%E5%A5%97%E6%8E%A5%E5%AD%97">套接字</a>（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Socket">socket</a>）然后监听来自另一方（客户端）的连接，这就是通常所指的被动打开（passive open）。服务器端被被动打开以后，客户端就能开始创建主动打开（active open）。</p>
+<p>服务器端执行了listen函数后，就在服务器上创建起两个队列：</p>
+<ul>
+<li>SYN队列：存放完成了二次握手的结果。 队列长度由listen函数的参数backlog指定。</li>
+<li>ACCEPT队列：存放完成了三次握手的结果。队列长度由listen函数的参数backlog指定。</li>
+</ul>
+<p>三次握手协议的过程：</p>
+<ol>
+<li>客户端（通过执行connect函数）向服务器端发送一个SYN包，请求一个主动打开。该包携带客户端为这个连接请求而设定的随机数<strong>A</strong>作为消息序列号。</li>
+<li>服务器端收到一个合法的SYN包后，把该包放入SYN队列中；回送一个SYN&#x2F;ACK。ACK的确认码应为<strong>A+1</strong>，SYN&#x2F;ACK包本身携带一个随机产生的序号<strong>B</strong>。</li>
+<li>客户端收到SYN&#x2F;ACK包后，发送一个<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%A2%BA%E8%AA%8D%E8%A8%8A%E6%81%AF">ACK包</a>，该包的序号被设定为<strong>A+1</strong>，而ACK的确认码则为<strong>B+1</strong>。然后客户端的connect函数成功返回。当服务器端收到这个ACK包的时候，把请求帧从SYN队列中移出，放至ACCEPT队列中；这时accept函数如果处于阻塞状态，可以被唤醒，从ACCEPT队列中取出ACK包，重新创建一个新的用于双向通信的sockfd，并返回。</li>
+</ol>
+<p>如果服务器端接到了客户端发的SYN后回了SYN-ACK后客户端掉线了，服务器端没有收到客户端回来的ACK，那么，这个连接处于一个中间状态，既没成功，也没失败。于是，服务器端如果在一定时间内没有收到的TCP会重发SYN-ACK。在Linux下，默认重试次数为5次，重试的间隔时间从1s开始每次都翻倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s，总共31s，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s &#x3D; 63s，TCP才会断开这个连接。使用三个TCP参数来调整行为：tcp_synack_retries 减少重试次数；tcp_max_syn_backlog，增大SYN连接数；tcp_abort_on_overflow决定超出能力时的行为。</p>
+<p>“三次握手”的目的是“为了防止已失效的连接(connect)请求报文段传送到了服务端，因而产生错误”，也即为了解决“网络中存在延迟的重复分组”问题。例如：client发出的第一个连接请求报文段并没有丢失，而是在某个网络结点长时间的滞留了，以致延误到连接释放以后的某个时间才到达server。本来这是一个早已失效的报文段。但server收到此失效的连接请求报文段后，就误认为是client发出的一个新的连接请求。于是就向client发出确认报文段，同意创建连接。假设不采用“三次握手”，那么只要server发出确认，新的连接就创建了。由于现在client并没有发出创建连接的请求，因此不会理睬server的确认，也不会向server发送数据。但server却以为新的运输连接已经创建，并一直等待client发来数据。这样，server的很多资源就白白浪费掉了。采用“三次握手”的办法可以防止上述现象发生，client不会向server的确认发出确认。server由于收不到确认，就知道client并没有要求创建连接。</p>
+<h3 id="终结通路-——-四次挥手"><a href="#终结通路-——-四次挥手" class="headerlink" title="终结通路 —— 四次挥手"></a>终结通路 —— 四次挥手</h3><p>连接终止使用了四次挥手过程（或称四次握手，four-way handshake），在这个过程中连接的每一侧都独立地被终止。当一个端点要停止它这一侧的连接，就向对侧发送FIN，对侧回复ACK表示确认。因此，拆掉一侧的连接过程需要一对FIN和ACK，分别由两侧端点发出。</p>
+<p><img src="https://static001.geekbang.org/resource/image/bf/13/bf1254f85d527c77cc4088a35ac11d13.jpg?wh=1693*1534" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>首先发出FIN的一侧，如果给对侧的FIN响应了ACK，那么就会超时等待2*MSL时间，然后关闭连接。在这段超时等待时间内，本地的端口不能被新连接使用；避免延时的包的到达与随后的新连接相混淆。RFC793定义了MSL为2分钟，Linux设置成了30s。参数tcp_max_tw_buckets控制并发的TIME_WAIT的数量，默认值是180000，如果超限，那么，系统会把多的TIME_WAIT状态的连接给destory掉，然后在日志里打一个警告（如：time wait bucket table overflow）</p>
+<p>连接可以工作在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=TCP%E5%8D%8A%E5%BC%80&action=edit&redlink=1">TCP半开</a>状态。即一侧关闭了连接，不再发送数据；但另一侧没有关闭连接，仍可以发送数据。已关闭的一侧仍然应接收数据，直至对侧也关闭了连接。</p>
+<p>也可以通过测三次握手关闭连接。主机A发出FIN，主机B回复FIN &amp; ACK，然后主机A回复ACK.[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-13">13]</a></p>
+<p>一些主机（如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Linux">Linux</a>或<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/HP-UX">HP-UX</a>）的TCP栈能实现半双工关闭序列。这种主机如果主动关闭一个连接但还没有读完从这个连接已经收到的数据，该主机发送RST代替FIN[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-14">14]</a>。这使得一个TCP应用程序能确认远程应用程序已经读了所有已发送数据，并等待远程侧发出的FIN。但是远程的TCP栈不能区分<em>Connection Aborting RST</em>与<em>Data Loss RST</em>，两种原因都会导致远程的TCP栈失去所有的收到数据。</p>
+<p>一些应用协议使用TCP open&#x2F;close handshaking，因为应用协议的TCP open&#x2F;close handshaking可以发现主动关闭的RST问题。例如：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs lisp">s = connect(<span class="hljs-name">remote</span>)<span class="hljs-comment">;</span><br>send(<span class="hljs-name">s</span>, data)<span class="hljs-comment">;</span><br>close(<span class="hljs-name">s</span>)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>TCP&#x2F;IP栈采用上述方法不能保证所有数据到达对侧，如果未读数据已经到达对侧。</p>
+<h3 id="资源使用"><a href="#资源使用" class="headerlink" title="资源使用"></a>资源使用</h3><p>主机收到一个TCP包时，用两端的IP地址与端口号来标识这个TCP包属于哪个session。使用一张表来存储所有的session，表中的每条称作Transmission Control Block（TCB），tcb结构的定义包括连接使用的源端口、目的端口、目的ip、序号、应答序号、对方窗口大小、己方窗口大小、tcp状态、tcp输入&#x2F;输出队列、应用层输出队列、tcp的重传有关变量等。</p>
+<p>服务器端的连接数量是无限的，只受内存的限制。客户端的连接数量，过去由于在发送第一个SYN到服务器之前需要先分配一个随机空闲的端口，这限制了客户端IP地址的对外发出连接的数量上限。从Linux 4.2开始，有了socket选项IP_BIND_ADDRESS_NO_PORT，它通知Linux内核不保留usingbind使用端口号为0时内部使用的临时端口（ephemeral port），在connect时会自动选择端口以组成独一无二的四元组（同一个客户端端口可用于连接不同的服务器<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%A5%97%E6%8E%A5%E5%AD%97">套接字</a>；同一个服务器端口可用于接受不同客户端套接字的连接）。</p>
+<p>对于不能确认的包、接收但还没读取的数据，都会占用操作系统的资源。</p>
+<h3 id="数据传输"><a href="#数据传输" class="headerlink" title="数据传输"></a>数据传输</h3><p>在TCP的数据传送状态，很多重要的机制保证了TCP的可靠性和强壮性。它们包括：使用序号，对收到的TCP报文段进行排序以及检测重复的数据；使用校验和检测报文段的错误，即无错传输[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-3">3]</a>；使用确认和计时器来检测和纠正丢包或延时；流控制（Flow control）；拥塞控制（Congestion control）；丢失包的重传。</p>
+<h4 id="可靠传输"><a href="#可靠传输" class="headerlink" title="可靠传输"></a>可靠传输</h4><p>通常在每个TCP报文段中都有一对序号和确认号。TCP报文发送者称自己的字节流的编号为序号（<em>sequence number</em>），称接收到对方的字节流编号为确认号。TCP报文的接收者为了确保可靠性，在接收到一定数量的连续字节流后才发送确认。这是对TCP的一种扩展，称为选择确认（Selective Acknowledgement）。选择确认使得TCP接收者可以对乱序到达的数据块进行确认。每一个字节传输过后，SN号都会递增1。</p>
+<p>通过使用序号和确认号，TCP层可以把收到的报文段中的字节按正确的顺序交付给应用层。序号是32位的无符号数，在它增大到232-1时，便会回绕到0。对于初始化序列号(ISN)的选择是TCP中关键的一个操作，它可以确保强壮性和安全性。</p>
+<p>TCP协议使用序号标识每端发出的字节的顺序，从而另一端接收数据时可以重建顺序，无惧传输时的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E5%8C%85%E7%9A%84%E4%B9%B1%E5%BA%8F%E4%BA%A4%E4%BB%98&action=edit&redlink=1">包的乱序交付</a>或<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%B8%A2%E5%8C%85">丢包</a>。在发送第一个包时（SYN包），选择一个随机数作为序号的初值，以克制<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=TCP%E5%BA%8F%E5%8F%B7%E9%A2%84%E6%B5%8B%E6%94%BB%E5%87%BB&action=edit&redlink=1">TCP序号预测攻击</a>.</p>
+<p>发送确认包（Acks），携带了接收到的对方发来的字节流的编号，称为确认号，以告诉对方已经成功接收的数据流的字节位置。Ack并不意味着数据已经交付了上层应用程序。</p>
+<p>可靠性通过发送方检测到丢失的传输数据并重传这些数据。包括超时重传（Retransmission timeout，RTO）与重复累计确认（duplicate cumulative acknowledgements，DupAcks）。</p>
+<h5 id="基于重复累计确认的重传"><a href="#基于重复累计确认的重传" class="headerlink" title="基于重复累计确认的重传"></a>基于重复累计确认的重传</h5><p>如果一个包（不妨设它的序号是100，即该包始于第100字节）丢失，接收方就不能确认这个包及其以后的包，因为采用了累计ack。接收方在收到100以后的包时，发出对包含第99字节的包的确认。这种重复确认是包丢失的信号。发送方如果收到3次对同一个包的确认，就重传最后一个未被确认的包。阈值设为3被证实可以减少乱序包导致的无作用的重传（spurious retransmission）现象。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-4">4]</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#%E9%80%89%E6%8B%A9%E6%80%A7%E7%A1%AE%E8%AE%A4">选择性确认</a>（SACK）的使用能明确反馈哪个包收到了，极大改善了TCP重传必要的包的能力。</p>
+<h5 id="超时重传"><a href="#超时重传" class="headerlink" title="超时重传"></a>超时重传</h5><p>发送方使用一个保守估计的时间作为收到数据包的确认的超时上限。如果超过这个上限仍未收到确认包，发送方将重传这个数据包。每当发送方收到确认包后，会重置这个重传定时器。典型地，定时器的值设定为<img src="https://s2.loli.net/2023/01/11/wgjGiDf14uvYLlh.png" srcset="/img/loading.gif" lazyload alt="image.png">是时钟粒度。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-5">5]</a>进一步，如果重传定时器被触发，仍然没有收到确认包，定时器的值将被设为前次值的二倍（直到特定阈值）。这是由于存在一类通过欺骗发送者使其重传多次，进而压垮接收者的攻击，而使用前述的定时器策略可以避免此类<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB">中间人攻击</a>方式的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%94%BB%E5%87%BB">拒绝服务攻击</a>。</p>
+<h4 id="数据传输举例"><a href="#数据传输举例" class="headerlink" title="数据传输举例"></a>数据传输举例</h4><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/File:Tcp_transport_example.gif"><img src="https://s2.loli.net/2023/01/08/jlBeg6TA1hwaEFu.png" srcset="/img/loading.gif" lazyload alt="image.png"></a></p>
+<p>TCP数据传输</p>
+<ol>
+<li>发送方首先发送第一个包含序列号为1（可变化）和1460字节数据的TCP报文段给接收方。接收方以一个没有数据的TCP报文段来回复（只含报头），用确认号1461来表示已完全收到并请求下一个报文段。</li>
+<li>发送方然后发送第二个包含序列号为1461，长度为1460字节的数据的TCP报文段给接收方。正常情况下，接收方以一个没有数据的TCP报文段来回复，用确认号2921（1461+1460）来表示已完全收到并请求下一个报文段。发送接收这样继续下去。</li>
+<li>然而当这些数据包都是相连的情况下，接收方没有必要每一次都回应。比如，他收到第1到5条TCP报文段，只需回应第五条就行了。在例子中第3条TCP报文段被丢失了，所以尽管他收到了第4和5条，然而他只能回应第2条。</li>
+<li>发送方在发送了第三条以后，没能收到回应，因此当时钟（timer）过时（expire）时，他重发第三条。（每次发送者发送一条TCP报文段后，都会再次启动一次时钟：RTT）。</li>
+<li>这次第三条被成功接收，接收方可以直接确认第5条，因为4，5两条已收到。</li>
+</ol>
+<h4 id="校验和"><a href="#校验和" class="headerlink" title="校验和"></a>校验和</h4><p>TCP的16位的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%A0%A1%E9%AA%8C%E5%92%8C">校验和</a>（checksum）的计算和检验过程如下：发送者将TCP报文段的头部和数据部分的和计算出来，再对其求<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%8F%8D%E7%A0%81">反码</a>（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%B8%80%E8%A3%9C%E6%95%B8">一的补码</a>），就得到了校验和，然后将结果装入报文中传输。（这里用反码和的原因是这种方法的循环进位使校验和可以在16位、32位、64位等情况下的计算结果再叠加后相同）接收者在收到报文后再按相同的算法计算一次校验和。这里使用的反码使得接收者不用再将校验和字段保存起来后清零，而可以直接将报文段连同校验加总。如果计算结果是全部为一，那么就表示了报文的完整性和正确性。</p>
+<p>注意：TCP校验和也包括了96位的伪头部，其中有源地址、目的地址、协议以及TCP的长度。这可以避免报文被错误地路由。</p>
+<p>按现在的标准，TCP的校验和是一个比较脆弱的校验。出错概率高的数据链路层需要更高的能力来探测和纠正连接错误。TCP如果是在今天设计的，它很可能有一个32位的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%BE%AA%E7%8E%AF%E5%86%97%E4%BD%99%E6%A0%A1%E9%AA%8C">CRC校验</a>来纠错，而不是使用校验和。但是通过在第二层使用通常的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%BE%AA%E7%8E%AF%E5%86%97%E4%BD%99%E6%A0%A1%E9%AA%8C">CRC校验</a>或更完全一点的校验可以部分地弥补这种脆弱的校验。第二层是在TCP层和IP层之下的，比如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/PPP">PPP</a>或<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BB%A5%E5%A4%AA%E7%BD%91">以太网</a>，它们使用了这些校验。但是这也并不意味着TCP的16位校验和是冗余的，对于因特网传输的观察，表明在受<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%BE%AA%E7%8E%AF%E5%86%97%E4%BD%99%E6%A0%A1%E9%AA%8C">CRC校验</a>保护的各跳之间，软件和硬件的错误通常也会在报文中引入错误，而端到端的TCP校验能够捕捉到大部分简单的错误。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-6">6]</a> 这就是应用中的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E7%AB%AF%E5%88%B0%E7%AB%AF&action=edit&redlink=1">端到端</a>原则。</p>
+<h4 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h4><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6_(%E6%95%B0%E6%8D%AE)">流量控制</a>用来避免主机分组发送得过快而使接收方来不及完全收下，一般由接收方通告给发送方进行调控。</p>
+<p>TCP使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%8D%8F%E8%AE%AE&action=edit&redlink=1">滑动窗口协议</a>实现流量控制。接收方在“接收窗口”域指出还可接收的字节数量。发送方在没有新的确认包的情况下至多发送“接收窗口”允许的字节数量。接收方可修改“接收窗口”的值。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/File:Tcp.svg"><img src="https://s2.loli.net/2023/01/08/PeOYlnvUZfFzyEN.png" srcset="/img/loading.gif" lazyload alt="image.png"></a></p>
+<p>TCP包的序号与接收窗口的行为很像时钟。</p>
+<p>当接收方宣布接收窗口的值为0，发送方停止进一步发送数据，开始了“保持定时器”（persist timer），以避免因随后的修改接收窗口的数据包丢失使连接的双侧进入死锁，发送方无法发出数据直至收到接收方修改窗口的指示。当“保持定时器”到期时，TCP发送方尝试恢复发送一个小的ZWP包（Zero Window Probe），期待接收方回复一个带着新的接收窗口大小的确认包。一般ZWP包会设置成3次，如果3次过后还是0的话，有的TCP实现就会发RST把链接断了。</p>
+<p>如果接收方以很小的增量来处理到来的数据，它会发布一系列小的接收窗口。这被称作<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%84%9A%E8%A0%A2%E7%AA%97%E5%8F%A3%E7%BB%BC%E5%90%88%E7%97%87">愚蠢窗口综合症</a>，因为它在TCP的数据包中发送很少的一些字节，相对于TCP包头是很大的开销。解决这个问题，就要避免对小的window size做出响应，直到有足够大的window size再响应：</p>
+<ul>
+<li>接收端使用David D Clark算法：如果收到的数据导致window size小于某个值，可以直接ack把window给关闭了，阻止了发送端再发数据。等到接收端处理了一些数据后windows size大于等于了MSS，或者接收端buffer有一半为空，就可以把window打开让发送端再发数据过来。</li>
+<li>发送端使用Nagle算法来延时处理，条件一：Window Size&gt;&#x3D;MSS 且 Data Size &gt;&#x3D;MSS；条件二：等待时间或是超时200ms，这两个条件有一个满足，才会发数据，否则就是在积累数据。Nagle算法默认是打开的，所以对于一些需要小包场景的程序——比如像telnet或ssh这样的交互性程序，需要关闭这个算法。可以在Socket设置TCP_NODELAY选项来关闭这个算法。</li>
+</ul>
+<h4 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h4><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6">拥塞控制</a>是发送方根据网络的承载情况控制分组的发送量，以获取高性能又能避免拥塞崩溃（congestion collapse，网络性能下降几个数量级）。这在网络流之间产生近似<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E6%9C%80%E5%A4%A7%E6%9C%80%E5%B0%8F%E5%85%AC%E5%B9%B3&action=edit&redlink=1">最大最小公平</a>分配。</p>
+<p>发送方与接收方根据确认包或者包丢失的情况，以及定时器，估计网络拥塞情况，从而修改数据流的行为，这称为拥塞控制或网络拥塞避免。</p>
+<p>TCP的现代实现包含四种相互影响的拥塞控制算法：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%85%A2%E5%BC%80%E5%A7%8B">慢开始</a>、拥塞避免、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6#%E5%BF%AB%E9%80%9F%E9%87%8D%E4%BC%A0">快速重传</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6#%E5%BF%AB%E9%80%9F%E6%81%A2%E5%A4%8D">快速恢复</a>。</p>
+<p>此外，发送方采取“超时重传”（retransmission timeout，RTO），这是估计出<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BE%86%E5%9B%9E%E9%80%9A%E8%A8%8A%E5%BB%B6%E9%81%B2">来回通信延迟</a> (RTT) 以及RTT的方差。</p>
+<p>RFC793中定义的计算SRTT的经典算法：指数加权移动平均（Exponential weighted moving average）</p>
+<ol>
+<li>先采样RTT，记下最近好几次的RTT值。</li>
+<li>做平滑计算SRTT公式为<img src="https://s2.loli.net/2023/01/11/5oWpVFqYEgcHNBb.png" srcset="/img/loading.gif" lazyload alt="image.png">，其中 α 取值在0.8 到 0.9之间</li>
+<li>计算RTO，公式：<img src="https://s2.loli.net/2023/01/11/4OPjtgHQJzbIlSf.png" srcset="/img/loading.gif" lazyload alt="image.png">，其中 UBOUND是最大的timeout时间上限值，LBOUND是最小的timeout时间下限值，β值一般在1.3到2.0之间。</li>
+</ol>
+<p>目前有很多<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/TCP%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6">TCP拥塞控制算法</a>在研究中，感兴趣的可自行查看。</p>
+<h3 id="最大分段大小"><a href="#最大分段大小" class="headerlink" title="最大分段大小"></a>最大分段大小</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E5%88%86%E6%AE%B5%E5%A4%A7%E5%B0%8F">最大分段大小</a> (MSS)是在单个分段中TCP愿意接受的数据的字节数最大值。MSS应当足够小以避免<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/IP%E5%88%86%E7%89%87">IP分片</a>，它会导致丢包或过多的重传。在TCP连接创建时，双端在SYN报文中用MSS选项宣布各自的MSS，这是从双端各自直接相连的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82">数据链路层</a>的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E4%BC%A0%E8%BE%93%E5%8D%95%E5%85%83">最大传输单元</a>（MTU）的尺寸减去固定的IP首部和TCP首部长度。以太网MTU为1500字节， MSS值可达1460字节。使用IEEE 802.3的MTU为1492字节，MSS可达1452字节。如果目的IP地址为“非本地的”，MSS通常的默认值为536（这个默认值允许20字节的IP首部和20字节的TCP首部以适合576字节IP数据报）。此外，发送方可用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E4%BC%A0%E8%BE%93%E8%B7%AF%E5%BE%84MTU%E5%8F%91%E7%8E%B0&action=edit&redlink=1">传输路径MTU发现</a>（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/RFC">RFC</a> <a target="_blank" rel="external nofollow noopener noreferrer" href="https://tools.ietf.org/html/rfc1191">1191</a>）推导出从发送方到接收方的网络路径上的最小MTU，以此动态调整MSS以避免网络<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/IP%E5%88%86%E7%89%87">IP分片</a>。</p>
+<p>MSS发布也被称作“MSS协商”（MSS negotiation）。严格讲，这并非是协商出来一个统一的MSS值，TCP允许连接两端使用各自不同的MSS值。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-7">7]</a> 例如，这会发生在参与TCP连接的一台设备使用非常少的内存处理到来的TCP分组。</p>
+<h3 id="选择确认"><a href="#选择确认" class="headerlink" title="选择确认"></a>选择确认</h3><p>最初采取累计确认的TCP协议在丢包时效率很低。例如，假设通过10个分组发出了1万个字节的数据。如果第一个分组丢失，在纯粹的累计确认协议下，接收方不能说它成功收到了1,000到9,999字节，但未收到包含0到999字节的第一个分组。因而，发送方可能必须重传所有1万个字节。</p>
+<p>为此，TCP采取了“选择确认”（selective acknowledgment，SACK）选项。RFC 2018 对此定义为<strong>允许接收方确认它成功收到的分组的不连续的块</strong>，以及基础TCP确认的成功收到最后连续字节序号。这种确认可以指出<em>SACK block</em>，包含了已经成功收到的连续范围的开始与结束字节序号。在上述例子中，接收方可以发出SACK指出序号1000到9999，发送方因此知道只需重发第一个分组（字节 0 到 999）。</p>
+<p>TCP发送方会把乱序收包当作丢包，因此会重传乱序收到的包，导致连接的性能下降。重复SACK选项（duplicate-SACK option）是定义在RFC 2883中的SACK的一项扩展，可解决这一问题。接收方发出D-ACK指出没有丢包，接收方恢复到高传输率。D-SACK使用了SACK的第一个段来做标志，</p>
+<ul>
+<li>如果SACK的第一个段的范围被ACK所覆盖，那么就是D-SACK;</li>
+<li>如果SACK的第一个段的范围被SACK的第二个段覆盖，那么就是D-SACK</li>
+</ul>
+<p>D-SACK旨在告诉发送端：收到了重复的数据，数据包没有丢，丢的是ACK包；或者“Fast Retransmit算法”触发的重传不是因为发出去的包丢了，也不是因为回应的ACK包丢了，而是因为网络延时导致的reordering。</p>
+<p>SACK选项并不是强制的。仅当双端都支持时才会被使用。TCP连接创建时会在TCP头中协商SACK细节。在 Linux下，可以通过tcp_sack参数打开SACK功能（Linux 2.4后默认打开）。Linux下的tcp_dsack参数用于开启D-SACK功能（Linux 2.4后默认打开）。选择确认也用于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%B5%81%E6%8E%A7%E5%88%B6%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE">流控制传输协议</a> (SCTP).</p>
+<h3 id="TCP窗口缩放选项"><a href="#TCP窗口缩放选项" class="headerlink" title="TCP窗口缩放选项"></a>TCP窗口缩放选项</h3><p>TCP窗口尺寸域控制数据包在2至65,535字节。RFC 1323 定义的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=TCP%E7%AA%97%E5%8F%A3%E7%BC%A9%E6%94%BE%E9%80%89%E9%A1%B9&action=edit&redlink=1">TCP窗口缩放选项</a>用于把最大窗口尺寸从65,535字节扩大至1G字节。扩大窗口尺寸是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=TCP%E4%BC%98%E5%8C%96&action=edit&redlink=1">TCP优化</a>的需要。</p>
+<p>窗口缩放选项尽在TCP三次握手时双端在SYN包中独立指出这个方向的缩放系数。该值是16比特窗口尺寸的向左位移数，从0 (表示不位移)至14。</p>
+<p>某些路由器或分组防火墙会重写窗口缩放选项，这可能导致不稳定的网络传输。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-8">8]</a></p>
+<h3 id="TCP时间戳"><a href="#TCP时间戳" class="headerlink" title="TCP时间戳"></a>TCP时间戳</h3><p>RFC 1323 定义了TCP时间戳，并不对应于系统时钟，使用随机值初始化。许多操作系统每毫秒增加一次时间戳；但RFC只规定tick应当成比例。</p>
+<p>有两个时间戳域:</p>
+<ul>
+<li>4字节的发送时间戳值</li>
+<li>4字节的响应回复时间戳值（最近收到数据的时间戳）</li>
+</ul>
+<p>TCP时间戳用于“防止序列号回绕算法”（Protection Against Wrapped Sequence numbers，PAWS），细节见RFC 1323。PAWS用于接收窗口跨序号回绕边界。这种情形下一个包可能会重传以回答问题：“是否是第一个还是第二个4 GB的序号？”时间戳可以打破这一问题。</p>
+<p>另外，Eifel检测算法（ RFC 3522 ）使用TCP时间戳确定如果重传发生是因为丢包还是简单乱序。</p>
+<p>最近统计表明时间戳的采用率停滞在~40%，这归因于Windows服务器从Windows Server 2008起降低了支持。[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-2017stats-9">9]</a>.</p>
+<h3 id="带外数据"><a href="#带外数据" class="headerlink" title="带外数据"></a>带外数据</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E5%B8%A6%E5%A4%96%E6%95%B0%E6%8D%AE&action=edit&redlink=1">带外数据</a>（OOB）是指对紧急数据，中断或放弃排队中的数据流；接收方应立即处理紧急数据。完成后，TCP通知应用程序恢复流队列的正常处理。</p>
+<p>OOB并不影响网络，“紧急”仅影响远程端的处理。这一协议很少被实现。</p>
+<h3 id="强制数据递交"><a href="#强制数据递交" class="headerlink" title="强制数据递交"></a>强制数据递交</h3><p>正常情况下，TCP等待200 ms以准备一个完整分组发出（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%B4%8D%E6%A0%BC%E7%AE%97%E6%B3%95">纳格算法</a>试图把小的信息组装为单一的包）。这产生了小的、但潜在很严重的延迟并在传递一个文件时不断重复延迟。例如，典型发送块是4 KB，典型的MSS是1460字节，在10 Mbit&#x2F;s以太网上发出两个包，每个耗时约~1.2 ms，随后是剩余1176个字节的包，之后是197 ms停顿因为TCP等待装满缓冲区。</p>
+<p>对于telnet，每次用户击键的回应，如果有200 ms将会非常烦人。</p>
+<p>socket选项<code>TCP_NODELAY</code>能放弃默认的200 ms发送延迟。应用程序使用这个socket选项强制发出数据。</p>
+<p>RFC定义了<code>PSH</code>能立即发出比特。<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Berkeley%E5%A5%97%E6%8E%A5%E5%AD%97">Berkeley套接字</a>不能控制或指出这种情形，只能由<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%8D%8F%E8%AE%AE%E6%A0%88">协议栈</a>控制。</p>
+<h3 id="状态编码"><a href="#状态编码" class="headerlink" title="状态编码"></a>状态编码</h3><p>下表为TCP状态码列表，以<strong>S</strong>指代服务器，<strong>C</strong>指代客户端，<strong>S&amp;C</strong>表示两者，<strong>S&#x2F;C</strong>表示两者之一：[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE#cite_note-#1-1">1]</a></p>
+<ul>
+<li><p>LISTEN S</p>
+<p>服务器等待从任意远程TCP端口的连接请求。侦听状态。</p>
+</li>
+<li><p>SYN-SENT C</p>
+<p>客户在发送连接请求后等待匹配的连接请求。通过connect()函数向服务器发出一个同步（SYNC）信号后进入此状态。</p>
+</li>
+<li><p>SYN-RECEIVED S</p>
+<p>服务器已经收到并发送同步（SYNC）信号之后等待确认（ACK）请求。</p>
+</li>
+<li><p>ESTABLISHED S&amp;C</p>
+<p>服务器与客户的连接已经打开，收到的数据可以发送给用户。数据传输步骤的正常情况。此时连接两端是平等的。这称作全连接。</p>
+</li>
+<li><p>FIN-WAIT-1 S&amp;C</p>
+<p>（服务器或客户）主动关闭端调用close（）函数发出FIN请求包，表示本方的数据发送全部结束，等待TCP连接另一端的ACK确认包或FIN&amp;ACK请求包。</p>
+</li>
+<li><p>FIN-WAIT-2 S&amp;C</p>
+<p>主动关闭端在FIN-WAIT-1状态下收到ACK确认包，进入等待远程TCP的连接终止请求的半关闭状态。这时可以接收数据，但不再发送数据。</p>
+</li>
+<li><p>CLOSE-WAIT S&amp;C</p>
+<p>被动关闭端接到FIN后，就发出ACK以回应FIN请求，并进入等待本地用户的连接终止请求的半关闭状态。这时可以发送数据，但不再接收数据。</p>
+</li>
+<li><p>CLOSING S&amp;C</p>
+<p>在发出FIN后，又收到对方发来的FIN后，进入等待对方对己方的连接终止（FIN）的确认（ACK）的状态。少见。</p>
+</li>
+<li><p>LAST-ACK S&amp;C</p>
+<p>被动关闭端全部数据发送完成之后，向主动关闭端发送FIN，进入等待确认包的状态。</p>
+</li>
+<li><p>TIME-WAIT S&#x2F;C</p>
+<p>主动关闭端接收到FIN后，就发送ACK包，等待足够时间以确保被动关闭端收到了终止请求的确认包。（按照RFC 793，一个连接可以在TIME-WAIT保证最大四分钟，即<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E5%88%86%E6%AE%B5%E5%AF%BF%E5%91%BD">最大分段寿命</a>（maximum segment lifetime）的2倍）</p>
+</li>
+<li><p>CLOSED S&amp;C</p>
+<p>完全没有连接。</p>
+</li>
+</ul>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><h4 id="为什么建立连接是三次握手，而关闭连接却是四次挥手呢？"><a href="#为什么建立连接是三次握手，而关闭连接却是四次挥手呢？" class="headerlink" title="为什么建立连接是三次握手，而关闭连接却是四次挥手呢？"></a>为什么建立连接是三次握手，而关闭连接却是四次挥手呢？</h4><p>建立连接时因为服务端在LISTEN状态下，收到建立连接请求的SYN报文后，把ACK和SYN放在一个报文里发送给客户端。</p>
+<p>而关闭连接时，当收到对方的FIN报文时，仅仅表示对方不再发送数据了但是还能接收数据，己方也未必全部数据都发送给对方了，所以己方可以立即close，也可以发送一些数据给对方后，再发送FIN报文给对方来表示同意现在关闭连接，因此，己方ACK和FIN一般都会分开发送。</p>
+<h4 id="为什么TIME-WAIT状态需要经过2MSL-最大报文段生存时间-才能返回到CLOSE状态？"><a href="#为什么TIME-WAIT状态需要经过2MSL-最大报文段生存时间-才能返回到CLOSE状态？" class="headerlink" title="为什么TIME_WAIT状态需要经过2MSL(最大报文段生存时间)才能返回到CLOSE状态？"></a>为什么TIME_WAIT状态需要经过2MSL(最大报文段生存时间)才能返回到CLOSE状态？</h4><ul>
+<li>保证TCP协议的全双工连接能够可靠关闭</li>
+<li>保证这次连接的重复数据段从网络中消失</li>
+</ul>
+<p>首先，如果Client直接CLOSED了，那么由于IP协议的不可靠性或者是其它网络原因，导致Server没有收到Client最后回复的ACK。那么Server就会在超时之后继续发送FIN，此时由于Client已经CLOSED了，就找不到与重发的FIN对应的连接，最后Server就会收到RST而不是ACK，Server就会以为是连接错误把问题报告给高层。这样的情况虽然不会造成数据丢失，但是却导致TCP协议不符合可靠连接的要求。所以，Client不是直接进入CLOSED，而是要保持TIME_WAIT，当再次收到FIN的时候，能够保证对方收到ACK，最后正确的关闭连接。</p>
+<p>然后，如果Client直接CLOSED，然后又再向Server发起一个新连接，我们不能保证这个新连接与刚关闭的连接的端口号是不同的。也就是说有可能新连接和老连接的端口号是相同的。一般来说不会发生什么问题，但是还是有特殊情况出现：假设新连接和已经关闭的老连接端口号是一样的，如果前一次连接的某些数据仍然滞留在网络中，这些延迟数据在建立新连接之后才到达Server，由于新连接和老连接的端口号是一样的，又因为TCP协议判断不同连接的依据是socket pair，于是，TCP协议就认为那个延迟的数据是属于新连接的，这样就和真正的新连接的数据包发生混淆了。所以TCP连接还要在TIME_WAIT状态等待2倍MSL，这样可以保证本次连接的所有数据都从网络中消失。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li>维基百科，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE</a></li>
+<li>RaphetS，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.jianshu.com/p/ef892323e68f">https://www.jianshu.com/p/ef892323e68f</a></li>
+<li>趣谈网络协议，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/9141">https://time.geekbang.org/column/article/9141</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C/" class="category-chain-item">网络</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>传输层协议：TCP协议（下）——运作方式(如何三次握手、四次挥手等)</div>
+      <div>https://blog.longpi1.com/2023/01/11/传输层协议：TCP协议（下）——运作方式-如何三次握手、四次挥手等/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/01/08/%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ATCP%E5%8D%8F%E8%AE%AE%EF%BC%88%E4%B8%8A%EF%BC%89%E2%80%94%E2%80%94%E5%8D%8F%E8%AE%AE%E7%BB%93%E6%9E%84%E3%80%81%E4%B8%BB%E8%A6%81%E7%89%B9%E7%82%B9%E4%BB%A5%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" title="传输层协议：TCP协议（上）——协议结构、主要特点以及应用场景">
+                        <span class="hidden-mobile">传输层协议：TCP协议（上）——协议结构、主要特点以及应用场景</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
