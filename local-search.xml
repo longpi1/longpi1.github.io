@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>K8S与Docker安全攻防思维导图</title>
+    <link href="/2023/01/21/K8S%E4%B8%8EDocker%E5%AE%89%E5%85%A8%E6%94%BB%E9%98%B2%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/"/>
+    <url>/2023/01/21/K8S%E4%B8%8EDocker%E5%AE%89%E5%85%A8%E6%94%BB%E9%98%B2%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE/</url>
+    
+    <content type="html"><![CDATA[<h1 id="K8S与Docker安全攻防思维导图"><a href="#K8S与Docker安全攻防思维导图" class="headerlink" title="K8S与Docker安全攻防思维导图"></a>K8S与Docker安全攻防思维导图</h1><blockquote><p>转载自攻防有道的思维导图：<a href="https://github.com/Bywalks/K8s-Mind-Map">https://github.com/Bywalks/K8s-Mind-Map</a></p></blockquote><p>K8S、Docker安全攻防思维导图。</p><h3 id="Docker安全攻防"><a href="#Docker安全攻防" class="headerlink" title="Docker安全攻防"></a>Docker安全攻防</h3><p><img src="https://s2.loli.net/2023/01/21/Z16UStkuWqIwoiR.png" alt="Docker安全攻防"></p><h3 id="Docker安全杂项"><a href="#Docker安全杂项" class="headerlink" title="Docker安全杂项"></a>Docker安全杂项</h3><p><img src="https://s2.loli.net/2023/01/21/zhCxO5gAcJ1yojr.png" alt="Docker安全杂项.png"></p><h3 id="K8S安全攻防"><a href="#K8S安全攻防" class="headerlink" title="K8S安全攻防"></a>K8S安全攻防</h3><p><img src="https://s2.loli.net/2023/01/21/nxODisTXSLQwHJz.png" alt="K8S安全攻防.png"></p><h3 id="K8S认证鉴权"><a href="#K8S认证鉴权" class="headerlink" title="K8S认证鉴权"></a>K8S认证鉴权</h3><p><img src="https://s2.loli.net/2023/01/21/UdIno92ZxwSX8yD.png" alt="K8S认证鉴权"></p><h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ul><li><a href="https://www.freebuf.com/vuls/196993.html">kubernetes集群渗透测试</a></li><li><a href="https://github.com/aquasecurity/kube-hunter">k8s渗透工具 - kube-hunter</a></li><li><a href="https://github.com/cdk-team/CDK">k8s渗透工具 - CDK</a></li><li><a href="https://jimmysong.io/kubernetes-handbook/usecases/service-mesh.html">服务网格</a></li><li><a href="https://javamana.com/2021/06/20210616193408465N.html">k8s安全攻防 - etcd篇</a></li><li><a href="https://www.cs.ru.nl/bachelors-theses/2020/Joren_Vrancken___4593847___A_Methodology_for_Penetration_Testing_Docker_Systems.pdf">A Methodology for Penetration Testing Docker Systems</a></li><li><a href="https://i.blackhat.com/USA-19/Thursday/us-19-Edwards-Compendium-Of-Container-Escapes-up.pdf">us-19-Edwards-Compendium-Of-Container-Escapes-up</a></li><li><a href="https://www.cyberark.com/resources/threat-research-blog/the-strange-case-of-how-we-escaped-the-docker-default-container">the-strange-case-of-how-we-escaped-the-docker-default-container</a></li><li><a href="https://www.cyberark.com/resources/threat-research-blog/kubernetes-pentest-methodology-part-3">kubernetes-pentest-methodology-part-3</a></li><li><a href="https://www.cyberark.com/resources/threat-research-blog/securing-kubernetes-clusters-by-eliminating-risky-permissions">securing-kubernetes-clusters-by-eliminating-risky-permissions</a></li><li><a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">RBAC Authorization</a></li><li><a href="https://www.cdxy.me/?p=839">K8s渗透测试之kube-apiserver利用</a></li><li><a href="https://book.hacktricks.xyz/pentesting/pentesting-kubernetes#discover-secrets-in-etcd">pentesting-kubernetes</a></li><li><a href="https://www.cvedetails.com/product/34016/KubernetesKubernetes.html?vendor_id=15867">CVE - KubernetesKubernetes</a></li><li><a href="https://developer.aliyun.com/article/765449?groupCode=aliyunsecurity">云上容器ATT&amp;CK攻防矩阵</a></li><li><a href="https://kubernetes.io/zh/docs/tasks/configmap-secret/managing-secret-using-kubectl/">managing-secret-using-kubectl</a></li><li><a href="https://sudonull.com/post/13499-11-ways-to-not-become-a-victim-of-hacking-in-Kubernetes">11-ways-to-not-become-a-victim-of-hacking-in-Kubernetes</a></li><li><a href="https://mp.weixin.qq.com/s?__biz=MzIyODYzNTU2OA==&mid=2247489415&idx=1&sn=4aea7b7ecff51710c79037ab07a889bc">Metarget - 云原生攻防靶场</a></li><li><a href="https://github.com/tom0li/collection-document#%E4%BA%91%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">云基础知识</a></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Kubernetes与Docker安全攻防思维导图</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Kubernetes</tag>
+      
+      <tag>转载</tag>
+      
+      <tag>安全</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>应用层协议：HTTP协议（下）——请求方法与状态码、消息</title>
     <link href="/2023/01/17/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AHTTP%E5%8D%8F%E8%AE%AE%EF%BC%88%E4%B8%8B%EF%BC%89%E2%80%94%E2%80%94%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81%E3%80%81%E6%B6%88%E6%81%AF/"/>
     <url>/2023/01/17/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AHTTP%E5%8D%8F%E8%AE%AE%EF%BC%88%E4%B8%8B%EF%BC%89%E2%80%94%E2%80%94%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81%E3%80%81%E6%B6%88%E6%81%AF/</url>
