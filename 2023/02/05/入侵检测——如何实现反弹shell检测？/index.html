@@ -1,0 +1,691 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="本篇文章主要介绍如何实现反弹shell检测">
+<meta property="og:type" content="article">
+<meta property="og:title" content="入侵检测——如何实现反弹shell检测？">
+<meta property="og:url" content="https://blog.longpi1.com/2023/02/05/%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E2%80%94%E2%80%94%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8F%8D%E5%BC%B9shell%E6%A3%80%E6%B5%8B%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="本篇文章主要介绍如何实现反弹shell检测">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104034125-1531808234.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104112969-1097291178.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215105358151-246000034.png">
+<meta property="article:published_time" content="2023-02-05T03:34:30.000Z">
+<meta property="article:modified_time" content="2023-02-05T03:35:25.375Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="安全">
+<meta property="article:tag" content="容器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104034125-1531808234.png">
+  
+  
+  
+  <title>入侵检测——如何实现反弹shell检测？ - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="入侵检测——如何实现反弹shell检测？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-02-05 11:34" pubdate>
+          2023年2月5日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">入侵检测——如何实现反弹shell检测？</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="入侵检测——如何实现反弹shell检测？"><a href="#入侵检测——如何实现反弹shell检测？" class="headerlink" title="入侵检测——如何实现反弹shell检测？"></a>入侵检测——如何实现反弹shell检测？</h1><h2 id="一、检测思路"><a href="#一、检测思路" class="headerlink" title="一、检测思路"></a>一、检测思路</h2><h2 id="1-进程-file-descriptor-异常检测"><a href="#1-进程-file-descriptor-异常检测" class="headerlink" title="1.进程 file descriptor 异常检测"></a>1.进程 file descriptor 异常检测</h2><h3 id="1-1-检测-file-descriptor-是否指向一个socket"><a href="#1-1-检测-file-descriptor-是否指向一个socket" class="headerlink" title="1.1 检测 file descriptor 是否指向一个socket"></a>1.1 检测 file descriptor 是否指向一个socket</h3><p>以“重定向符”+”&#x2F;dev&#x2F;tcp网络通信”Bash反弹Shell这一类最经典的反弹Shell攻击方式为例，这类反弹shell的本质可以归纳为<strong>file descriptor的重定向到一个socket句柄</strong>。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104034125-1531808234.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p> <img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215104112969-1097291178.png" srcset="/img/loading.gif" lazyload alt="img"> </p>
+<h3 id="1-2-检测-file-descriptor-是否指向一个管道符（pipe）"><a href="#1-2-检测-file-descriptor-是否指向一个管道符（pipe）" class="headerlink" title="1.2 检测 file descriptor 是否指向一个管道符（pipe）"></a>1.2 检测 file descriptor 是否指向一个管道符（pipe）</h3><p>对于利用“管道符”传递指令的反弹shell攻击方式来说，这类反弹shell的本质可以归纳为<strong>file descriptor的重定向到一个pipe句柄</strong>。</p>
+<p><img src="https://img2018.cnblogs.com/blog/532548/201912/532548-20191215105358151-246000034.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>更进一步地说，不管做了多少层的pipe，反弹shell的本质是将server的输入传递给client的bash，因此肯定存在socket连接。</p>
+<p>我们只需要根据pid追溯pipe上游的进程，并判断其进程fd，检查是否是来自一个socket。</p>
+<p>例如，跟踪pipe，发现pipe的进程建立了socket连接，那么就存在反弹shell的风险。 </p>
+<h2 id="2-netlink监控-fd异常检测"><a href="#2-netlink监控-fd异常检测" class="headerlink" title="2.netlink监控+fd异常检测"></a>2.netlink监控+fd异常检测</h2><ul>
+<li>监听Netlink Socket，实时获取进程EXEC事件。</li>
+<li>如果为Shell进程，检查进程启动打开的FD，<ul>
+<li>打开了Socket</li>
+<li>未使用&#x2F;dev&#x2F;tty、&#x2F;dev&#x2F;pts&#x2F;n、&#x2F;dev&#x2F;ptmx等终端</li>
+<li>则确认为反弹Shell</li>
+</ul>
+</li>
+</ul>
+<p><strong>绕过风险：仅能通过进程执行文件名判断是否为Shell进程，上传可执行文件、拷贝Bash文件到其他路径等方法会绕过这个方法</strong>。</p>
+<p>例如通过将&#x2F;bin&#x2F;sh重命名为其他名字进行反弹shell。</p>
+<h2 id="3-脚本文件-amp-amp-应用程序-amp-amp-无文件（fileless）反弹shell检测"><a href="#3-脚本文件-amp-amp-应用程序-amp-amp-无文件（fileless）反弹shell检测" class="headerlink" title="3.脚本文件 &amp;&amp; 应用程序 &amp;&amp; 无文件（fileless）反弹shell检测"></a>3.脚本文件 &amp;&amp; 应用程序 &amp;&amp; 无文件（fileless）反弹shell检测</h2><p>需要注意的是，操作系统是分层的，Bash只是一个应用程序的普通应用，其内部封装了调用glibc execve的功能而已，除了bash之外，白帽子还可以基于任意的应用层技术来实现反弹shell，例如：</p>
+<ul>
+<li>python&#x2F;perl实现纯代码形式的反弹shell文件执行：文件脚本检测</li>
+<li>python&#x2F;perl实现纯代码形式的反弹shell命令行指令（fileless）：纯命令行fileless检测</li>
+<li>C&#x2F;C++实现纯代码形式的反弹shell：二进制文件检测</li>
+</ul>
+<h2 id="4-特征检测"><a href="#4-特征检测" class="headerlink" title="4. 特征检测"></a>4. 特征检测</h2><h4 id="4-1网络层反弹shell通信特征检测"><a href="#4-1网络层反弹shell通信特征检测" class="headerlink" title="4.1网络层反弹shell通信特征检测"></a>4.1网络层反弹shell通信特征检测</h4><p>反弹shell的通信会话中，会包含一些”cmdline shell特征“，例如”#root….“等，可以在网络侧进行NTA实时检测。</p>
+<h4 id="4-2DNS反弹shell特征检测"><a href="#4-2DNS反弹shell特征检测" class="headerlink" title="4.2DNS反弹shell特征检测"></a>4.2DNS反弹shell特征检测</h4><p>针对DNS流量进行分析，判断关联进程是否开启&#x2F;dev&#x2F;net&#x2F;tun，或者&#x2F;dev&#x2F;net&#x2F;tap隧道等等。</p>
+<h2 id="二、具体实现举例"><a href="#二、具体实现举例" class="headerlink" title="二、具体实现举例"></a>二、具体实现举例</h2><h3 id="1-监听Netlink-Socket-并轮询处理"><a href="#1-监听Netlink-Socket-并轮询处理" class="headerlink" title="1.监听Netlink Socket 并轮询处理"></a>1.监听Netlink Socket 并轮询处理</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ns *NetlinkSocket)</span></span> ReceiveFrom() ([]syscall.NetlinkMessage, syscall.Sockaddr, <span class="hljs-type">error</span>) &#123;<br>	nr, from, err := syscall.Recvfrom(ns.fd, ns.buf, <span class="hljs-number">0</span>)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, from, err<br>	&#125;<br>	<span class="hljs-keyword">if</span> nr &lt; syscall.NLMSG_HDRLEN &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, from, fmt.Errorf(<span class="hljs-string">&quot;Got short response from netlink&quot;</span>)<br>	&#125;<br><br>	msg, err := syscall.ParseNetlinkMessage(ns.buf[:nr])<br>	<span class="hljs-keyword">return</span> msg, from, err<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-实时处理进程EXEC事件"><a href="#2-实时处理进程EXEC事件" class="headerlink" title="2.实时处理进程EXEC事件"></a>2.实时处理进程EXEC事件</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p *Probe)</span></span> netLinkHandler(e *netlinkProcEvent) &#123;<br>	<span class="hljs-keyword">switch</span> e.Event &#123;<br>	<span class="hljs-keyword">case</span> netlink.PROC_EVENT_EXEC:<br>		p.handleProcExec(e.Pid, <span class="hljs-literal">false</span>) <span class="hljs-comment">// pid</span><br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-根据反弹shell的基本原理，判断进程-file-descriptor-是否异常"><a href="#3-根据反弹shell的基本原理，判断进程-file-descriptor-是否异常" class="headerlink" title="3.根据反弹shell的基本原理，判断进程 file descriptor 是否异常"></a>3.根据反弹shell的基本原理，判断进程 file descriptor 是否异常</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">//根据反弹shell的基本原理，判断进程 file descriptor 是否异常（也就是是否相等）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p *Probe)</span></span> checkReverseShell(pid <span class="hljs-type">int</span>)  &#123;<br>    <span class="hljs-comment">//获取对应的inode</span><br>   inodeStdin, err := osutil.GetFDSocketInode(pid, <span class="hljs-number">0</span>)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>   &#125;<br>   inodeStdout, err := osutil.GetFDSocketInode(pid, <span class="hljs-number">1</span>)<br>   <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>   &#125;<br>   <span class="hljs-keyword">if</span> inodeStdin != inodeStdout || inodeStdin == <span class="hljs-number">0</span> &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>   &#125;<br>   <span class="hljs-keyword">return</span> osutil.GetProcessConnection(pid, <span class="hljs-literal">nil</span>, utils.NewSet(inodeStdin))<br>&#125;<br><br><span class="hljs-comment">//获取进程对应的连接</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">GetProcessConnection</span><span class="hljs-params">(pid <span class="hljs-type">int</span>, clientPort *share.CLUSProtoPort, inodes utils.Set)</span></span> *Connection &#123;<br>	<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br>	<span class="hljs-keyword">if</span> inodes == <span class="hljs-literal">nil</span> &#123;<br>		inodes, err = GetProcessSocketInodes(pid)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">if</span> inodes.Cardinality() == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">var</span> sport <span class="hljs-type">uint16</span><br>	<span class="hljs-keyword">if</span> clientPort != <span class="hljs-literal">nil</span> &#123;<br>		sport = clientPort.Port<br>	&#125;<br>	pidDir := global.SYS.ContainerProcFilePath(pid, <span class="hljs-string">&quot;/&quot;</span>)<br>	<span class="hljs-keyword">if</span> clientPort == <span class="hljs-literal">nil</span> || clientPort.IPProto == syscall.IPPROTO_TCP &#123;<br>		<span class="hljs-keyword">if</span> conn := getConnectionByFile(pidDir+<span class="hljs-string">&quot;net/tcp&quot;</span>, inodes, <span class="hljs-literal">true</span>, sport); conn != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> conn<br>		&#125;<br>		<span class="hljs-keyword">if</span> conn := getConnectionByFile(pidDir+<span class="hljs-string">&quot;net/tcp6&quot;</span>, inodes, <span class="hljs-literal">true</span>, sport); conn != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> conn<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">if</span> clientPort == <span class="hljs-literal">nil</span> || clientPort.IPProto == syscall.IPPROTO_UDP &#123;<br>		<span class="hljs-keyword">if</span> conn := getConnectionByFile(pidDir+<span class="hljs-string">&quot;net/udp&quot;</span>, inodes, <span class="hljs-literal">false</span>, sport); conn != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> conn<br>		&#125;<br>		<span class="hljs-keyword">if</span> conn := getConnectionByFile(pidDir+<span class="hljs-string">&quot;net/udp6&quot;</span>, inodes, <span class="hljs-literal">false</span>, sport); conn != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> conn<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>以上方式的缺点为：仅能通过进程执行文件名判断是否为Shell进程，上传可执行文件、拷贝Bash文件到其他路径等方法会绕过这个方法</strong>。</p>
+<p>除此以外，还可以对特定场景进行分析，进程对应的fd是否异常并且外联；</p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p>这篇文章主要介绍了常见的反弹shell检测思路，以及实现举例，欢迎大家进行补充与分享！</p>
+<h2 id="四、参考链接"><a href="#四、参考链接" class="headerlink" title="四、参考链接"></a>四、参考链接</h2><ol>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://home.cnblogs.com/u/LittleHann/">郑瀚Andrew</a>的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/LittleHann/p/12038070.html">反弹Shell原理及检测技术研究</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AE%89%E5%85%A8/" class="category-chain-item">安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E5%AE%89%E5%85%A8/">#安全</a>
+      
+        <a href="/tags/%E5%AE%B9%E5%99%A8/">#容器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>入侵检测——如何实现反弹shell检测？</div>
+      <div>https://blog.longpi1.com/2023/02/05/入侵检测——如何实现反弹shell检测？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/02/04/%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E2%80%94%E2%80%94%E5%8F%8D%E5%BC%B9Shell%E5%8E%9F%E7%90%86%E4%BB%A5%E5%8F%8A%E5%B8%B8%E8%A7%81%E6%A3%80%E6%B5%8B%E6%8A%80%E6%9C%AF/" title="入侵检测——反弹Shell原理以及常见检测技术">
+                        <span class="hidden-mobile">入侵检测——反弹Shell原理以及常见检测技术</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
