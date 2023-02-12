@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="本篇文章主要介绍路由相关知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="什么是路由？">
+<meta property="og:url" content="https://blog.longpi1.com/2023/02/12/%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%AF%E7%94%B1%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="本篇文章主要介绍路由相关知识">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-17f7830d4946289147741de28f343731_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-3f7592eb1094899f0e5ec71b728b8359_1440w.webp">
+<meta property="article:published_time" content="2023-02-12T08:03:39.000Z">
+<meta property="article:modified_time" content="2023-02-12T08:05:44.540Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic2.zhimg.com/80/v2-17f7830d4946289147741de28f343731_1440w.webp">
+  
+  
+  
+  <title>什么是路由？ - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="什么是路由？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-02-12 16:03" pubdate>
+          2023年2月12日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">什么是路由？</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="什么是路由？"><a href="#什么是路由？" class="headerlink" title="什么是路由？"></a>什么是路由？</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>路由是指路由器从一个接口上收到数据包，根据数据包的目的地址进行定向并转发到另一个接口的过程。</strong>路由发生在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/OSI%E6%A8%A1%E5%9E%8B">OSI网络参考模型中</a>的第三层即<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%BD%91%E7%BB%9C%E5%B1%82">网络层</a>。</p>
+<p>路由引导<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E5%88%86%E7%BB%84%E8%BD%89%E9%80%81&action=edit&redlink=1">分组转送</a>，经过一些中间的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%AF%80%E9%BB%9E">节点</a>后，到它们最后的目的地。作成硬件的话，则称为<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1%E5%99%A8">路由器</a>。路由通常根据<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1%E8%A1%A8">路由表</a>——一个存储到各个目的地的最佳路径的表——来引导分组转送。因此为了有效率的转送分组，创建存储在路由器<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%A8%98%E6%86%B6%E9%AB%94">存储器</a>内的路由表是非常重要的。</p>
+<p>路由与<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%A1%A5%E6%8E%A5">桥接</a>的不同，在于路由假设地址相似的节点距离相近。这使得路由表中的一项纪录可以表示到一群地址的路径。因此，在大型网络中，路由优于桥接，且路由已经成为<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%B6%B2%E9%9A%9B%E7%B6%B2%E8%B7%AF">互联网</a>上查找路径的最主要方法。</p>
+<p>较小的网络通常可以手动设置路由表，但较大且拥有复杂<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%B6%B2%E7%B5%A1%E6%8B%93%E6%92%B2">拓扑</a>的网络可能常常变化，若要手动创建路由表是不切实际的。尽管如此，大多数的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%85%AC%E5%85%B1%E4%BA%A4%E6%8D%A2%E7%94%B5%E8%AF%9D%E7%BD%91">公共交换电话网络</a>（PSTN）仍然使用预先计算好的路由表，在直接连线的路径断线时才使用预备的路径；见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/w/index.php?title=%E5%85%AC%E5%85%B1%E4%BA%A4%E6%8F%9B%E9%9B%BB%E8%A9%B1%E7%B6%B2%E8%B7%AF%E7%94%B1&action=edit&redlink=1">公共交换电话网路由</a>。“动态路由”尝试按照由<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1%E5%8D%94%E5%AE%9A">路由协议</a>所携带的信息来自动创建路由表以解决这个问题，也让网络能够近自主地避免网络断线或失败。</p>
+<p>动态路由作为当前最普及的实现方式。然而，设置路由协议常须要经验与技术；目前的网络技术还没有发展到能够全自动地设置路由。</p>
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>数据以数据包的形式沿着任何网络传输。每个数据包都有一个标头，其中包含有关数据包预定目的地的信息。当数据包向目的地移动时，多台路由器可能会对其进行多次路由。路由器每秒对数百万个数据包执行此过程数百万次。</p>
+<p>当数据包到达时，路由器首先在路由表中查找其地址。这类似于乘客查阅公交时刻表以找到前往目的地的最佳公交路线。然后，路由器将数据包转发或移动到网络中的下一个点。</p>
+<p>例如，当您从办公室网络中的计算机访问网站时，数据包首先会发送到办公室网络路由器。路由器查找标头数据包并确定数据包的目的地。然后，它查找其内部表并将数据包转发到网络内部的下一个路由器或另一台设备，例如打印机。</p>
+<h2 id="有哪些类型？"><a href="#有哪些类型？" class="headerlink" title="有哪些类型？"></a>有哪些类型？</h2><p>有两种不同的路由类型，取决于路由器创建路由表的方式：</p>
+<h3 id="静态路由"><a href="#静态路由" class="headerlink" title="静态路由"></a>静态路由</h3><p>在静态路由中，网络管理员使用静态表手动配置和选择网络路由。在网络设计或参数需要保持不变的情况下，静态路由非常有用。</p>
+<p>这种路由技术的静态特性会带来预期的缺点，例如网络拥塞。虽然管理员可以在链路出现故障时配置回退路径，但静态路由通常会降低网络的适应性和灵活性，从而限制网络性能。</p>
+<h3 id="动态路由"><a href="#动态路由" class="headerlink" title="动态路由"></a>动态路由</h3><p>在动态路由中，路由器根据实际网络条件在运行时创建和更新路由表。它们尝试使用动态路由协议找到从源到目的地的最快路径，动态路由协议是一组用于创建、维护和更新动态路由表的规则。</p>
+<p>动态路由的最大优势在于它可以适应不断变化的网络条件，包括流量、带宽和网络故障。</p>
+<h2 id="主要的路由协议有哪些？"><a href="#主要的路由协议有哪些？" class="headerlink" title="主要的路由协议有哪些？"></a>主要的路由协议有哪些？</h2><p>路由协议是一组规则，用于指定路由器如何识别和转发网络路径上的数据包。路由协议分为两个不同的类别：内部网关协议和外部网关协议。</p>
+<p>内部网关协议最适合自治系统，即由单一组织管理控制的网络。外部网关协议可以更好地管理两个自治系统之间的信息传输。</p>
+<h3 id="内部网关协议"><a href="#内部网关协议" class="headerlink" title="内部网关协议"></a>内部网关协议</h3><p>这些协议评估自治系统，并根据不同的指标做出路由决策，如下所示：</p>
+<ul>
+<li>跳数，或源和目的地之间的路由器数量</li>
+<li>延迟，或将数据从源发送到目的地所花费的时间</li>
+<li>带宽，或源和目的地之间的链路容量</li>
+</ul>
+<p>以下是内部网关协议的一些示例。</p>
+<h4 id="路由信息协议-RIP"><a href="#路由信息协议-RIP" class="headerlink" title="路由信息协议-RIP"></a>路由信息协议-RIP</h4><p>路由信息协议（RIP）依靠跳数来确定网络之间的最短路径。RIP 是一种传统协议，如今已经没有人使用，因为它不能很好地扩展到更大规模的网络实施。</p>
+<h4 id="开放最短路径优先协议-OSPF"><a href="#开放最短路径优先协议-OSPF" class="headerlink" title="开放最短路径优先协议-OSPF"></a>开放最短路径优先协议-OSPF</h4><p>开放最短路径优先协议（OSPF）从自治系统中的所有其他路由器收集信息，以确定通往数据包目的地的最短和最快路由。您可以使用各种路由算法或计算机进程实施 OSPF。</p>
+<h3 id="外部网关协议"><a href="#外部网关协议" class="headerlink" title="外部网关协议"></a>外部网关协议</h3><p>边界网关协议（BGP）是唯一的外部网关协议。</p>
+<h4 id="边界网关协议-BGP"><a href="#边界网关协议-BGP" class="headerlink" title="边界网关协议-BGP"></a>边界网关协议-BGP</h4><p>BGP 定义了通过互联网进行的通信。互联网是连接在一起的自治系统的大集合。每个自治系统都有自治系统号（ASN），它是通过向互联网号码分配机构注册而获得的。</p>
+<p>BGP 的工作原理是跟踪最近的 ASN 并将目的地地址映射到其各自的 ASN。</p>
+<h2 id="什么是路由算法？"><a href="#什么是路由算法？" class="headerlink" title="什么是路由算法？"></a>什么是路由算法？</h2><p>路由算法是实现不同路由协议的软件程序。它们的工作原理是为每条链路分配一个成本数字；成本数字是使用各种网络指标计算的。每台路由器都尝试以最低的成本将数据包转发到下一个最佳链路。</p>
+<p>通常使用以下两种形式的路由协议来达成：<strong>距离向量算法</strong>与<strong>连线状态算法</strong>。所有路由算法几乎都可以分类到这两种算法中。</p>
+<h3 id="距离矢量路由"><a href="#距离矢量路由" class="headerlink" title="距离矢量路由"></a>距离矢量路由</h3><p>距离矢量路由算法要求所有路由器定期互相更新找到的最佳路径信息。每台路由器都会向所有已知目的地发送有关当前总成本评估的信息。</p>
+<p>最终，网络中的每台路由器都会发现所有可能的目的地的最佳路径信息。</p>
+<h3 id="链路状态路由"><a href="#链路状态路由" class="headerlink" title="链路状态路由"></a>链路状态路由</h3><p>在链路状态路由中，每台路由器都会发现网络中的所有其他路由器。路由器利用此信息绘制整个网络的地图，然后计算任何数据包的最短路径。</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>路由表</strong>: 指记录路由信息的表(可以单路由表，也可以多路由表)</p>
+<p><img src="https://pic2.zhimg.com/80/v2-17f7830d4946289147741de28f343731_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-3f7592eb1094899f0e5ec71b728b8359_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>问题1</strong>: 按上面的路由表来看,如果要访问10.1.1.1这个IP,请问会怎么走?</p>
+<p>答: 会通过10.1.1.0&#x2F;255.255.255.0这个路由条目后面指示的ens33网卡去寻找10.1.1.1。</p>
+<p><strong>问题2</strong>: 按上面的路由表来看,如果要访问119.75.217.26这个IP,请问会怎么走?</p>
+<p>答: 会通过网关10.1.1.2去寻找。</p>
+<p>当在一台linux机器上要访问一个目标ip时，请记住linux以下<strong>四步口诀</strong>(<strong>在linux默认的单路由表情况下</strong>,如果想更深 入了解多路由表,请看课外拓展内容):</p>
+<p><strong>如果本机有目标ip，则会直接访问本地; 如果本地没有目标ip，则看第2步</strong></p>
+<ol>
+<li><strong>用route -n查看路由，如果路由条目里包含了目标ip的网段，则数据包就会从对应路由条目后面的网卡出去</strong></li>
+<li><strong>如果没有对应网段的路由条目，则全部都走网关</strong></li>
+<li><strong>如果网关也没有，则报错：网络不可达</strong></li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>   1.维基百科 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1">https://zh.wikipedia.org/wiki/%E8%B7%AF%E7%94%B1</a></p>
+<p>   2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/149243461">https://zhuanlan.zhihu.com/p/149243461</a></p>
+<ol start="3">
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/61805945">掌握Linux路由这一篇就够了！</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://aws.amazon.com/cn/what-is/routing/">什么是路由？</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C/" class="category-chain-item">网络</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>什么是路由？</div>
+      <div>https://blog.longpi1.com/2023/02/12/什么是路由？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/02/10/%E4%BB%80%E4%B9%88%E6%98%AFinode%EF%BC%9F/" title="什么是inode？">
+                        <span class="hidden-mobile">什么是inode？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
