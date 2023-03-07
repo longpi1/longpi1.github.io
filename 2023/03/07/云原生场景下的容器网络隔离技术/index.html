@@ -1,0 +1,706 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="云原生场景下的容器网络隔离技术一、研究背景随着云计算时代的到来，尤其是容器化技术的飞速发展，云原生作为云计算的未来阶段，其安全势必成为云安全的主要战场。从目前的云原生环境来看，云原生网络安全问题层出不穷，威胁程度逐渐上升，从业人员面临着严峻的挑战。 例如，此前Akamai公司进行了一项实验，将一个简单的Docker容器蜜罐用于攻击测试，结果显示该容器在24小时内被攻击者用于四起不同的犯罪活动，这些">
+<meta property="og:type" content="article">
+<meta property="og:title" content="云原生场景下的容器网络隔离技术">
+<meta property="og:url" content="https://blog.longpi1.com/2023/03/07/%E4%BA%91%E5%8E%9F%E7%94%9F%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E5%AE%B9%E5%99%A8%E7%BD%91%E7%BB%9C%E9%9A%94%E7%A6%BB%E6%8A%80%E6%9C%AF/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="云原生场景下的容器网络隔离技术一、研究背景随着云计算时代的到来，尤其是容器化技术的飞速发展，云原生作为云计算的未来阶段，其安全势必成为云安全的主要战场。从目前的云原生环境来看，云原生网络安全问题层出不穷，威胁程度逐渐上升，从业人员面临着严峻的挑战。 例如，此前Akamai公司进行了一项实验，将一个简单的Docker容器蜜罐用于攻击测试，结果显示该容器在24小时内被攻击者用于四起不同的犯罪活动，这些">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s.secrss.com/anquanneican/b885c972bd3e41ca8af53de638d91603.jpg">
+<meta property="og:image" content="https://s.secrss.com/anquanneican/d523e20785d6f48f48ba4be0a5c0c28a.png">
+<meta property="og:image" content="https://s.secrss.com/anquanneican/dccbf91153122e76f08d95777713e58d.png">
+<meta property="article:published_time" content="2023-03-07T14:24:02.000Z">
+<meta property="article:modified_time" content="2023-03-07T14:36:07.942Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s.secrss.com/anquanneican/b885c972bd3e41ca8af53de638d91603.jpg">
+  
+  
+  
+  <title>云原生场景下的容器网络隔离技术 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="云原生场景下的容器网络隔离技术"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-07 22:24" pubdate>
+          2023年3月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">云原生场景下的容器网络隔离技术</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="云原生场景下的容器网络隔离技术"><a href="#云原生场景下的容器网络隔离技术" class="headerlink" title="云原生场景下的容器网络隔离技术"></a>云原生场景下的容器网络隔离技术</h1><h3 id="一、研究背景"><a href="#一、研究背景" class="headerlink" title="一、研究背景"></a>一、研究背景</h3><p>随着云计算时代的到来，尤其是容器化技术的飞速发展，云原生作为云计算的未来阶段，其安全势必成为云安全的主要战场。从目前的云原生环境来看，云原生网络安全问题层出不穷，威胁程度逐渐上升，从业人员面临着严峻的挑战。</p>
+<p>例如，此前Akamai公司进行了一项实验，将一个简单的Docker容器蜜罐用于攻击测试，结果显示该容器在24小时内被攻击者用于四起不同的犯罪活动，这些攻击的目的各不相同：一起攻击试图使用容器作为代理，以访问数据流或其他服务，另一起企图让目标感染僵尸网络，还有一起执行加密货币挖掘，最后一起是通过容器针对居家办公用户实施诈骗。</p>
+<p>此外，2018年特斯拉AWS上部署的K8S Dashboard因为暴露在公网，没有做认证和授权控制，也没有对网络访问做控制，导致黑客直接从dashboard中获取S3凭证，从而获取遥测数据，恶意拉取POD，进行挖矿行为。</p>
+<p>从上面案例我们可以看出，云原生安全不仅仅要应对传统安全问题，更面临着全新的挑战。在众多安全技术手段中，网络隔离技术作为最早、最基础、最为核心的安全技术手段之一，本文章也将重点围绕着网络隔离技术，以传统隔离与云原生隔离两个角度进行分析，着重对容器网络隔离技术做介绍。</p>
+<h3 id="二、传统的隔离技术–传统防火墙"><a href="#二、传统的隔离技术–传统防火墙" class="headerlink" title="二、传统的隔离技术–传统防火墙"></a>二、传统的隔离技术–传统防火墙</h3><p>随着云计算的普及，网络边界日渐模糊，这使得传统防火墙基于边界流量实现隔离显得有点格格不入，无法适配云原生场景下的隔离需求。</p>
+<p>传统防火墙作为实现传统隔离的重要手段，在云原生场景下，主要面临着以下几个问题：</p>
+<p><strong>1. 容器 IP 的多变性，一旦容器ip地址改变，针对不变的ip地址为“锚点”实现的防火墙访问控制将无法生效;</strong></p>
+<p><strong>2. 网络攻击隐蔽且多变，业务平台需更强的威胁识别和处置能力；</strong></p>
+<p><strong>3. 云原生场景下，对灵活弹性扩展需求高，需要安全策略和能力快速匹配；</strong></p>
+<p>此外，在CNCF 发布的《云原生安全白皮书》也指出传统基于边界的安全防护机制，如防火墙等，在云原生的场景下很难面面俱到。所以，在云原生场景下，为了更好保护我们的业务容器安全，我们需要一些新的隔离技术去实现网络隔离。</p>
+<h3 id="三、云原生隔离技术–容器代理实现的隔离方法"><a href="#三、云原生隔离技术–容器代理实现的隔离方法" class="headerlink" title="三、云原生隔离技术–容器代理实现的隔离方法"></a>三、云原生隔离技术–容器代理实现的隔离方法</h3><p><strong>3.1 基于k8s实现的容器隔离</strong></p>
+<p>关于云原生场景下的原生的网络隔离技术，其中Kubernetes提供了NetworkPolicy和istio中的AuthorizationPolicy ，两者都支持按Namespace级别的网络隔离，达到访问外部资源隔离的目的。其中NetworkPolicy还支持按pod级别去做网络访问控制，利用label指定namespaces或pod，底层通过iptables实现，是大家比较熟悉的pod访问控制实现技术，下面我们简单介绍一下NetworkPolicy的使用场景。</p>
+<p><strong>NetworkPolicy使用场景示例如下：</strong></p>
+<p>要求只容许指定pod访问服务：</p>
+<p>其网络策略如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">kind: NetworkPolicy<br>apiVersion: networking.k8s.io/v1<br>metadata:<br>  name: api-allow<br>spec:<br>  podSelector:<br>    matchLabels:    <span class="hljs-comment">//匹配的lable如下</span><br>      app: bookstore <br>      role: api<br>  ingress:<br>  - from:<br>      - podSelector:<br>          matchLabels:      <span class="hljs-comment">//指定可以容许访问的pod需要的lable</span><br>            app: bookstore<br></code></pre></td></tr></table></figure>
+
+<p><strong>实现效果如下：</strong></p>
+<p><img src="https://s.secrss.com/anquanneican/b885c972bd3e41ca8af53de638d91603.jpg" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>从上面示例可以看出，NetworkPolicy可以通过指定对应的labels实现对Namespace 和Pod 级别的网络隔离。对比于传统的单一外部防火墙，NetworkPolicy实现了在一个集群内的pod间网络隔离。也就是在某些需要的 Pod 之间架起防火墙，实现了细粒度的pod网络访问隔离策略。正是因为它的这些优点，目前市面上的容器安全产品的网络隔离有很多都有一些NetworkPolicy的影子。</p>
+<p>但是如果要基于NetworkPolicy做一个安全产品的网络隔离技术时，NetworkPolicy还是存在着很多缺点，主要是以下几点：</p>
+<ul>
+<li><strong>性能差</strong>，无法满足大规模网络场景的隔离需求（目前各个cni在NetworkPolicy 的实现上，一般基于iptables的方式，假如流量或者需要管控的pod过多时，对集群性能影响较大，甚至可能导致 iptables不堪重负）；</li>
+<li><strong>适用性差</strong>，目前类似于Flannel 这种流行的cni插件，并没有实现对NetworkPolicy的支持。此外，对于非k8s的场景下，例如docker compose、docker Swarm、OpenShift等环境，NetworkPolicy并不能支持；</li>
+<li><strong>细粒度不够</strong>，目前NetworkPolicy只能实现对Namespace 和Pod 级别的网络隔离，对于docker直接起的业务容器，并不能够起到防护作用。此外，目前NetworkPolicy也只能做到四层网络的防护，并不能实现对第七层网络级别的防护；</li>
+<li><strong>易用性差</strong>，每次配置都需要创建对应的yaml、无法实现自动化部署，存在效率低的问题。此外，对于开发或者运维人员很难做到“一配即中”的效果，而规则错误很可能导致业务受影响，配置难度和试错成本极高；</li>
+<li><strong>灵活性差</strong>，云原生场景下，对灵活弹性扩展需求高，需要安全策略和能力快速匹配。</li>
+</ul>
+<p>总的来说，NetworkPolicy在当前阶段，只适用于部分场景对小规模的pod进行网络隔离，不能作为一个成熟的网络隔离技术在安全产品中使用。</p>
+<p><strong>3.2 容器代理实现的隔离方法</strong></p>
+<p>由上可知，networkPolicy的实现方案存在着众多缺点，所以我们还是需要在云原生的场景下探索新的网络隔离方法，接下来我以容器代理的思路为大家介绍云原生场景下比较成熟的隔离方案。</p>
+<p>在介绍容器代理的方式之前，先简单介绍容器之间的网络通信。首先无论pod还是docker之间的通信，它们都会在自己的网络命名空间下与节点上的网络命名空间建立veth对进行连接通信，这些虚拟接口可以分布在多个命名空间上。</p>
+<p>下面以k8s的网络通信举例，在k8s中，将veth对一侧分配给 root network namespace也就是节点的网络命名空间，另一侧分配给 Pod 的网络命名空间。每个 veth 对就像一根网线，连接两侧并允许流量在它们之间流动，如下图：</p>
+<p><img src="https://s.secrss.com/anquanneican/d523e20785d6f48f48ba4be0a5c0c28a.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>基于上面的基础，我们可以在云集群中的每一个节点上部署一个代理容器，将被代理容器或者pod与宿主机通信的veth piar进行重组，通过代理容器的veth piar连接两侧，效果图如下：</p>
+<p><img src="https://s.secrss.com/anquanneican/dccbf91153122e76f08d95777713e58d.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>通过上述代理容器的方式，我们可以对节点上面其他容器和pod进行流量控制。基于packet mmap对网络连接进行分析，实现对容器网络通信的网络访问控制，实现网络隔离的效果。</p>
+<p>同时，它也解决了NetworkPolicy很多存在的缺点，具体为以下几点：</p>
+<ul>
+<li><strong>性能影响小</strong>，不需要添加多余的iptables规则，它可以通过TC或者XDP的方式对流量包进行转发，将性能影响降到最小；</li>
+<li><strong>适用性广</strong>，与网络插件解绑，同时支持docker compose、docker Swarm、OpenShift等环境；</li>
+<li><strong>细粒度更高</strong>，支持容器为最小控制单元；</li>
+<li><strong>灵活性高</strong>，满足云原生场景下灵活弹性扩展需求高的特点。</li>
+</ul>
+<p><strong>3.3 理想的容器网络隔离技术需要具备的特点</strong> 通过以上两种云原生网络隔离实现方式的分析，我们可以推断出一个理想的容器网络隔离技术需要满足以下特点：</p>
+<ul>
+<li><strong>性能影响</strong>，实现容器网络防护的同时，需要尽量不去影响集群性能和业务容器的正常运行； 适用性，不应该局限于某一种场景，给用户带来迁移或者架构更新的成本；</li>
+<li><strong>细粒度</strong>，支持容器为新的最小控制单元。另外，目前主流的零信任产品网络防护只做到4层，理想的容器网络隔离技需要做到7层网络防护的效果；</li>
+<li><strong>安全策略能力</strong>，随着云原生可视化技术的成熟，是安全策略的实现基础，基于云原生场景下“东西向”和“南北向”流量的可视化，隔离技术需要实现策略的自动生成更新；</li>
+<li><strong>灵活性</strong>，针对云原生场景下灵活弹性扩展需求高的特点，隔离技术需要做到安全策略和能力快速匹配，实现快速部署以及弹性伸缩。</li>
+</ul>
+<h3 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h3><p>本文从传统网络隔离与云原生网络隔离两个角度出发，分析了现有的网络隔离技术的特点，讨论了云原生场景下网络隔离技术需要满足的特点。</p>
+<ul>
+<li>首先我们通过分析传统隔离得出，在面对复杂的云原生应用场景时，为了更好保护我们的业务容器安全，我们需要一些新的隔离技术去实现网络隔离。</li>
+<li>然后，我们通过介绍目前云原生网络隔离的两种实现方案，得出一个理想的容器网络隔离技术需要满足哪些特点。</li>
+<li>最后，希望通过本篇文章的分享，你能有所收获。</li>
+</ul>
+<h3 id="五、参考链接"><a href="#五、参考链接" class="headerlink" title="五、参考链接"></a>五、参考链接</h3><p>1.<a href="https://link.zhihu.com/?target=https://ahmet.im/blog/kubernetes-network-policy/" rel="external nofollow noopener noreferrer" target="_blank">https://ahmet.im/blog/kubernetes-network-policy/</a></p>
+<p>2.<a href="https://link.zhihu.com/?target=https://kubernetes.io/docs/concepts/services-networking/network-policies/" rel="external nofollow noopener noreferrer" target="_blank">https://kubernetes.io/docs/concepts/services-networking/network-policies/</a></p>
+<p>3.<a href="https://link.zhihu.com/?target=https://www.51cto.com/article/715804.html" rel="external nofollow noopener noreferrer" target="_blank">https://www.51cto.com/article/715804.html</a> 4.<a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Netfilter" rel="external nofollow noopener noreferrer" target="_blank">https://en.wikipedia.org/wiki/N</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/Kubernetes/">#Kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>云原生场景下的容器网络隔离技术</div>
+      <div>https://blog.longpi1.com/2023/03/07/云原生场景下的容器网络隔离技术/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/01/%E3%80%8A%E7%90%86%E8%A7%A3Linux%E8%BF%9B%E7%A8%8B%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/" title="《理解Linux进程》阅读笔记">
+                        <span class="hidden-mobile">《理解Linux进程》阅读笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
