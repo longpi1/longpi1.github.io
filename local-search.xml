@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>应用层协议：SSL/TLS协议</title>
+    <link href="/2023/03/16/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ASSL-TLS%E5%8D%8F%E8%AE%AE/"/>
+    <url>/2023/03/16/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ASSL-TLS%E5%8D%8F%E8%AE%AE/</url>
+    
+    <content type="html"><![CDATA[<h1 id="应用层协议：SSL-x2F-TLS协议"><a href="#应用层协议：SSL-x2F-TLS协议" class="headerlink" title="应用层协议：SSL&#x2F;TLS协议"></a>应用层协议：SSL&#x2F;TLS协议</h1><blockquote><p>转载自flydean大佬的一篇文章<a href="https://zhuanlan.zhihu.com/p/133375078">让你彻底弄懂SSL&#x2F;TLS协议</a></p></blockquote><p>SSL&#x2F;TLS是一种密码通信框架，他是世界上使用最广泛的密码通信方法。SSL&#x2F;TLS综合运用了密码学中的对称密码，消息认证码，公钥密码，数字签名，伪随机数生成器等，可以说是密码学中的集大成者。</p><p>SSL(Secure Socket Layer)安全套接层，是1994年由Netscape公司设计的一套协议，并与1995年发布了3.0版本。</p><p>TLS(Transport Layer Security)传输层安全是IETF在SSL3.0基础上设计的协议，实际上相当于SSL的后续版本。</p><h2 id="SSL-x2F-TLS的应用"><a href="#SSL-x2F-TLS的应用" class="headerlink" title="SSL&#x2F;TLS的应用"></a>SSL&#x2F;TLS的应用</h2><p><img src="https://pic4.zhimg.com/80/v2-d050edfb2dbf0501562764efc4a001a3_1440w.webp" alt="img"></p><p>SSL&#x2F;TLS是一个安全通信框架，上面可以承载HTTP协议或者SMTP&#x2F;POP3协议等。</p><h2 id="TLS协议的架构"><a href="#TLS协议的架构" class="headerlink" title="TLS协议的架构"></a>TLS协议的架构</h2><p><img src="https://pic3.zhimg.com/80/v2-74138889aeea5dbdfdcb4970caeaf5a2_1440w.webp" alt="img"></p><p>TLS主要分为两层，底层的是TLS记录协议，主要负责使用对称密码对消息进行加密。</p><p>上层的是TLS握手协议，主要分为握手协议，密码规格变更协议和应用数据协议4个部分。</p><ul><li>握手协议负责在客户端和服务器端商定密码算法和共享密钥，包括证书认证，是4个协议中最最复杂的部分。</li><li>密码规格变更协议负责向通信对象传达变更密码方式的信号</li><li>警告协议负责在发生错误的时候将错误传达给对方</li><li>应用数据协议负责将TLS承载的应用数据传达给通信对象的协议。</li></ul><h2 id="握手协议"><a href="#握手协议" class="headerlink" title="握手协议"></a>握手协议</h2><p>握手协议是TLS协议中非常重要的协议，通过客户端和服务器端的交互，和共享一些必要信息，从而生成共享密钥和交互证书。</p><p>如下图所示：</p><p><img src="https://pic4.zhimg.com/80/v2-5aff714cb0cd14387cfad488adef97db_1440w.webp" alt="img"></p><p>接下来我们一步步的介绍每一步的含义：</p><ol><li>client hello客户端向服务器端发送一个client hello的消息，包含下面内容：</li></ol><ul><li>可用版本号</li><li>当前时间</li><li>客户端随机数</li><li>会话ID</li><li>可用的密码套件清单</li><li>可用的压缩方式清单</li></ul><p>我们之前提到了TLS其实是一套加密框架，其中的有些组件其实是可以替换的，这里可用版本号，可用的密码套件清单，可用的压缩方式清单就是向服务器询问对方支持哪些服务。</p><p>客户端随机数是一个由客户端生成的随机数，用来生成对称密钥。</p><ol><li>server hello服务器端收到client hello消息后，会向客户端返回一个server hello消息，包含如下内容：</li></ol><ul><li>使用的版本号</li><li>当前时间</li><li>服务器随机数</li><li>会话ID</li><li>使用的密码套件</li><li>使用的压缩方式</li></ul><p>使用的版本号，使用的密码套件，使用的压缩方式是对步骤1的回答。</p><p>服务器随机数是一个由服务器端生成的随机数，用来生成对称密钥。</p><ol><li>可选步骤:certificate服务器端发送自己的证书清单，因为证书可能是层级结构的，所以处理服务器自己的证书之外，还需要发送为服务器签名的证书。<br>客户端将会对服务器端的证书进行验证。如果是以匿名的方式通信则不需要证书。</li><li>可选步骤:ServerKeyExchange<br>如果第三步的证书信息不足，则可以发送ServerKeyExchange用来构建加密通道。<br>ServerKeyExchange的内容可能包含两种形式：</li></ol><ul><li>如果选择的是RSA协议，那么传递的就是RSA构建公钥密码的参数（E，N）。我们回想一下RSA中构建公钥的公式：密文&#x3D;明文^E\ mod\ N密文&#x3D;明文<em>E<strong>mod</strong>N</em>， 只要知道了E和N，那么就知道了RSA的公钥，这里传递的就是E，N两个数字。具体内容可以参考<a href="https://link.zhihu.com/?target=http://www.flydean.com/rsa/">RSA算法详解</a></li><li>如果选择的是Diff-Hellman密钥交换协议，那么传递的就是密钥交换的参数，具体内容可以参考<a href="https://link.zhihu.com/?target=http://www.flydean.com/diffie-hellman/">更加安全的密钥生成方法Diffie-Hellman</a></li></ul><ol><li>可选步骤:CertificateRequest如果是在一个受限访问的环境，比如fabric中，服务器端也需要向客户端索要证书。<br>如果并不需要客户端认证，则不需要此步骤。</li><li>server hello done<br>服务器端发送server hello done的消息告诉客户端自己的消息结束了。</li><li>可选步骤:Certificate<br>对步骤5的回应，客户端发送客户端证书给服务器</li><li>ClientKeyExchange<br>分两种情况：</li></ol><ul><li>如果是公钥或者RSA模式情况下，客户端将根据客户端生成的随机数和服务器端生成的随机数，生成预备主密码，通过该公钥进行加密，返送给服务器端。</li><li>如果使用的是Diff-Hellman密钥交换协议，则客户端会发送自己这一方要生成Diff-Hellman密钥而需要公开的值。具体内容可以参考<a href="https://link.zhihu.com/?target=http://www.flydean.com/diffie-hellman/">更加安全的密钥生成方法Diffie-Hellman</a>，这样服务器端可以根据这个公开值计算出预备主密码。</li></ul><ol><li>可选步骤:CertificateVerify客户端向服务器端证明自己是客户端证书的持有者。</li><li>ChangeCipherSpec(准备切换密码)<br>ChangeCipherSpec是密码规格变更协议的消息，表示后面的消息将会以前面协商过的密钥进行加密。</li><li>finished(握手协议结束)<br>客户端告诉服务器端握手协议结束了。</li><li>ChangeCipherSpec(准备切换密码)<br>服务器端告诉客户端自己要切换密码了。</li><li>finished(握手协议结束)<br>服务器端告诉客户端，握手协议结束了。</li><li>切换到应用数据协议<br>这之后服务器和客户端就是以加密的方式进行沟通了。</li></ol><h2 id="主密码和预备主密码"><a href="#主密码和预备主密码" class="headerlink" title="主密码和预备主密码"></a>主密码和预备主密码</h2><p>上面的步骤8生成了预备主密码，主密码是根据密码套件中定义的单向散列函数实现的伪随机数生成器+预备主密码+客户端随机数+服务器端随机数生成的。</p><p>主密码主要用来生成称密码的密钥，消息认证码的密钥和对称密码的CBC模式所使用的初始化向量。详见<a href="https://link.zhihu.com/?target=http://www.flydean.com/block-cipher-mode/">分组密码和模式</a></p><h2 id="TLS记录协议"><a href="#TLS记录协议" class="headerlink" title="TLS记录协议"></a>TLS记录协议</h2><p>TLS记录协议主要负责消息的压缩，加密及数据的认证：</p><p><img src="https://pic4.zhimg.com/80/v2-9c57cb3c7c0be40ea8f0cfa59ebf4c4f_1440w.webp" alt="img"></p><p>消息首先将会被分段，然后压缩，再计算其消息验证码，然后使用对称密码进行加密，加密使用的是CBC模式，CBC模式的初始向量是通过主密码来生成的。</p><p>得到密文之后会附加类型，版本和长度等其他信息，最终组成最后的报文数据。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>网络</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>转载</tag>
+      
+      <tag>网络</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>对称/非对称加密、数字签名、证书</title>
     <link href="/2023/03/16/%E5%AF%B9%E7%A7%B0-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E3%80%81%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E3%80%81%E8%AF%81%E4%B9%A6/"/>
     <url>/2023/03/16/%E5%AF%B9%E7%A7%B0-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E3%80%81%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E3%80%81%E8%AF%81%E4%B9%A6/</url>

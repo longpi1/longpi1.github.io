@@ -16,24 +16,28 @@
   <meta name="author" content="lp">
   <meta name="keywords" content>
   
-    <meta name="description" content="本文主要介绍对称&#x2F;非对称加密、数字签名、证书的概述与优缺点等，相关HTTPS的中的实现可查看[应用层协议：HTTPS协议](https:&#x2F;&#x2F;blog.longpi1.com&#x2F;2023&#x2F;03&#x2F;11&#x2F;%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AHTTPS%E5%8D%8F%E8%AE%AE&#x2F;)">
+    <meta name="description" content="转载自flydean大佬的一篇文章[让你彻底弄懂SSL&#x2F;TLS协议](">
 <meta property="og:type" content="article">
-<meta property="og:title" content="对称&#x2F;非对称加密、数字签名、证书">
-<meta property="og:url" content="https://blog.longpi1.com/2023/03/16/%E5%AF%B9%E7%A7%B0-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E3%80%81%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E3%80%81%E8%AF%81%E4%B9%A6/index.html">
+<meta property="og:title" content="应用层协议：SSL&#x2F;TLS协议">
+<meta property="og:url" content="https://blog.longpi1.com/2023/03/16/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ASSL-TLS%E5%8D%8F%E8%AE%AE/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
-<meta property="og:description" content="本文主要介绍对称&#x2F;非对称加密、数字签名、证书的概述与优缺点等，相关HTTPS的中的实现可查看[应用层协议：HTTPS协议](https:&#x2F;&#x2F;blog.longpi1.com&#x2F;2023&#x2F;03&#x2F;11&#x2F;%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AHTTPS%E5%8D%8F%E8%AE%AE&#x2F;)">
+<meta property="og:description" content="转载自flydean大佬的一篇文章[让你彻底弄懂SSL&#x2F;TLS协议](">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-03-16T07:27:16.000Z">
-<meta property="article:modified_time" content="2023-03-16T07:28:10.919Z">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-d050edfb2dbf0501562764efc4a001a3_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-74138889aeea5dbdfdcb4970caeaf5a2_1440w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-5aff714cb0cd14387cfad488adef97db_1440w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-9c57cb3c7c0be40ea8f0cfa59ebf4c4f_1440w.webp">
+<meta property="article:published_time" content="2023-03-16T07:31:41.000Z">
+<meta property="article:modified_time" content="2023-03-16T07:32:53.104Z">
 <meta property="article:author" content="lp">
-<meta property="article:tag" content="原创">
+<meta property="article:tag" content="转载">
 <meta property="article:tag" content="网络">
-<meta property="article:tag" content="密码学">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic4.zhimg.com/80/v2-d050edfb2dbf0501562764efc4a001a3_1440w.webp">
   
   
   
-  <title>对称/非对称加密、数字签名、证书 - lp&#39;s blog</title>
+  <title>应用层协议：SSL/TLS协议 - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -211,7 +215,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="对称/非对称加密、数字签名、证书"></span>
+            <span id="subtitle" data-typed-text="应用层协议：SSL/TLS协议"></span>
           
         </div>
 
@@ -222,7 +226,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-03-16 15:27" pubdate>
+        <time datetime="2023-03-16 15:31" pubdate>
           2023年3月16日 下午
         </time>
       </span>
@@ -234,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.7k 字
+          2.4k 字
         
       </span>
     
@@ -282,41 +286,91 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">对称/非对称加密、数字签名、证书</h1>
+            <h1 style="display: none">应用层协议：SSL/TLS协议</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="对称-x2F-非对称加密、数字签名、证书"><a href="#对称-x2F-非对称加密、数字签名、证书" class="headerlink" title="对称&#x2F;非对称加密、数字签名、证书"></a>对称&#x2F;非对称加密、数字签名、证书</h1><blockquote>
-<p>本文主要介绍对称&#x2F;非对称加密、数字签名、证书的概述与优缺点等，相关HTTPS的中的实现可查看<a href="https://blog.longpi1.com/2023/03/11/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9AHTTPS%E5%8D%8F%E8%AE%AE/">应用层协议：HTTPS协议</a></p>
+                <h1 id="应用层协议：SSL-x2F-TLS协议"><a href="#应用层协议：SSL-x2F-TLS协议" class="headerlink" title="应用层协议：SSL&#x2F;TLS协议"></a>应用层协议：SSL&#x2F;TLS协议</h1><blockquote>
+<p>转载自flydean大佬的一篇文章<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/133375078">让你彻底弄懂SSL&#x2F;TLS协议</a></p>
 </blockquote>
-<h2 id="一、对称加密"><a href="#一、对称加密" class="headerlink" title="一、对称加密"></a>一、对称加密</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p><strong>对称密钥算法</strong>也可以称为<strong>私钥加密</strong>、<strong>共享密钥加密</strong>，是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%AF%86%E7%A2%BC%E5%AD%B8">密码学</a>中的一类加密算法。顾名思义，<strong>这种加密方式用相同的密钥进行加密和解密。</strong></p>
-<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><p>常见的对称加密算法有<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E9%AB%98%E7%BA%A7%E5%8A%A0%E5%AF%86%E6%A0%87%E5%87%86">AES</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Salsa20">ChaCha20</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/3DES">3DES</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Salsa20">Salsa20</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E8%B3%87%E6%96%99%E5%8A%A0%E5%AF%86%E6%A8%99%E6%BA%96">DES</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Blowfish">Blowfish</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%9C%8B%E9%9A%9B%E8%B3%87%E6%96%99%E5%8A%A0%E5%AF%86%E6%BC%94%E7%AE%97%E6%B3%95">IDEA</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/RC5">RC5</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/RC6">RC6</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/Camellia">Camellia</a>。</p>
-<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点</strong>：对称加密的<strong>速度</strong>比<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%85%AC%E9%92%A5%E5%8A%A0%E5%AF%86">非对称加密</a>快很多，在很多场合都需要对称加密。</p>
-<p><strong>缺点</strong>：<strong>一切对称加密算法的软肋在于密钥的配送</strong>。加密和解密用同一个密钥，发送方必须设法把密钥发送给接收方。如果窃听者有能力窃取密文，肯定也可以窃取密钥，那么再无懈可击的算法依然不攻自破。存在<strong>密钥配送问题</strong>。</p>
-<h2 id="二、非对称加密"><a href="#二、非对称加密" class="headerlink" title="二、非对称加密"></a>二、非对称加密</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><p><strong>非对称式加密</strong>也称<strong>公开密钥密码学</strong>，是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%AF%86%E7%A2%BC%E5%AD%B8">密码学</a>的一种<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%BC%94%E7%AE%97%E6%B3%95">算法</a>，它需要两个<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%AF%86%E9%92%A5">密钥</a>，一个是公开密钥，另一个是私有密钥；公钥用作加密，私钥则用作解密。使用公钥把<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%98%8E%E6%96%87">明文</a>加密后所得的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%AF%86%E6%96%87">密文</a>，只能用相对应的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E7%A7%81%E9%92%A5">私钥</a>才能解密并得到原本的明文。<strong>由于加密和解密需要两个不同的密钥，故被称为非对称加密；</strong>不同于加密和解密都使用同一个密钥的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86">对称加密</a>。公钥可以公开，可任意向外发布；私钥不可以公开，必须由用户自行严格秘密保管，绝不透过任何途径向任何人提供，也不会透露给被信任的要通信的另一方。也就是<strong>私钥是钥匙，而公钥是锁，可以把锁公开出去，让别人把数据锁起来发给我；而钥匙一定要留在自己手里，用于解锁</strong>。</p>
-<h3 id="应用-1"><a href="#应用-1" class="headerlink" title="应用"></a>应用</h3><p>常见的公钥加密算法有：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/RSA%E5%8A%A0%E5%AF%86%E6%BC%94%E7%AE%97%E6%B3%95">RSA</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/ElGamal">ElGamal</a>、Rabin（RSA的特例）、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E7%AE%97%E6%B3%95">DSA</a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/ECDSA">ECDSA</a>。使用最广泛的是<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/RSA%E7%AE%97%E6%B3%95">RSA算法</a>（由发明者Rivest、Shmir和Adleman姓氏首字母缩写而来）是著名的公开秘钥加密算法。</p>
-<h3 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点</strong>：一定程度上解决<strong>密钥配送</strong>的问题</p>
-<p><strong>缺点</strong>：<strong>非对称加密算法也无法确定通信双方的身份，依然会遭到中间人攻击</strong>。非对称加密解决了加密安全的问题，<strong>但是数据的加密安全只是数据安全的一个方面</strong>，<strong>数据的真实性同样非常重要</strong>。经常可以看到这样的案例，骗子在同学参加四、六级考试的时候，给同学的家长打电话或发短信，声称自己是学校的辅导员，并表示同学病重急需用钱，要求家长汇钱，同学家长汇钱给骗子而遭受巨大损失的情况。<strong>这就是数据&#x2F;信息真实性没有得到足够验证而产生的问题。</strong></p>
-<h2 id="三、数字签名"><a href="#三、数字签名" class="headerlink" title="三、数字签名"></a>三、数字签名</h2><h3 id="概述-2"><a href="#概述-2" class="headerlink" title="概述"></a>概述</h3><p>如果某一用户使用他的私钥加密明文，任何人都可以用该用户的公钥解密密文；由于私钥只由该用户自己持有，故可以肯定该文件必定出自于该用户；公众可以验证该用户发布的数据或文件是否完整、中途有否曾被篡改，接收者可信赖这些数据、文件确实来自于该用户，这被称作<strong>数字签名</strong></p>
-<p><strong>数字签名的作用本来就不是保证数据的机密性，而是证明你的身份</strong>，证明这些数据确实是由你本人发出的。</p>
-<h3 id="优缺点-2"><a href="#优缺点-2" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点</strong>：<strong>数字签名可以一定程度上认证数据的来源</strong>。</p>
-<p><strong>缺点</strong>：<strong>无法鉴别别人给你的公钥是不是对的。会不会有中间人冒充，发给你一个它的公钥。</strong></p>
-<h2 id="四、公钥证书"><a href="#四、公钥证书" class="headerlink" title="四、公钥证书"></a>四、<strong>公钥证书</strong></h2><h3 id="概述-3"><a href="#概述-3" class="headerlink" title="概述"></a>概述</h3><p><strong>证书其实就是公钥 + 签名，由第三方认证机构颁发</strong>。引入可信任的第三方，是终结信任循环的一种可行方案。</p>
-<h3 id="应用-2"><a href="#应用-2" class="headerlink" title="应用"></a>应用</h3><p>证书认证的流程大致如下：</p>
-<p>1、Bob 去可信任的认证机构证实本人真实身份，并提供自己的公钥。</p>
-<p>2、Alice 想跟 Bob 通信，首先向认证机构请求 Bob 的公钥，认证机构会把一张证书（Bob 的公钥以及对其公钥的签名）发送给 Alice。</p>
-<p>3、Alice 检查签名，<strong>确定该公钥确实由这家认证机构发送</strong>，中途未被篡改。</p>
-<p>4、Alice 通过这个公钥加密数据，开始和 Bob 通信。</p>
-<p>PS：以上只是为了说明，证书只需要安装一次，并不需要每次都向认证机构请求；一般是服务器直接给客户端发送证书，而不是认证机构。</p>
-<h3 id="优缺点-3"><a href="#优缺点-3" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点</strong>：有效避免了沟通过程中的信息泄露，成功规避了传统的中间人攻击；</p>
-<p><strong>缺点</strong>：<strong>任何人都可以申请证书，导致存在很多不正规的认证机构证书，这些不正规证书很可能造成安全隐患</strong>。</p>
-<h2 id="五、参考链接"><a href="#五、参考链接" class="headerlink" title="五、参考链接"></a>五、参考链接</h2><ol>
-<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/105087487">什么是对称&#x2F;非对称加密、密钥交换、数字签名、证书</a></li>
-<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zh.wikipedia.org/wiki/%E5%85%AC%E5%BC%80%E5%AF%86%E9%92%A5%E5%8A%A0%E5%AF%86">公开密钥加密</a></li>
-<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/article/9492">趣谈网络协议</a></li>
+<p>SSL&#x2F;TLS是一种密码通信框架，他是世界上使用最广泛的密码通信方法。SSL&#x2F;TLS综合运用了密码学中的对称密码，消息认证码，公钥密码，数字签名，伪随机数生成器等，可以说是密码学中的集大成者。</p>
+<p>SSL(Secure Socket Layer)安全套接层，是1994年由Netscape公司设计的一套协议，并与1995年发布了3.0版本。</p>
+<p>TLS(Transport Layer Security)传输层安全是IETF在SSL3.0基础上设计的协议，实际上相当于SSL的后续版本。</p>
+<h2 id="SSL-x2F-TLS的应用"><a href="#SSL-x2F-TLS的应用" class="headerlink" title="SSL&#x2F;TLS的应用"></a>SSL&#x2F;TLS的应用</h2><p><img src="https://pic4.zhimg.com/80/v2-d050edfb2dbf0501562764efc4a001a3_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>SSL&#x2F;TLS是一个安全通信框架，上面可以承载HTTP协议或者SMTP&#x2F;POP3协议等。</p>
+<h2 id="TLS协议的架构"><a href="#TLS协议的架构" class="headerlink" title="TLS协议的架构"></a>TLS协议的架构</h2><p><img src="https://pic3.zhimg.com/80/v2-74138889aeea5dbdfdcb4970caeaf5a2_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>TLS主要分为两层，底层的是TLS记录协议，主要负责使用对称密码对消息进行加密。</p>
+<p>上层的是TLS握手协议，主要分为握手协议，密码规格变更协议和应用数据协议4个部分。</p>
+<ul>
+<li>握手协议负责在客户端和服务器端商定密码算法和共享密钥，包括证书认证，是4个协议中最最复杂的部分。</li>
+<li>密码规格变更协议负责向通信对象传达变更密码方式的信号</li>
+<li>警告协议负责在发生错误的时候将错误传达给对方</li>
+<li>应用数据协议负责将TLS承载的应用数据传达给通信对象的协议。</li>
+</ul>
+<h2 id="握手协议"><a href="#握手协议" class="headerlink" title="握手协议"></a>握手协议</h2><p>握手协议是TLS协议中非常重要的协议，通过客户端和服务器端的交互，和共享一些必要信息，从而生成共享密钥和交互证书。</p>
+<p>如下图所示：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-5aff714cb0cd14387cfad488adef97db_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>接下来我们一步步的介绍每一步的含义：</p>
+<ol>
+<li>client hello客户端向服务器端发送一个client hello的消息，包含下面内容：</li>
 </ol>
+<ul>
+<li>可用版本号</li>
+<li>当前时间</li>
+<li>客户端随机数</li>
+<li>会话ID</li>
+<li>可用的密码套件清单</li>
+<li>可用的压缩方式清单</li>
+</ul>
+<p>我们之前提到了TLS其实是一套加密框架，其中的有些组件其实是可以替换的，这里可用版本号，可用的密码套件清单，可用的压缩方式清单就是向服务器询问对方支持哪些服务。</p>
+<p>客户端随机数是一个由客户端生成的随机数，用来生成对称密钥。</p>
+<ol>
+<li>server hello服务器端收到client hello消息后，会向客户端返回一个server hello消息，包含如下内容：</li>
+</ol>
+<ul>
+<li>使用的版本号</li>
+<li>当前时间</li>
+<li>服务器随机数</li>
+<li>会话ID</li>
+<li>使用的密码套件</li>
+<li>使用的压缩方式</li>
+</ul>
+<p>使用的版本号，使用的密码套件，使用的压缩方式是对步骤1的回答。</p>
+<p>服务器随机数是一个由服务器端生成的随机数，用来生成对称密钥。</p>
+<ol>
+<li>可选步骤:certificate服务器端发送自己的证书清单，因为证书可能是层级结构的，所以处理服务器自己的证书之外，还需要发送为服务器签名的证书。<br>客户端将会对服务器端的证书进行验证。如果是以匿名的方式通信则不需要证书。</li>
+<li>可选步骤:ServerKeyExchange<br>如果第三步的证书信息不足，则可以发送ServerKeyExchange用来构建加密通道。<br>ServerKeyExchange的内容可能包含两种形式：</li>
+</ol>
+<ul>
+<li>如果选择的是RSA协议，那么传递的就是RSA构建公钥密码的参数（E，N）。我们回想一下RSA中构建公钥的公式：密文&#x3D;明文^E\ mod\ N密文&#x3D;明文<em>E<strong>mod</strong>N</em>， 只要知道了E和N，那么就知道了RSA的公钥，这里传递的就是E，N两个数字。具体内容可以参考<a href="https://link.zhihu.com/?target=http://www.flydean.com/rsa/" rel="external nofollow noopener noreferrer" target="_blank">RSA算法详解</a></li>
+<li>如果选择的是Diff-Hellman密钥交换协议，那么传递的就是密钥交换的参数，具体内容可以参考<a href="https://link.zhihu.com/?target=http://www.flydean.com/diffie-hellman/" rel="external nofollow noopener noreferrer" target="_blank">更加安全的密钥生成方法Diffie-Hellman</a></li>
+</ul>
+<ol>
+<li>可选步骤:CertificateRequest如果是在一个受限访问的环境，比如fabric中，服务器端也需要向客户端索要证书。<br>如果并不需要客户端认证，则不需要此步骤。</li>
+<li>server hello done<br>服务器端发送server hello done的消息告诉客户端自己的消息结束了。</li>
+<li>可选步骤:Certificate<br>对步骤5的回应，客户端发送客户端证书给服务器</li>
+<li>ClientKeyExchange<br>分两种情况：</li>
+</ol>
+<ul>
+<li>如果是公钥或者RSA模式情况下，客户端将根据客户端生成的随机数和服务器端生成的随机数，生成预备主密码，通过该公钥进行加密，返送给服务器端。</li>
+<li>如果使用的是Diff-Hellman密钥交换协议，则客户端会发送自己这一方要生成Diff-Hellman密钥而需要公开的值。具体内容可以参考<a href="https://link.zhihu.com/?target=http://www.flydean.com/diffie-hellman/" rel="external nofollow noopener noreferrer" target="_blank">更加安全的密钥生成方法Diffie-Hellman</a>，这样服务器端可以根据这个公开值计算出预备主密码。</li>
+</ul>
+<ol>
+<li>可选步骤:CertificateVerify客户端向服务器端证明自己是客户端证书的持有者。</li>
+<li>ChangeCipherSpec(准备切换密码)<br>ChangeCipherSpec是密码规格变更协议的消息，表示后面的消息将会以前面协商过的密钥进行加密。</li>
+<li>finished(握手协议结束)<br>客户端告诉服务器端握手协议结束了。</li>
+<li>ChangeCipherSpec(准备切换密码)<br>服务器端告诉客户端自己要切换密码了。</li>
+<li>finished(握手协议结束)<br>服务器端告诉客户端，握手协议结束了。</li>
+<li>切换到应用数据协议<br>这之后服务器和客户端就是以加密的方式进行沟通了。</li>
+</ol>
+<h2 id="主密码和预备主密码"><a href="#主密码和预备主密码" class="headerlink" title="主密码和预备主密码"></a>主密码和预备主密码</h2><p>上面的步骤8生成了预备主密码，主密码是根据密码套件中定义的单向散列函数实现的伪随机数生成器+预备主密码+客户端随机数+服务器端随机数生成的。</p>
+<p>主密码主要用来生成称密码的密钥，消息认证码的密钥和对称密码的CBC模式所使用的初始化向量。详见<a href="https://link.zhihu.com/?target=http://www.flydean.com/block-cipher-mode/" rel="external nofollow noopener noreferrer" target="_blank">分组密码和模式</a></p>
+<h2 id="TLS记录协议"><a href="#TLS记录协议" class="headerlink" title="TLS记录协议"></a>TLS记录协议</h2><p>TLS记录协议主要负责消息的压缩，加密及数据的认证：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-9c57cb3c7c0be40ea8f0cfa59ebf4c4f_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>消息首先将会被分段，然后压缩，再计算其消息验证码，然后使用对称密码进行加密，加密使用的是CBC模式，CBC模式的初始向量是通过主密码来生成的。</p>
+<p>得到密文之后会附加类型，版本和长度等其他信息，最终组成最后的报文数据。</p>
 
                 
               </div>
@@ -350,11 +404,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+        <a href="/tags/%E8%BD%AC%E8%BD%BD/">#转载</a>
       
         <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
-      
-        <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">#密码学</a>
       
     </div>
   
@@ -366,8 +418,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>对称/非对称加密、数字签名、证书</div>
-      <div>https://blog.longpi1.com/2023/03/16/对称-非对称加密、数字签名、证书/</div>
+      <div>应用层协议：SSL/TLS协议</div>
+      <div>https://blog.longpi1.com/2023/03/16/应用层协议：SSL-TLS协议/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -380,18 +432,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/03/16/%E5%BA%94%E7%94%A8%E5%B1%82%E5%8D%8F%E8%AE%AE%EF%BC%9ASSL-TLS%E5%8D%8F%E8%AE%AE/" title="应用层协议：SSL/TLS协议">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">应用层协议：SSL/TLS协议</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/03/15/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8F%92%E4%BB%B6%E6%8E%A8%E8%8D%90/" title="非常实用的 ChatGPT 浏览器插件推荐">
-                        <span class="hidden-mobile">非常实用的 ChatGPT 浏览器插件推荐</span>
+                      <a href="/2023/03/16/%E5%AF%B9%E7%A7%B0-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E3%80%81%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E3%80%81%E8%AF%81%E4%B9%A6/" title="对称/非对称加密、数字签名、证书">
+                        <span class="hidden-mobile">对称/非对称加密、数字签名、证书</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
