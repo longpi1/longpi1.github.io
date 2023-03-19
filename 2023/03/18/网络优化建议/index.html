@@ -1,0 +1,729 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="转载自张彦飞的[关于 Linux 网络性能的 15 个优化建议！](https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;532492257)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于 Linux 网络性能的 15 个优化建议">
+<meta property="og:url" content="https://blog.longpi1.com/2023/03/18/%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="转载自张彦飞的[关于 Linux 网络性能的 15 个优化建议！](https:&#x2F;&#x2F;zhuanlan.zhihu.com&#x2F;p&#x2F;532492257)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-ecba57083233d47733edac2ad082250e_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-20ebecf23bb2e7efab54133b78942b79_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-789483747c518d6a4459031d0f77c33a_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-42a7e0ffd0d22771ff9c2d5d0692de35_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-5d2688c2577cbb426f70146436cc92fa_1440w.webp">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-6fb30b17a5ecfdc8c99a8a9c2964a6e8_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-72b4a6cc7f2e25bab8ffc5c843bd38da_1440w.webp">
+<meta property="article:published_time" content="2023-03-18T14:09:39.000Z">
+<meta property="article:modified_time" content="2023-03-18T14:11:42.379Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="转载">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic3.zhimg.com/80/v2-ecba57083233d47733edac2ad082250e_1440w.webp">
+  
+  
+  
+  <title>关于 Linux 网络性能的 15 个优化建议 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="关于 Linux 网络性能的 15 个优化建议"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-18 22:09" pubdate>
+          2023年3月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">关于 Linux 网络性能的 15 个优化建议</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="关于-Linux-网络性能的-15-个优化建议"><a href="#关于-Linux-网络性能的-15-个优化建议" class="headerlink" title="关于 Linux 网络性能的 15 个优化建议"></a>关于 Linux 网络性能的 15 个优化建议</h1><blockquote>
+<p>转载自张彦飞的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/532492257">关于 Linux 网络性能的 15 个优化建议！</a></p>
+</blockquote>
+<h3 id="建议1：尽量减少不必要的网络-IO"><a href="#建议1：尽量减少不必要的网络-IO" class="headerlink" title="建议1：尽量减少不必要的网络 IO"></a><strong>建议1：尽量减少不必要的网络 IO</strong></h3><p>我要给出的第一个建议就是不必要用网络 IO 的尽量不用。</p>
+<p>是的，网络在现代的互联网世界里承载了很重要的角色。用户通过网络请求线上服务、服务器通过网络读取数据库中数据，通过网络构建能力无比强大分布式系统。网络很好，能降低模块的开发难度，也能用它搭建出更强大的系统。但是这不是你滥用它的理由！</p>
+<p>原因是即使是本机网络 IO 开销仍然是很大的。先说发送一个网络包，首先得从用户态切换到内核态，花费一次系统调用的开销。进入到内核以后，又得经过冗长的协议栈，这会花费不少的 CPU 周期，最后进入环回设备的“驱动程序”。接收端呢，软中断花费不少的 CPU 周期又得经过接收协议栈的处理，最后唤醒或者通知用户进程来处理。当服务端处理完以后，还得把结果再发过来。又得来这么一遍，最后你的进程才能收到结果。你说麻烦不麻烦。另外还有个问题就是多个进程协作来完成一项工作就必然会引入更多的进程上下文切换开销，这些开销从开发视角来看，做的其实都是无用功。</p>
+<p>上面我们还分析的只是本机网络 IO，如果是跨机器的还得会有双方网卡的 DMA 拷贝过程，以及两端之间的网络 RTT 耗时延迟。所以，网络虽好，但也不能随意滥用！</p>
+<h3 id="建议2：尽量合并网络请求"><a href="#建议2：尽量合并网络请求" class="headerlink" title="建议2：尽量合并网络请求"></a><strong>建议2：尽量合并网络请求</strong></h3><p>在可能的情况下，尽可能地把多次的网络请求合并到一次，这样既节约了双端的 CPU 开销，也能降低多次 RTT 导致的耗时。</p>
+<p>我们举个实践中的例子可能更好理解。假如有一个 redis，里面存了每一个 App 的信息（应用名、包名、版本、截图等等）。你现在需要根据用户安装应用列表来查询数据库中有哪些应用比用户的版本更新，如果有则提醒用户更新。</p>
+<p>那么最好不要写出如下的代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">&lt;?php <br><span class="hljs-title function_">for</span><span class="hljs-params">(安装列表 as 包名)</span>&#123;<br>  redis-&gt;get(包名)<br>  ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面这段代码功能上实现上没问题，问题在于性能。据我们统计现代用户平均安装 App 的数量在 60 个左右。那这段代码在运行的时候，每当用户来请求一次，你的服务器就需要和 redis 进行 60 次网络请求。 总耗时最少是 60 个 RTT 起。更好的方法是应该使用 redis 中提供的批量获取命令，如 hmget、pipeline等，经过一次网络 IO 就获取到所有想要的数据，如图。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-ecba57083233d47733edac2ad082250e_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="建议3：调用者与被调用机器尽可能部署的近一些"><a href="#建议3：调用者与被调用机器尽可能部署的近一些" class="headerlink" title="建议3：调用者与被调用机器尽可能部署的近一些"></a><strong>建议3：调用者与被调用机器尽可能部署的近一些</strong></h3><p>在前面的章节中我们看到在握手一切正常的情况下， TCP 握手的时间基本取决于两台机器之间的 RTT 耗时。虽然我们没办法彻底去掉这个耗时，但是我们却有办法把 RTT 降低，那就是把客户端和服务器放的足够地近一些。尽量把每个机房内部的数据请求都在本地机房解决，减少跨地网络传输。</p>
+<p>举例，假如你的服务是部署在北京机房的，你调用的 mysql、redis最好都位于北京机房内部。尽量不要跨过千里万里跑到广东机房去请求数据，即使你有专线，耗时也会大大增加！在机房内部的服务器之间的 RTT 延迟大概只有零点几毫秒，同地区的不同机房之间大约是 1 ms 多一些。但如果从北京跨到广东的话，延迟将是 30 - 40 ms 左右，几十倍的上涨！</p>
+<h3 id="建议4：内网调用不要用外网域名"><a href="#建议4：内网调用不要用外网域名" class="headerlink" title="建议4：内网调用不要用外网域名"></a><strong>建议4：内网调用不要用外网域名</strong></h3><p>假如说你所在负责的服务需要调用兄弟部门的一个搜索接口，假设接口是：”<a href="https://link.zhihu.com/?target=http://www.sogou.com/wq?key=" rel="external nofollow noopener noreferrer" target="_blank">http://www.sogou.com/wq?key=</a>开发内功修炼”。</p>
+<p>那既然是兄弟部门，那很可能这个接口和你的服务是部署在一个机房的。即使没有部署在一个机房，一般也是有专线可达的。<strong>所以不要直接请求 <a href="https://link.zhihu.com/?target=http://www.sogou.com" rel="external nofollow noopener noreferrer" target="_blank">http://www.sogou.com</a>， 而是应该使用该服务在公司对应的内网域名</strong>。在我们公司内部，每一个外网服务都会配置一个对应的内网域名，我相信你们公司也有。</p>
+<p>为什么要这么做，原因有以下几点</p>
+<p>1）<strong>外网接口慢</strong>。本来内网可能过个交换机就能达到兄弟部门的机器，非得上外网兜一圈再回来，时间上肯定会慢。</p>
+<p>2）<strong>带宽成本高</strong>。在互联网服务里，除了机器以外，另外一块很大的成本就是 IDC 机房的出入口带宽成本。 两台机器在内网不管如何通信都不涉及到带宽的计算。但是一旦你去外网兜了一圈回来，行了，一进一出全部要缴带宽费，你说亏不亏！！</p>
+<p>3）<strong>NAT 单点瓶颈</strong>。一般的服务器都没有外网 IP，所以要想请求外网的资源，必须要经过 NAT 服务器。但是一个公司的机房里几千台服务器中，承担 NAT 角色的可能就那么几台。它很容易成为瓶颈。我们的业务就遇到过好几次 NAT 故障导致外网请求失败的情形。 NAT 机器挂了，你的服务可能也就挂了，故障率大大增加。</p>
+<h3 id="建议5：调整网卡-RingBuffer-大小"><a href="#建议5：调整网卡-RingBuffer-大小" class="headerlink" title="建议5：调整网卡 RingBuffer 大小"></a><strong>建议5：调整网卡 RingBuffer 大小</strong></h3><p>在 Linux 的整个网络栈中，RingBuffer 起到一个任务的收发中转站的角色。对于接收过程来讲，网卡负责往 RingBuffer 中写入收到的数据帧，ksoftirqd 内核线程负责从中取走处理。只要 ksoftirqd 线程工作的足够快，RingBuffer 这个中转站就不会出现问题。</p>
+<p>但是我们设想一下，假如某一时刻，瞬间来了特别多的包，而 ksoftirqd 处理不过来了，会发生什么？这时 RingBuffer 可能瞬间就被填满了，后面再来的包网卡直接就会丢弃，不做任何处理！</p>
+<p><img src="https://pic2.zhimg.com/80/v2-20ebecf23bb2e7efab54133b78942b79_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>通过 ethtool 就可以加大 RingBuffer 这个“中转仓库”的大小。。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text"># ethtool -G eth1 rx 4096 tx 4096<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://pic3.zhimg.com/80/v2-789483747c518d6a4459031d0f77c33a_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>这样网卡会被分配更大一点的”中转站“，可以解决偶发的瞬时的丢包。不过这种方法有个小副作用，那就是排队的包过多会增加处理网络包的延时。所以应该让内核处理网络包的速度更快一些更好，而不是让网络包傻傻地在 RingBuffer 中排队。我们后面会再介绍到 RSS ，它可以让更多的核来参与网络包接收。</p>
+<h3 id="建议6：减少内存拷贝"><a href="#建议6：减少内存拷贝" class="headerlink" title="建议6：减少内存拷贝"></a><strong>建议6：减少内存拷贝</strong></h3><p>假如你要发送一个文件给另外一台机器上，那么比较基础的做法是先调用 read 把文件读出来，再调用 send 把数据把数据发出去。这样数据需要频繁地在内核态内存和用户态内存之间拷贝，如图</p>
+<p><img src="https://pic2.zhimg.com/80/v2-42a7e0ffd0d22771ff9c2d5d0692de35_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>目前减少内存拷贝主要有两种方法，分别是使用 mmap 和 sendfile 两个系统调用。使用 mmap 系统调用的话，映射进来的这段地址空间的内存在用户态和内核态都是可以使用的。如果你发送数据是发的是 mmap 映射进来的数据，则内核直接就可以从地址空间中读取，这样就节约了一次从内核态到用户态的拷贝过程。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-5d2688c2577cbb426f70146436cc92fa_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>不过在 mmap 发送文件的方式里，系统调用的开销并没有减少，还是发生两次内核态和用户态的上下文切换。 如果你只是想把一个文件发送出去，而不关心它的内容，则可以调用另外一个做的更极致的系统调用 - sendfile。在这个系统调用里，彻底把读文件和发送文件给合并起来了，系统调用的开销又省了一次。再配合绝大多数网卡都支持的”分散-收集”（Scatter-gather）DMA 功能。可以直接从 PageCache 缓存区中 DMA 拷贝到网卡中，如图 9.8。这样绝大部分的 CPU 拷贝操作就都省去了。</p>
+<p><img src="https://pic1.zhimg.com/80/v2-6fb30b17a5ecfdc8c99a8a9c2964a6e8_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="建议7：使用-eBPF-绕开协议栈的本机-IO"><a href="#建议7：使用-eBPF-绕开协议栈的本机-IO" class="headerlink" title="建议7：使用 eBPF 绕开协议栈的本机 IO"></a><strong>建议7：使用 eBPF 绕开协议栈的本机 IO</strong></h3><p>如果你的业务中涉及到大量的本机网络 IO 可以考虑这个优化方案。本机网络 IO 和跨机 IO 比较起来，确实是节约了驱动上的一些开销。发送数据不需要进 RingBuffer 的驱动队列，直接把 skb 传给接收协议栈(经过软中断)。但是在内核其它组件上，可是一点都没少，系统调用、协议栈(传输层、网络层等)、设备子系统整个走 了一个遍。连“驱动”程序都走了(虽然对于回环设备来说这个驱动只是一个纯软件的虚拟出来的东东)。</p>
+<p>如果想用本机网络 IO，但是又不想频繁地在协议栈中绕来绕去。那么你可以试试 eBPF。使用 eBPF 的 sockmap 和 sk redirect 可以绕过 TCP&#x2F;IP 协议栈，而被直接发送给接收端的 socket，业界已经有公司在这么做了。</p>
+<h3 id="建议8：-尽量少用-recvfrom-等进程阻塞的方式"><a href="#建议8：-尽量少用-recvfrom-等进程阻塞的方式" class="headerlink" title="建议8： 尽量少用 recvfrom 等进程阻塞的方式"></a><strong>建议8： 尽量少用 recvfrom 等进程阻塞的方式</strong></h3><p>在使用了 recvfrom 阻塞方式来接收 socket 上数据的时候。每次一个进程专⻔为了等一个 socket 上的数据就得被从 CPU 上拿下来。然后再换上另一个 进程。等到数据 ready 了，睡眠的进程又会被唤醒。总共两次进程上下文切换开销。如果我们服务器上需要有大量的用户请求需要处理，那就需要有很多的进程存在，而且不停地切换来切换去。这样的缺点有如下这么几个：</p>
+<ul>
+<li>因为每个进程只能同时等待一条连接，所以需要大量的进程。</li>
+<li>进程之间互相切换的时候需要消耗很多 CPU 周期，一次切换大约是 3 - 5 us 左右。</li>
+<li>频繁的切换导致 L1、L2、L3 等高速缓存的效果大打折扣</li>
+</ul>
+<p>大家可能以为这种网络 IO 模型很少见了。但其实在很多传统的客户端 SDK 中，比如 mysql、redis 和 kafka 仍然是沿用了这种方式。</p>
+<h3 id="建议9：使用成熟的网络库"><a href="#建议9：使用成熟的网络库" class="headerlink" title="建议9：使用成熟的网络库"></a><strong>建议9：使用成熟的网络库</strong></h3><p>使用 epoll 可以高效地管理海量的 socket。在服务器端。我们有各种成熟的网络库进行使用。这些网络库都对 epoll 使用了不同程度的封装。</p>
+<p>首先第一个要给大家参考的是 Redis。老版本的 Redis 里单进程高效地使用 epoll 就能支持每秒数万 QPS 的高性能。如果你的服务是单进程的，可以参考 Redis 在网络 IO 这块的源码。</p>
+<p>如果是多线程的，线程之间的分工有很多种模式。那么哪个线程负责等待读 IO 事件，那个线程负责处理用户请求，哪个线程又负责给用户写返回。根据分工的不同，又衍生出单 Reactor、多 Reactor、以及 Proactor 等多种模式。大家也不必头疼，只要理解了这些原理之后选择一个性能不错的网络库就可以了。比如 PHP 中的 Swoole、Golang 的 net 包、Java 中的 netty 、C++ 中的 Sogou Workflow 都封装的非常的不错。</p>
+<h3 id="建议10：使用-Kernel-ByPass-新技术"><a href="#建议10：使用-Kernel-ByPass-新技术" class="headerlink" title="建议10：使用 Kernel-ByPass 新技术"></a><strong>建议10：使用 Kernel-ByPass 新技术</strong></h3><p>如果你的服务对网络要求确实特别特特别的高，而且各种优化措施也都用过了，那么现在还有终极优化大招 – Kernel-ByPass 技术。</p>
+<p>内核在接收网络包的时候要经过很⻓的收发路径。在这期间牵涉到很多内核组件之间的协同、协议栈的处理、以及内核态和用户态的拷贝和切换。 Kernel-ByPass 这类的技术方案就是绕开内核协议栈，自己在用户态来实现网络包的收发。这样不但避开了繁杂的内核协议栈处理，也减少了频繁了内核态用户态之间的拷贝和切换，性能将发挥到极致！</p>
+<p>目前我所知道的方案有 SOLARFLARE 的软硬件方案、DPDK 等等。如果大家感兴趣，可以多去了解一下！</p>
+<p><img src="https://pic3.zhimg.com/80/v2-72b4a6cc7f2e25bab8ffc5c843bd38da_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="建议11：配置充足的端口范围"><a href="#建议11：配置充足的端口范围" class="headerlink" title="建议11：配置充足的端口范围"></a><strong>建议11：配置充足的端口范围</strong></h3><p>客户端在调用 connect 系统调用发起连接的时候，需要先选择一个可用的端口。内核在选用端口的时候，是采用从可用端口范围中某一个随机位置开始遍历的方式。如果端口不充足的话，内核可能需要循环撞很多次才能选上一个可用的。这也会导致花费更多的 CPU 周期在内部的哈希表查找以及可能的自旋锁等待上。因此不要等到端口用尽报错了才开始加大端口范围，而且应该一开始的时候就保持一个比较充足的值。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># vi /etc/sysctl.conf</span><br>net.ipv4.ip_local_port_range = <span class="hljs-number">5000</span> <span class="hljs-number">65000</span><br><span class="hljs-comment"># sysctl -p  //使配置生效</span><br></code></pre></td></tr></table></figure>
+
+<p>如果端口加大了仍然不够用，那么可以考虑开启端口 reuse 和 recycle。这样端口在连接断开的时候就不需要等待 2MSL 的时间了，可以快速回收。开启这个参数之前需要保证 tcp_timestamps 是开启的。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># vi /etc/sysctl.conf</span><br>net.ipv4.tcp_timestamps = <span class="hljs-number">1</span><br>net.ipv4.tcp_tw_reuse = <span class="hljs-number">1</span><br>net.ipv4.tw_recycle = <span class="hljs-number">1</span><br><span class="hljs-comment"># sysctl -p</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="建议12：小心连接队列溢出"><a href="#建议12：小心连接队列溢出" class="headerlink" title="建议12：小心连接队列溢出"></a><strong>建议12：小心连接队列溢出</strong></h3><p>服务器端使用了两个连接队列来响应来自客户端的握手请求。这两个队列的长度是在服务器 listen 的时候就确定好了的。如果发生溢出，很可能会丢包。所以如果你的业务使用的是短连接且流量比较大，那么一定得学会观察这两个队列是否存在溢出的情况。因为一旦出现因为连接队列导致的握手问题，那么 TCP 连接耗时都是秒级以上了。</p>
+<p>对于半连接队列， 有个简单的办法。那就是只要保证 tcp_syncookies 这个内核参数是 1 就能保证不会有因为半连接队列满而发生的丢包。</p>
+<p>对于全连接队列来说，可以通过 netstat -s 来观察。netstat -s 可查看到当前系统全连接队列满导致的丢包统计。但该数字记录的是总丢包数，所以你需要再借助 watch 命令动态监控。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># watch &#x27;netstat -s | grep overflowed&#x27; </span><br><span class="hljs-number">160</span> times the listen queue of a socket overflowed //全连接队列满导致的丢包<br></code></pre></td></tr></table></figure>
+
+<p>如果输出的数字在你监控的过程中变了，那说明当前服务器有因为全连接队列满而产生的丢包。你就需要加大你的全连接队列的⻓度了。全连接队列是应用程序调用 listen时传入的 backlog 以及内核参数 net.core.somaxconn 二者之中较小的那个。如果需要加大，可能两个参数都需要改。</p>
+<p>如果你手头并没有服务器的权限，只是发现自己的客户端机连接某个 server 出现耗时长，想定位一下是否是因为握手队列的问题。那也有间接的办法，可以 tcpdump 抓包查看是否有 SYN 的 TCP Retransmission。如果有偶发的 TCP Retransmission， 那就说明对应的服务端连接队列可能有问题了。</p>
+<h3 id="建议13：减少握手重试"><a href="#建议13：减少握手重试" class="headerlink" title="建议13：减少握手重试"></a><strong>建议13：减少握手重试</strong></h3><p>在 6.5 节我们看到如果握手发生异常，客户端或者服务端就会启动超时重传机制。这个超时重试的时间间隔是翻倍地增长的，1 秒、3 秒、7 秒、15 秒、31 秒、63 秒 ……。对于我们提供给用户直接访问的接口来说，重试第一次耗时 1 秒多已经是严重影响用户体验了。如果重试到第三次以后，很有可能某一个环节已经报错返回 504 了。所以在这种应用场景下，维护这么多的超时次数其实没有任何意义。倒不如把他们设置的小一些，尽早放弃。 其中客户端的 syn 重传次数由 tcp_syn_retries 控制，服务器半连接队列中的超时次数是由 tcp_synack_retries 来控制。把它们两个调成你想要的值。</p>
+<h3 id="建议14：-如果请求频繁，请弃用短连接改用长连接"><a href="#建议14：-如果请求频繁，请弃用短连接改用长连接" class="headerlink" title="建议14： 如果请求频繁，请弃用短连接改用长连接"></a><strong>建议14： 如果请求频繁，请弃用短连接改用长连接</strong></h3><p>如果你的服务器频繁请求某个 server，比如 redis 缓存。和建议 1 比起来，一个更好一点的方法是使用长连接。这样的好处有</p>
+<p>1）<strong>节约了握手开销</strong>。短连接中每次请求都需要服务和缓存之间进行握手，这样每次都得让用户多等一个握手的时间开销。</p>
+<p>2）<strong>规避了队列满的问题</strong>。前面我们看到当全连接或者半连接队列溢出的时候，服务器直接丢包。而客户端呢并不知情，所以傻傻地等 3 秒才会重试。要知道 tcp 本身并不是专门为互联网服务设计的。这个 3 秒的超时对于互联网用户的体验影响是致命的。</p>
+<p>3）<strong>端口数不容易出问题</strong>。端连接中，在释放连接的时候，客户端使用的端口需要进入 TIME_WAIT 状态，等待 2 MSL的时间才能释放。所以如果连接频繁，端口数量很容易不够用。而长连接就固定使用那么几十上百个端口就够用了。</p>
+<h3 id="建议15：TIME-WAIT-的优化"><a href="#建议15：TIME-WAIT-的优化" class="headerlink" title="建议15：TIME_WAIT 的优化"></a><strong>建议15：TIME_WAIT 的优化</strong></h3><p>很多线上服务如果使用了短连接的情况下，就会出现大量的 TIME_WAIT。</p>
+<p>首先，我想说的是没有必要见到两三万个 TIME_WAIT 就恐慌的不行。从内存的⻆度来考虑，一条 TIME_WAIT 状态的连接仅仅是 0.5 KB 的内存而已。从端口占用的角度来说，确实是消耗掉了一个端口。但假如你下次再连接的是不同的 Server 的话，该端口仍然可以使用。只有在所有 TIME_WAIT 都聚集在和一个 Server 的连接上的时候才会有问题。</p>
+<p>那怎么解决呢? 其实办法有很多。第一个办法是按上面建议开启端口 reuse 和 recycle。 第二个办法是限制 TIME_WAIT 状态的连接的最大数量。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># vi /etc/sysctl.conf</span><br>net.ipv4.tcp_max_tw_buckets = <span class="hljs-number">32768</span><br><span class="hljs-comment"># sysctl -p</span><br></code></pre></td></tr></table></figure>
+
+<p>如果再彻底一些，也可以干脆直接用⻓连接代替频繁的短连接。连接频率大大降低以后，自然也就没有 TIME_WAIT 的问题了。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C/" class="category-chain-item">网络</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AC%E8%BD%BD/">#转载</a>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>关于 Linux 网络性能的 15 个优化建议</div>
+      <div>https://blog.longpi1.com/2023/03/18/网络优化建议/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/18/Linux%E4%B8%AD%E7%BA%BF%E7%A8%8B%E5%92%8C%E8%BF%9B%E7%A8%8B%E5%88%B0%E5%BA%95%E6%9C%89%E5%95%A5%E5%8C%BA%E5%88%AB%EF%BC%9F/" title="Linux中线程和进程到底有啥区别？">
+                        <span class="hidden-mobile">Linux中线程和进程到底有啥区别？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
