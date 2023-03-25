@@ -37,7 +37,7 @@
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-167941fd17dbe4319e55186356a7f8f1_1440w.webp">
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-7fcdcf56a7246158d3d05f67dae79e46_1440w.webp">
 <meta property="article:published_time" content="2023-03-18T13:20:06.000Z">
-<meta property="article:modified_time" content="2023-03-18T13:21:52.881Z">
+<meta property="article:modified_time" content="2023-03-24T13:07:08.628Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="转载">
 <meta property="article:tag" content="linux">
@@ -305,7 +305,7 @@
                 <h1 id="Linux中线程和进程到底有啥区别？"><a href="#Linux中线程和进程到底有啥区别？" class="headerlink" title="Linux中线程和进程到底有啥区别？"></a>Linux中线程和进程到底有啥区别？</h1><blockquote>
 <p>主要内容转载自张彦飞的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/575360641">Linux中线程和进程到底有啥区别？</a></p>
 </blockquote>
-<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><h3 id="1-1-基本概念："><a href="#1-1-基本概念：" class="headerlink" title="1.1 基本概念："></a>1.1 基本概念：</h3><p>进程是对运行时程序的封装，是<strong>系统进行资源调度的基本单位，实现了操作系统的并发</strong>；</p>
+<h2 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h2><h3 id="1-1-基本概念："><a href="#1-1-基本概念：" class="headerlink" title="1.1 基本概念："></a>1.1 基本概念：</h3><p>进程是对运行时程序的封装，是<strong>系统进行资源分配的基本单位，实现了操作系统的并发</strong>；</p>
 <p>线程是进程的子任务，<strong>是CPU调度和执行的基本单位</strong>，<strong>用于保证程序的实时性，实现进程内部的并发；线程是操作系统可识别的最小执行和调度单位</strong>。每个线程都独自占用一个<strong>虚拟处理器</strong>：独自的<strong>寄存器组</strong>，<strong>指令计数器和处理器状态</strong>。每个线程完成不同的任务，但是<strong>共享同一地址空间</strong>（也就是同样的<strong>动态内存，映射文件，目标代码等等</strong>），<strong>打开的文件队列和其他内核资源</strong>。</p>
 <h3 id="1-2-区别："><a href="#1-2-区别：" class="headerlink" title="1.2  区别："></a>1.2  区别：</h3><ol>
 <li><strong>一个线程只能属于一个进程，而一个进程可以有多个线程</strong>，但至少有一个线程。线程依赖于进程而存在。 </li>
