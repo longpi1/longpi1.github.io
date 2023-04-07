@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Kubernetes集群架构与主要组件相关介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes集群架构与组件介绍">
+<meta property="og:url" content="https://blog.longpi1.com/2023/04/07/Kubernetes%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E4%B8%8E%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Kubernetes集群架构与主要组件相关介绍">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/04/05/NJErpDqHkXifKZb.png">
+<meta property="article:published_time" content="2023-04-07T12:13:21.000Z">
+<meta property="article:modified_time" content="2023-04-07T12:18:00.904Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/04/05/NJErpDqHkXifKZb.png">
+  
+  
+  
+  <title>Kubernetes集群架构与组件介绍 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kubernetes集群架构与组件介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-07 20:13" pubdate>
+          2023年4月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Kubernetes集群架构与组件介绍</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Kubernetes集群架构与组件介绍"><a href="#Kubernetes集群架构与组件介绍" class="headerlink" title="Kubernetes集群架构与组件介绍"></a>Kubernetes集群架构与组件介绍</h1><h2 id="一、集群架构"><a href="#一、集群架构" class="headerlink" title="一、集群架构"></a>一、集群架构</h2><p><img src="https://s2.loli.net/2023/04/05/NJErpDqHkXifKZb.png" srcset="/img/loading.gif" lazyload alt="集群架构"></p>
+<h2 id="二、主要组件"><a href="#二、主要组件" class="headerlink" title="二、主要组件"></a>二、主要组件</h2><h3 id="1-kubelet"><a href="#1-kubelet" class="headerlink" title="1.kubelet"></a>1.kubelet</h3><p>该组件运行在每个Kubernetes节点上，用于管理节点。用来接收、处理、上报kube-apiserver组件下发的任务。</p>
+<p>主要负责所在节点上的Pod资源对象的管理，例如Pod资源对象的创建、修改、监控、删除、驱逐及Pod生命周期管理等。 kubelet组件会定期监控所在节点的资源使用状态并上报给kube-apiserver组件，这些资源数据可以帮助kube-scheduler调度器为Pod资源对象预选节点。kubelet也会对所在节点的镜像和容器做清理工作，保证节点上的镜像不会占满磁盘空间、删除的容器释放相关资源。 kubelet组件实现了3种开放接口：</p>
+<ul>
+<li>Container Runtime Interface：简称CRI（容器运行时接口）提供容器运行时通用插件接口服务。CRI定义了容器和镜像服务的接口。CRI将kubelet组件与容器运行时进行解耦，将原来完全面向Pod级别的内部接口拆分成面向Sandbox和Container的gRPC接口，并将镜像管理和容器管理分离给不同的服务。</li>
+<li>Container Network Interface：简称CNI（容器网络接口），提供网络通用插件接口服务。CNI定义了Kubernetes网络插件的基础，容器创建时通过CNI插件配置网络。</li>
+<li>Container Storage Interface：简称CSI（容器存储接口），提供存储通用插件接口服务。CSI定义了容器存储卷标准规范，容器创建时通过CSI插件配置存储卷。</li>
+</ul>
+<h3 id="2-client-go"><a href="#2-client-go" class="headerlink" title="2.client-go"></a>2.client-go</h3><p>client-go是从Kubernetes代码中抽离出来的包，作为官方提供的GO语言的客户端发挥作用。client-go简单、易用，Kubernetes系统的其他组件与Kubernetes API Server通信的方式也是基于client-go实现。</p>
+<h3 id="3-kube-apiserver"><a href="#3-kube-apiserver" class="headerlink" title="3.kube-apiserver"></a>3.kube-apiserver</h3><p>API 服务器是 Kubernetes <a target="_blank" rel="external nofollow noopener noreferrer" href="https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-control-plane">控制平面</a>的组件， 该组件公开了 Kubernetes API，负责处理接受请求的工作。 API 服务器是 Kubernetes 控制平面的前端。</p>
+<p>它负责Kubernetes”资源组&#x2F;资源版本&#x2F;资源”以RESTful风格的形式对外暴露并提供服务。kube-apiserver组件也是集群中唯一与Etcd集群进行交互的核心组件。Kubernetes将所有的数据存储在Etcd集群中前缀为registry的目录下。 kube-apiserver的特性：</p>
+<ul>
+<li>将Kubernetes系统中所有资源对象都封装成RESTful风格的API接口进行管理。</li>
+<li>可进行集群状态管理和数据管理，是唯一与Etcd集群交互的组件。</li>
+<li>拥有丰富的集群安  全访问机制，以及认证，授权及准入控制器。</li>
+<li>提供了集群各组件的通信和交互功能。</li>
+</ul>
+<h3 id="4-kube-controller-manager"><a href="#4-kube-controller-manager" class="headerlink" title="4.kube-controller-manager"></a>4.kube-controller-manager</h3><p>它负责管理Kubernetes集群中的节点（Node），Pod副本，服务，端点（Endpoint），命名空间（Namespace），服务账户（ServiceAcconut)，资源定额（ResourceQuota）等。</p>
+<p>包括：</p>
+<ul>
+<li>节点控制器（Node Controller）：负责在节点出现故障时进行通知和响应</li>
+<li>任务控制器（Job Controller）：监测代表一次性任务的 Job 对象，然后创建 Pods 来运行这些任务直至完成</li>
+<li>端点分片控制器（EndpointSlice controller）：填充端点分片（EndpointSlice）对象（以提供 Service 和 Pod 之间的链接）。</li>
+<li>服务账号控制器（ServiceAccount controller）：为新的命名空间创建默认的服务账号（ServiceAccount）。</li>
+</ul>
+<h3 id="5-kube-scheduler"><a href="#5-kube-scheduler" class="headerlink" title="5.kube-scheduler"></a>5.kube-scheduler</h3><p>该组件是Kubernetes集群默认的调度器，它负责在Kubernetes集群中为一个Pod资源对象找到合适的节点并在该节点上运行。在调度的过程中每次只负责调度一个Pod资源对象。调度算法分为两种，分别为预选调度算法和优选调度算法。</p>
+<h3 id="6-kubectl"><a href="#6-kubectl" class="headerlink" title="6.kubectl"></a>6.kubectl</h3><p>kubectl是Kubernetes官方提供的命令行工具CLI，用户可以通过命令行的方式与Kubernetes API Server进行操作，通信协议使用HTTP&#x2F;JSON。</p>
+<h3 id="7-kube-proxy"><a href="#7-kube-proxy" class="headerlink" title="7.kube-proxy"></a>7.kube-proxy</h3><p>该组件运行在Kubernetes集群中每个节点上，作为节点上的网络代理。它监控kube-apiserver的服务和端点资源变化，并通过iptables&#x2F;ipvs等配置负载均衡器，为一组Pod提供统一的TCP&#x2F;UDP流量转发和负载均衡功能。但是kube-proxy组件与其他负载均衡服务的区别在于kube-proxy代理只想Kubernetes服务及其后端Pod发出请求。</p>
+<h3 id="8-Add-ons"><a href="#8-Add-ons" class="headerlink" title="8.Add-ons"></a>8.Add-ons</h3><p>除了核心组件，还有一些推荐的Add-ons：</p>
+<ul>
+<li>kube-dns负责为整个集群提供DNS服务</li>
+<li>Ingress Controller为服务提供外网入口</li>
+<li>Heapster提供资源监控</li>
+<li>Dashboard提供GUI</li>
+<li>Federation提供跨可用区的集群</li>
+<li>Fluentd-elasticsearch提供集群日志采集、存储与查询</li>
+</ul>
+<h2 id="三、Kubernetes-Project-Layout-设计"><a href="#三、Kubernetes-Project-Layout-设计" class="headerlink" title="三、Kubernetes Project Layout 设计"></a>三、Kubernetes Project Layout 设计</h2><table>
+<thead>
+<tr>
+<th>源码目录</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>cmd&#x2F;</td>
+<td>可执行文件的入口代码，每个可执行文件都会对应一个main函数</td>
+</tr>
+<tr>
+<td>pkg&#x2F;</td>
+<td>主要实现，核心库代码，并且可被项目内部或外部直接引用，</td>
+</tr>
+<tr>
+<td>vendor&#x2F;</td>
+<td>项目依赖的库代码，一般为第三方库代码</td>
+</tr>
+<tr>
+<td>api&#x2F;</td>
+<td>OpenAPI&#x2F;Swagger的spce文件，包括JSON、Protocol的定义等</td>
+</tr>
+<tr>
+<td>build&#x2F;</td>
+<td>与构建相关的脚本</td>
+</tr>
+<tr>
+<td>test&#x2F;</td>
+<td>测试工具及测试数据</td>
+</tr>
+<tr>
+<td>docs&#x2F;</td>
+<td>设计或用户使用文档</td>
+</tr>
+<tr>
+<td>hack&#x2F;</td>
+<td>构建、测试等相关代码</td>
+</tr>
+<tr>
+<td>third_party</td>
+<td>第三方工具、代码或者其他组件</td>
+</tr>
+<tr>
+<td>plugin&#x2F;</td>
+<td>Kubernetes插件代码目录，例如认证、授权等相关插件</td>
+</tr>
+<tr>
+<td>staging&#x2F;</td>
+<td>部分核心库的暂存目录</td>
+</tr>
+<tr>
+<td>translations&#x2F;</td>
+<td>i18n（国际化）语言包的相关文件，可以在不修改内部代码的情况下支持不同语言及地区</td>
+</tr>
+</tbody></table>
+<h2 id="四、源码分析"><a href="#四、源码分析" class="headerlink" title="四、源码分析"></a>四、源码分析</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/tree/main/kuberneters/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90">https://github.com/longpi1/Reading-notes/tree/main/kuberneters/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90</a></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://raw.githubusercontent.com/kubernetes">https://raw.githubusercontent.com/kubernetes</a></p>
+<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://juejin.cn/post/6999610929105240094">https://juejin.cn/post/6999610929105240094</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/Kubernetes/">#Kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kubernetes集群架构与组件介绍</div>
+      <div>https://blog.longpi1.com/2023/04/07/Kubernetes集群架构与组件介绍/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/23/Golang%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/" title="Golang代码规范">
+                        <span class="hidden-mobile">Golang代码规范</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
