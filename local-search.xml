@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>C++面试准备</title>
+    <link href="/2023/04/08/C-%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/"/>
+    <url>/2023/04/08/C-%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/</url>
+    
+    <content type="html"><![CDATA[<h2 id="一、简历编写"><a href="#一、简历编写" class="headerlink" title="一、简历编写"></a>一、简历编写</h2><p>  1.怎么写好简历：<a href="https://github.com/resumejob/awesome-resume">https://github.com/resumejob/awesome-resume</a></p><p>  2.比较好的简历模板（可以直接用牛客，简单明了就行）：<a href="https://github.com/CyC2018/Markdown-Resume">https://github.com/CyC2018/Markdown-Resume</a></p><p>  3.写简历需要写什么：<a href="https://github.com/geekcompany/ResumeSample/blob/master/c.md">https://github.com/geekcompany/ResumeSample/blob/master/c.md</a></p><h2 id="二、面经"><a href="#二、面经" class="headerlink" title="二、面经"></a>二、面经</h2><blockquote><p>可以找小公司多积累面试经验，不要等“完全准备好”再面试，面试就是不断学习的过程；</p></blockquote><ol><li>C++面试&amp;C++学习指南：<a href="https://github.com/youngyangyang04/TechCPP">https://github.com/youngyangyang04/TechCPP</a></li><li>C&#x2F;C++ 技术面试基础知识总结（这个全面一点）：<a href="https://github.com/huihut/interview">https://github.com/huihut/interview</a></li><li>技术面试必备基础知识、Leetcode、计算机操作系统、计算机网络、系统设计：<a href="https://github.com/CyC2018/CS-Notes">https://github.com/CyC2018/CS-Notes</a></li></ol><h2 id="三、项目经历"><a href="#三、项目经历" class="headerlink" title="三、项目经历"></a>三、项目经历</h2><blockquote><p>项目没有的话，开源直接参考开源项目，模仿或者基于开源项目加功能就行，只能面试能够答出来，了解相关细节实现即可；</p></blockquote><p>这个相关语言的排行榜，可以自己找合适自己的项目：<a href="https://github.com/GrowingGit/GitHub-Chinese-Top-Charts">https://github.com/GrowingGit/GitHub-Chinese-Top-Charts</a></p><p>推荐开源项目：</p><p>   1.搜狗公司C++服务器引擎（复杂程度较高，认可度大）：<a href="https://github.com/GrowingGit/GitHub-Chinese-Top-Charts/blob/master/content/charts/growth/software/CPP.md">https://github.com/GrowingGit/GitHub-Chinese-Top-Charts/blob/master/content/charts/growth/software/CPP.md</a></p><p>   2.c++语言编写的工业级RPC框架（需要对RPC有一定了解，认可度大）：<a href="https://github.com/apache/brpc">https://github.com/apache/brpc</a></p><p>   3.笔记平台（相对来说比较简单，认可度相对其他较一般）：<a href="https://github.com/vnotex/vnote">https://github.com/vnotex/vnote</a></p><p>   4.基于名称服务和 Tars 协议的高性能 RPC 框架，也是集成的管理平台，通过灵活的调度实现托管服务。：<a href="https://github.com/TarsCloud/Tars">https://github.com/TarsCloud/Tars</a></p><p>   5.全平台原生c#热更方案（技术文档比较详细）：<a href="https://github.com/tuyoogame/huatuo">https://github.com/tuyoogame/huatuo</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>C++</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>原创</tag>
+      
+      <tag>C++</tag>
+      
+      <tag>面试</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Kubernetes集群架构与组件介绍</title>
     <link href="/2023/04/07/Kubernetes%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E4%B8%8E%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"/>
     <url>/2023/04/07/Kubernetes%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84%E4%B8%8E%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/</url>
