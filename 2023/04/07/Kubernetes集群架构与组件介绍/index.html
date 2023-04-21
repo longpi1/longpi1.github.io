@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/04/05/NJErpDqHkXifKZb.png">
 <meta property="article:published_time" content="2023-04-07T12:13:21.000Z">
-<meta property="article:modified_time" content="2023-04-07T12:18:00.904Z">
+<meta property="article:modified_time" content="2023-04-21T16:07:26.707Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="Kubernetes">
@@ -235,7 +235,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.8k 字
+          3.1k 字
         
       </span>
     
@@ -298,8 +298,10 @@
 <li>Container Storage Interface：简称CSI（容器存储接口），提供存储通用插件接口服务。CSI定义了容器存储卷标准规范，容器创建时通过CSI插件配置存储卷。</li>
 </ul>
 <h3 id="2-client-go"><a href="#2-client-go" class="headerlink" title="2.client-go"></a>2.client-go</h3><p>client-go是从Kubernetes代码中抽离出来的包，作为官方提供的GO语言的客户端发挥作用。client-go简单、易用，Kubernetes系统的其他组件与Kubernetes API Server通信的方式也是基于client-go实现。</p>
-<h3 id="3-kube-apiserver"><a href="#3-kube-apiserver" class="headerlink" title="3.kube-apiserver"></a>3.kube-apiserver</h3><p>API 服务器是 Kubernetes <a target="_blank" rel="external nofollow noopener noreferrer" href="https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-control-plane">控制平面</a>的组件， 该组件公开了 Kubernetes API，负责处理接受请求的工作。 API 服务器是 Kubernetes 控制平面的前端。</p>
-<p>它负责Kubernetes”资源组&#x2F;资源版本&#x2F;资源”以RESTful风格的形式对外暴露并提供服务。kube-apiserver组件也是集群中唯一与Etcd集群进行交互的核心组件。Kubernetes将所有的数据存储在Etcd集群中前缀为registry的目录下。 kube-apiserver的特性：</p>
+<h3 id="3-kube-apiserver"><a href="#3-kube-apiserver" class="headerlink" title="3.kube-apiserver"></a>3.kube-apiserver</h3><p>在 Kubernetes 中，API 服务器是 Kubernetes <a target="_blank" rel="external nofollow noopener noreferrer" href="https://kubernetes.io/zh-cn/docs/reference/glossary/?all=true#term-control-plane">控制平面</a>的组件， 该组件公开了 Kubernetes API，API Server 是整个系统的核心组件之一，它是 Kubernetes API 的前端。API Server 接收 RESTful API 请求，并根据请求的内容执行相应的操作，比如创建、更新或删除资源对象。API Server 还负责对请求进行身份验证、授权和准入控制等安全相关的操作，以确保 Kubernetes 系统的安全性。</p>
+<p>API Server 的另一个重要作用是提供了一个统一的入口，使得 Kubernetes 中的各个组件可以相互通信和协作。除了 Kubernetes 自身的组件，第三方开发的工具和应用程序也可以通过 API Server 访问 Kubernetes API，以实现对 Kubernetes 集群的管理和监控等操作。</p>
+<p>总之，API Server 是 Kubernetes 系统中非常重要的组件之一，它为整个系统提供了一个统一的入口和管理接口，使得 Kubernetes 的各个组件可以相互协作，从而实现对 Kubernetes 集群的管理和监控等操作。</p>
+<p>kube-apiserver组件也是集群中唯一与Etcd集群进行交互的核心组件。Kubernetes将所有的数据存储在Etcd集群中前缀为registry的目录下。 kube-apiserver的特性：</p>
 <ul>
 <li>将Kubernetes系统中所有资源对象都封装成RESTful风格的API接口进行管理。</li>
 <li>可进行集群状态管理和数据管理，是唯一与Etcd集群交互的组件。</li>
