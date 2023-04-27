@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="client-go架构和相关原理组件介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="client-go架构与原理介绍">
+<meta property="og:url" content="https://blog.longpi1.com/2023/04/27/client-go%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="client-go架构和相关原理组件介绍">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-ebd721c9c5860db9b64865e6aaa01ffd_1440w.webp">
+<meta property="og:image" content="https://blogstatic.haohtml.com/uploads/2023/04/d2b5ca33bd970f64a6301fa75ae2eb22-2.png?x-oss-process=image/format,webp">
+<meta property="article:published_time" content="2023-04-27T13:08:36.000Z">
+<meta property="article:modified_time" content="2023-04-27T13:10:52.751Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="clint-go">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic2.zhimg.com/80/v2-ebd721c9c5860db9b64865e6aaa01ffd_1440w.webp">
+  
+  
+  
+  <title>client-go架构与原理介绍 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="client-go架构与原理介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-27 21:08" pubdate>
+          2023年4月27日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">client-go架构与原理介绍</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="client-go架构与原理介绍"><a href="#client-go架构与原理介绍" class="headerlink" title="client-go架构与原理介绍"></a>client-go架构与原理介绍</h1><h2 id="一、架构展示"><a href="#一、架构展示" class="headerlink" title="一、架构展示"></a>一、架构展示</h2><p>client-go 库中的各种组件架构如下图所示：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-ebd721c9c5860db9b64865e6aaa01ffd_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="二、目录结构"><a href="#二、目录结构" class="headerlink" title="二、目录结构"></a>二、目录结构</h2><p>client-go 是用 Golang 语言编写的官方编程式交互客户端库，提供对 Kubernetes API server 服务的交互访问。</p>
+<p>其源码目录结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">.<br>├── discovery                   <span class="hljs-comment"># 定义DsicoveryClient客户端。作用是用于发现k8s所支持GVR(Group, Version, Resources)。</span><br>├── dynamic                     <span class="hljs-comment"># 定义DynamicClient客户端。可以用于访问k8s Resources(如: Pod, Deploy...)，也可以访问用户自定义资源(即: CRD)。</span><br>├── informers                   <span class="hljs-comment"># k8s中各种Resources的Informer机制的实现。</span><br>├── kubernetes                  <span class="hljs-comment"># 定义ClientSet客户端。它只能用于访问k8s Resources。每一种资源(如: Pod等)都可以看成是一个客端，而ClientSet是多个客户端的集合，它对RestClient进行了封装，引入了对Resources和Version的管理。通常来说ClientSet是client-gen来自动生成的。</span><br>├── listers                     <span class="hljs-comment"># 提供对Resources的获取功能。对于Get()和List()而言，listers提供给二者的数据都是从缓存中读取的。</span><br>├── pkg                         <br>├── plugin                      <span class="hljs-comment"># 提供第三方插件。如：GCP, OpenStack等。</span><br>├── rest                        <span class="hljs-comment"># 定义RestClient，实现了Restful的API。同时会支持Protobuf和Json格式数据。</span><br>├── scale                       <span class="hljs-comment"># 定义ScalClient。用于Deploy, RS, RC等的扩/缩容。</span><br>├── tools                       <span class="hljs-comment"># 定义诸如SharedInformer、Reflector、DealtFIFO和Indexer等常用工具。实现client查询和缓存机制，减少client与api-server请求次数，减少api-server的压力。</span><br>├── transport<br>└── util                        <span class="hljs-comment"># 提供诸如WorkQueue、Certificate等常用方法。</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-RESTClient-客户端"><a href="#2-1-RESTClient-客户端" class="headerlink" title="2.1 RESTClient 客户端"></a>2.1 RESTClient 客户端</h3><p>RESTful Client 是最基础的客户端，它主要是对 HTTP 请求进行了封装，并且支持 JSON 和 Protobuf 格式数据。</p>
+<h3 id="2-2-DynamicClient-客户端"><a href="#2-2-DynamicClient-客户端" class="headerlink" title="2.2 DynamicClient 客户端"></a>2.2 DynamicClient 客户端</h3><p>DynamicClient 是一种动态客户端，它可以动态的指定资源的组，版本和资源。因此它可以对任意 K8S 资源进行 RESTful 操作，包括 CRD 自定义资源。它封装了 RESTClient。所以同样提供 RESTClient 的各种方法。</p>
+<p>具体使用方法，可参考官方示例：<a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/tree/master/examples/dynamic-create-update-delete-deployment" rel="external nofollow noopener noreferrer" target="_blank">dynamic-create-update-delete-deployment</a>。</p>
+<p><strong>注意</strong>: 该官方示例是基于集群外的环境，如果你需要在集群内部使用（例如你需要在 container 中访问），你将需要调用 <code>rest.InClusterConfig()</code> 生成一个 configuration。具体的示例请参考 <a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/tree/master/examples/in-cluster-client-configuration" rel="external nofollow noopener noreferrer" target="_blank">in-cluster-client-configuration</a>。</p>
+<h3 id="2-3-ClientSet-客户端"><a href="#2-3-ClientSet-客户端" class="headerlink" title="2.3 ClientSet 客户端"></a>2.3 ClientSet 客户端</h3><p>ClientSet 客户端在 RESTClient 的基础上封装了对资源和版本的管理方法。每个资源可以理解为一个客户端，而 ClientSet 则是多个客户端的集合，每一个资源和版本都以函数的方式暴露给开发者。</p>
+<p>具体使用方法，可参考官方示例：<a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/tree/master/examples/create-update-delete-deployment" rel="external nofollow noopener noreferrer" target="_blank">create-update-delete-deployment</a>。</p>
+<h3 id="2-4-DiscoveryClient-客户端"><a href="#2-4-DiscoveryClient-客户端" class="headerlink" title="2.4 DiscoveryClient 客户端"></a>2.4 DiscoveryClient 客户端</h3><p>DiscoveryClient 是一个发现客户端，它主要用于发现 K8S API Server 支持的资源组，资源版本和资源信息。所以开发者可以通过使用 DiscoveryClient 客户端查看所支持的资源组，资源版本和资源信息。</p>
+<h3 id="2-5-ClientSet-VS-DynamicClient"><a href="#2-5-ClientSet-VS-DynamicClient" class="headerlink" title="2.5 ClientSet VS DynamicClient"></a>2.5 ClientSet VS DynamicClient</h3><p>类型化 <code>ClientSets</code> 使得使用预先生成的本地 API 对象与 API 服务器通信变得简单，从而获得类似 <code>RPC</code> 的编程体验。类型化客户端使用程序编译来强制执行数据安全性和一些验证。然而，在使用类型化客户端时，程序被迫与所使用的版本和类型紧密耦合。</p>
+<p>而 <code>DynamicClient</code> 则使用 <code>unstructured.Unstructured</code> 表示来自 API Server 的所有对象值。<code>Unstructured</code> 类型是一个嵌套的 <code>map[string]inferface&#123;&#125;</code> 值的集合来创建一个内部结构，该结构和服务端的 REST 负载非常相似。</p>
+<p><code>DynamicClient</code> 将所有数据绑定推迟到运行时，这意味着程序运行之前，使用 <code>DynamicClient</code> 的的程序将不会获取到类型验证的任何好处。对于某些需要强数据类型检查和验证的应用程序来说，这可能是一个问题。</p>
+<p>然而，松耦合意味着当客户端 API 发生变化时，使用 <code>DynamicClient</code> 的程序不需要重新编译。客户端程序在处理 API 表面更新时具有更大的灵活性，而无需提前知道这些更改是什么。</p>
+<h2 id="三、组件介绍"><a href="#三、组件介绍" class="headerlink" title="三、组件介绍"></a>三、组件介绍</h2><p>下面对图中每个组件进行简单介绍：</p>
+<p>​    <strong>client-go 组件：</strong></p>
+<ol>
+<li><p><strong>Reflector</strong>: 定义在 <a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/blob/master/tools/cache/reflector.go" rel="external nofollow noopener noreferrer" target="_blank">&#x2F;tools&#x2F;cache 包内的 Reflector 类型</a> 中的 reflector 监视 Kubernetes API 以获取指定的资源类型 (Kind)。完成此操作的函数是 ListAndWatch。监视可以用于内建资源，也可以用于自定义资源。当 reflector 通过监视 API 的收到关于新资源实例存在的通知时，它使用相应的 listing API 获取新创建的对象，并将其放入 watchHandler 函数内的 Delta Fifo 队列中。</p>
+</li>
+<li><p><strong>Informer</strong>: 在 <a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/blob/master/tools/cache/controller.go" rel="external nofollow noopener noreferrer" target="_blank">&#x2F;tools&#x2F;cache 包内的基础 controller</a> 中定义的一个 informer 从 Delta FIFO 队列中弹出对象。完成此操作的函数是 processLoop。这个基础 controller 的任务是保存对象以供以后检索，并调用 controller 将对象传递给它。</p>
+</li>
+<li><p><strong>Indexer</strong>: indexer 为对象提供索引功能。它定义在 <a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/blob/master/tools/cache/index.go" rel="external nofollow noopener noreferrer" target="_blank">&#x2F;tools&#x2F;cache 包内的 Indexer 类型</a>。一个典型的索引用例是基于对象标签创建索引。Indexer 可以基于多个索引函数维护索引。Indexer 使用线程安全的数据存储来存储对象及其键值。在 <a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/blob/master/tools/cache/store.go" rel="external nofollow noopener noreferrer" target="_blank">&#x2F;tools&#x2F;cache 包内的 Store 类型</a> 定义了一个名为 <code>MetaNamespaceKeyFunc</code> 的默认函数，该函数为该对象生成一个名为 <code>&lt;namespace&gt;/&lt;name&gt;</code> 组合的对象键值。</p>
+<p><strong>Custom Controller 组件：</strong></p>
+</li>
+<li><p><strong>Informer reference</strong>: 这是一个知道如何使用自定义资源对象的 Informer 实例的引用。您的自定义控制器代码需要创建适当的 Informer。</p>
+</li>
+<li><p><strong>Indexer reference</strong>: 这是一个知道如何使用自定义资源对象的 Indexer 实例的引用。您的自定义控制器代码需要创建这个。您将使用此引用检索对象，以便稍后处理。</p>
+</li>
+<li><p><strong>Resource Event Handlers</strong>: 当 Informer 想要分发一个对象给你的控制器时，会调用这些回调函数。编写这些函数的典型模式是获取已分配对象的键值，并将该键值放入一个工作队列中进行进一步处理。</p>
+</li>
+<li><p><strong>Work queue</strong>: 这是在控制器代码中创建的队列，用于将对象的分发与处理解耦。编写 Resource Event Handler 函数来提取所分发对象的键值并将其添加到工作队列中。</p>
+</li>
+<li><p><strong>Process Item</strong>: 这是在代码中创建的处理 work queue 中的 items 的函数。可以有一个或多个其他函数来执行实际的处理。这些函数通常使用 <a href="https://link.zhihu.com/?target=https://github.com/kubernetes/client-go/blob/master/examples/workqueue/main.go%23L73" rel="external nofollow noopener noreferrer" target="_blank">Indexer 引用</a> 或 Listing wrapper 来获取与键值对应的对象。</p>
+</li>
+</ol>
+<h2 id="四、Custom-Controller"><a href="#四、Custom-Controller" class="headerlink" title="四、Custom Controller"></a>四、Custom Controller</h2><p><strong>自定义controller实现流程如下：</strong></p>
+<p><img src="https://blogstatic.haohtml.com/uploads/2023/04/d2b5ca33bd970f64a6301fa75ae2eb22-2.png?x-oss-process=image/format,webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>相关实现案例可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/trstringer/k8s-controller-custom-resource">https://github.com/trstringer/k8s-controller-custom-resource</a></p>
+<h2 id="五、CRD资源与Controller和operator关系"><a href="#五、CRD资源与Controller和operator关系" class="headerlink" title="五、CRD资源与Controller和operator关系"></a>五、CRD资源与Controller和operator关系</h2><p>CRD（Custom Resource Definition）资源是一种自定义资源类型，允许用户在 Kubernetes 中定义自己的 API 对象。CRD 可以定义自己的 API 对象，这些对象可以像 Kubernetes 原生资源一样进行管理和操作。</p>
+<p>在 Kubernetes 中，CRD 资源和 Controller 之间存在一种父子关系。CRD 资源定义了自己的 API 对象，而 Controller 可以通过监视这些对象来控制它们的状态。当 CRD 资源中的对象状态发生变化时，Controller 会根据变化的状态来执行相应的操作，以确保资源的状态与期望的状态一致。</p>
+<p>例如，如果用户定义了一个名为 “MyResource” 的 CRD 资源，并创建了一个名为 “my-resource” 的对象，那么 Controller 可以监视这个对象，并在对象状态发生变化时执行相应的操作。如果对象状态发生变化，Controller 可以更新对象的状态，或者执行其他操作来确保资源的状态与期望的状态一致。</p>
+<p>而Operator是一种在Kubernetes中使用Controller的特定类型。Operator是一种自动化Kubernetes管理的方式，它使用自定义控制器来管理应用程序的状态。Operator可以监视CRD资源，并在资源状态发生变化时自动执行操作。例如，如果您有一个CRD资源来表示您的应用程序的特定部署，Operator可以监视该资源，并在部署发生更改时自动更新应用程序的状态。Operator可以使用自定义控制器来执行这些操作，这些控制器可以使用Kubernetes API来管理Pod和其他资源的状态。</p>
+<p>因此，CRD资源可以与Controller和Operator一起使用。您可以使用CRD来定义自己的自定义资源，然后使用Controller来管理这些资源的状态。或者，您可以使用Operator来监视CRD资源，并在资源状态发生变化时自动执行操作。无论您选择哪种方法，CRD资源都可以帮助您更好地管理Kubernetes中的应用程序。</p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>kubernetes 的设计理念是通过各种控制器将系统的实际运行状态协调到声明 API 中的期待状态。而这种协调机制就是基于 client-go 实现的。同样，kubernetes 对于 ETCD 存储的缓存处理也使用到了 client-go 中的 Reflector 机制。所以学好 client-go，等于迈入了 Kubernetes 的大门！相关源码分析可查看源码分析目录。</p>
+<h2 id="七、参考链接"><a href="#七、参考链接" class="headerlink" title="七、参考链接"></a>七、参考链接</h2><ol>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/202611841">client-go 源码学习总结</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Kubernetes/" class="category-chain-item">Kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/Kubernetes/">#Kubernetes</a>
+      
+        <a href="/tags/clint-go/">#clint-go</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>client-go架构与原理介绍</div>
+      <div>https://blog.longpi1.com/2023/04/27/client-go架构与原理介绍/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/04/16/Go%E8%AF%AD%E8%A8%80%E5%9F%BA%E4%BA%8Eip%E9%9B%86%E5%90%88%E6%8E%A8%E5%87%BA%E5%AF%B9%E5%BA%94%E7%9A%84CIDR/" title="Go基于ip集合推出对应的CIDR">
+                        <span class="hidden-mobile">Go基于ip集合推出对应的CIDR</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
