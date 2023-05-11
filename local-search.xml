@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>linux中etc目录下hosts与resolv.conf文件作用</title>
+    <link href="/2023/05/11/linux%E4%B8%ADetc%E7%9B%AE%E5%BD%95%E4%B8%8Bhosts%E4%B8%8Eresolv-conf%E6%96%87%E4%BB%B6%E4%BD%9C%E7%94%A8/"/>
+    <url>/2023/05/11/linux%E4%B8%ADetc%E7%9B%AE%E5%BD%95%E4%B8%8Bhosts%E4%B8%8Eresolv-conf%E6%96%87%E4%BB%B6%E4%BD%9C%E7%94%A8/</url>
+    
+    <content type="html"><![CDATA[<h1 id="linux中etc目录下hosts与resolv-conf文件作用"><a href="#linux中etc目录下hosts与resolv-conf文件作用" class="headerlink" title="linux中etc目录下hosts与resolv.conf文件作用"></a>linux中etc目录下hosts与resolv.conf文件作用</h1><h2 id="一、-x2F-etc-x2F-hosts"><a href="#一、-x2F-etc-x2F-hosts" class="headerlink" title="一、&#x2F;etc&#x2F;hosts"></a>一、&#x2F;etc&#x2F;hosts</h2><p>文件则是一个本地的域名解析文件，它可以用来手动指定域名和IP地址的对应关系。<strong>当操作系统在DNS服务器中无法找到域名对应的IP地址时，它会查看<code>/etc/hosts</code>文件</strong>，以查找是否有手动指定的对应关系。这个文件通常用于在本地测试和开发环境中，或者是在不想使用DNS服务器的情况下手动指定域名和IP地址的对应关系。</p><p>hosts文件包含了IP地址和主机名之间的映射，还包括主机名的别名。在没有域名服务器的情况下，系统上的所有网络程序都通过查询该文件来解析对应于某个主机名的IP地址，否则就需要使用DNS服务程序来解决。通常可以将常用的域名和IP地址映射加入到hosts文件中，实现快速方便的访问。</p><p><strong>hosts格式：IP地址   主机名&#x2F;域名，也可以是：IP地址   主机名&#x2F;服务名</strong></p><p><strong>示例如下：</strong> </p><figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog"><span class="hljs-number">192.168.1.1</span> localhost.localdomain localhost<br><span class="hljs-number">192.168.1.2</span> worker02  //主机名<br><span class="hljs-number">192.168.1.2</span> nginx  //服务名<br></code></pre></td></tr></table></figure><h2 id="二、-x2F-etc-x2F-resolv-conf"><a href="#二、-x2F-etc-x2F-resolv-conf" class="headerlink" title="二、&#x2F;etc&#x2F;resolv.conf"></a>二、&#x2F;etc&#x2F;resolv.conf</h2><p>文件包含了DNS（Domain Name System）服务器的配置信息，它告诉操作系统在哪里查找域名对应的IP地址。当用户在浏览器中输入一个域名时，操作系统会首先查看<code>/etc/resolv.conf</code>文件中的DNS服务器配置，然后向该DNS服务器发送查询请求，以获取域名对应的IP地址。</p><p>该文件由域名解析器（resolver，一个根据主机名解析IP地址的库）使用的配置文件，也是DNS域名解析的配置文件，其格式很简单，每行以一个关键字开头，后接配置参数。主要的关键字主要有四个，分别是：</p><ul><li><p>nameserver：定义DNS服务器的IP地址</p><p>表明DNS服务器的IP地址。可以有很多行的nameserver，每一个带一个IP地址。在查询时就按nameserver在本文件中的顺序进行，且只有当第一个nameserver没有反应时才查询下面的nameserver。</p></li><li><p>domain：定义本地域名</p><p>声明主机的域名。很多程序用到它，如邮件系统；当为没有域名的主机进行DNS查询时，也要用到。如果没有域名，主机名将被使用，删除所有在第一个点( .)前面的内容。</p></li><li><p>search：定义域名的搜索列表</p><p>它的多个参数指明域名查询顺序。当要查询没有域名的主机，主机将在由search声明的域中分别查找。domain和search不能共存；如果同时存在，后面出现的将会被使用。</p></li><li><p>sortlist：对返回的域名进行排序</p><p>允许将得到域名结果进行特定的排序。它的参数为网络&#x2F;掩码对，允许任意的排列顺序。</p></li></ul><p><strong>示例如下：</strong></p><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">domain</span> <br>search  <br>nameserver <span class="hljs-number">8.8.8.8</span><br>nameserver <span class="hljs-number">8.8.4.4</span><br></code></pre></td></tr></table></figure><h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p>总的来说，<code>/etc/resolv.conf</code>和<code>/etc/hosts</code>文件都是非常重要的配置文件，它们可以帮助操作系统正确地解析域名和IP地址的对应关系，从而保证网络连接的正常运行。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>linux</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>原创</tag>
+      
+      <tag>linux</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>client-go架构与原理介绍</title>
     <link href="/2023/04/27/client-go%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/"/>
     <url>/2023/04/27/client-go%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/</url>
