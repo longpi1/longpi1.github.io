@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://ask.qcloudimg.com/developer-images/article/5469577/8ydk3bi2lv.png?imageView2/2/w/1620">
 <meta property="og:image" content="https://ask.qcloudimg.com/http-save/5469577/16ab1617ecd4832e038e07e9a612fd69.webp?imageView2/2/w/1620/format/jpg">
 <meta property="article:published_time" content="2022-09-20T13:36:19.000Z">
-<meta property="article:modified_time" content="2022-11-30T12:49:23.499Z">
+<meta property="article:modified_time" content="2023-05-29T14:40:45.345Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="golang">
@@ -245,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.1k 字
+          7.3k 字
         
       </span>
     
@@ -427,6 +427,8 @@
 <li><code>./main.go:15:9: b + &quot;!&quot; escapes to heap</code> 说明 <code>c</code> 变量逃逸，通过<code>fmt.Println(a ...interface&#123;&#125;)</code>打印的变量，都会发生逃逸，感兴趣的朋友可以去查查为什么。</li>
 <li>以上操作其实就叫<strong>逃逸分析</strong></li>
 </ul>
+<h2 id="如何利用逃逸分析提升性能"><a href="#如何利用逃逸分析提升性能" class="headerlink" title="如何利用逃逸分析提升性能"></a>如何利用逃逸分析提升性能</h2><h3 id="传值-VS-传指针"><a href="#传值-VS-传指针" class="headerlink" title="传值 VS 传指针"></a>传值 VS 传指针</h3><p>传值会拷贝整个对象，而传指针只会拷贝指针地址，指向的对象是同一个。传指针可以减少值的拷贝，但是会导致内存分配逃逸到堆中，增加垃圾回收(GC)的负担。在对象频繁创建和删除的场景下，传递指针导致的 GC 开销可能会严重影响性能。</p>
+<p>一般情况下，对于需要修改原对象值，或占用内存比较大的结构体，选择传指针。对于只读的占用内存较小的结构体，直接传值能够获得更好的性能。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h2><hr>
 <p>1.因为栈比堆更高效，不需要 GC，因此 Go 会尽可能的将内存分配到栈上。</p>
 <p>2.当分配到栈上可能引起非法内存访问等问题后，会使用堆，主要场景有：</p>
