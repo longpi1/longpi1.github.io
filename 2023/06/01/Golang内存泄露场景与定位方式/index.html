@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang内存泄露场景与定位方式一、产生原因Golang有自动垃圾回收机制，但是仍然可能会出现内存泄漏的情况。以下是Golang内存泄漏的常见可能原因：  循环引用：如果两个或多个对象相互引用，且没有其他对象引用它们，那么它们就会被垃圾回收机制误认为是仍在使用的对象，导致内存泄漏。 全局变量：在Golang中，全局变量的生命周期与程序的生命周期相同。如果一个全局变量被创建后一直存在于内存中，那么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang内存泄露场景与定位方式">
+<meta property="og:url" content="https://blog.longpi1.com/2023/06/01/Golang%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E5%9C%BA%E6%99%AF%E4%B8%8E%E5%AE%9A%E4%BD%8D%E6%96%B9%E5%BC%8F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang内存泄露场景与定位方式一、产生原因Golang有自动垃圾回收机制，但是仍然可能会出现内存泄漏的情况。以下是Golang内存泄漏的常见可能原因：  循环引用：如果两个或多个对象相互引用，且没有其他对象引用它们，那么它们就会被垃圾回收机制误认为是仍在使用的对象，导致内存泄漏。 全局变量：在Golang中，全局变量的生命周期与程序的生命周期相同。如果一个全局变量被创建后一直存在于内存中，那么">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-2ef735b81234db0c7ba6c567135f123b_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-16566847f6c80be09bd30ef5586b2915_1440w.webp">
+<meta property="article:published_time" content="2023-06-01T13:28:26.000Z">
+<meta property="article:modified_time" content="2023-06-01T13:30:31.294Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="golang">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic4.zhimg.com/80/v2-2ef735b81234db0c7ba6c567135f123b_1440w.webp">
+  
+  
+  
+  <title>Golang内存泄露场景与定位方式 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Golang内存泄露场景与定位方式"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-01 21:28" pubdate>
+          2023年6月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Golang内存泄露场景与定位方式</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang内存泄露场景与定位方式"><a href="#Golang内存泄露场景与定位方式" class="headerlink" title="Golang内存泄露场景与定位方式"></a>Golang内存泄露场景与定位方式</h1><h2 id="一、产生原因"><a href="#一、产生原因" class="headerlink" title="一、产生原因"></a>一、产生原因</h2><p>Golang有自动垃圾回收机制，但是仍然可能会出现内存泄漏的情况。以下是Golang内存泄漏的常见可能原因：</p>
+<ol>
+<li><strong>循环引用</strong>：如果两个或多个对象相互引用，且没有其他对象引用它们，那么它们就会被垃圾回收机制误认为是仍在使用的对象，导致内存泄漏。</li>
+<li><strong>全局变量</strong>：在Golang中，全局变量的生命周期与程序的生命周期相同。如果一个全局变量被创建后一直存在于内存中，那么它所占用的内存就无法被回收，可能会导致内存泄漏。</li>
+<li><strong>未关闭的文件句柄</strong>：如果程序打开了文件句柄但没有关闭它们，那么这些文件句柄所占用的内存就无法被回收，可能会导致内存泄漏。</li>
+<li><strong>大量的临时对象</strong>：如果程序创建了大量的临时对象，但没有及时释放它们，那么这些对象所占用的内存就无法被回收，可能会导致内存泄漏。</li>
+<li><strong>goroutine泄漏</strong>：<strong>常见的泄露场景</strong>，例如协程发生阻塞，Go运行时并不会将处于永久阻塞状态的协程杀掉，因此永久处于阻塞状态的协程所占用的资源将永得不到释放。</li>
+<li><strong>time.Ticker未关闭导致泄漏</strong>：当一个<code>time.Timer</code>值不再被使用，一段时间后它将被自动垃圾回收掉。 但对于一个不再使用的<code>time.Ticker</code>值，我们必须调用它的<code>Stop</code>方法结束它，否则它将永远不会得到回收。</li>
+</ol>
+<h2 id="二、排查方式"><a href="#二、排查方式" class="headerlink" title="二、排查方式"></a>二、排查方式</h2><p>如果出现内存泄漏，可以使用以下方式进行分析，找出内存泄漏的原因并进行修复。</p>
+<ol>
+<li>使用 Go 语言自带的 <strong>pprof 工具</strong>进行分析。pprof 可以生成程序的 CPU 和内存使用情况的报告，帮助开发者找出程序中的性能瓶颈和内存泄漏问题。可以通过在代码中添加 <code>import _ &quot;net/http/pprof&quot;</code> 和 <code>http.ListenAndServe(&quot;localhost:6060&quot;, nil)</code> 来开启 pprof 工具。</li>
+<li>使用 Golang 内置的 <code>runtime</code> 包进行分析。<code>runtime</code> 包提供了一些函数，包括 <code>SetFinalizer</code>、<code>ReadMemStats</code> 和 <code>Stack</code> 等，可以帮助开发者了解程序的内存使用情况和内存泄漏问题。</li>
+<li>使用第三方工具进行分析。例如，可以使用 <code>go-torch</code> 工具生成火焰图，帮助开发者找出程序中的性能瓶颈和内存泄漏问题。</li>
+<li>使用 <code>go vet</code> 工具进行静态分析。<code>go vet</code> 可以检查程序中的常见错误和潜在问题，包括内存泄漏问题。</li>
+<li>代码审查。开发者可以通过代码审查来找出程序中的潜在问题和内存泄漏问题。</li>
+</ol>
+<h2 id="三、通过-pprof-的命令排查内存泄露问题"><a href="#三、通过-pprof-的命令排查内存泄露问题" class="headerlink" title="三、通过 pprof 的命令排查内存泄露问题"></a>三、通过 pprof 的命令排查内存泄露问题</h2><h3 id="3-1-通过-pprof-的命令行分析-heap"><a href="#3-1-通过-pprof-的命令行分析-heap" class="headerlink" title="3.1 通过 pprof 的命令行分析 heap"></a>3.1 通过 pprof 的命令行分析 heap</h3><p>命令行执行命令: <code>go tool pprof -inuse_space [&lt;http://127.0.0.1:9999/debug/pprof/heap&gt;](&lt;http://spark-master.x.upyun.com/debug/pprof/heap&gt;)</code></p>
+<p>这个命令的作用是, 抓取当前程序已使用的 heap. 抓取后, 就可以进行类似于 gdb 的交互操作.</p>
+<ul>
+<li>top 命令, 默认能列出当前程序中内存占用排名前 10 的函数. 如图. 当时进行到这一步的时候, 我就非常惊讶, 因为 <code>time.NewTimer</code> 居然占据了 6 个多 G 的内存.</li>
+</ul>
+<p><img src="https://pic4.zhimg.com/80/v2-2ef735b81234db0c7ba6c567135f123b_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<ul>
+<li><code>list &lt;函数名&gt;</code>, 展现函数内部的内存占用. 使用 <code>list time.NewTimer</code> 查看了该函数的内部, 真相大白了, 原来每次调用 <code>NewTimer</code> 都会创建一个 channel, 还会生成一个结构体 <code>runtimeTimer</code>, 应该就是这两个地方内存没有释放造成的内存泄露.</li>
+</ul>
+<p><img src="https://pic2.zhimg.com/80/v2-16566847f6c80be09bd30ef5586b2915_1440w.webp" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="3-2-修改-for-select-time-After-造成的内存泄露"><a href="#3-2-修改-for-select-time-After-造成的内存泄露" class="headerlink" title="3.2 修改 for ... select ... time.After 造成的内存泄露"></a>3.2 <strong>修改 <code>for ... select ... time.After</code> 造成的内存泄露</strong></h3><p>原来程序中存在如下代码:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br><br>		<span class="hljs-keyword">case</span> a := &lt;-chanA:<br>			...<br><br>		<span class="hljs-keyword">case</span> b := &lt;-chanB:<br>			....<br><br>		<span class="hljs-keyword">case</span> &lt;-time.After(<span class="hljs-number">20</span>*time.Minutes):<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, errors.New(<span class="hljs-string">&quot;download timeout&quot;</span>)<br>	&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>time.After</code> 就是封装了一层的 <code>NewTimer</code>, <code>time.After</code> 的源码:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">After</span><span class="hljs-params">(d Duration)</span></span> &lt;-<span class="hljs-keyword">chan</span> Time &#123;<br>	<span class="hljs-keyword">return</span> NewTimer(d).C<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>修复该错误, 只调用一次 <code>NewTimer</code>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go">downloadTimeout := time.NewTimer(<span class="hljs-number">20</span> * time.Minute)<br><span class="hljs-comment">// 添加关闭时退出操作</span><br><span class="hljs-keyword">defer</span> downloadTimeout.Stop()<br><br><span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br><br>		<span class="hljs-keyword">case</span> a := &lt;-chanA:<br>			...<br><br>		<span class="hljs-keyword">case</span> b := &lt;-chanB:<br>			....<br><br>		<span class="hljs-keyword">case</span> &lt;-downloadTimeout.C:<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, errors.New(<span class="hljs-string">&quot;download timeout&quot;</span>)<br>	&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>通过这篇文章我们了解到Golang内存泄漏的常见可能原因有哪些：</p>
+<ol>
+<li><strong>循环引用</strong>：如果两个或多个对象相互引用，且没有其他对象引用它们，那么它们就会被垃圾回收机制误认为是仍在使用的对象，导致内存泄漏。</li>
+<li><strong>全局变量</strong>：在Golang中，全局变量的生命周期与程序的生命周期相同。如果一个全局变量被创建后一直存在于内存中，那么它所占用的内存就无法被回收，可能会导致内存泄漏。</li>
+<li><strong>未关闭的文件句柄</strong>：如果程序打开了文件句柄但没有关闭它们，那么这些文件句柄所占用的内存就无法被回收，可能会导致内存泄漏。</li>
+<li><strong>大量的临时对象</strong>：如果程序创建了大量的临时对象，但没有及时释放它们，那么这些对象所占用的内存就无法被回收，可能会导致内存泄漏。</li>
+<li><strong>goroutine泄漏</strong>：比较常见的泄露场景，例如协程发生阻塞，Go运行时并不会将处于永久阻塞状态的协程杀掉，因此永久处于阻塞状态的协程所占用的资源将永得不到释放。</li>
+<li><strong>time.Ticker未关闭导致泄漏</strong>：当一个<code>time.Timer</code>值不再被使用，一段时间后它将被自动垃圾回收掉。 但对于一个不再使用的<code>time.Ticker</code>值，我们必须调用它的<code>Stop</code>方法结束它，否则它将永远不会得到回收。</li>
+</ol>
+<p>然后介绍了相关排查工具以及pprof如何排查内存泄露问题。</p>
+<h2 id="五、参考链接"><a href="#五、参考链接" class="headerlink" title="五、参考链接"></a>五、参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://gfw.go101.org/article/memory-leaking.html">一些可能的内存泄漏场景</a></p>
+<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/265080950">使用 pprof 排查 Golang 内存泄露</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/golang/" class="category-chain-item">golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/golang/">#golang</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Golang内存泄露场景与定位方式</div>
+      <div>https://blog.longpi1.com/2023/06/01/Golang内存泄露场景与定位方式/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/30/Golang%E9%80%9A%E9%81%93%E9%98%BB%E5%A1%9E%E6%83%85%E5%86%B5%E4%B8%8E%E9%80%9A%E9%81%93%E6%97%A0%E9%98%BB%E5%A1%9E%E5%AE%9E%E7%8E%B0/" title="Golang通道阻塞情况与通道无阻塞实现">
+                        <span class="hidden-mobile">Golang通道阻塞情况与通道无阻塞实现</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
