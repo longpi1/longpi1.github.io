@@ -1,0 +1,790 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL 查询处理期间发生了什么？">
+<meta property="og:url" content="https://blog.longpi1.com/2023/07/22/PostgreSQL%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86%E6%9C%9F%E9%97%B4%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-01.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-02.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-03.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-04.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-04.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-05.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-3-06.png">
+<meta property="article:published_time" content="2023-07-22T11:29:03.000Z">
+<meta property="article:modified_time" content="2023-07-22T12:07:50.721Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="PostgresSQL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pg-internal.vonng.com/img/fig-3-01.png">
+  
+  
+  
+  <title>PostgreSQL 查询处理期间发生了什么？ - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PostgreSQL 查询处理期间发生了什么？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-22 19:29" pubdate>
+          2023年7月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.5k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PostgreSQL 查询处理期间发生了什么？</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="PostgreSQL-查询处理期间发生了什么？"><a href="#PostgreSQL-查询处理期间发生了什么？" class="headerlink" title="PostgreSQL 查询处理期间发生了什么？"></a>PostgreSQL 查询处理期间发生了什么？</h1><blockquote>
+<p>文中主要内容引用自<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/">PostgreSQL指南：内幕探索</a></p>
+</blockquote>
+<p>查询处理是PostgreSQL中最为复杂的子系统。如PostgreSQL<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/features.html">官方文档</a>所述，PostgreSQL支持SQL2011标准中的大多数特性，查询处理子系统能够高效地处理这些SQL。</p>
+<h2 id="一、PostgresSQL-执行流程是怎样的？"><a href="#一、PostgresSQL-执行流程是怎样的？" class="headerlink" title="一、PostgresSQL 执行流程是怎样的？"></a>一、PostgresSQL 执行流程是怎样的？</h2><p>先来一个上帝视角图，下面就是 PostgreSQL 查询处理的流程，也从图中可以看到 PostgreSQL 内部架构里的各个功能模块。</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-01.png" srcset="/img/loading.gif" lazyload alt="QueryProcessing"></p>
+<p> PostgreSQL 的查询流程主要可以分以下几个模块，<strong>也有很多文章将解析器与分析器放在一起</strong>，这里参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/">PostgreSQL指南：内幕探索</a>：</p>
+<ol>
+<li><p><strong>解析器（Parser）</strong></p>
+<p>解析器根据SQL语句通过词法分析、语法分析生成一颗<strong>语法解析树（parse tree）</strong> 。</p>
+</li>
+<li><p><strong>分析器（Analyzer）</strong></p>
+<p>分析器对语法解析树进行语义分析，生成一颗<strong>查询树（query tree）</strong>。</p>
+</li>
+<li><p><strong>重写器（Rewriter）</strong></p>
+<p>重写器按照<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/rules.html">规则系统</a>中存在的规则，对查询树进行改写。</p>
+</li>
+<li><p><strong>计划器（Planner）</strong></p>
+<p>计划器基于查询树，生成一颗执行效率最高的<strong>计划树（plan tree）</strong>。</p>
+</li>
+<li><p><strong>执行器（Executor）</strong></p>
+<p>执行器按照计划树中的顺序访问表和索引，执行相应查询。</p>
+</li>
+</ol>
+<blockquote>
+<p>PostgreSQL的查询处理在<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.postgresql.org/docs/current/static/overview.html">官方文档</a>中有详细的描述</p>
+</blockquote>
+<h2 id="二、解析器（Parser）"><a href="#二、解析器（Parser）" class="headerlink" title="二、解析器（Parser）"></a><strong>二、解析器（Parser）</strong></h2><blockquote>
+<p><strong>与mysql的解析器逻辑类似</strong>，很多文章将解析器与分析器放在一起；</p>
+</blockquote>
+<p>解析器基于SQL语句的文本，<strong>进行词法分析和语法分析</strong>，生成一颗后续子系统可以理解的语法解析树。下面是一个具体的例子。</p>
+<p>考虑以下查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"># <span class="hljs-keyword">SELECT</span> id, data <span class="hljs-keyword">FROM</span> tbl_a <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">&lt;</span> <span class="hljs-number">300</span> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> data;<br></code></pre></td></tr></table></figure>
+
+<p>其语法解析树如下：</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-02.png" srcset="/img/loading.gif" lazyload alt="ParseTree"></p>
+<p><code>SELECT</code>查询中的元素和语法解析树中的元素有着对应关系。比如，(1)是目标列表中的一个元素，与目标表的<code>&#39;id&#39;</code>列相对应，(4)是一个<code>WHERE</code>子句，诸如此类。</p>
+<p><strong>当解析器生成语法分析树时只会检查语法</strong>，只有当查询中出现语法错误时才会返回错误。解析器并不会检查输入查询的语义，举个例子，<strong>如果查询中包含一个不存在的表名，解析器并不会报错，语义检查由分析器负责。</strong></p>
+<h2 id="二、分析器（Analyzer）"><a href="#二、分析器（Analyzer）" class="headerlink" title="二、分析器（Analyzer）"></a>二、分析器（Analyzer）</h2><p>分析器对解析器产出的<strong>语法解析树（parse tree）</strong>进行<strong>语义分析</strong>，并产出一颗<strong>查询树（query tree）</strong>。</p>
+<p>查询树如下所示：</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-03.png" srcset="/img/loading.gif" lazyload alt="QueyTree"></p>
+<p>简要介绍一下上图中的查询树：</p>
+<ul>
+<li><code>targetlist</code> 是查询结果中<strong>列（Column）</strong>的列表。在本例中该列表包含两列：<code>id</code> 和<code>data</code>。如果在输入的查询树中使用了<code>*</code>（星号），那么分析器会将其显式替换为所有具体的列。</li>
+<li>范围表<code>rtable</code>是该查询所用到关系的列表。本例中该变量包含了表<code>tbl_a</code>的信息，如该表的表名与<code>oid</code>。</li>
+<li>连接树<code>jointree</code>存储着<code>FROM</code>和<code>WHERE</code>子句的相关信息。</li>
+<li>排序子句<code>sortClause</code>是<code>SortGroupClause</code>结构体的列表。</li>
+</ul>
+<p>查询树的细节可查看<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.postgresql.org/docs/current/static/querytree.html">官方文档</a>。</p>
+<h2 id="三、重写器（Rewriter）"><a href="#三、重写器（Rewriter）" class="headerlink" title="三、重写器（Rewriter）"></a>三、重写器（Rewriter）</h2><blockquote>
+<p><strong>类似于mysql的预处理阶段</strong></p>
+</blockquote>
+<p>PostgreSQL的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/rules.html">规则系统</a>正是基于重写器实现的；当需要时，重写器会根据存储在<code>pg_rules</code>中的规则对查询树进行转换。</p>
+<h4 id="视图"><a href="#视图" class="headerlink" title="视图"></a><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch3?id=%E8%A7%86%E5%9B%BE">视图</a></h4><p>在PostgreSQL中，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/rules-views.html">视图</a>是基于规则系统实现的。当使用<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/sql-createview.html"><code>CREATE VIEW</code></a>命令定义一个视图时，PostgreSQL就会创建相应的规则，并存储到系统目录中。</p>
+<p>假设下面的视图已经被定义，而<code>pg_rule</code>中也存储了相应的规则。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"># <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">VIEW</span> employees_list <br>#   <span class="hljs-keyword">AS</span> <span class="hljs-keyword">SELECT</span> e.id, e.name, d.name <span class="hljs-keyword">AS</span> department <br>#      <span class="hljs-keyword">FROM</span> employees <span class="hljs-keyword">AS</span> e, departments <span class="hljs-keyword">AS</span> d <span class="hljs-keyword">WHERE</span> e.department_id <span class="hljs-operator">=</span> d.id;<br></code></pre></td></tr></table></figure>
+
+<p>当执行一个包含该视图的查询，解析器会创建一颗如下图所示的语法解析树。</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-04.png" srcset="/img/loading.gif" lazyload alt="rewriter"></p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-04.png" srcset="/img/loading.gif" lazyload alt="rewriter"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"># <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> employees_list;<br></code></pre></td></tr></table></figure>
+
+<p>在该阶段，重写器会基于<code>pg_rules</code>中存储的视图规则将<code>rangetable</code>节点重写为一颗查询子树，与子查询相对应。</p>
+<h2 id="四、计划（优化）器（Planner）"><a href="#四、计划（优化）器（Planner）" class="headerlink" title="四、计划（优化）器（Planner）"></a>四、<strong>计划（优化）器（Planner）</strong></h2><blockquote>
+<p><strong>类似于mysql的优化阶段</strong></p>
+</blockquote>
+<p>计划器主要负责将 SQL 查询语句的执行方案确定下来。</p>
+<p>计划器从重写器获取一颗<strong>查询树（query tree）</strong>，会根据<strong>表连接顺序</strong>和<strong>索引</strong>等信息去计算不同路径的可能代价值，最后选出最优者。基于查询树生成一颗能被执行器高效执行的（查询）<strong>计划树（plan tree）</strong>。</p>
+<p>在PostgreSQL中，计划器是完全<strong>基于代价估计（cost-based）</strong>的；它不支持基于规则的优化与<strong>提示（hint）</strong>。</p>
+<p><strong>一个简单的计划树以及其与EXPLAIN命令的关系</strong>如下图所示</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-05.png" srcset="/img/loading.gif" lazyload alt="planTree"></p>
+<p>计划树由许多称为<strong>计划节点（plan node）</strong>的元素组成，每个计划节点都包含着执行器进行处理所必需的信息，在单表查询的场景中，执行器会按照从终端节点往根节点的顺序依次处理这些节点。</p>
+<p>比如图中的计划树就是一个列表，包含一个排序节点和一个顺序扫描节点；因而执行器会首先对表<code>tbl_a</code>执行顺序扫描，并对获取的结果进行排序。</p>
+<h2 id="五、执行器（Executor）"><a href="#五、执行器（Executor）" class="headerlink" title="五、执行器（Executor）"></a>五、执行器（Executor）</h2><blockquote>
+<p><strong>类似于mysql的执行阶段</strong></p>
+</blockquote>
+<p>执行器最后执行plan，遍历每个节点，以致完成。最后将查询结果返回给客户端。</p>
+<p><strong>执行器</strong>会通过缓冲区管理器来访问数据库集簇的表和索引。当处理一个查询时，执行器会使用预先分配的内存空间，比如<code>temp_buffers</code>和<code>work_mem</code>，必要时还会创建临时文件。</p>
+<p><strong>执行器，缓冲管理器，临时文件之间的关系</strong></p>
+<p><img src="https://pg-internal.vonng.com/img/fig-3-06.png" srcset="/img/loading.gif" lazyload alt="dd"></p>
+<p>除此之外，当访问元组的时候，PostgreSQL还会使用并发控制机制来维护运行中事务的一致性和隔离性。</p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>可以看到， PostgreSQL 的查询流程主要分五个子系统：</p>
+<ol>
+<li><p><strong>解析器（Parser）</strong></p>
+<p>解析器根据SQL语句生成一颗<strong>语法解析树（parse tree）</strong> 。</p>
+</li>
+<li><p><strong>分析器（Analyzer）</strong></p>
+<p>分析器对语法解析树进行语义分析，生成一颗<strong>查询树（query tree）</strong>。</p>
+</li>
+<li><p><strong>重写器（Rewriter）</strong></p>
+<p>重写器按照<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/rules.html">规则系统</a>中存在的规则，对查询树进行改写。</p>
+</li>
+<li><p><strong>计划器（Planner）</strong></p>
+<p>计划器基于查询树，生成一颗执行效率最高的<strong>计划树（plan tree）</strong>。</p>
+</li>
+<li><p><strong>执行器（Executor）</strong></p>
+<p>执行器按照计划树中的<strong>顺序访问表和索引</strong>，执行相应查询。</p>
+</li>
+</ol>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p><strong>PostgreSQL与Mysql的查询处理主要区别是什么？</strong></p>
+<ol>
+<li><strong>数据库类型</strong>：<ul>
+<li>MySQL是一种关系型数据库（Relational Database），而PostgreSQL是一种面向对象关系型数据库（Object-Relational Database）。这意味着PostgreSQL在关系型数据库的基础上，增加了对对象的支持，可以存储和操作更复杂的数据结构[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">1</a>]。</li>
+</ul>
+</li>
+<li><strong>查询复杂性</strong>：<ul>
+<li>PostgreSQL对于查询的复杂性提供了更高级的支持。它支持更复杂的存储过程和存储函数，可以进行更灵活和高级的数据处理操作[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">1</a>]。而MySQL对于存储过程和函数的支持相对较弱。</li>
+</ul>
+</li>
+<li><strong>索引类型</strong>：<ul>
+<li>MySQL主要使用二叉搜索树（B-Tree）索引，而PostgreSQL支持多种类型的索引，包括GIN和Hash等。这使得PostgreSQL在某些特定的查询场景下可以提供更高效的查询性能[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">1</a>]。</li>
+</ul>
+</li>
+<li><strong>数据加密</strong>：<ul>
+<li>在客户端和服务器之间的加密方面，MySQL使用传输层安全性（TLS）协议进行加密，而PostgreSQL支持SSL加密。SSL提供了更强的加密和安全性，可以更好地保护数据的完整性[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">1</a>]。</li>
+</ul>
+</li>
+<li><strong>高级数据类型</strong>：<ul>
+<li>PostgreSQL提供了更多的高级数据类型支持，如hstore和自定义数据类型。这使得PostgreSQL在处理特定类型的数据时更加灵活和强大[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">1</a>]。MySQL在这方面的支持相对较弱。</li>
+</ul>
+</li>
+<li><strong>并发控制</strong>：<ul>
+<li>PostgreSQL支持多版本并发控制（MVCC），这意味着在读写操作同时发生时，能够处理并发访问的能力。而MySQL不直接支持MVCC，对于高并发环境下的并发控制可能相对简单[<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">1</a>]。</li>
+</ul>
+</li>
+</ol>
+<p>需要注意的是，上述区别是一般性的概述，实际的差异可能更加复杂，并且取决于具体的使用情境和配置设置。选择适合自己需求的数据库取决于企业的目标和资源限制。一般来说，PostgreSQL是一个更为强大和高级的数据库管理系统，适用于需要在大型环境中快速执行复杂查询的组织。而MySQL则是一个更适合预算和空间有限的企业的理想解决方案</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>​	1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference">https://www.ibm.com/cloud/blog/postgresql-vs-mysql-whats-the-difference</a></p>
+<p>​	2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/">PostgreSQL指南：内幕探索</a></p>
+<p>​	3.<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.postgres.cn/docs/9.4/index.html">PostgreSQL 9.4.4 中文手册</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PostgresSQL/" class="category-chain-item">PostgresSQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/PostgresSQL/">#PostgresSQL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PostgreSQL 查询处理期间发生了什么？</div>
+      <div>https://blog.longpi1.com/2023/07/22/PostgreSQL查询处理期间发生了什么？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/22/PostgreSQL%E5%B8%B8%E7%94%A8%E7%B4%A2%E5%BC%95%E4%B8%8E%E4%BC%98%E5%8C%96/" title="PostgreSQL常用索引与优化">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">PostgreSQL常用索引与优化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/22/PostgresSQL%E8%BF%9B%E7%A8%8B%E4%B8%8E%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/" title="PostgresSQL 进程与基础架构">
+                        <span class="hidden-mobile">PostgresSQL 进程与基础架构</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

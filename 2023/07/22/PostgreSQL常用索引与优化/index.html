@@ -1,0 +1,839 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL常用索引与优化">
+<meta property="og:url" content="https://blog.longpi1.com/2023/07/22/PostgreSQL%E5%B8%B8%E7%94%A8%E7%B4%A2%E5%BC%95%E4%B8%8E%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-22T11:29:17.000Z">
+<meta property="article:modified_time" content="2023-07-22T12:07:50.736Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="PostgresSQL">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>PostgreSQL常用索引与优化 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PostgreSQL常用索引与优化"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-22 19:29" pubdate>
+          2023年7月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PostgreSQL常用索引与优化</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="PostgreSQL常用索引与优化"><a href="#PostgreSQL常用索引与优化" class="headerlink" title="PostgreSQL常用索引与优化"></a>PostgreSQL常用索引与优化</h1><blockquote>
+<p>主要内容转载自<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/457860359">《PostgreSQL 开发指南》</a></p>
+</blockquote>
+<p>索引（Index）可以用于提高数据库的查询性能；但是索引也需要进行读写，同时还会占用更多的存储空间；因此了解并适当利用索引对于数据库的优化至关重要。本篇我们就来介绍如何高效地使用 PostgreSQL 索引。</p>
+<h2 id="索引简介"><a href="#索引简介" class="headerlink" title="索引简介"></a>索引简介</h2><p>假设存在以下数据表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> test (<br>  id <span class="hljs-type">integer</span>,<br>  name text<br>);<br><br><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> test<br><span class="hljs-keyword">select</span> v,<span class="hljs-string">&#x27;val:&#x27;</span><span class="hljs-operator">||</span>v <span class="hljs-keyword">from</span> generate_series(<span class="hljs-number">1</span>, <span class="hljs-number">10000000</span>) v;<br></code></pre></td></tr></table></figure>
+
+<p>我们经常需要使用类似以下的查询返回结果：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> name <span class="hljs-keyword">FROM</span> test <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">=</span> <span class="hljs-number">10000</span>;<br></code></pre></td></tr></table></figure>
+
+<p>如果没有索引，数据库需要扫描整个表才能找到相应的数据。利用<code>EXPLAIN</code>命令可以看到数据库的执行计划，也就是 PostgreSQL 执行 SQL 语句的具体步骤：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">SELECT</span> name <span class="hljs-keyword">FROM</span> test <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">=</span> <span class="hljs-number">10000</span>;<br>QUERY PLAN                                                                                                              <span class="hljs-operator">|</span><br><span class="hljs-comment">------------------------------------------------------------------------------------------------------------------------|</span><br>Gather  (cost<span class="hljs-operator">=</span><span class="hljs-number">1000.00</span>.<span class="hljs-number">.107137</span><span class="hljs-number">.70</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> width<span class="hljs-operator">=</span><span class="hljs-number">11</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">50.266</span>.<span class="hljs-number">.12082</span><span class="hljs-number">.777</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)                        <span class="hljs-operator">|</span><br>  Workers Planned: <span class="hljs-number">2</span>                                                                                                    <span class="hljs-operator">|</span><br>  Workers Launched: <span class="hljs-number">2</span>                                                                                                   <span class="hljs-operator">|</span><br>  <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span>  Parallel Seq Scan <span class="hljs-keyword">on</span> test  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.00</span>.<span class="hljs-number">.106137</span><span class="hljs-number">.60</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> width<span class="hljs-operator">=</span><span class="hljs-number">11</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">7674.992</span>.<span class="hljs-number">.11553</span><span class="hljs-number">.964</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">0</span> loops<span class="hljs-operator">=</span><span class="hljs-number">3</span>)<span class="hljs-operator">|</span><br>        <span class="hljs-keyword">Filter</span>: (id <span class="hljs-operator">=</span> <span class="hljs-number">10000</span>)                                                                                            <span class="hljs-operator">|</span><br>        <span class="hljs-keyword">Rows</span> Removed <span class="hljs-keyword">by</span> <span class="hljs-keyword">Filter</span>: <span class="hljs-number">3333333</span>                                                                                 <span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">16.480</span> ms                                                                                                <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">12093.016</span> ms                                                                                            <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p>Parallel Seq Scan 表示并行顺序扫描，执行消耗了 12 s；由于表中有包含大量数据，而查询只返回一行数据，显然这种方法效率很低。</p>
+<blockquote>
+<p>关于执行计划的更多信息，可以参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://zhuanlan.zhihu.com/p/98999760">这篇文章</a>。</p>
+</blockquote>
+<p>此时，如果在 id 列上存在索引，则可以通过索引快速找到匹配的结果。我们先创建一个索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> INDEX test_id_index <span class="hljs-keyword">ON</span> test (id);<br></code></pre></td></tr></table></figure>
+
+<p>创建索引需要消耗一定的时间。然后再次查看数据库的执行计划：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">SELECT</span> name <span class="hljs-keyword">FROM</span> test <span class="hljs-keyword">WHERE</span> id <span class="hljs-operator">=</span> <span class="hljs-number">10000</span>;<br>QUERY PLAN                                                                                                           <span class="hljs-operator">|</span><br><span class="hljs-comment">---------------------------------------------------------------------------------------------------------------------|</span><br>Index Scan <span class="hljs-keyword">using</span> test_id_index <span class="hljs-keyword">on</span> test  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.43</span>.<span class="hljs-number">.8</span><span class="hljs-number">.45</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> width<span class="hljs-operator">=</span><span class="hljs-number">11</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">20.410</span>.<span class="hljs-number">.20</span><span class="hljs-number">.412</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)<span class="hljs-operator">|</span><br>  Index Cond: (id <span class="hljs-operator">=</span> <span class="hljs-number">10000</span>)                                                                                           <span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">14.989</span> ms                                                                                             <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">20.521</span> ms                                                                                            <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p>Index Scan 表示索引扫描，执行消耗了 20 ms；这种方式类似于图书最后的关键字索引，读者可以相对快速地浏览索引并翻到适当的页面，而不必阅读整本书来找到感兴趣的内容。</p>
+<p>索引不仅仅能够优化查询语句，某些包含<code>WHERE</code>条件的<code>UPDATE</code>、<code>DELETE</code>语句也可以利用索引提高性能，因为修改数据的前提是找到数据。</p>
+<p>此外，索引也可以用于优化连接查询，基于连接条件中的字段创建索引可以提高连接查询的性能。索引甚至还能优化分组或者排序操作，因为索引自身是按照顺序进行组织存储的。</p>
+<p>另一方面，系统维护索引需要付出一定的代价，从而增加数据修改操作的负担。所以，我们需要合理创建索引，一般只为经常使用到的字段创建索引。就像图书一样，不可能为书中的每个关键字都创建一个索引。</p>
+<h2 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a>索引类型</h2><blockquote>
+<p>详细介绍可参考: <a target="_blank" rel="external nofollow noopener noreferrer" href="https://developer.aliyun.com/article/111793">PostgreSQL 9种索引的原理和应用场景</a></p>
+</blockquote>
+<p>PostgreSQL 提高了多种索引类型：B-树、哈希、GiST、SP-GiST、GIN 以及 BRIN 等索引。每种索引基于不同的存储结构和算法，用于优化不同类型的查询。<strong>默认情况下，PostgreSQL 创建 B-树索引，因为它适合大部分情况下的查询。</strong></p>
+<h3 id="1-B-树索引"><a href="#1-B-树索引" class="headerlink" title="1.B-树索引"></a>1.B-树索引</h3><p><strong>注意B树就是B-树，”-“是个连字符号，不是减号。</strong><br>B-树是一种<strong>平衡</strong>的多路**查找(又称排序)<strong>树，在文件系统中有所应用。主要用作文件的索引。</strong>其中的B就表示平衡(Balance)**，与B+树区别可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://xiaolincoding.com/mysql/index/why_index_chose_bpuls_tree.html#_3%E3%80%81%E8%8C%83%E5%9B%B4%E6%9F%A5%E8%AF%A2">https://xiaolincoding.com/mysql/index/why_index_chose_bpuls_tree.html#_3%E3%80%81%E8%8C%83%E5%9B%B4%E6%9F%A5%E8%AF%A2</a></p>
+<p>实现原理可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201605/20160528_01.md">《深入浅出PostgreSQL B-Tree索引结构》</a></p>
+<p>B-树是一个自平衡树（self-balancing tree），按照顺序存储数据，支持对数时间复杂度（O(logN)）的搜索、插入、删除和顺序访问。举例来说，假如 100 条数据时需要 1 次磁盘 I&#x2F;O，也就是说 N 等于 100；10000 条数据时只需要 2 次 I&#x2F;O，1 亿数据时只需要 4 次 I&#x2F;O。</p>
+<p>对于索引列上的以下比较运算符，PostgreSQL 优化器都会考虑使用 B-树索引：</p>
+<ul>
+<li>&lt;</li>
+<li>&lt;&#x3D;</li>
+<li>&#x3D;</li>
+<li>&gt;&#x3D;</li>
+<li>BETWEEN</li>
+<li>IN</li>
+<li>IS NULL</li>
+<li>IS NOT NULL</li>
+</ul>
+<p>另外，如果模式匹配运算符<code>LIKE</code>和<code>~</code>中模式的开头不是通配符，优化器也可以使用 B-树索引，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql">col  <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;foo%&#x27;</span> <br>col  <span class="hljs-operator">~</span> <span class="hljs-string">&#x27;^foo&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>对于不区分大小的的<code>ILIKE</code>和<code>~*</code>运算符，如果匹配的模式以非字母的字符（不受大小写转换影响）开头，也可以使用 B-树索引。</p>
+<p>B-树索引还可以用于优化排序操作，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> col1, col2<br>  <span class="hljs-keyword">FROM</span> t<br> <span class="hljs-keyword">WHERE</span> col1 <span class="hljs-keyword">BETWEEN</span> <span class="hljs-number">100</span> <span class="hljs-keyword">AND</span> <span class="hljs-number">200</span><br> <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> col1;<br></code></pre></td></tr></table></figure>
+
+<p>col1 上的索引不仅能够优化查询条件，也可以避免额外的排序操作；因为基于该索引访问时本身就是按照排序返回结果。</p>
+<h3 id="2-哈希索引"><a href="#2-哈希索引" class="headerlink" title="2.哈希索引"></a>2.哈希索引</h3><p>哈希索引（Hash index）只能用于简单的等值查找（&#x3D;），也就是说索引字段被用于等号条件判断。因为对数据进行哈希运算之后不再保留原来的大小关系。</p>
+<p>hash索引特别适用于字段VALUE非常长（不适合b-tree索引，因为b-tree一个PAGE至少要存储3个ENTRY，所以不支持特别长的VALUE）的场景，例如很长的字符串，并且用户只需要等值搜索，建议使用hash index。</p>
+<p>创建哈希索引需要使用<code>HASH</code>关键字：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> INDEX index_name <br><span class="hljs-keyword">ON</span> table_name <span class="hljs-keyword">USING</span> HASH (column_name);<br></code></pre></td></tr></table></figure>
+
+<p><code>CREATE INDEX</code>语句用于创建索引，<code>USING</code>子句指定索引的类型，具体参考下文。</p>
+<h3 id="3-GiST-索引"><a href="#3-GiST-索引" class="headerlink" title="3.GiST 索引"></a>3.GiST 索引</h3><p>GiST 代表通用搜索树（Generalized Search Tree），GiST 索引单个索引类型，而是一种支持不同索引策略的框架。GiST 索引常见的用途包括几何数据的索引和全文搜索。GiST 索引也可以用于优化“最近邻”搜索，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> places <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> location <span class="hljs-operator">&lt;</span><span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> point <span class="hljs-string">&#x27;(101,456)&#x27;</span> LIMIT <span class="hljs-number">10</span>;<br></code></pre></td></tr></table></figure>
+
+<p>该语句用于查找距离某个目标地点最近的 10 个地方。</p>
+<p>GiST是一个通用的索引接口，可以使用GiST实现b-tree, r-tree等索引结构。</p>
+<p>不同的类型，支持的索引检索也各不一样。例如：</p>
+<p>1、几何类型，支持位置搜索（包含、相交、在上下左右等），按距离排序。</p>
+<p>2、范围类型，支持位置搜索（包含、相交、在左右等）。</p>
+<p>3、IP类型，支持位置搜索（包含、相交、在左右等）。</p>
+<p>4、空间类型（PostGIS），支持位置搜索（包含、相交、在上下左右等），按距离排序。</p>
+<p>5、标量类型，支持按距离排序。</p>
+<p>实现原理可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201601/20160119_01.md">《PostgreSQL 百亿地理位置数据 近邻查询性能》</a></p>
+<h3 id="4-SP-GiST-索引"><a href="#4-SP-GiST-索引" class="headerlink" title="4.SP-GiST 索引"></a>4.SP-GiST 索引</h3><p>SP-GiST 代表空间分区 GiST，主要用于 GIS、多媒体、电话路由以及 IP 路由等数据的索引。</p>
+<p>与 GiST 类似，SP-GiST 也支持“最近邻”搜索。是一个通用的索引接口，但是SP-GIST使用了空间分区的方法，使得SP-GiST可以更好的支持非平衡数据结构，例如quad-trees, k-d tree, radis tree.</p>
+<p>实现原理可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201706/20170627_01_pdf_001.pdf">《Space-partitioning trees in PostgreSQL》</a></p>
+<h3 id="5-GIN-索引"><a href="#5-GIN-索引" class="headerlink" title="5.GIN 索引"></a>5.GIN 索引</h3><p>GIN 代表广义倒排索引（generalized inverted indexes），主要用于单个字段中包含多个值的数据，例如 hstore、array、jsonb 以及 range 数据类型。一个倒排索引为每个元素值都创建一个单独的索引项，可以有效地查询某个特定元素值是否存在。Google、百度这种搜索引擎利用的就是倒排索引。</p>
+<p>实现原理可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201702/20170204_01.md">《PostgreSQL GIN索引实现原理》</a></p>
+<p><strong>应用场景</strong></p>
+<p>1、当需要搜索多值类型内的VALUE时，适合多值类型，例如数组、全文检索、TOKEN。（根据不同的类型，支持相交、包含、大于、在左边、在右边等搜索）</p>
+<p>2、当用户的数据比较稀疏时，如果要搜索某个VALUE的值，可以适应btree_gin支持普通btree支持的类型。（支持btree的操作符）</p>
+<p>3、当用户需要按任意列进行搜索时，gin支持多列展开单独建立索引域，同时支持内部多域索引的bitmapAnd, bitmapOr合并，快速的返回按任意列搜索请求的数据。</p>
+<h3 id="6-BRIN-索引"><a href="#6-BRIN-索引" class="headerlink" title="6.BRIN 索引"></a>6.BRIN 索引</h3><p>BRIN 代表块区间索引（block range indexes），存储了连续物理范围区间内的数据摘要信息。BRIN 也相比于 B-树索引要小很多，维护也更容易。对于不进行水平分区就无法使用 B-树索引的超大型表，可以考虑 BRIN。</p>
+<p>BRIN 通常用于具有线性排序顺序的字段，例如订单表的创建日期。</p>
+<p>例如时序数据，在时间或序列字段创建BRIN索引，进行等值、范围查询时效果很棒。</p>
+<p><strong>应用场景</strong></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201504/20150419_01.md">《BRIN (block range index) index》</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201604/20160414_01.md">《PostgreSQL 物联网黑科技 - 瘦身几百倍的索引(BRIN index)》</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201702/20170219_01.md">《PostgreSQL 聚集存储 与 BRIN索引 - 高并发行为、轨迹类大吞吐数据查询场景解说》</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201706/20170611_02.md">《PostgreSQL 并行写入堆表，如何保证时序线性存储 - BRIN索引优化》</a></p>
+<h3 id="7-rum-索引"><a href="#7-rum-索引" class="headerlink" title="7.rum 索引"></a>7.rum 索引</h3><p>原理可参考：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/postgrespro/rum">https://github.com/postgrespro/rum</a></p>
+<p>rum 是一个索引插件，由Postgrespro开源，适合全文检索，属于GIN的增强版本。</p>
+<p>增强包括：</p>
+<p>1、在RUM索引中，存储了lexem的位置信息，所以在计算ranking时，不需要回表查询（而GIN需要回表查询）。</p>
+<p>2、RUM支持phrase搜索，而GIN无法支持。</p>
+<p>3、在一个RUM索引中，允许用户在posting tree中存储除ctid（行号）以外的字段VALUE，例如时间戳。</p>
+<p>这使得RUM不仅支持GIN支持的全文检索，还支持计算文本的相似度值，按相似度排序等。同时支持位置匹配，例如（速度与激情，可以采用”速度” &lt;2&gt; “激情” 进行匹配，而GIN索引则无法做到）</p>
+<p><strong>应用场景</strong></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201610/20161019_01.md">《PostgreSQL 全文检索加速 快到没有朋友 - RUM索引接口(潘多拉魔盒)》</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201612/20161231_01.md">《从难缠的模糊查询聊开 - PostgreSQL独门绝招之一 GIN , GiST , SP-GiST , RUM 索引原理与技术背景》</a></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201701/20170116_04.md">《PostgreSQL结合余弦、线性相关算法 在文本、图片、数组相似 等领域的应用 - 3 rum, smlar应用场景分析》</a></p>
+<h3 id="8-bloom-索引"><a href="#8-bloom-索引" class="headerlink" title="8.bloom 索引"></a>8.bloom 索引</h3><p>bloom索引接口是PostgreSQL基于bloom filter构造的一个索引接口，属于lossy索引，可以收敛结果集(排除绝对不满足条件的结果，剩余的结果里再挑选满足条件的结果)，因此需要二次check，bloom支持任意列组合的等值查询。</p>
+<p>bloom存储的是签名，签名越大，耗费的空间越多，但是排除更加精准。有利有弊。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs routeros">CREATE INDEX bloomidx ON tbloom USING bloom (i1,i2,i3)<br>       WITH (<span class="hljs-attribute">length</span>=80, <span class="hljs-attribute">col1</span>=2, <span class="hljs-attribute">col2</span>=2, <span class="hljs-attribute">col3</span>=4);<br><br>签名长度 80 bit, 最大允许4096 bits<br>col1 - col32，分别指定每列的bits，默认长度2，最大允许4095 bits.<br></code></pre></td></tr></table></figure>
+
+<p><strong>应用场景</strong></p>
+<p>bloom索引适合多列任意组合查询。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/digoal/blog/blob/master/201605/20160523_01.md">《PostgreSQL 9.6 黑科技 bloom 算法索引，一个索引支撑任意列组合查询》</a></p>
+<h3 id="9-zombodb-索引"><a href="#9-zombodb-索引" class="headerlink" title="9.zombodb 索引"></a>9.zombodb 索引</h3><p>zombodb是PostgreSQL与ElasticSearch结合的一个索引接口，可以直接读写ES。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zombodb/zombodb">https://github.com/zombodb/zombodb</a></p>
+<p><strong>应用场景</strong></p>
+<p>与ES结合，实现SQL接口的搜索引擎，实现数据的透明搜索。</p>
+<h2 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h2><p>PostgreSQL 使用<code>CREATE INDEX</code>语句创建新的索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> INDEX index_name <span class="hljs-keyword">ON</span> table_name <br>[<span class="hljs-keyword">USING</span> <span class="hljs-keyword">method</span>]<br>(column_name [<span class="hljs-keyword">ASC</span> <span class="hljs-operator">|</span> <span class="hljs-keyword">DESC</span>] [NULLS <span class="hljs-keyword">FIRST</span> <span class="hljs-operator">|</span> NULLS <span class="hljs-keyword">LAST</span>]);<br></code></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li>index_name 是索引的名称，table_name 是表的名称；</li>
+<li>method 表示索引的类型，例如 btree、hash、gist、spgist、gin 或者 brin。默认为 <strong>btree</strong>；</li>
+<li>column_name 是字段名，<code>ASC</code>表示升序排序（默认值），<code>DESC</code>表示降序索引；</li>
+<li><code>NULLS FIRST</code>和<code>NULLS LAST</code>表示索引中空值的排列顺序，升序索引时默认为<code>NULLS LAST</code>，降序索引时默认为<code>NULLS FIRST</code>。</li>
+</ul>
+<p>如果我们经常使用 name 字段作为查询条件，可以为 test 表创建以下索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> INDEX test_name_index <span class="hljs-keyword">ON</span> test (name);<br></code></pre></td></tr></table></figure>
+
+<p>创建索引之后，优化器会自动选择是否使用索引，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> test <span class="hljs-keyword">WHERE</span> name <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NULL</span>;<br>QUERY PLAN                                                                                                           <span class="hljs-operator">|</span><br><span class="hljs-comment">---------------------------------------------------------------------------------------------------------------------|</span><br>Index Scan <span class="hljs-keyword">using</span> test_name_index <span class="hljs-keyword">on</span> test  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.43</span>.<span class="hljs-number">.5</span><span class="hljs-number">.77</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> width<span class="hljs-operator">=</span><span class="hljs-number">15</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">0.036</span>.<span class="hljs-number">.0</span><span class="hljs-number">.037</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">0</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)<span class="hljs-operator">|</span><br>  Index Cond: (name <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NULL</span>)                                                                                         <span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">1.067</span> ms                                                                                              <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">0.048</span> ms                                                                                             <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p>基于索引字段的<code>IS NULL</code>运算符同样可以利用索引进行优化。</p>
+<h3 id="唯一索引"><a href="#唯一索引" class="headerlink" title="唯一索引"></a>唯一索引</h3><p>在创建索引时，可以使用<code>UNIQUE</code>关键字指定唯一索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">UNIQUE</span> INDEX index_name<br><span class="hljs-keyword">ON</span> table_name (column_name [<span class="hljs-keyword">ASC</span> <span class="hljs-operator">|</span> <span class="hljs-keyword">DESC</span>] [NULLS <span class="hljs-keyword">FIRST</span> <span class="hljs-operator">|</span> NULLS <span class="hljs-keyword">LAST</span>]);<br></code></pre></td></tr></table></figure>
+
+<p>唯一索引可以用于实现唯一约束，<strong>PostgreSQL 目前只支持 B-树类型的唯一索引</strong>。多个 NULL 值被看作是不同的值，因此唯一索引字段可以存在多个空值。</p>
+<blockquote>
+<p><strong>对于主键和唯一约束，PostgreSQL 会自动创建一个唯一索引，从而确保唯一性。</strong></p>
+</blockquote>
+<h3 id="多列索引"><a href="#多列索引" class="headerlink" title="多列索引"></a>多列索引</h3><p>PostgreSQL 支持基于多个字段的索引，也就是多列索引（复合索引）。默认情况下，一<strong>个多列索引最多可以使用 32 个字段。只有B-树、GIST、GIN 和 BRIN 索引支持多列索引。</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> [<span class="hljs-keyword">UNIQUE</span>] INDEX index_name <span class="hljs-keyword">ON</span> table_name<br>[<span class="hljs-keyword">USING</span> <span class="hljs-keyword">method</span>]<br>(column1 [<span class="hljs-keyword">ASC</span> <span class="hljs-operator">|</span> <span class="hljs-keyword">DESC</span>] [NULLS <span class="hljs-keyword">FIRST</span> <span class="hljs-operator">|</span> NULLS <span class="hljs-keyword">LAST</span>], ...);<br></code></pre></td></tr></table></figure>
+
+<p>对于多列索引，应该将<strong>最常作为查询条件使用的字段放在左边，较少使用的字段放在右边</strong>。例如，基于（c1, c2, c3）创建的索引可以优化以下查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">WHERE</span> c1 <span class="hljs-operator">=</span> v1 <span class="hljs-keyword">and</span> c2 <span class="hljs-operator">=</span> v2 <span class="hljs-keyword">and</span> c3 <span class="hljs-operator">=</span> v3;<br><span class="hljs-keyword">WHERE</span> c1 <span class="hljs-operator">=</span> v1 <span class="hljs-keyword">and</span> c2 <span class="hljs-operator">=</span> v2;<br><span class="hljs-keyword">WHERE</span> c1 <span class="hljs-operator">=</span> v1;<br></code></pre></td></tr></table></figure>
+
+<p>但是以下查询无法使用该索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">WHERE</span> c2 <span class="hljs-operator">=</span> v2;<br><span class="hljs-keyword">WHERE</span> c3 <span class="hljs-operator">=</span> v3;<br><span class="hljs-keyword">WHERE</span> c2 <span class="hljs-operator">=</span> v2 <span class="hljs-keyword">and</span> c3 <span class="hljs-operator">=</span> v3;<br></code></pre></td></tr></table></figure>
+
+<p><strong>对于多列唯一索引，字段的组合值不能重复；但是如果某个字段是空值，其他字段可以出现重复值。</strong></p>
+<h3 id="函数索引"><a href="#函数索引" class="headerlink" title="函数索引"></a>函数索引</h3><p>函数索引，也叫表达式索引，是指基于某个函数或者表达式的值创建的索引。PostgreSQL 中创建函数索引的语法如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> [<span class="hljs-keyword">UNIQUE</span>] INDEX index_name <br><span class="hljs-keyword">ON</span> table_name (expression);<br></code></pre></td></tr></table></figure>
+
+<p>expression 是基于字段的表达式或者函数。</p>
+<p>以下查询在 name 字段上使用了 upper 函数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> test <span class="hljs-keyword">WHERE</span> <span class="hljs-built_in">upper</span>(name) <span class="hljs-operator">=</span><span class="hljs-string">&#x27;VAL:10000&#x27;</span>;<br>QUERY PLAN                                                                                                                 <span class="hljs-operator">|</span><br><span class="hljs-comment">---------------------------------------------------------------------------------------------------------------------------|</span><br>Gather  (cost<span class="hljs-operator">=</span><span class="hljs-number">1000.00</span>.<span class="hljs-number">.122556</span><span class="hljs-number">.19</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">50001</span> width<span class="hljs-operator">=</span><span class="hljs-number">15</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">18.629</span>.<span class="hljs-number">.7310</span><span class="hljs-number">.422</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)                        <span class="hljs-operator">|</span><br>  Workers Planned: <span class="hljs-number">2</span>                                                                                                       <span class="hljs-operator">|</span><br>  Workers Launched: <span class="hljs-number">2</span>                                                                                                      <span class="hljs-operator">|</span><br>  <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span>  Parallel Seq Scan <span class="hljs-keyword">on</span> test  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.00</span>.<span class="hljs-number">.116556</span><span class="hljs-number">.09</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">20834</span> width<span class="hljs-operator">=</span><span class="hljs-number">15</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">4746.266</span>.<span class="hljs-number">.7171</span><span class="hljs-number">.452</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">0</span> loops<span class="hljs-operator">=</span><span class="hljs-number">3</span>)<span class="hljs-operator">|</span><br>        <span class="hljs-keyword">Filter</span>: (<span class="hljs-built_in">upper</span>(name) <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;VAL:10000&#x27;</span>::text)                                                                          <span class="hljs-operator">|</span><br>        <span class="hljs-keyword">Rows</span> Removed <span class="hljs-keyword">by</span> <span class="hljs-keyword">Filter</span>: <span class="hljs-number">3333333</span>                                                                                    <span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">0.100</span> ms                                                                                                    <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">7310.444</span> ms                                                                                                <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p>虽然 name 字段上存在索引 test_name_index，但是函数会导致优化器无法使用该索引。为了优化这种不分区大小写的查询语句，可以基于 name 字段创建一个函数索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">drop</span> index test_name_index;<br><span class="hljs-keyword">create</span> index test_name_index <span class="hljs-keyword">on</span> test(<span class="hljs-built_in">upper</span>(name));<br></code></pre></td></tr></table></figure>
+
+<p>再次查看该语句的执行计划：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> test <span class="hljs-keyword">WHERE</span> <span class="hljs-built_in">upper</span>(name) <span class="hljs-operator">=</span><span class="hljs-string">&#x27;VAL:10000&#x27;</span>;<br>QUERY PLAN                                                                                                                     <span class="hljs-operator">|</span><br><span class="hljs-comment">-------------------------------------------------------------------------------------------------------------------------------|</span><br>Bitmap Heap Scan <span class="hljs-keyword">on</span> test  (cost<span class="hljs-operator">=</span><span class="hljs-number">1159.93</span>.<span class="hljs-number">.57095</span><span class="hljs-number">.47</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">50000</span> width<span class="hljs-operator">=</span><span class="hljs-number">15</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">17.046</span>.<span class="hljs-number">.17</span><span class="hljs-number">.047</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)             <span class="hljs-operator">|</span><br>  Recheck Cond: (<span class="hljs-built_in">upper</span>(name) <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;VAL:10000&#x27;</span>::text)                                                                              <span class="hljs-operator">|</span><br>  Heap Blocks: exact<span class="hljs-operator">=</span><span class="hljs-number">1</span>                                                                                                         <span class="hljs-operator">|</span><br>  <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span>  Bitmap Index Scan <span class="hljs-keyword">on</span> test_name_index  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.00</span>.<span class="hljs-number">.1147</span><span class="hljs-number">.43</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">50000</span> width<span class="hljs-operator">=</span><span class="hljs-number">0</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">17.032</span>.<span class="hljs-number">.17</span><span class="hljs-number">.032</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)<span class="hljs-operator">|</span><br>        Index Cond: (<span class="hljs-built_in">upper</span>(name) <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;VAL:10000&#x27;</span>::text)                                                                          <span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">1.985</span> ms                                                                                                        <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">17.080</span> ms                                                                                                      <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>函数索引的维护成本比较高，因为插入和更新时都需要进行函数计算。</strong></p>
+<h3 id="部分索引"><a href="#部分索引" class="headerlink" title="部分索引"></a>部分索引</h3><p><strong>部分索引（partial index）是只针对表中部分数据行创建的索引</strong>，<strong>通过一个<code>WHERE</code>子句指定需要索引的行</strong>。例如，对于订单表 orders，绝大部的订单都处于完成状态；我们只需要针对未完成的订单进行查询跟踪，可以创建一个部分索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> orders(order_id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key, order_ts <span class="hljs-type">timestamp</span>, finished <span class="hljs-type">boolean</span>);<br><br><span class="hljs-keyword">create</span> index orders_unfinished_index<br><span class="hljs-keyword">on</span> orders (order_id)<br><span class="hljs-keyword">where</span> finished <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">true</span>;<br></code></pre></td></tr></table></figure>
+
+<p>该索引只包含了未完成的订单 id，比直接基于 finished 字段创建的索引小很多。它可以用于优化未完成订单的查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">select</span> order_id<br><span class="hljs-keyword">from</span> orders<br><span class="hljs-keyword">where</span> finished <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">true</span>;<br>QUERY PLAN                                                                                                                      <span class="hljs-operator">|</span><br><span class="hljs-comment">--------------------------------------------------------------------------------------------------------------------------------|</span><br>Bitmap Heap Scan <span class="hljs-keyword">on</span> orders  (cost<span class="hljs-operator">=</span><span class="hljs-number">4.38</span>.<span class="hljs-number">.24</span><span class="hljs-number">.33</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">995</span> width<span class="hljs-operator">=</span><span class="hljs-number">4</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">0.010</span>.<span class="hljs-number">.0</span><span class="hljs-number">.010</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">0</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)                       <span class="hljs-operator">|</span><br>  Recheck Cond: (finished <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">TRUE</span>)                                                                                          <span class="hljs-operator">|</span><br>  <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span>  Bitmap Index Scan <span class="hljs-keyword">on</span> orders_unfinished_index  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.00</span>.<span class="hljs-number">.4</span><span class="hljs-number">.13</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">995</span> width<span class="hljs-operator">=</span><span class="hljs-number">0</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">0.004</span>.<span class="hljs-number">.0</span><span class="hljs-number">.004</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">0</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)<span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">0.130</span> ms                                                                                                         <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">0.049</span> ms                                                                                                        <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h3><p><strong>PostgreSQL 中的索引都属于二级索引，意味着索引和数据是分开存储的</strong>。因此通过索引查找数据即需要访问索引，又需要访问表，而表的访问是随机 I&#x2F;O。</p>
+<p>为了解决这个性能问题，PostgreSQL 支持 Index-Only 扫描，只需要访问索引的数据就能获得需要的结果，而不需要再次访问表中的数据。例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> t (a <span class="hljs-type">int</span>, b <span class="hljs-type">int</span>, c <span class="hljs-type">int</span>);<br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">UNIQUE</span> INDEX idx_t_ab <span class="hljs-keyword">ON</span> t <span class="hljs-keyword">USING</span> btree (a, b) INCLUDE (c);<br></code></pre></td></tr></table></figure>
+
+<p>以上语句基于字段 a 和 b 创建了多列索引，同时利用<code>INCLUDE</code>在索引的叶子节点存储了字段 c 的值。以下查询可以利用 Index-Only 扫描：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sql">explain analyze<br><span class="hljs-keyword">select</span> a, b, c <br><span class="hljs-keyword">from</span> t <br><span class="hljs-keyword">where</span> a <span class="hljs-operator">=</span> <span class="hljs-number">100</span> <span class="hljs-keyword">and</span> b <span class="hljs-operator">=</span> <span class="hljs-number">200</span>;<br>QUERY PLAN                                                                                                      <span class="hljs-operator">|</span><br><span class="hljs-comment">----------------------------------------------------------------------------------------------------------------|</span><br>Index <span class="hljs-keyword">Only</span> Scan <span class="hljs-keyword">using</span> idx_t_ab <span class="hljs-keyword">on</span> t  (cost<span class="hljs-operator">=</span><span class="hljs-number">0.15</span>.<span class="hljs-number">.8</span><span class="hljs-number">.17</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">1</span> width<span class="hljs-operator">=</span><span class="hljs-number">12</span>) (actual <span class="hljs-type">time</span><span class="hljs-operator">=</span><span class="hljs-number">0.007</span>.<span class="hljs-number">.0</span><span class="hljs-number">.007</span> <span class="hljs-keyword">rows</span><span class="hljs-operator">=</span><span class="hljs-number">0</span> loops<span class="hljs-operator">=</span><span class="hljs-number">1</span>)<span class="hljs-operator">|</span><br>  Index Cond: ((a <span class="hljs-operator">=</span> <span class="hljs-number">100</span>) <span class="hljs-keyword">AND</span> (b <span class="hljs-operator">=</span> <span class="hljs-number">200</span>))                                                                         <span class="hljs-operator">|</span><br>  Heap Fetches: <span class="hljs-number">0</span>                                                                                               <span class="hljs-operator">|</span><br>Planning <span class="hljs-type">Time</span>: <span class="hljs-number">0.078</span> ms                                                                                         <span class="hljs-operator">|</span><br>Execution <span class="hljs-type">Time</span>: <span class="hljs-number">0.021</span> ms                                                                                        <span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p>以上查询只返回索引字段（a、b）和覆盖的字段（c），可以仅通过扫描索引即可返回结果。</p>
+<p>B-树索引支持 Index-Only 扫描，GiST 和 SP-GiST 索引支持某些运算符的 Index-Only 扫描，其他索引不支持这种方式。</p>
+<h2 id="查看索引"><a href="#查看索引" class="headerlink" title="查看索引"></a>查看索引</h2><p>PostgreSQL 提供了一个关于索引的视图 pg_indexes，可以用于查看索引的信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> pg_indexes <span class="hljs-keyword">where</span> tablename <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;test&#x27;</span>;<br>schemaname<span class="hljs-operator">|</span>tablename<span class="hljs-operator">|</span>indexname      <span class="hljs-operator">|</span>tablespace<span class="hljs-operator">|</span>indexdef                                                             <span class="hljs-operator">|</span><br><span class="hljs-comment">----------|---------|---------------|----------|---------------------------------------------------------------------|</span><br>public    <span class="hljs-operator">|</span>test     <span class="hljs-operator">|</span>test_id_index  <span class="hljs-operator">|</span>          <span class="hljs-operator">|</span><span class="hljs-keyword">CREATE</span> INDEX test_id_index <span class="hljs-keyword">ON</span> public.test <span class="hljs-keyword">USING</span> btree (id)           <span class="hljs-operator">|</span><br>public    <span class="hljs-operator">|</span>test     <span class="hljs-operator">|</span>test_name_index<span class="hljs-operator">|</span>          <span class="hljs-operator">|</span><span class="hljs-keyword">CREATE</span> INDEX test_name_index <span class="hljs-keyword">ON</span> public.test <span class="hljs-keyword">USING</span> btree (<span class="hljs-built_in">upper</span>(name))<span class="hljs-operator">|</span><br></code></pre></td></tr></table></figure>
+
+<p>该视图包含的字段依次为：模式名、表名、索引名、表空间以及索引的定义语句。</p>
+<p>如果使用 psql 客户端连接，可以使用<code>\d table_name</code>命令查看表的结构，包括表中的索引信息。</p>
+<h2 id="维护索引"><a href="#维护索引" class="headerlink" title="维护索引"></a>维护索引</h2><p>PostgreSQL 提供了一些修改和重建索引的方法：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">ALTER</span> INDEX index_name RENAME <span class="hljs-keyword">TO</span> new_name;<br><span class="hljs-keyword">ALTER</span> INDEX index_name <span class="hljs-keyword">SET</span> TABLESPACE tablespace_name;<br><br>REINDEX [ ( VERBOSE ) ] &#123; INDEX <span class="hljs-operator">|</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-operator">|</span> SCHEMA <span class="hljs-operator">|</span> DATABASE <span class="hljs-operator">|</span> <span class="hljs-keyword">SYSTEM</span> &#125;  index_name;<br></code></pre></td></tr></table></figure>
+
+<p>两个<code>ALTER INDEX</code>语句分别用于重命名索引和移动索引到其他表空间；<code>REINDEX</code>用于重建索引数据，支持不同级别的索引重建。</p>
+<p>另外，索引被创建之后，系统会在修改数据的同时自动更新索引。不过，我们需要定期执行<code>ANALYZE</code>命令更新数据库的统计信息，以便优化器能够合理使用索引。</p>
+<h2 id="删除索引"><a href="#删除索引" class="headerlink" title="删除索引"></a>删除索引</h2><p>如果需要删除一个已有的索引，可以使用以下命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">DROP</span> INDEX index_name [ CASCADE <span class="hljs-operator">|</span> RESTRICT ];<br></code></pre></td></tr></table></figure>
+
+<p>CASCADE 表示级联删除其他依赖该索引的对象；RESTRICT 表示如果存在依赖于该索引的对象，将会拒绝删除操作。默认为 RESTRICT。</p>
+<p>我们可以使用以下语句删除 test 上的索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">DROP</span> INDEX test_id_index, test_name_index;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PostgresSQL/" class="category-chain-item">PostgresSQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/PostgresSQL/">#PostgresSQL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PostgreSQL常用索引与优化</div>
+      <div>https://blog.longpi1.com/2023/07/22/PostgreSQL常用索引与优化/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/22/PostgreSQL%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E7%9A%84%EF%BC%9F/" title="PostgreSQL是如何实现隔离级别的？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">PostgreSQL是如何实现隔离级别的？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/22/PostgreSQL%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86%E6%9C%9F%E9%97%B4%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F/" title="PostgreSQL 查询处理期间发生了什么？">
+                        <span class="hidden-mobile">PostgreSQL 查询处理期间发生了什么？</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

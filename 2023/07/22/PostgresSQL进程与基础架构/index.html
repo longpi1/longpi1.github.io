@@ -1,0 +1,795 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgresSQL 进程与基础架构">
+<meta property="og:url" content="https://blog.longpi1.com/2023/07/22/PostgresSQL%E8%BF%9B%E7%A8%8B%E4%B8%8E%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-2-01.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-2-02.png">
+<meta property="article:published_time" content="2023-07-22T11:28:30.000Z">
+<meta property="article:modified_time" content="2023-07-22T12:07:50.729Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="转载">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="PostgresSQL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pg-internal.vonng.com/img/fig-2-01.png">
+  
+  
+  
+  <title>PostgresSQL 进程与基础架构 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PostgresSQL 进程与基础架构"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-22 19:28" pubdate>
+          2023年7月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.3k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PostgresSQL 进程与基础架构</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="PostgresSQL进程与基础架构"><a href="#PostgresSQL进程与基础架构" class="headerlink" title="PostgresSQL进程与基础架构"></a>PostgresSQL进程与基础架构</h1><blockquote>
+<p>文中主要内容引用自<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/">PostgreSQL指南：内幕探索</a></p>
+</blockquote>
+<p>本篇文章主要讲述PostgreSQL中进程与内存的架构</p>
+<h2 id="进程架构"><a href="#进程架构" class="headerlink" title="进程架构"></a>进程架构</h2><p> PostgreSQL是一个客户端&#x2F;服务器风格的关系型数据库管理系统，采用多进程架构，运行在单台主机上。</p>
+<p>通常所谓的“<strong>PostgreSQL服务器（PostgreSQL Server）</strong>” 实际上是一系列协同工作的进程集合，包含着下列进程：</p>
+<ul>
+<li><strong>postgres服务器进程（Postgres Server Process）</strong>是所有数据库集簇管理进程的父进程。</li>
+<li>每个<strong>后端进程（Backend Process）</strong> 负责处理客户端发出的查询和语句。</li>
+<li>各种<strong>后台进程（Background Process）</strong> 负责执行各种数据库管理任务（例如清理过程与检查点过程）。</li>
+<li>各种<strong>复制相关（Replication Associated Process）</strong>的进程负责流复制。</li>
+<li><strong>后台工作进程（Background Worker Process）</strong> 在9.3版被引入，它能执行任意由用户实现的处理逻辑。这里不详述，请参阅<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/bgworker.html">官方文档</a>。</li>
+</ul>
+<p><strong>PostgreSQL的进程架构示例</strong></p>
+<p><img src="https://pg-internal.vonng.com/img/fig-2-01.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<blockquote>
+<p>本图展示了PostgreSQL服务器包含的进程：postgres服务器进程，两个后端进程，七个后台进程，以及两个客户端进程。 也画出了数据库集簇，共享内存，以及两个客户端。</p>
+</blockquote>
+<h3 id="Postgres服务器进程"><a href="#Postgres服务器进程" class="headerlink" title="Postgres服务器进程"></a>Postgres服务器进程</h3><p>如上所述，<strong>postgres服务器进程（postgres server process）</strong>是PostgreSQL服务器中所有进程的父进程，在早期版本中它被称为<em>“postmaster“</em>。</p>
+<p>带<code>start</code>参数执行<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/app-pg-ctl.html"><code>pg_ctl</code></a>实用程序会启动一个postgres服务器进程。它会在内存中分配共享内存区域，启动各种后台进程，如有必要还会启动复制相关进程与后台工作进程，并等待来自客户端的连接请求。 每当接收到来自客户端的连接请求时，它都会启动一个后端进程 （然后由启动的后端进程处理该客户端发出的所有查询）。</p>
+<p>一个postgres服务器进程只会监听一个网络端口，默认端口为5432。如果要在同一台主机上运行多个PostgreSQL服务器，则应为每个服务器配置不同的监听端口，如5432，5433等。</p>
+<h3 id="后端进程"><a href="#后端进程" class="headerlink" title="后端进程"></a>后端进程</h3><p>每个后端进程（也称为<em>”postgres“</em>）由postgres服务器进程启动，并处理连接另一侧的客户端发出的所有查询。它通过单条TCP连接与客户端通信，并在客户端断开连接时终止。</p>
+<p>因为一条连接只允许操作一个数据库，因此必须在连接到PostgreSQL服务器时显式指定要连接的数据库。</p>
+<p>PostgreSQL允许多个客户端同时连接；配置参数<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS"><code>max_connections</code></a>用于控制最大客户端连接数（默认为100）。</p>
+<p>因为PostgreSQL没有原生的连接池功能，因此如果许多客户端频繁地重复与PostgreSQL服务器建立断开连接（譬如WEB应用），则会导致建立连接与创建后端进程的开销变大。这种情况对数据库服务器的性能有负面影响，通常可以使用池化中间件（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pgbouncer.github.io/">pgbouncer</a>或<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.pgpool.net/mediawiki/index.php/Main_Page">pgpool-II</a>）来避免该问题。</p>
+<h3 id="后台进程"><a href="#后台进程" class="headerlink" title="后台进程"></a>后台进程</h3><p>下表是后台进程的列表。比起postgres服务器和后端进程，后台进程的种类要多很多。想要简单地解释每种后台进程的具体功能是不现实的，因为这些功能有赖PostgreSQL的内部机制与特定的独立特性。依赖于各个特定的特性以及PostgreSQL的内部机制。 因此在本章中仅做简要介绍。 细节将在后续章节中描述。</p>
+<p><strong>表 后台进程</strong></p>
+<table>
+<thead>
+<tr>
+<th>进程</th>
+<th>概述</th>
+<th>参考</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>background writer</td>
+<td>本进程负责将共享缓冲池中的脏页逐渐刷入持久化存储中（例如，HDD，SSD）（在9.1及更旧版本中，它还负责处理<strong>检查点（checkpoint）</strong>）</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch8">8.6</a></td>
+</tr>
+<tr>
+<td>checkpointer</td>
+<td>在9.2及更新版本中，该进程负责处理检查点。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch8">8.6</a>, <a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch9">9.7</a></td>
+</tr>
+<tr>
+<td>autovacuum launcher</td>
+<td>周期性地启动自动清理工作进程（更准确地说，它向Postgres服务器请求创建自动清理工作进程）</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch6">6.5</a></td>
+</tr>
+<tr>
+<td>WAL writer</td>
+<td>本进程周期性地将WAL缓冲区中的WAL数据刷入持久存储中。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch9">9.9</a></td>
+</tr>
+<tr>
+<td>statistics collector</td>
+<td>本进程负责收集统计信息，用于诸如<code>pg_stat_activity</code>，<code>pg_stat_database</code>等系统视图。</td>
+<td></td>
+</tr>
+<tr>
+<td>logging collector (logger)</td>
+<td>本进程负责将错误消息写入日志文件。</td>
+<td></td>
+</tr>
+<tr>
+<td>archiver</td>
+<td>本进程负责将日志归档。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch9">9.10</a></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>这里展示了PostgreSQL服务器包含的实际进程。 在以下示例中有一个postgres服务器进程（pid为9687），两个后端进程（pid为9697和9717），以及表2.1中列出的几个后台进程正在运行，亦见图2.1。</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs applescript">postgres&gt; pstree -p <span class="hljs-number">9687</span><br>-+= <span class="hljs-number">00001</span> root /sbin/launchd<br>\-+- <span class="hljs-number">09687</span> postgres /usr/<span class="hljs-keyword">local</span>/pgsql/bin/postgres -D /usr/<span class="hljs-keyword">local</span>/pgsql/data<br>|<span class="hljs-comment">--= 09688 postgres postgres: logger process     </span><br>|<span class="hljs-comment">--= 09690 postgres postgres: checkpointer process     </span><br>|<span class="hljs-comment">--= 09691 postgres postgres: writer process     </span><br>|<span class="hljs-comment">--= 09692 postgres postgres: wal writer process     </span><br>|<span class="hljs-comment">--= 09693 postgres postgres: autovacuum launcher process     </span><br>|<span class="hljs-comment">--= 09694 postgres postgres: archiver process     </span><br>|<span class="hljs-comment">--= 09695 postgres postgres: stats collector process     </span><br>|<span class="hljs-comment">--= 09697 postgres postgres: postgres sampledb 192.168.1.100(54924) idle  </span><br>\<span class="hljs-comment">--= 09717 postgres postgres: postgres sampledb 192.168.1.100(54964) idle in transaction  </span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="内存架构"><a href="#内存架构" class="headerlink" title="内存架构"></a>内存架构</h2><p>PostgreSQL的内存架构可以分为两部分：</p>
+<ul>
+<li>本地内存区域 —— 由每个后端进程分配，供自己使用。</li>
+<li>共享内存区域 —— 供PostgreSQL服务器的所有进程使用。</li>
+</ul>
+<p><strong>PostgreSQL的内存架构</strong></p>
+<p><img src="https://pg-internal.vonng.com/img/fig-2-02.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h3 id="本地内存区域"><a href="#本地内存区域" class="headerlink" title="本地内存区域"></a>本地内存区域</h3><p> 每个后端进程都会分配一块本地内存区域用于查询处理。该区域会分为几个子区域 —— 子区域的大小有的固定，有的可变。 下表列出了主要的子区域。 </p>
+<p><strong>表 本地内存区域</strong></p>
+<table>
+<thead>
+<tr>
+<th>子区域</th>
+<th>描述</th>
+<th>参考</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>work_mem</code></td>
+<td>执行器在执行<code>ORDER BY</code>和<code>DISTINCT</code>时使用该区域对元组做排序，以及存储归并连接和散列连接中的连接表。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch3">第3章</a></td>
+</tr>
+<tr>
+<td><code>maintenance_work_mem</code></td>
+<td>某些类型的维护操作使用该区域（例如<code>VACUUM</code>，<code>REINDEX</code>）。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch6">6.1</a></td>
+</tr>
+<tr>
+<td><code>temp_buffers</code></td>
+<td>执行器使用此区域存储临时表。</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="共享内存区域"><a href="#共享内存区域" class="headerlink" title="共享内存区域"></a>共享内存区域</h3><p> PostgreSQL服务器启动时会分配共享内存区域。该区域分为几个固定大小的子区域。 下表列出了主要的子区域。 </p>
+<p><strong>表 共享内存区域</strong></p>
+<table>
+<thead>
+<tr>
+<th>子区域</th>
+<th>描述</th>
+<th>参考</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>shared buffer pool</code></td>
+<td>PostgreSQL将表和索引中的页面从持久存储加载至此，并直接操作它们。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch8">第8章</a></td>
+</tr>
+<tr>
+<td><code>WAL buffer</code></td>
+<td>为确保服务故障不会导致任何数据丢失，PostgreSQL实现了WAL机制。 WAL数据（也称为XLOG记录）是PostgreSQL中的事务日志；WAL缓冲区是WAL数据在写入持久存储之前的缓冲区。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch9">第9章</a></td>
+</tr>
+<tr>
+<td><code>commit log</code></td>
+<td><strong>提交日志（Commit Log, CLOG）</strong> 为并发控制（CC）机制保存了所需的所有事务状态（例如进行中，已提交，已中止等）。</td>
+<td><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch5">5.4</a></td>
+</tr>
+</tbody></table>
+<p>除了上面这些，PostgreSQL还分配了这几个区域：</p>
+<ul>
+<li>用于访问控制机制的子区域（例如信号量，轻量级锁，共享和排他锁等）。</li>
+<li>各种后台进程使用的子区域，例如<code>checkpointer</code>和<code>autovacuum</code>。</li>
+<li>用于事务处理的子区域，例如<strong>保存点（save-point）</strong> 与 <strong>两阶段提交（2PC）</strong>。</li>
+</ul>
+<p>诸如此类。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PostgresSQL/" class="category-chain-item">PostgresSQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%BD%AC%E8%BD%BD/">#转载</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/PostgresSQL/">#PostgresSQL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PostgresSQL 进程与基础架构</div>
+      <div>https://blog.longpi1.com/2023/07/22/PostgresSQL进程与基础架构/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/22/PostgreSQL%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86%E6%9C%9F%E9%97%B4%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F/" title="PostgreSQL 查询处理期间发生了什么？">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">PostgreSQL 查询处理期间发生了什么？</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/05/Go%E5%B7%A5%E5%85%B7%E5%BA%93go-funk%E4%BD%BF%E7%94%A8/" title="Go工具库go-funk使用">
+                        <span class="hidden-mobile">Go工具库go-funk使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

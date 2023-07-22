@@ -1,0 +1,904 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PostgreSQL是如何实现隔离级别的？">
+<meta property="og:url" content="https://blog.longpi1.com/2023/07/22/PostgreSQL%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E7%9A%84%EF%BC%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-01.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-02.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-03.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-04.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-05.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-06.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-07.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-08.png">
+<meta property="og:image" content="https://pg-internal.vonng.com/img/fig-5-09.png">
+<meta property="article:published_time" content="2023-07-22T11:32:23.000Z">
+<meta property="article:modified_time" content="2023-07-22T12:07:50.745Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="PostgresSQL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pg-internal.vonng.com/img/fig-5-01.png">
+  
+  
+  
+  <title>PostgreSQL是如何实现隔离级别的？ - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="PostgreSQL是如何实现隔离级别的？"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-22 19:32" pubdate>
+          2023年7月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.2k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PostgreSQL是如何实现隔离级别的？</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="PostgreSQL是如何实现隔离级别的？"><a href="#PostgreSQL是如何实现隔离级别的？" class="headerlink" title="PostgreSQL是如何实现隔离级别的？"></a>PostgreSQL是如何实现隔离级别的？</h1><h2 id="事务有哪些特性？"><a href="#事务有哪些特性？" class="headerlink" title="事务有哪些特性？"></a>事务有哪些特性？</h2><p>事务看起来感觉简单，但是要实现事务必须要遵守 4 个特性，分别如下：</p>
+<ul>
+<li><strong>原子性（Atomicity）</strong>：一个事务中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节，而且事务在执行过程中发生错误，会被回滚到事务开始前的状态，就像这个事务从来没有执行过一样，就好比买一件商品，购买成功时，则给商家付了钱，商品到手；购买失败时，则商品在商家手中，消费者的钱也没花出去。</li>
+<li><strong>一致性（Consistency）</strong>：是指事务操作前和操作后，数据满足完整性约束，数据库保持一致性状态。比如，用户 A 和用户 B 在银行分别有 800 元和 600 元，总共 1400 元，用户 A 给用户 B 转账 200 元，分为两个步骤，从 A 的账户扣除 200 元和对 B 的账户增加 200 元。一致性就是要求上述步骤操作后，最后的结果是用户 A 还有 600 元，用户 B 有 800 元，总共 1400 元，而不会出现用户 A 扣除了 200 元，但用户 B 未增加的情况（该情况，用户 A 和 B 均为 600 元，总共 1200 元）。</li>
+<li><strong>隔离性（Isolation）</strong>：数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致，因为多个事务同时使用相同的数据时，不会相互干扰，每个事务都有一个完整的数据空间，对其他并发事务是隔离的。也就是说，消费者购买商品这个事务，是不影响其他消费者购买的。</li>
+<li><strong>持久性（Durability）</strong>：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。</li>
+</ul>
+<h2 id="事务隔离"><a href="#事务隔离" class="headerlink" title="事务隔离"></a>事务隔离</h2><p>PostgreSQL 是如何保证isolation的？ 接下来我们通过这篇文章来了解 PostgreSQL 如何实现事务隔离</p>
+<p><strong>标准SQL事务隔离级别</strong></p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读未提交</td>
+<td>可能</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>读已提交</td>
+<td>不可能</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>可重复读</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>可串行化</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>不可能</td>
+</tr>
+</tbody></table>
+<p>SQL标准定义了四个级别的事务隔离。</p>
+<p>各个级别不应该发生的现象是：</p>
+<ul>
+<li><p>脏读</p>
+<p>一个事务读取了另一个未提交事务写入的数据。</p>
+</li>
+<li><p>不可重复读</p>
+<p>一个事务重新读取前面读取过的数据，发现该数据已经被另一个已经提交的事务修改。</p>
+</li>
+<li><p>幻读</p>
+<p>一个事务重新执行一个查询，返回符合查询条件的行的集合，发现满足查询条件的行的集合因为其它最近提交的事务而发生了改变。</p>
+</li>
+</ul>
+<p><strong>在PostgreSQL里，你可以请求四种可能的事务隔离级别中的任意一种。但是在内部， 实际上只有三种独立的隔离级别，分别对应读已提交，可重复读和可串行化。</strong>如果你选择了读未提交的级别， 实际上你获得的是读已提交，并且在PostgreSQL的可重复读实现中，幻读是不可能的， 所以实际的隔离级别可能比你选择的更严格。这是 SQL 标准允许的：四种隔离级别只定义了哪种现像不能发生， 但是没有定义那种现像一定发生。PostgreSQL只提供三种隔离级别的原因是， 这是把标准的隔离级别与多版本并发控制架构映射起来的唯一合理方法。</p>
+<p><strong>PostgreSQL实现的事务隔离等级</strong>如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>隔离等级</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+<th>串行化异常</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>读已提交</td>
+<td>不可能</td>
+<td>可能</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>可重复读[1]</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>PG中不可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>可串行化</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>不可能</td>
+<td>不可能</td>
+</tr>
+</tbody></table>
+<h2 id="PostgreSQL-在-MVCC-里如何工作的？"><a href="#PostgreSQL-在-MVCC-里如何工作的？" class="headerlink" title="PostgreSQL 在 MVCC 里如何工作的？"></a>PostgreSQL 在 MVCC 里如何工作的？</h2><h3 id="PostgreSQL事务标识"><a href="#PostgreSQL事务标识" class="headerlink" title="PostgreSQL事务标识"></a>PostgreSQL事务标识</h3><p>每当事务开始时，事务管理器就会为其分配一个称为<strong>事务标识（transaction id, txid）</strong>的唯一标识符。 PostgreSQL的<code>txid</code>是一个32位无符号整数，总取值约42亿。在事务启动后执行内置的<code>txid_current()</code>函数，即可获取当前事务的<code>txid</code>，如下所示。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">BEGIN</span>;<br><span class="hljs-keyword">BEGIN</span><br>testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">SELECT</span> txid_current();<br> txid_current <br><span class="hljs-comment">--------------</span><br>          <span class="hljs-number">100</span><br>(<span class="hljs-number">1</span> <span class="hljs-type">row</span>)<br></code></pre></td></tr></table></figure>
+
+<p>PostgreSQL保留以下三个特殊<code>txid</code>：</p>
+<ul>
+<li><strong>0</strong>表示<strong>无效（Invalid）</strong>的<code>txid</code>。</li>
+<li><strong>1</strong>表示<strong>初始启动（Bootstrap）</strong>的<code>txid</code>，仅用于数据库集群的初始化过程。</li>
+<li><strong>2</strong>表示<strong>冻结（Frozen）</strong>的<code>txid</code>.</li>
+</ul>
+<p><code>txid</code>可以相互比较大小。例如对于<code>txid=100</code>的事务，大于100的<code>txid</code>属于“未来”，且对于<code>txid=100</code>的事务而言都是<strong>不可见（invisible）</strong>的；小于100的<code>txid</code>属于“过去”，且对该事务可见，如下图(a)所示。</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-01.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>因为<code>txid</code>在逻辑上是无限的，而实际系统中的<code>txid</code>空间不足（4字节取值空间约42亿），因此PostgreSQL将<code>txid</code>空间视为一个环。对于某个特定的<code>txid</code>，其前约21亿个<code>txid</code>属于过去，而其后约21亿个<code>txid</code>属于未来。如(b)所示。</p>
+<h4 id="元组结构"><a href="#元组结构" class="headerlink" title="元组结构"></a>元组结构</h4><p>可以将表页中的堆元组分为两类：普通数据元组与TOAST元组。本节只会介绍普通元组。</p>
+<p>堆元组由三个部分组成，即<code>HeapTupleHeaderData</code>结构，空值位图，以及用户数据，如下图所示。</p>
+<p><strong>元组结构</strong></p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-02.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<blockquote>
+<p><code>HeapTupleHeaderData</code>结构在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/postgres/postgres/blob/ee943004466418595363d567f18c053bae407792/src/include/access/htup_details.h"><code>src/include/access/htup_details.h</code></a>中定义。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HeapTupleFields</span></span><br><span class="hljs-class">&#123;</span><br>        TransactionId t_xmin;           <span class="hljs-comment">/* 插入事务的ID */</span><br>        TransactionId t_xmax;          <span class="hljs-comment">/*删除或锁定事务的ID*/</span><br><br>        <span class="hljs-class"><span class="hljs-keyword">union</span></span><br><span class="hljs-class">        &#123;</span><br>                CommandId       t_cid;     <span class="hljs-comment">/* 插入或删除的命令ID */</span><br>                TransactionId     t_xvac;    <span class="hljs-comment">/* 老式VACUUM FULL的事务ID */</span><br>        &#125; t_field3;<br>&#125; HeapTupleFields;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">DatumTupleFields</span></span><br><span class="hljs-class">&#123;</span><br>        int32          datum_len_;          <span class="hljs-comment">/* 变长头部长度*/</span><br>        int32          datum_typmod;           <span class="hljs-comment">/* -1或者是记录类型的标识 */</span><br>        Oid            datum_typeid;           <span class="hljs-comment">/* 复杂类型的OID或记录ID */</span><br>&#125; DatumTupleFields;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HeapTupleHeaderData</span></span><br><span class="hljs-class">&#123;</span><br>        <span class="hljs-class"><span class="hljs-keyword">union</span></span><br><span class="hljs-class">        &#123;</span><br>                HeapTupleFields t_heap;<br>                DatumTupleFields t_datum;<br>        &#125; t_choice;<br><br>        ItemPointerData t_ctid;         <span class="hljs-comment">/* 当前元组，或更新元组的TID */</span><br><br>        <span class="hljs-comment">/* 下面的字段必需与结构MinimalTupleData相匹配! */</span><br>        uint16          t_infomask2;    <span class="hljs-comment">/* 属性与标记位 */</span><br>        uint16          t_infomask;     <span class="hljs-comment">/* 很多标记位 */</span><br>        uint8           t_hoff;         <span class="hljs-comment">/* 首部+位图+填充的长度 */</span><br>        <span class="hljs-comment">/* ^ - 23 bytes - ^ */</span><br>        bits8           t_bits[<span class="hljs-number">1</span>];      <span class="hljs-comment">/* NULL值的位图 —— 变长的 */</span><br><br>        <span class="hljs-comment">/* 本结构后面还有更多数据 */</span><br>&#125; HeapTupleHeaderData;<br><br><span class="hljs-keyword">typedef</span> HeapTupleHeaderData *HeapTupleHeader;<br></code></pre></td></tr></table></figure>
+
+<p>虽然<code>HeapTupleHeaderData</code>结构包含七个字段，但后续部分中只需要了解四个字段即可。</p>
+<ul>
+<li><code>t_xmin</code>保存插入此元组的事务的<code>txid</code>。</li>
+<li><code>t_xmax</code>保存删除或更新此元组的事务的<code>txid</code>。如果尚未删除或更新此元组，则<code>t_xmax</code>设置为0，即无效。</li>
+<li><code>t_cid</code>保存<strong>命令标识（command id, cid）</strong>，<code>cid</code>意思是在当前事务中，执行当前命令之前执行了多少SQL命令，从零开始计数。例如，假设我们在单个事务中执行了三条<code>INSERT</code>命令<code>BEGIN;INSERT;INSERT;INSERT;COMMIT;</code>。如果第一条命令插入此元组，则该元组的<code>t_cid</code>会被设置为0。如果第二条命令插入此元组，则其<code>t_cid</code>会被设置为1，依此类推。</li>
+<li><code>t_ctid</code>保存着指向自身或新元组的元组标识符（<code>tid</code>）。tid<code>用于标识表中的元组。在更新该元组时，其</code>t_ctid<code>会指向新版本的元组；否则</code>t_ctid&#96;会指向自己。</li>
+</ul>
+<h3 id="元组的增删改查"><a href="#元组的增删改查" class="headerlink" title="元组的增删改查"></a>元组的增删改查</h3><p>元组的具体表示如下图所示：</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-03.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h4 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h4><p>在插入操作中，新元组将直接插入到目标表的页面中，如下图所示：</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-04.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>假设元组是由<code>txid=99</code>的事务插入页面中的，在这种情况下，被插入元组的首部字段会依以下步骤设置。</p>
+<p><code>Tuple_1</code>：</p>
+<ul>
+<li><code>t_xmin</code>设置为99，因为此元组由<code>txid=99</code>的事务所插入。</li>
+<li><code>t_xmax</code>设置为0，因为此元组尚未被删除或更新。</li>
+<li><code>t_cid</code>设置为0，因为此元组是由<code>txid=99</code>的事务所执行的第一条命令所插入的。</li>
+<li><code>t_ctid</code>设置为<code>(0,1)</code>，指向自身，因为这是该元组的最新版本。</li>
+</ul>
+<blockquote>
+<h4 id="pageinspect"><a href="#pageinspect" class="headerlink" title="pageinspect"></a><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch5?id=pageinspect"><code>pageinspect</code></a></h4><p>PostgreSQL自带了一个第三方贡献的扩展模块<code>pageinspect</code>，可用于检查数据库页面的具体内容。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sql">testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">CREATE</span> EXTENSION pageinspect;<br><span class="hljs-keyword">CREATE</span> EXTENSION<br>testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> tbl (data text);<br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span><br>testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> tbl <span class="hljs-keyword">VALUES</span>(A);<br><span class="hljs-keyword">INSERT</span> <span class="hljs-number">0</span> <span class="hljs-number">1</span><br>testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">SELECT</span> lp <span class="hljs-keyword">as</span> tuple, t_xmin, t_xmax, t_field3 <span class="hljs-keyword">as</span> t_cid, t_ctid <br>             <span class="hljs-keyword">FROM</span> heap_page_items(get_raw_page(tbl, <span class="hljs-number">0</span>));<br>tuple <span class="hljs-operator">|</span> t_xmin <span class="hljs-operator">|</span> t_xmax <span class="hljs-operator">|</span> t_cid <span class="hljs-operator">|</span> t_ctid <br><span class="hljs-comment">-------+--------+--------+-------+--------</span><br>  <span class="hljs-number">1</span> <span class="hljs-operator">|</span>     <span class="hljs-number">99</span> <span class="hljs-operator">|</span>      <span class="hljs-number">0</span> <span class="hljs-operator">|</span>     <span class="hljs-number">0</span> <span class="hljs-operator">|</span> (<span class="hljs-number">0</span>,<span class="hljs-number">1</span>)<br>(<span class="hljs-number">1</span> <span class="hljs-type">row</span>)<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h4 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h4><p>在删除操作中，目标元组只是在逻辑上被标记为删除。目标元组的<code>t_xmax</code>字段将被设置为执行<code>DELETE</code>命令事务的<code>txid</code>。如下图所示：</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-05.png" srcset="/img/loading.gif" lazyload alt="img"> 假设<code>Tuple_1</code>被<code>txid=111</code>的事务删除。在这种情况下，<code>Tuple_1</code>的首部字段会依以下步骤设置。</p>
+<p><code>Tuple_1</code>：</p>
+<ul>
+<li><code>t_xmax</code>被设为111。</li>
+</ul>
+<p>如果<code>txid=111</code>的事务已经提交，那么<code>Tuple_1</code>就不是必需的了。通常不需要的元组在PostgreSQL中被称为<strong>死元组（dead tuple）</strong>。</p>
+<p>死元组最终将从页面中被移除。清除死元组的过程被称为<strong>清理（VACUUM）过程</strong>。</p>
+<h4 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h4><p>在更新操作中，PostgreSQL在逻辑上实际执行的是删除最新的元组，并插入一条新的元组。</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-06.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>假设由<code>txid=99</code>的事务插入的行，被<code>txid=100</code>的事务更新两次。</p>
+<p>当执行第一条<code>UPDATE</code>命令时，<code>Tuple_1</code>的<code>t_xmax</code>被设为<code>txid 100</code>，在逻辑上被删除；然后<code>Tuple_2</code>被插入；接下来重写<code>Tuple_1</code>的<code>t_ctid</code>以指向<code>Tuple_2</code>。<code>Tuple_1</code>和<code>Tuple_2</code>的头部字段设置如下。</p>
+<p><code>Tuple_1</code>：</p>
+<ul>
+<li><code>t_xmax</code>被设置为100。</li>
+<li><code>t_ctid</code>从<code>(0,1)</code>被改写为<code>(0,2)</code>。</li>
+</ul>
+<p><code>Tuple_2</code>：</p>
+<ul>
+<li><code>t_xmin</code>被设置为100。</li>
+<li><code>t_xmax</code>被设置为0。</li>
+<li><code>t_cid</code>被设置为0。</li>
+<li><code>t_ctid</code>被设置为<code>(0,2)</code>。</li>
+</ul>
+<p>当执行第二条<code>UPDATE</code>命令时，和第一条<code>UPDATE</code>命令类似，<code>Tuple_2</code>被逻辑删除，<code>Tuple_3</code>被插入。<code>Tuple_2</code>和<code>Tuple_3</code>的首部字段设置如下。</p>
+<p><code>Tuple_2</code>：</p>
+<ul>
+<li><code>t_xmax</code>被设置为100。</li>
+<li><code>t_ctid</code>从<code>(0,2)</code>被改写为<code>(0,3)</code>。</li>
+</ul>
+<p><code>Tuple_3</code>：</p>
+<ul>
+<li><code>t_xmin</code>被设置为100。</li>
+<li><code>t_xmax</code>被设置为0。</li>
+<li><code>t_cid</code>被设置为1。</li>
+<li><code>t_ctid</code>被设置为<code>(0,3)</code>。</li>
+</ul>
+<p>与删除操作类似，如果<code>txid=100</code>的事务已经提交，那么<code>Tuple_1</code>和<code>Tuple_2</code>就成为了死元组，而如果<code>txid=100</code>的事务中止，<code>Tuple_2</code>和<code>Tuple_3</code>就成了死元组。</p>
+<h3 id="提交日志（clog）"><a href="#提交日志（clog）" class="headerlink" title="提交日志（clog）"></a>提交日志（clog）</h3><p>PostgreSQL在<strong>提交日志（Commit Log, clog）</strong>中保存事务的状态。提交日志（通常称为<strong>clog</strong>）分配于共享内存中，并用于事务处理过程的全过程。</p>
+<h3 id="事务状态"><a href="#事务状态" class="headerlink" title="事务状态"></a>事务状态</h3><p>PostgreSQL定义了四种事务状态，即：<code>IN_PROGRESS</code>，<code>COMMITTED</code>，<code>ABORTED</code>和<code>SUB_COMMITTED</code>。</p>
+<p>前三种状态涵义显而易见。例如当事务正在进行时，其状态为<code>IN_PROGRESS</code>，依此类推。</p>
+<p><code>SUB_COMMITTED</code>状态用于子事务。</p>
+<h3 id="提交日志如何工作"><a href="#提交日志如何工作" class="headerlink" title="提交日志如何工作"></a>提交日志如何工作</h3><p>提交日志（下称clog）在逻辑上是一个数组，由共享内存中一系列8KB页面组成。数组的序号索引对应着相应事务的标识，而其内容则是相应事务的状态。clog的工作方式如下图所示：</p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-07.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<blockquote>
+<p><strong>T1</strong>：<code>txid 200</code>提交；<code>txid 200</code>的状态从<code>IN_PROGRESS</code>变为<code>COMMITTED</code>。 <strong>T2</strong>：<code>txid 201</code>中止；<code>txid 201</code>的状态从<code>IN_PROGRESS</code>变为<code>ABORTED</code>。</p>
+</blockquote>
+<p><code>txid</code>不断前进，当clog空间耗尽无法存储新的事务状态时，就会追加分配一个新的页面。</p>
+<p>当需要获取事务的状态时，PostgreSQL将调用相应内部函数读取clog，并返回所请求事务的状态。</p>
+<h3 id="事务快照"><a href="#事务快照" class="headerlink" title="事务快照"></a>事务快照</h3><p><strong>事务快照（transaction snapshot）</strong>是一个数据集，存储着某个特定事务在某个特定时间点所看到的事务状态信息：哪些事务处于活跃状态。这里活跃状态意味着事务正在进行中，或还没有开始。</p>
+<p>事务快照在PostgreSQL内部的文本表示格式定义为<code>100:100:</code>。举个例子，这里<code>100:100:</code>意味着<code>txid &lt; 100</code>的事务处于非活跃状态，而<code>txid ≥ 100</code>的事务处于活跃状态。</p>
+<blockquote>
+<h3 id="内置函数txid-current-snapshot及其文本表示"><a href="#内置函数txid-current-snapshot及其文本表示" class="headerlink" title="内置函数txid_current_snapshot及其文本表示"></a><a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/#/ch5?id=%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0txid_current_snapshot%E5%8F%8A%E5%85%B6%E6%96%87%E6%9C%AC%E8%A1%A8%E7%A4%BA">内置函数<code>txid_current_snapshot</code>及其文本表示</a></h3><p>函数<code>txid_current_snapshot</code>显示当前事务的快照。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">testdb<span class="hljs-operator">=</span># <span class="hljs-keyword">SELECT</span> txid_current_snapshot();<br>txid_current_snapshot <br><span class="hljs-comment">-----------------------</span><br><span class="hljs-number">100</span>:<span class="hljs-number">104</span>:<span class="hljs-number">100</span>,<span class="hljs-number">102</span><br>(<span class="hljs-number">1</span> <span class="hljs-type">row</span>)<br></code></pre></td></tr></table></figure>
+
+<p><code>txid_current_snapshot</code>的文本表示是<code>xmin:xmax:xip_list</code>，各部分描述如下。</p>
+<ul>
+<li><p><strong><code>xmin</code></strong></p>
+<p>最早仍然活跃的事务的<code>txid</code>。所有比它更早的事务<code>txid &lt; xmin</code>要么已经提交并可见，要么已经回滚并生成死元组。</p>
+</li>
+<li><p><strong><code>xmax</code></strong></p>
+<p>第一个尚未分配的<code>txid</code>。所有<code>txid ≥ xmax</code>的事务在获取快照时尚未启动，因而其结果对当前事务不可见。</p>
+</li>
+<li><p><strong><code>xip_list</code></strong></p>
+<p>获取快照时<strong>活跃事务</strong>的<code>txid</code>列表。该列表仅包括<code>xmin</code>与<code>xmax</code>之间的<code>txid</code>。</p>
+<p>例如，在快照<code>100:104:100,102</code>中，<code>xmin</code>是<code>100</code>，<code>xmax</code>是<code>104</code>，而<code>xip_list</code>为<code>100,102</code>。</p>
+</li>
+</ul>
+<p>以下显示了两个具体的示例：</p>
+<p><strong>事务快照的表示样例</strong></p>
+<p><img src="https://pg-internal.vonng.com/img/fig-5-08.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>第一个例子是<code>100:100:</code>，如图图(a)所示，此快照表示：</p>
+<ul>
+<li>因为<code>xmin</code>为100，因此<code>txid &lt; 100</code>的事务是非活跃的</li>
+<li>因为<code>xmax</code>为100，因此<code>txid ≥ 100</code>的事务是活跃的</li>
+</ul>
+<p>第二个例子是<code>100:104:100,102</code>，如图(b)所示，此快照表示：</p>
+<ul>
+<li><code>txid &lt; 100</code>的事务不活跃。</li>
+<li><code>txid ≥ 104</code>的事务是活跃的。</li>
+<li><code>txid</code>等于100和102的事务是活跃的，因为它们在<code>xip_list</code>中，而<code>txid</code>等于101和103的事务不活跃。</li>
+</ul>
+</blockquote>
+<p><strong>事务快照是由事务管理器提供的。在<code>READ COMMITTED</code>隔离级别，事务在执行每条SQL时都会获取快照；其他情况下（<code>REPEATABLE READ</code>或<code>SERIALIZABLE</code>隔离级别），事务只会在执行第一条SQL命令时获取一次快照。</strong>获取的事务快照用于元组的可见性检查。</p>
+<p>使用获取的快照进行可见性检查时，所有<strong>活跃</strong>的事务都必须被当成<code>IN PROGRESS</code>的事务等同对待，无论它们实际上是否已经提交或中止。这条规则非常重要，因为它正是<code>READ COMMITTED</code>和<code>REPEATABLE READ/SERIALIZABLE</code>隔离级别中表现差异的根本来源，我们将在接下来几节中频繁回到这条规则上来。</p>
+<p>如下图所示：</p>
+<p><strong>事务管理器与事务</strong><img src="https://pg-internal.vonng.com/img/fig-5-09.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>事务管理器始终保存着当前运行的事务的有关信息。假设三个事务一个接一个地开始，并且<code>Transaction_A</code>和<code>Transaction_B</code>的隔离级别是<code>READ COMMITTED</code>，<code>Transaction_C</code>的隔离级别是<code>REPEATABLE READ</code>。</p>
+<ul>
+<li><p>T1： <code>Transaction_A</code>启动并执行第一条<code>SELECT</code>命令。执行第一个命令时，<code>Transaction_A</code>请求此刻的<code>txid</code>和快照。在这种情况下，事务管理器分配<code>txid=200</code>，并返回事务快照<code>200:200:</code>。</p>
+</li>
+<li><p>T2： <code>Transaction_B</code>启动并执行第一条<code>SELECT</code>命令。事务管理器分配<code>txid=201</code>，并返回事务快照<code>200:200:</code>，因为<code>Transaction_A(txid=200)</code>正在进行中。因此无法从<code>Transaction_B</code>中看到<code>Transaction_A</code>。</p>
+</li>
+<li><p>T3： <code>Transaction_C</code>启动并执行第一条<code>SELECT</code>命令。事务管理器分配<code>txid=202</code>，并返回事务快照<code>200:200:</code>，因此不能从<code>Transaction_C</code>中看到<code>Transaction_A</code>和<code>Transaction_B</code>。</p>
+</li>
+<li><p>T4： <code>Transaction_A</code>已提交。事务管理器删除有关此事务的信息。</p>
+</li>
+<li><p>T5： <code>Transaction_B</code>和<code>Transaction_C</code>执行它们各自的<code>SELECT</code>命令。</p>
+<p><code>Transaction_B</code>需要一个新的事务快照，因为它使用了<code>READ COMMITTED</code>隔离等级。在这种情况下，<code>Transaction_B</code>获取新快照<code>201:201:</code>，因为<code>Transaction_A(txid=200)</code>已提交。因此<code>Transaction_A</code>的变更对<code>Transaction_B</code>可见了。</p>
+<p><code>Transaction_C</code>不需要新的事务快照，因为它处于<code>REPEATABLE READ</code>隔离等级，并继续使用已获取的快照，即<code>200:200:</code>。因此，<code>Transaction_A</code>的变更仍然对<code>Transaction_C</code>不可见。</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>PostgreSQL 是支持事务的，事务的四大特性是原子性、一致性、隔离性、持久性，我们这次主要讲了隔离性。</p>
+<p>当多个事务并发执行的时候，会引发脏读、不可重复读、幻读这些问题，那为了避免这些问题，SQL 提出了四种隔离级别，分别是读未提交、读已提交、可重复读、串行化，从左往右隔离级别顺序递增，隔离级别越高，意味着性能越差，PostgreSQL 引擎的默认隔离级别是读已提交。</p>
+<p><strong>在PostgreSQL里，你可以请求四种可能的事务隔离级别中的任意一种。但是在内部， 实际上只有三种独立的隔离级别，分别对应读已提交，可重复读和可串行化。</strong>如果你选择了读未提交的级别， 实际上你获得的是读已提交，并且在PostgreSQL的可重复读实现中，幻读是不可能的， 所以实际的隔离级别可能比你选择的更严格。</p>
+<p>而对于幻读现象，不建议将隔离级别升级为串行化，因为这会导致数据库并发时性能很差。<strong>PostgreSQL 引擎的默认隔离级别虽然是「读已提交」</strong></p>
+<p><strong>PostgreSQL 事务快照是由事务管理器提供的。在<code>READ COMMITTED</code>隔离级别，事务在执行每条SQL时都会获取快照；其他情况下（<code>REPEATABLE READ</code>或<code>SERIALIZABLE</code>隔离级别），事务只会在执行第一条SQL命令时获取一次快照。获取的事务快照用于元组的可见性检查;</strong></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>[1] Abraham Silberschatz, Henry F. Korth, and S. Sudarshan, “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.amazon.com//dp/0073523321">Database System Concepts</a>“, McGraw-Hill Education, ISBN-13: 978-0073523323</li>
+<li>[2] Dan R. K. Ports, and Kevin Grittner, “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://drkp.net/papers/ssi-vldb12.pdf">Serializable Snapshot Isolation in PostgreSQL</a>“, VDBL 2012</li>
+<li>[3] Thomas M. Connolly, and Carolyn E. Begg, “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.amazon.com/dp/0321523067">Database Systems</a>“, Pearson, ISBN-13: 978-0321523068</li>
+<li>[4] <a target="_blank" rel="external nofollow noopener noreferrer" href="https://pg-internal.vonng.com/">PostgreSQL指南：内幕探索</a></li>
+<li>[5] <a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.postgres.cn/docs/9.4/index.html">PostgreSQL 9.4.4 中文手册</a></li>
+<li>[6] <a target="_blank" rel="external nofollow noopener noreferrer" href="https://xiaolincoding.com/mysql/transaction/mvcc.html#%E4%BA%8B%E5%8A%A1%E6%9C%89%E5%93%AA%E4%BA%9B%E7%89%B9%E6%80%A7">事务隔离级别是怎么实现的？</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PostgresSQL/" class="category-chain-item">PostgresSQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/PostgresSQL/">#PostgresSQL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>PostgreSQL是如何实现隔离级别的？</div>
+      <div>https://blog.longpi1.com/2023/07/22/PostgreSQL是如何实现隔离级别的？/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/22/PostgreSQL%E5%B8%B8%E7%94%A8%E7%B4%A2%E5%BC%95%E4%B8%8E%E4%BC%98%E5%8C%96/" title="PostgreSQL常用索引与优化">
+                        <span class="hidden-mobile">PostgreSQL常用索引与优化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
