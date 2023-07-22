@@ -248,7 +248,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/07/22/PostgreSQL%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E7%9A%84%EF%BC%9F/" target="_self">
         <div>
-          学习笔记
+          PostgreSQL是如何实现隔离级别的？事务有哪些特性？事务看起来感觉简单，但是要实现事务必须要遵守 4 个特性，分别如下：  原子性（Atomicity）：一个事务中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节，而且事务在执行过程中发生错误，会被回滚到事务开始前的状态，就像这个事务从来没有执行过一样，就好比买一件商品，购买成功时，则给商家付了钱，商品到手；购买失败时，则商品
         </div>
       </a>
 
@@ -313,7 +313,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/07/22/PostgreSQL%E5%B8%B8%E7%94%A8%E7%B4%A2%E5%BC%95%E4%B8%8E%E4%BC%98%E5%8C%96/" target="_self">
         <div>
-          学习笔记
+          PostgreSQL常用索引与优化 主要内容转载自《PostgreSQL 开发指南》  索引（Index）可以用于提高数据库的查询性能；但是索引也需要进行读写，同时还会占用更多的存储空间；因此了解并适当利用索引对于数据库的优化至关重要。本篇我们就来介绍如何高效地使用 PostgreSQL 索引。 索引简介假设存在以下数据表： 1234567CREATE TABLE test (  id integ
         </div>
       </a>
 
@@ -378,7 +378,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/07/22/PostgreSQL%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86%E6%9C%9F%E9%97%B4%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F/" target="_self">
         <div>
-          学习笔记
+          PostgreSQL 查询处理期间发生了什么？ 文中主要内容引用自PostgreSQL指南：内幕探索  查询处理是PostgreSQL中最为复杂的子系统。如PostgreSQL官方文档所述，PostgreSQL支持SQL2011标准中的大多数特性，查询处理子系统能够高效地处理这些SQL。 一、PostgresSQL 执行流程是怎样的？先来一个上帝视角图，下面就是 PostgreSQL 查询处理的流
         </div>
       </a>
 
@@ -443,7 +443,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/07/22/PostgresSQL%E8%BF%9B%E7%A8%8B%E4%B8%8E%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84/" target="_self">
         <div>
-          学习笔记
+          PostgresSQL进程与基础架构 文中主要内容引用自PostgreSQL指南：内幕探索  本篇文章主要讲述PostgreSQL中进程与内存的架构 进程架构 PostgreSQL是一个客户端&#x2F;服务器风格的关系型数据库管理系统，采用多进程架构，运行在单台主机上。 通常所谓的“PostgreSQL服务器（PostgreSQL Server）” 实际上是一系列协同工作的进程集合，包含着下列进
         </div>
       </a>
 
