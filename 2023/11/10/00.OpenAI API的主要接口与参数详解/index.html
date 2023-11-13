@@ -1,0 +1,1142 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="00.OpenAI API的主要接口与参数详解 详细接口和参数可以查看一下 官方文档。  主要参数 model（模型）：  描述：指定要使用的模型。在GPT-3的情况下，该值为”gpt-3.5-turbo”。 示例：&quot;model&quot;: &quot;gpt-3.5-turbo&quot;   prompt（提示）：  描述：提供给模型的输入文本或提示。这是您希望模型生成响应的关键信">
+<meta property="og:type" content="article">
+<meta property="og:title" content="00.OpenAI API的主要接口与参数详解">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/10/00.OpenAI%20API%E7%9A%84%E4%B8%BB%E8%A6%81%E6%8E%A5%E5%8F%A3%E4%B8%8E%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="00.OpenAI API的主要接口与参数详解 详细接口和参数可以查看一下 官方文档。  主要参数 model（模型）：  描述：指定要使用的模型。在GPT-3的情况下，该值为”gpt-3.5-turbo”。 示例：&quot;model&quot;: &quot;gpt-3.5-turbo&quot;   prompt（提示）：  描述：提供给模型的输入文本或提示。这是您希望模型生成响应的关键信">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-10T02:36:02.000Z">
+<meta property="article:modified_time" content="2023-11-13T02:38:28.035Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>00.OpenAI API的主要接口与参数详解 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="00.OpenAI API的主要接口与参数详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-10 10:36" pubdate>
+          2023年11月10日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">00.OpenAI API的主要接口与参数详解</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="00-OpenAI-API的主要接口与参数详解"><a href="#00-OpenAI-API的主要接口与参数详解" class="headerlink" title="00.OpenAI API的主要接口与参数详解"></a>00.OpenAI API的主要接口与参数详解</h1><blockquote>
+<p>详细接口和参数可以查看一下 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://platform.openai.com/docs/api-reference/completions/create">官方文档</a>。</p>
+</blockquote>
+<h2 id="主要参数"><a href="#主要参数" class="headerlink" title="主要参数"></a>主要参数</h2><ol>
+<li><p><strong><code>model</code>（模型）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：指定要使用的模型。在GPT-3的情况下，该值为”gpt-3.5-turbo”。</li>
+<li><strong>示例</strong>：<code>&quot;model&quot;: &quot;gpt-3.5-turbo&quot;</code></li>
+</ul>
+</li>
+<li><p><strong><code>prompt</code>（提示）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：提供给模型的输入文本或提示。这是您希望模型生成响应的关键信息。</li>
+<li><strong>示例</strong>：<code>&quot;prompt&quot;: &quot;Translate the following English text to French: &#39;&#123;&#125;&#39;&quot;</code></li>
+</ul>
+</li>
+<li><p><strong><code>max_tokens</code>（最大标记数）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：限制生成文本的最大标记数。这可以用于控制生成文本的长度，你可以简单地把token理解成一个单词。实际上，token是分词之后的一个字符序列里的一个单元。有时候，一个单词会被分解成两个token。比如，icecream是一个单词，但是实际在大语言模型里，会被拆分成 ice 和 cream 两个token。这样分解可以帮助模型更好地捕捉到单词的含义和语法结构。一般来说，750个英语单词就需要1000个token。我们这里用的 text-davinci-003 模型，允许最多有4096个token。需要注意，这个数量既包括你输入的提示语，也包括AI产出的回答，两个加起来不能超过4096个token。比如，你的输入有1000个token，那么你这里设置的 max_tokens 就不能超过 3096。不然调用就会报错。</li>
+<li><strong>示例</strong>：<code>&quot;max_tokens&quot;: 50</code></li>
+</ul>
+</li>
+<li><p><strong><code>temperature</code>（温度）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：控制生成文本的创造性程度。较高的温度值会导致更随机和创造性的输出，而较低的值则会导致更确定和保守的输出（<em>temperature</em> 越大，则新的概率分布越均匀，随机性也就越大，越容易生成一些意想不到的词）。这个参数的输入范围是0-2之间的浮点数，代表输出结果的随机性或者说多样性。。</li>
+<li><strong>示例</strong>：<code>&quot;temperature&quot;: 0.8</code></li>
+</ul>
+</li>
+<li><p><strong><code>stop</code>（停止词）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：一个字符串或字符串列表，用于指定在生成文本中的何处停止。</li>
+<li><strong>示例</strong>：<code>&quot;stop&quot;: [&quot;###&quot;, &quot;\n&quot;]</code></li>
+</ul>
+</li>
+<li><p><strong><code>n</code>（数量）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：用于指定生成多少个不同的文本响应。这是一个可选参数。</li>
+<li><strong>示例</strong>：<code>&quot;n&quot;: 5</code></li>
+</ul>
+</li>
+<li><p><strong><code>stream</code>（流式传输）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：如果将其设置为<code>True</code>，则 API 将立即返回响应 ID，而不会等到生成的文本准备好后再返回。</li>
+<li><strong>示例</strong>：<code>&quot;stream&quot;: True</code></li>
+</ul>
+</li>
+<li><p><strong><code>log_level</code>（日志级别）</strong>：</p>
+<ul>
+<li><strong>描述</strong>：用于指定日志记录的详细程度。可选值为<code>&quot;info&quot;</code>、<code>&quot;warning&quot;</code>或<code>&quot;error&quot;</code>。</li>
+<li><strong>示例</strong>：<code>&quot;log_level&quot;: &quot;info&quot;</code></li>
+</ul>
+</li>
+<li><p><strong>对数 logprobs</strong>：<br>包括最可能的令牌的日志概率，以及所选令牌。例如，如果为 5，则 API 将返回 5 个最可能的令牌的列表。API 将始终返回采样令牌的 ，因此响应中最多可能有元素。</p>
+</li>
+<li><p><strong>回显 echo</strong>：</p>
+<p>除了完成之外，还回显提示</p>
+</li>
+<li><p><strong>top_p （number，选填，Defaults to 1）</strong></p>
+<p>一种替代温度采样的方法叫做核心采样，模型会考虑到具有 top_p 概率质量的标记结果。因此，0.1 表示只有占前 10% 概率质量的标记被考虑。</p>
+<p>我们通常建议修改这个（top_p ）或者 temperature，但不要同时修改两者。</p>
+</li>
+</ol>
+<h2 id="主要接口"><a href="#主要接口" class="headerlink" title="主要接口"></a>主要接口</h2><h3 id="1-1-Models-模型"><a href="#1-1-Models-模型" class="headerlink" title="1.1. Models 模型"></a>1.1. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/models" rel="external nofollow noopener noreferrer" target="_blank">Models</a> 模型</h3><p>列出并描述 API 中可用的各种模型。您可以参考 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/models" rel="external nofollow noopener noreferrer" target="_blank">模型文档</a> 以了解可用的模型以及它们之间的差异。</p>
+<h4 id="List-models-列出模型"><a href="#List-models-列出模型" class="headerlink" title="List models 列出模型"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/models/list" rel="external nofollow noopener noreferrer" target="_blank">List models</a> 列出模型</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">GET<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/models</span><br></code></pre></td></tr></table></figure>
+
+<p>列出当前可用的模型，并提供有关每个模型的基本信息，例如所有者和可用性。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/models \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model-id-0&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;owned_by&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;organization-owner&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;permission&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>...<span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model-id-1&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;owned_by&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;organization-owner&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;permission&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>...<span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model-id-2&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;owned_by&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;openai&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;permission&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>...<span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;list&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Retrieve-model-检索模型"><a href="#Retrieve-model-检索模型" class="headerlink" title="Retrieve model 检索模型"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/models/retrieve" rel="external nofollow noopener noreferrer" target="_blank">Retrieve model</a> 检索模型</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">GET <br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/models/&#123;model&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>检索模型实例，提供有关模型的基本信息，例如所有者和权限。</p>
+<p>其中，<code>model</code> 为必填的字符串类型，用于此请求的模型的 ID。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/models/text-davinci-003 \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text-davinci-003&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;owned_by&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;openai&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;permission&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>...<span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-Completions"><a href="#1-2-Completions" class="headerlink" title="1.2. Completions"></a>1.2. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/completions" rel="external nofollow noopener noreferrer" target="_blank">Completions</a></h3><p>给定一个提示，模型将返回一个或多个预测的完成，并且还可以在每个位置返回替代令牌的概率。</p>
+<h4 id="Create-completion"><a href="#Create-completion" class="headerlink" title="Create completion"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/completions/create" rel="external nofollow noopener noreferrer" target="_blank">Create completion</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST <br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/completions</span><br></code></pre></td></tr></table></figure>
+
+<p>为提供的提示和参数创建完成。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/completions \</span><br>  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \<br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -d &#x27;<span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text-davinci-003&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;prompt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Say this is a test&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;max_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">7</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;temperature&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><br>  <span class="hljs-punctuation">&#125;</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text_completion&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;created&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1589478378</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text-davinci-003&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;choices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;\n\nThis is indeed a test&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;index&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;logprobs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;finish_reason&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;length&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;usage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;prompt_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;completion_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">7</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;total_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">12</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解"><a href="#Request-body-入参详解" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><strong><code>model</code> （string，必填）</strong></li>
+</ul>
+<p>要使用的模型的 ID。可以使用 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/models/list" rel="external nofollow noopener noreferrer" target="_blank">列表模型API </a> (GET <a href="https://link.juejin.cn/?target=https://api.openai.com/v1/models" rel="external nofollow noopener noreferrer" target="_blank">api.openai.com&#x2F;v1&#x2F;models</a>) 查看所有可用模型，或参阅 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/models/overview" rel="external nofollow noopener noreferrer" target="_blank">模型概述</a> 了解它们的描述。</p>
+<ul>
+<li><strong><code>prompt</code> （string or array，选填，Defaults to &lt;|endoftext|&gt;）</strong></li>
+</ul>
+<p>用于生成完成、编码为字符串、字符串数组、标记数组或标记数组数组的提示。</p>
+<p>注意 |endoftext| 是模型在训练期间看到的文档分隔符，因此如果未指定提示，模型将生成，就像从新文档的开头一样。</p>
+<ul>
+<li><strong><code>suffix</code> （string，选填，Defaults to null）</strong></li>
+</ul>
+<p>完成插入文本后的后缀。</p>
+<ul>
+<li><strong><code>max_tokens</code> （integer，选填，Defaults to 16）</strong></li>
+</ul>
+<p>完成时要生成的最大 <a href="https://link.juejin.cn/?target=https://platform.openai.com/tokenizer" rel="external nofollow noopener noreferrer" target="_blank">token</a> 数。</p>
+<p>提示 <code>max_tokens</code> 的 token 计数不能超过模型的上下文长度。大多数模型的上下文长度为 2048 个令牌（最新模型除外，它支持 4096）</p>
+<ul>
+<li><strong><code>temperature</code> （number，选填，Defaults to 1）</strong></li>
+</ul>
+<p>使用哪个采样温度，在 <strong>0和2之间</strong>。</p>
+<p>较高的值，如0.8会使输出更随机，而较低的值，如0.2会使其更加集中和确定性。</p>
+<p>我们通常建议修改这个（<code>temperature</code> ）为 <code>top_p</code> 但两者不能同时存在，二选一。</p>
+<ul>
+<li><strong><code>top_p</code> （number，选填，Defaults to 1）</strong></li>
+</ul>
+<p>一种替代温度采样的方法叫做核心采样，模型会考虑到具有 top_p 概率质量的标记结果。因此，0.1 表示只有占前 10% 概率质量的标记被考虑。</p>
+<p>我们通常建议修改这个（<code>top_p</code> ）或者 <code>temperature</code>，但不要同时修改两者。</p>
+<ul>
+<li><strong><code>n</code> （integer，选填，Defaults to 1）</strong></li>
+</ul>
+<p>每个 <code>prompt</code> 生成的完成次数。</p>
+<p>注意：由于此参数会生成许多完成，因此它会快速消耗您的令牌配额。小心使用，并确保对 <code>max_tokens</code> 和 <code>stop</code> 进行合理的设置。</p>
+<ul>
+<li><strong><code>stream</code> （boolean，选填，Defaults to false）</strong></li>
+</ul>
+<p>是否返回部分进度流。如果设置，令牌将作为数据服务器推送事件随着它们变得可用而发送，流通过 <code>data: [DONE]</code> 消息终止。</p>
+<ul>
+<li><strong><code>logprobs</code> （integer，选填，Defaults to null）</strong></li>
+</ul>
+<p>在 <code>logprobs</code> 返回的最有可能的标记列表中，包括所选标记和对应的对数概率。</p>
+<p>例如，如果 <code>logprobs</code> 为 5，则 API 将返回一个由 5 个最有可能的标记组成的列表。API 总是会返回采样标记的对数概率，因此响应中可能会有多达 <code>logprobs+1</code> 个元素。</p>
+<p><code>logprobs</code> 的最大值为 5。</p>
+<ul>
+<li><strong><code>echo</code> （boolean，选填，Defaults to false）</strong></li>
+</ul>
+<p>除了完成之外，还回显提示</p>
+<ul>
+<li><strong><code>stop</code> （string or array，选填，Defaults to null）</strong></li>
+</ul>
+<p>最多生成4个序列，API将停止生成更多的标记。返回的文本不包含停止序列。</p>
+<ul>
+<li><strong><code>presence_penalty</code> （number，选填，Defaults to 0）</strong></li>
+</ul>
+<p>介于 <strong>-2.0 和 2.0 之间</strong>的数字。正值会根据它们是否出现在文本中迄今为止来惩罚新令牌，从而增加模型谈论新主题的可能性。</p>
+<p><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/parameter-details" rel="external nofollow noopener noreferrer" target="_blank">请参阅有关频率和状态惩罚的更多信息</a></p>
+<ul>
+<li><strong><code>frequency_penalty</code> （number，选填，Defaults to 0）</strong></li>
+</ul>
+<p>介于-2.0和2.0之间的数字。正值会根据文本中新令牌的现有频率对其进行惩罚，从而降低模型重复相同行的可能性。</p>
+<p><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/parameter-details" rel="external nofollow noopener noreferrer" target="_blank">请参阅有关频率和存在惩罚的更多信息</a></p>
+<ul>
+<li><strong><code>best_of</code> （integer，选填，Defaults to 1）</strong></li>
+</ul>
+<p>在生成服务器端生成 <code>best_of</code> 完成，并返回“最佳”（每个标记具有最高对数概率的那一个）。结果无法流式传输。</p>
+<p>当与 <code>n</code> 一起使用时，<code>best_of</code> 控制候选完成的数量，<code>n</code> 指定要返回多少个 - <code>best_of</code> 必须大于 <code>n</code>。</p>
+<p>注意：由于此参数生成许多完成，因此可能会快速消耗您的令牌配额。请小心使用并确保 <code>max_tokens</code> 和 <code>stop</code> 设置合理。</p>
+<ul>
+<li><strong><code>logit_bias</code> （map，选填，Defaults to null）</strong></li>
+</ul>
+<p>修改指定标记在完成中出现的可能性。</p>
+<p>接受一个JSON对象，将标记（由GPT分词器中的标记ID指定）映射到从 -100 到 100 的相关偏差值。您可以使用此 <a href="https://link.juejin.cn/?target=https://platform.openai.com/tokenizer?view=bpe" rel="external nofollow noopener noreferrer" target="_blank">分词器工具</a>（适用于GPT-2和GPT-3）将文本转换为令牌ID。数学上，在采样之前，模型生成的 logits 会添加偏差。确切的效果因模型而异，但是介于-1和1之间的值应该会减少或增加选择的可能性；像 -100 或 100 这样的值应该会导致相关令牌被禁止或独占选择。</p>
+<p>例如，您可以传递 <code>&#123;&quot;50256&quot;: -100&#125;</code> 来防止生成</p>
+<ul>
+<li><strong><code>user</code> （string，选填）</strong></li>
+</ul>
+<p>一个唯一的标识符，代表您的终端用户，可以帮助OpenAI监测和检测滥用。<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids" rel="external nofollow noopener noreferrer" target="_blank">了解更多信息</a>。</p>
+</blockquote>
+<h3 id="1-3-Chat-聊天"><a href="#1-3-Chat-聊天" class="headerlink" title="1.3. Chat 聊天"></a>1.3. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/chat" rel="external nofollow noopener noreferrer" target="_blank">Chat</a> 聊天</h3><p>给定一组描述对话的消息列表，模型将返回一个回复。</p>
+<h4 id="Create-chat-completion"><a href="#Create-chat-completion" class="headerlink" title="Create chat completion"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/chat/create" rel="external nofollow noopener noreferrer" target="_blank">Create chat completion</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/chat/completions</span><br></code></pre></td></tr></table></figure>
+
+<p>为给定的聊天对话创建模型响应。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/chat/completions \</span><br>  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \<br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -d &#x27;<span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;messages&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Hello!&quot;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">]</span><br>  <span class="hljs-punctuation">&#125;</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;chatcmpl-123&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;chat.completion&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;created&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1677652288</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;choices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;index&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;assistant&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;\n\nHello there, how may I assist you today?&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;finish_reason&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;stop&quot;</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;usage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;prompt_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">9</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;completion_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">12</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;total_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">21</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-1"><a href="#Request-body-入参详解-1" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><strong><code>model</code> （string，必填）</strong></p>
+<p>要使用的模型ID。有关哪些模型适用于Chat API的详细信息，请查看 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/models/model-endpoint-compatibility" rel="external nofollow noopener noreferrer" target="_blank">模型端点兼容性表</a></p>
+</li>
+<li><p><strong><code>messages</code> （array，必填）</strong></p>
+<p>迄今为止描述对话的消息列表</p>
+<ul>
+<li><p><strong><code>role</code> （string，必填）</strong></p>
+<p>此消息的作者角色。<code>system</code> 、<code>user</code> 或 <code>assistant</code> 之一</p>
+</li>
+<li><p><strong><code>content</code> （string，必填）</strong></p>
+<p>消息的内容</p>
+</li>
+<li><p><strong><code>name</code> （string，选填）</strong></p>
+<p>此消息的作者的姓名。可以包含 a-z、A-Z、0-9 和下划线，最大长度为 64 个字符</p>
+</li>
+</ul>
+</li>
+<li><p><strong><code>temperature</code> （number，选填，Defaults to 1）</strong></p>
+<p>使用哪个采样温度，在 <strong>0和2之间</strong>。</p>
+<p>较高的值，如0.8会使输出更随机，而较低的值，如0.2会使其更加集中和确定性。</p>
+<p>我们通常建议修改这个（<code>temperature</code> ）为 <code>top_p</code> 但两者不能同时存在，二选一。</p>
+</li>
+<li><p><strong><code>top_p</code> （number，选填，Defaults to 1）</strong></p>
+<p>一种替代温度采样的方法叫做核心采样，模型会考虑到具有 top_p 概率质量的标记结果。因此，0.1 表示只有占前 10% 概率质量的标记被考虑。</p>
+<p>我们通常建议修改这个（<code>top_p</code> ）或者 <code>temperature</code>，但不要同时修改两者。</p>
+</li>
+<li><p><strong><code>n</code> （integer，选填，Defaults to 1）</strong></p>
+<p>每个输入消息要生成多少聊天完成选项数</p>
+</li>
+<li><p><strong><code>stream</code> （boolean，选填，Defaults to false）</strong></p>
+<p>如果设置了，将发送部分消息增量，就像在 ChatGPT 中一样。令牌将作为数据 <a href="https://link.juejin.cn/?target=https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events%23event_stream_format" rel="external nofollow noopener noreferrer" target="_blank">服务器推送事件</a> 随着它们变得可用而被发送，流通过 <code>data: [DONE]</code> 消息终止。请参阅OpenAI Cookbook 以获取 <a href="https://link.juejin.cn/?target=https://github.com/openai/openai-cookbook/blob/main/examples/How_to_stream_completions.ipynb" rel="external nofollow noopener noreferrer" target="_blank">示例代码</a>。</p>
+</li>
+<li><p><strong>stop （string or array，选填，Defaults to null）</strong></p>
+<p>最多生成4个序列，API将停止生成更多的标记。</p>
+</li>
+<li><p><strong><code>max_tokens</code> （integer，选填，Defaults to inf）</strong></p>
+<p>在聊天完成中生成的最大 <a href="https://link.juejin.cn/?target=https://platform.openai.com/tokenizer" rel="external nofollow noopener noreferrer" target="_blank">tokens</a> 数。</p>
+<p>输入令牌和生成的令牌的总长度受模型上下文长度的限制。</p>
+</li>
+<li><p><strong><code>presence_penalty</code> （number，选填，Defaults to 0）</strong></p>
+<p>介于 <strong>-2.0 和 2.0 之间</strong>的数字。正值会根据它们是否出现在文本中迄今为止来惩罚新令牌，从而增加模型谈论新主题的可能性。</p>
+<p><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/parameter-details" rel="external nofollow noopener noreferrer" target="_blank">请参阅有关频率和状态惩罚的更多信息</a></p>
+</li>
+<li><p><strong><code>frequency_penalty</code> （number，选填，Defaults to 0）</strong></p>
+<p>介于-2.0和2.0之间的数字。正值会根据文本中新令牌的现有频率对其进行惩罚，从而降低模型重复相同行的可能性。</p>
+<p><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/parameter-details" rel="external nofollow noopener noreferrer" target="_blank">请参阅有关频率和存在惩罚的更多信息</a></p>
+</li>
+<li><p><strong><code>logit_bias</code> （map，选填，Defaults to null）</strong></p>
+<p>修改完成时指定标记出现的可能性。</p>
+<p>接受一个JSON对象，将标记（由分词器中的标记ID指定）映射到从 -100 到 100 的相关偏差值。在采样之前，模型生成的logits会加上这个偏差。确切的影响因模型而异，但是 -1 到 1 之间的值应该会减少或增加选择概率；像 -100 或 100 这样的值应该会导致相关标记被禁止或独占选择。</p>
+</li>
+<li><p><strong><code>user</code> （string，选填）</strong></p>
+<p>一个唯一的标识符，代表您的终端用户，可以帮助OpenAI监测和检测滥用。<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids" rel="external nofollow noopener noreferrer" target="_blank">了解更多信息</a>。</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="1-4-Edits"><a href="#1-4-Edits" class="headerlink" title="1.4 Edits"></a>1.4 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/edits" rel="external nofollow noopener noreferrer" target="_blank">Edits</a></h3><p>给定一个提示和一条指令，模型将返回提示的编辑版本。</p>
+<h4 id="Create-edit"><a href="#Create-edit" class="headerlink" title="Create edit"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/edits/create" rel="external nofollow noopener noreferrer" target="_blank">Create edit</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/edits</span><br></code></pre></td></tr></table></figure>
+
+<p>为提供的输入、指令和参数创建一个新的编辑。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/edits \</span><br>  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \<br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -d &#x27;<span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text-davinci-edit-001&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;What day of the wek is it?&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;instruction&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Fix the spelling mistakes&quot;</span><br>  <span class="hljs-punctuation">&#125;</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;edit&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;created&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1589478378</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;choices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;What day of the week is it?&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;index&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;usage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;prompt_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">25</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;completion_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">32</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;total_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">57</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-2"><a href="#Request-body-入参详解-2" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><strong><code>model</code> （string，必填）</strong></p>
+<p>要使用的模型ID。您可以在此端点中使用 <code>text-davinci-edit-001</code> 或 <code>code-davinci-edit-001</code> 模型。</p>
+</li>
+<li><p><strong><code>input</code> （string，选填，Defaults to ‘’）</strong></p>
+<p>用作编辑起点的输入文本。</p>
+</li>
+<li><p><strong><code>instruction</code> （string，必填）</strong></p>
+<p>指导模型如何编辑提示的说明。</p>
+</li>
+<li><p><strong><code>n</code> （integer，选填，Defaults to 1）</strong></p>
+<p>输入和指令需要生成多少次编辑。</p>
+</li>
+<li><p><strong><code>temperature</code> （number，选填，Defaults to 1）</strong></p>
+<p>使用哪个采样温度，在 <strong>0和2之间</strong>。</p>
+<p>较高的值，如0.8会使输出更随机，而较低的值，如0.2会使其更加集中和确定性。</p>
+<p>我们通常建议修改这个（<code>temperature</code> ）为 <code>top_p</code> 但两者不能同时存在，二选一。</p>
+</li>
+<li><p><strong><code>top_p</code> （number，选填，Defaults to 1）</strong></p>
+<p>一种替代温度采样的方法叫做核心采样，模型会考虑到具有 top_p 概率质量的标记结果。因此，0.1 表示只有占前 10% 概率质量的标记被考虑。</p>
+<p>我们通常建议修改这个（<code>top_p</code> ）或者 <code>temperature</code>，但不要同时修改两者。</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="1-5-Images-图像"><a href="#1-5-Images-图像" class="headerlink" title="1.5. Images 图像"></a>1.5. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/images" rel="external nofollow noopener noreferrer" target="_blank">Images</a> 图像</h3><p>给定一个提示和&#x2F;或输入图像，模型将生成一张新的图像。</p>
+<p>相关指南：<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/images" rel="external nofollow noopener noreferrer" target="_blank">图像生成</a>。</p>
+<h4 id="Create-image"><a href="#Create-image" class="headerlink" title="Create image"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/images/create" rel="external nofollow noopener noreferrer" target="_blank">Create image</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/images/generations</span><br></code></pre></td></tr></table></figure>
+
+<p>根据提示创建图像。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/images/generations \</span><br>  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \<br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -d &#x27;<span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;prompt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;A cute baby sea otter&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;n&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1024x1024&quot;</span><br>  <span class="hljs-punctuation">&#125;</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;created&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1589478378</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-3"><a href="#Request-body-入参详解-3" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><strong><code>prompt</code> （string，必填）</strong></p>
+<p>所需图像的文本描述。最大长度为1000个字符。</p>
+</li>
+<li><p><strong><code>n</code> （integer，选填，Defaults to 1）</strong></p>
+<p>要生成的图像数量。必须在1到10之间。</p>
+</li>
+<li><p><strong><code>size</code> （string，选填，Defaults to 1024x1024）</strong></p>
+<p>生成图像的尺寸。必须是 <code>256x256</code> 、<code>512x512</code> 或 <code>1024x1024</code> 之一。</p>
+</li>
+<li><p><strong><code>response_format</code> （string，选填，Defaults to url）</strong></p>
+<p>生成的图像返回格式。必须是 <code>url</code> 或 <code>b64_json</code> 之一。</p>
+</li>
+<li><p><strong><code>user</code> （string，选填）</strong></p>
+<p>一个唯一的标识符，代表您的终端用户，可以帮助OpenAI监测和检测滥用。<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids" rel="external nofollow noopener noreferrer" target="_blank">了解更多信息</a>。</p>
+</li>
+</ul>
+</blockquote>
+<h4 id="Create-image-edit"><a href="#Create-image-edit" class="headerlink" title="Create image edit"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/images/create-edit" rel="external nofollow noopener noreferrer" target="_blank">Create image edit</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/images/edits</span><br></code></pre></td></tr></table></figure>
+
+<p>根据原始图像和提示创建编辑或扩展的图像。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/images/edits \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -F image=<span class="hljs-string">&quot;@otter.png&quot;</span> \<br>  -F mask=<span class="hljs-string">&quot;@mask.png&quot;</span> \<br>  -F prompt=<span class="hljs-string">&quot;A cute baby sea otter wearing a beret&quot;</span> \<br>  -F n=<span class="hljs-number">2</span> \<br>  -F size=<span class="hljs-string">&quot;1024x1024&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;created&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1589478378</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-4"><a href="#Request-body-入参详解-4" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><strong><code>image</code> （string，必填）</strong></p>
+<p>要编辑的图像。必须是有效的PNG文件，小于4MB且为正方形。如果未提供遮罩，则图像必须具有透明度，该透明度将用作遮罩。</p>
+</li>
+<li><p><strong><code>mask</code> （string，选填）</strong></p>
+<p>一个额外的图像，其完全透明的区域（例如 alpha 值为零的区域）指示应该编辑图像的位置。<code>image</code> 必须是有效的 PNG 文件，小于 4MB，并且具有与 <code>image</code> 相同的尺寸。</p>
+</li>
+<li><p><strong><code>prompt</code> （string，必填）</strong></p>
+<p>所需图像的文本描述。最大长度为1000个字符。</p>
+</li>
+<li><p><strong><code>n</code> （integer，选填，Defaults to 1）</strong></p>
+<p>要生成的图像数量。必须在1到10之间。</p>
+</li>
+<li><p><strong><code>size</code> （string，选填，Defaults to 1024x1024）</strong></p>
+<p>生成图像的尺寸。必须是 <code>256x256</code> 、<code>512x512</code> 或 <code>1024x1024</code> 之一。</p>
+</li>
+<li><p><strong><code>response_format</code> （string，选填，Defaults to url）</strong></p>
+<p>生成的图像返回格式。必须是 <code>url</code> 或 <code>b64_json</code> 之一。</p>
+</li>
+<li><p><strong><code>user</code> （string，选填）</strong></p>
+<p>一个唯一的标识符，代表您的终端用户，可以帮助OpenAI监测和检测滥用。<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids" rel="external nofollow noopener noreferrer" target="_blank">了解更多信息</a>。</p>
+</li>
+</ul>
+</blockquote>
+<h4 id="Create-image-variation"><a href="#Create-image-variation" class="headerlink" title="Create image variation"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/images/create-variation" rel="external nofollow noopener noreferrer" target="_blank">Create image variation</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/images/variations</span><br></code></pre></td></tr></table></figure>
+
+<p>创建给定图像的变体。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/images/variations \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -F image=<span class="hljs-string">&quot;@otter.png&quot;</span> \<br>  -F n=<span class="hljs-number">2</span> \<br>  -F size=<span class="hljs-string">&quot;1024x1024&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;created&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1589478378</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-5"><a href="#Request-body-入参详解-5" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><strong><code>image</code> （string，必填）</strong></p>
+<p>用作变体基础的图像。必须是有效的PNG文件，小于4MB，并且为正方形。</p>
+</li>
+<li><p><strong><code>n</code> （integer，选填，Defaults to 1）</strong></p>
+<p>要生成的图像数量。必须在1到10之间。</p>
+</li>
+<li><p><strong><code>size</code> （string，选填，Defaults to 1024x1024）</strong></p>
+<p>生成图像的尺寸。必须是 <code>256x256</code> 、<code>512x512</code> 或 <code>1024x1024</code> 之一。</p>
+</li>
+<li><p><strong><code>response_format</code> （string，选填，Defaults to url）</strong></p>
+<p>生成的图像返回格式。必须是 <code>url</code> 或 <code>b64_json</code> 之一。</p>
+</li>
+<li><p><strong><code>user</code> （string，选填）</strong></p>
+<p>一个唯一的标识符，代表您的终端用户，可以帮助OpenAI监测和检测滥用。<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids" rel="external nofollow noopener noreferrer" target="_blank">了解更多信息</a>。</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="1-6-Embeddings-嵌入"><a href="#1-6-Embeddings-嵌入" class="headerlink" title="1.6. Embeddings 嵌入"></a>1.6. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/embeddings" rel="external nofollow noopener noreferrer" target="_blank">Embeddings</a> 嵌入</h3><p>获得一个给定输入的向量表示，可以轻松地被机器学习模型和算法使用。</p>
+<p>相关指南：<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/embeddings" rel="external nofollow noopener noreferrer" target="_blank">嵌入</a></p>
+<h4 id="1-Create-embeddings"><a href="#1-Create-embeddings" class="headerlink" title="1. Create embeddings"></a>1. <strong><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/embeddings/create" rel="external nofollow noopener noreferrer" target="_blank">Create embeddings</a></strong></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/embeddings</span><br></code></pre></td></tr></table></figure>
+
+<p>创建一个嵌入向量，代表输入的文本。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/embeddings \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \<br>  -d &#x27;<span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;The food was delicious and the waiter...&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text-embedding-ada-002&quot;</span><br>  <span class="hljs-punctuation">&#125;</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;list&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;embedding&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;embedding&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-number">0.0023064255</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-number">-0.009327292</span><span class="hljs-punctuation">,</span><br>        .... (<span class="hljs-number">1536</span> floats total for ada<span class="hljs-number">-002</span>)<br>        <span class="hljs-number">-0.0028842222</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;index&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text-embedding-ada-002&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;usage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;prompt_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">8</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;total_tokens&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">8</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-6"><a href="#Request-body-入参详解-6" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><strong><code>model</code> （string，必填）</strong></p>
+<p>要使用的 <strong>模型ID</strong>。您可以使用 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/models/list" rel="external nofollow noopener noreferrer" target="_blank">列出模型</a> API查看所有可用模型，或者请参阅我们的 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/models/overview" rel="external nofollow noopener noreferrer" target="_blank">模型概述</a> 以了解它们的描述。</p>
+</li>
+<li><p><strong><code>input</code> （string or array，必填）</strong></p>
+<p>输入文本以获取嵌入，编码为字符串或令牌数组。要在单个请求中获取多个输入的嵌入，请传递字符串数组或令牌数组的数组。每个输入长度<strong>不得超过 8192 个标记</strong>。</p>
+</li>
+<li><p><strong><code>user</code> （string，选填）</strong></p>
+<p>一个唯一的标识符，代表您的终端用户，可以帮助OpenAI监测和检测滥用。<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids" rel="external nofollow noopener noreferrer" target="_blank">了解更多信息</a>。</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="1-7-Files-文件"><a href="#1-7-Files-文件" class="headerlink" title="1.7. Files 文件"></a>1.7. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/files" rel="external nofollow noopener noreferrer" target="_blank">Files</a> 文件</h3><p><strong>Files</strong> 用于上传文档，可与 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/fine-tunes" rel="external nofollow noopener noreferrer" target="_blank">Fine-tuning</a> 等功能一起使用。</p>
+<h4 id="List-files"><a href="#List-files" class="headerlink" title="List files"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/files/list" rel="external nofollow noopener noreferrer" target="_blank">List files</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">GET<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/files</span><br></code></pre></td></tr></table></figure>
+
+<p>返回属于用户组织的文件列表。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/files \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs json">json复制代码<span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file-ccdDZrC3iZVNiQVeEA6Z66wf&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;bytes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">175</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1613677385</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;filename&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;train.jsonl&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;purpose&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;search&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file-XjGxS3KTG0uNmNOK362iJua3&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;bytes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">140</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1613779121</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;filename&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;puppy.jsonl&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;purpose&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;search&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;list&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Upload-file"><a href="#Upload-file" class="headerlink" title="Upload file"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/files/upload" rel="external nofollow noopener noreferrer" target="_blank">Upload file</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/files</span><br></code></pre></td></tr></table></figure>
+
+<p>上传包含文档的文件以在各个端点&#x2F;功能之间使用。目前，一个组织上传的所有文件的大小可以高达1 GB。如果您需要增加存储限制，请与我们联系。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/files \</span><br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -F purpose=<span class="hljs-string">&quot;fine-tune&quot;</span> \<br>  -F file=<span class="hljs-string">&quot;@mydata.jsonl&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file-XjGxS3KTG0uNmNOK362iJua3&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;bytes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">140</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1613779121</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;filename&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;mydata.jsonl&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;purpose&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;fine-tune&quot;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-7"><a href="#Request-body-入参详解-7" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><code>file</code> （string，必填）</p>
+<p>要上传的 <a href="https://link.juejin.cn/?target=https://jsonlines.readthedocs.io/en/latest/" rel="external nofollow noopener noreferrer" target="_blank">JSON Lines</a> 文件名。</p>
+<p>如果 <code>purpose</code> 设置为 <strong>“fine-tune”</strong>，则每行都是一个JSON记录，其中包含“prompt”和“completion”字段，表示您的 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning/prepare-training-data" rel="external nofollow noopener noreferrer" target="_blank">training examples(训练示例)</a>。</p>
+</li>
+<li><p><code>purpose</code> （string，必填）</p>
+<p>上传文档的预期用途。</p>
+<p>使用 <strong>“fine-tune”</strong> 进行 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/fine-tunes" rel="external nofollow noopener noreferrer" target="_blank">Fine-tuning(微调)</a>。这样可以验证上传文件的格式。</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="1-8-Fine-tunes-微调"><a href="#1-8-Fine-tunes-微调" class="headerlink" title="1.8. Fine-tunes 微调"></a>1.8. <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/fine-tunes" rel="external nofollow noopener noreferrer" target="_blank">Fine-tunes</a> 微调</h3><p>管理微调作业以将模型定制为您的特定训练数据。</p>
+<p>相关指南：<a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning" rel="external nofollow noopener noreferrer" target="_blank">Fine-tune models(微调模型)</a></p>
+<h4 id="Create-fine-tune"><a href="#Create-fine-tune" class="headerlink" title="Create fine-tune"></a><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/fine-tunes/create" rel="external nofollow noopener noreferrer" target="_blank">Create fine-tune</a></h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json">POST<br>https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/fine-tunes</span><br></code></pre></td></tr></table></figure>
+
+<p>创建一个工作，从给定的数据集中微调指定模型。</p>
+<p>响应包括已入队的作业的详细信息，包括 作业状态 和 完成后微调模型的名称。</p>
+<p><a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning" rel="external nofollow noopener noreferrer" target="_blank">了解有关微调的更多信息</a>。</p>
+<p>请求演示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs json">curl https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.openai.com/v1/fine-tunes \</span><br>  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \<br>  -H <span class="hljs-string">&quot;Authorization: Bearer $OPENAI_API_KEY&quot;</span> \<br>  -d &#x27;<span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;training_file&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file-XGinujblHPwGLSztz8cPS8XY&quot;</span><br>  <span class="hljs-punctuation">&#125;</span>&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ft-AF1WoRqd3aJAHsqc9NY7iL8F&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;fine-tune&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;curie&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1614807352</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;events&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;fine-tune-event&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1614807352</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;level&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;info&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Job enqueued. Waiting for jobs ahead to complete. Queue number: 0.&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;fine_tuned_model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;hyperparams&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;batch_size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;learning_rate_multiplier&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0.1</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;n_epochs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;prompt_loss_weight&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0.1</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;organization_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;org-...&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;result_files&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pending&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;validation_files&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;training_files&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file-XGinujblHPwGLSztz8cPS8XY&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;bytes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1547276</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;created_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1610062281</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;filename&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;my-data-train.jsonl&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;purpose&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;fine-tune-train&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;updated_at&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1614807352</span><span class="hljs-punctuation">,</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Request-body-入参详解-8"><a href="#Request-body-入参详解-8" class="headerlink" title="Request body(入参详解)"></a>Request body(入参详解)</h4><blockquote>
+<ul>
+<li><p><code>training_file</code> （string，必填）</p>
+<p>包含 <strong>训练数据</strong> 的已上传文件的ID。</p>
+<p>请参阅 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/api-reference/files/upload" rel="external nofollow noopener noreferrer" target="_blank">upload file</a> 以了解如何上传文件。</p>
+<p>您的数据集必须格式化为 <strong>JSONL文件</strong>，其中每个训练示例都是一个带有 “prompt” 和 “completion” keys 的 JSON对象。此外，您必须上传带有 <code>fine-tune</code> 目的的文件。</p>
+<p>有关更多详细信息，请参阅 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning/creating-training-data" rel="external nofollow noopener noreferrer" target="_blank">微调指南</a>。</p>
+</li>
+<li><p><code>validation_file</code> （string，选填）</p>
+<p>包含 <strong>验证数据</strong> 的已上传文件的ID。</p>
+<p>如果您提供此文件，则数据将在微调期间定期用于生成验证指标。这些指标可以在 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model" rel="external nofollow noopener noreferrer" target="_blank">微调结果文件</a> 中查看。您的训练和验证数据应该是互斥的。</p>
+<p>您的数据集必须格式化为 <strong>JSONL文件</strong>，其中每个验证示例都是一个带有 “prompt” 和 “completion” keys 的 JSON对象。此外，您必须上传带有 <code>fine-tune</code> 目的的文件。</p>
+<p>有关更多详细信息，请参阅 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning/creating-training-data" rel="external nofollow noopener noreferrer" target="_blank">微调指南</a>。</p>
+</li>
+<li><p><code>model</code> （string，选填，Defaults to curie）</p>
+<p>要微调的基础模型名称。</p>
+<p>您可以选择其中之一：”ada”、”babbage”、”curie”、”davinci”，或 2022年4月21日 后创建的经过微调的模型。要了解这些模型的更多信息，请参阅 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/models" rel="external nofollow noopener noreferrer" target="_blank">Models</a> 文档。</p>
+</li>
+<li><p><code>n_epochs</code> （integer，选填，Defaults to 4）</p>
+<p>训练模型的时期数。一个 epoch 指的是完整地遍历一次训练数据集</p>
+</li>
+<li><p><code>batch_size</code> （integer，选填，Defaults to null）</p>
+<p>用于训练的批次大小。批次大小是用于训练单个前向和后向传递的训练示例数量。</p>
+<p>默认情况下，批量大小将动态配置为训练集示例数量的约 0.2％，上限为256。</p>
+<p>通常，我们发现较大的批量大小对于更大的数据集效果更好。</p>
+</li>
+<li><p><code>learning_rate_multiplier</code> （number，选填，Defaults to null）</p>
+<p>用于训练的学习率倍增器。微调学习率 是预训练时使用的 原始学习率 乘以 此值 得到的。</p>
+<p>默认情况下，学习率的倍增器为 0.05、0.1 或 0.2，具体取决于最终 <code>batch_size</code>（较大的批量大小通常使用较大的学习率效果更好）。我们建议尝试在 0.02 到 0.2 范围内实验不同值以找出产生最佳结果的值。</p>
+</li>
+<li><p><code>prompt_loss_weight</code> （number，选填，Defaults to 0.01）</p>
+<p>用于提示 tokens 损失的权重。这控制了模型尝试学习生成提示的程度（与始终具有 1.0 权重的完成相比），并且可以在完成很短时为训练添加稳定效果。</p>
+<p>如果提示非常长（相对于完成而言），那么减少此权重可能是有意义的，以避免过度优先考虑学习提示。</p>
+</li>
+<li><p><code>compute_classification_metrics</code> （boolean，选填，Defaults to false）</p>
+<p>如果设置了，我们会在每个 epoch 结束时使用验证集计算特定于分类的指标，例如准确率和 F-1 分数。这些指标可以在 <a href="https://link.juejin.cn/?target=https://platform.openai.com/docs/guides/fine-tuning/analyzing-your-fine-tuned-model" rel="external nofollow noopener noreferrer" target="_blank">结果文件</a> 中查看。</p>
+<p>为了计算分类指标，您必须提供一个<code>validation_file(验证文件)</code>。此外，对于多类分类，您必须指定 <code>classification_n_classes</code>；对于二元分类，则需要指定 <code>classification_positive_class</code>。</p>
+</li>
+<li><p><code>classification_n_classes</code> （integer，选填，Defaults to null）</p>
+<p>分类任务中的类别数量。</p>
+<p>这个参数在多分类任务中是必需的。</p>
+</li>
+<li><p><code>classification_positive_class</code> （string，选填，Defaults to null）</p>
+<p>二元分类中的正类。</p>
+<p>在进行二元分类时，需要此参数来生成精确度、召回率和 F1 指标。</p>
+</li>
+<li><p><code>classification_betas</code> （array，选填，Defaults to null）</p>
+<p>如果提供了这个参数，我们会在指定的 beta 值上计算 F-beta分数。F-beta分数 是 F-1分数 的一般化。这仅用于二元分类。</p>
+<p>当 beta 为1时（即F-1分数），精确度和召回率被赋予相同的权重。较大的 beta 值更加注重召回率而不是精确度。较小的 beta 值更加注重精确度而不是召回率。</p>
+</li>
+<li><p><code>suffix</code> （string，选填，Defaults to null）</p>
+<p>一个长度最多为 40个字符 的字符串，将被添加到您的 微调模型名称 中。</p>
+<p>例如，<code>suffix</code>  为 “custom-model-name” 会生成一个模型名称，如 <code>ada:ft-your-org:custom-model-name-2022-02-15-04-21-04</code>。</p>
+</li>
+</ul>
+</blockquote>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>00.OpenAI API的主要接口与参数详解</div>
+      <div>https://blog.longpi1.com/2023/11/10/00.OpenAI API的主要接口与参数详解/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/11/01-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BF%85%E5%A4%87%E5%B7%A5%E5%85%B7%E5%92%8C%E5%87%86%E5%A4%87/" title="01.大模型学习的必备工具和准备">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">01.大模型学习的必备工具和准备</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/09/PostgreSQL%E5%AF%B9%E6%AF%94Mysql/" title="PostgreSQL对比Mysql">
+                        <span class="hidden-mobile">PostgreSQL对比Mysql</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
