@@ -1,0 +1,794 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="04.通过ChatGPT做个AI应用">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/16/04-%E9%80%9A%E8%BF%87ChatGPT%E5%81%9A%E4%B8%AAAI%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/nFKPXABfhMZj7la.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/HYKzAUu8C5N4oZv.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/cBQyJCblmgTFS3d.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/1FdPzY6JCBbQjpt.png">
+<meta property="og:image" content="https://blog.longpi1.com/2023/11/16/04-%E9%80%9A%E8%BF%87ChatGPT%E5%81%9A%E4%B8%AAAI%E5%BA%94%E7%94%A8/桌面/学习资料/280-100541001-专栏课-徐文浩-AI大模型之美（完结）/images/643915/30c7739844201fee8da9e86752ea4ec6.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/Duv3EyZ8JagU4Td.png">
+<meta property="og:image" content="https://blog.longpi1.com/2023/11/16/04-%E9%80%9A%E8%BF%87ChatGPT%E5%81%9A%E4%B8%AAAI%E5%BA%94%E7%94%A8/桌面/学习资料/280-100541001-专栏课-徐文浩-AI大模型之美（完结）/images/643915/4165279b0c1580da31e5fd152f23d875.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/sVPIYrtB8jT1Mu7.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/16/jmsrLqwG5HzoCnu.png">
+<meta property="article:published_time" content="2023-11-16T03:32:19.000Z">
+<meta property="article:modified_time" content="2023-11-16T03:39:40.310Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/16/nFKPXABfhMZj7la.png">
+  
+  
+  
+  <title>04.通过ChatGPT做个AI应用 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="04.通过ChatGPT做个AI应用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-16 11:32" pubdate>
+          2023年11月16日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">04.通过ChatGPT做个AI应用</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="04-通过ChatGPT做个AI应用"><a href="#04-通过ChatGPT做个AI应用" class="headerlink" title="04.通过ChatGPT做个AI应用"></a>04.通过ChatGPT做个AI应用</h1><blockquote>
+<p>大部分内容来自于极客时间**<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a>**</p>
+</blockquote>
+<h2 id="ChatGPT来了，更快的速度更低的价格"><a href="#ChatGPT来了，更快的速度更低的价格" class="headerlink" title="ChatGPT来了，更快的速度更低的价格"></a>ChatGPT来了，更快的速度更低的价格</h2><p>在上一讲里，展示了如何通过Completion的接口，实现一个聊天机器人的功能。在那个时候，我们采用的是自己将整个对话拼接起来，将整个上下文都发送给OpenAI的Completion API的方式。不过，因为ChatGPT的火热，OpenAI放出了一个直接可以进行对话聊天的接口。这个接口叫做 <strong>ChatCompletion</strong>，对应的模型叫做gpt-3.5-turbo，不但用起来更容易了，速度还快，而且价格也是我们之前使用的 text-davinci-003 的十分之一。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai<br>openai.ChatCompletion.create(<br>  model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>,<br>  messages=[<br>        &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;You are a helpful assistant.&quot;</span>&#125;,<br>        &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Who won the world series in 2020?&quot;</span>&#125;,<br>        &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;The Los Angeles Dodgers won the World Series in 2020.&quot;</span>&#125;,<br>        &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Where was it played?&quot;</span>&#125;<br>    ]<br>)<br><br></code></pre></td></tr></table></figure>
+
+<p>注：点击在这个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://platform.openai.com/docs/guides/chat">链接</a> 你可以看到接口调用示例。</p>
+<p>在OpenAI的官方文档里，可以看到这个接口也非常简单。你需要传入的参数，从一段Prompt变成了一个数组，数组的每个元素都有role和content两个字段。</p>
+<ol>
+<li>role这个字段一共有三个角色可以选择，其中 system 代表系统，user代表用户，而assistant则代表AI的回答。</li>
+<li>当role是system的时候，content里面的内容代表我们给AI的一个指令，也就是告诉AI应该怎么回答用户的问题。比如我们希望AI都通过中文回答，我们就可以在content里面写“你是一个只会用中文回答问题的助理”，这样即使用户问的问题都是英文的，AI的回复也都会是中文的。</li>
+<li>而当role是user或者assistant的时候，content里面的内容就代表用户和AI对话的内容。和我们在上一讲做的聊天机器人一样，你需要把历史上的对话一起发送给OpenAI的接口，它才能有理解整个对话的上下文的能力。</li>
+</ol>
+<p>有了这个接口，我们就很容易去封装一个聊天机器人了，我把代码放在了下面，我们一起来看一看。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai<br><span class="hljs-keyword">import</span> os<br><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Conversation</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, prompt, num_of_round</span>):<br>        self.prompt = prompt<br>        self.num_of_round = num_of_round<br>        self.messages = []<br>        self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: self.prompt&#125;)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">ask</span>(<span class="hljs-params">self, question</span>):<br>        <span class="hljs-keyword">try</span>:<br>            self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: question&#125;)<br>            response = openai.ChatCompletion.create(<br>                model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>,<br>                messages=self.messages,<br>                temperature=<span class="hljs-number">0.5</span>,<br>                max_tokens=<span class="hljs-number">2048</span>,<br>                top_p=<span class="hljs-number">1</span>,<br>            )<br>        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(e)<br>            <span class="hljs-keyword">return</span> e<br><br>        message = response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>]<br>        self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: message&#125;)<br><br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(self.messages) &gt; self.num_of_round*<span class="hljs-number">2</span> + <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">del</span> self.messages[<span class="hljs-number">1</span>:<span class="hljs-number">3</span>] //Remove the first <span class="hljs-built_in">round</span> conversation left.<br>        <span class="hljs-keyword">return</span> message<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>我们封装了一个Conversation类，它的构造函数 <strong>init</strong> 会接受两个参数，prompt 作为 system的content，代表我们对这个聊天机器人的指令，num_of_round 代表每次向ChatGPT发起请求的时候，保留过去几轮会话。</li>
+<li>Conversation类本身只有一个ask函数，输入是一个string类型的question，返回结果也是string类型的一条message。</li>
+<li>每次调用ask函数，都会向ChatGPT发起一个请求。在这个请求里，我们都会把最新的问题拼接到整个对话数组的最后，而在得到ChatGPT的回答之后也会把回答拼接上去。如果回答完之后，发现会话的轮数超过我们设置的num_of_round，我们就去掉最前面的一轮会话。</li>
+</ol>
+<p>下面，我们就来试一试这个Conversation类好不好使。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python">prompt = <span class="hljs-string">&quot;&quot;&quot;你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:</span><br><span class="hljs-string">1. 你的回答必须是中文</span><br><span class="hljs-string">2. 回答限制在100个字以内&quot;&quot;&quot;</span><br>conv1 = Conversation(prompt, <span class="hljs-number">2</span>)<br>question1 = <span class="hljs-string">&quot;你是谁？&quot;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;User : %s&quot;</span> % question1)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Assistant : %s\n&quot;</span> % conv1.ask(question1))<br><br>question2 = <span class="hljs-string">&quot;请问鱼香肉丝怎么做？&quot;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;User : %s&quot;</span> % question2)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Assistant : %s\n&quot;</span> % conv1.ask(question2))<br><br>question3 = <span class="hljs-string">&quot;那蚝油牛肉呢？&quot;</span> <br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;User : %s&quot;</span> % question3)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Assistant : %s\n&quot;</span> % conv1.ask(question3))<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>我们给到了ChatGPT一个指令，告诉它它是一个中国厨子，用中文回答问题，而且回答在100个字以内，并且我们设定了AI只记住过去3轮的对话。</li>
+<li>然后，我们按照顺序问了他，“你是谁”，“鱼香肉丝怎么做”以及“那蚝油牛肉呢”这三个问题。</li>
+<li>可以看到，在回答里它说自己可以回答做菜的问题，而且回答都在100个字以内。</li>
+<li>并且，我们问他“那蚝油牛肉呢”的时候，它也的确记住了上下文，知道我们问的是菜的做法，而不是价格或者其他信息。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python">User : 你是谁？<br>Assistant : 我是一个AI语言模型，可以回答你的做菜问题。<br>User : 请问鱼香肉丝怎么做？<br>Assistant : 鱼香肉丝的做法：<br><span class="hljs-number">1.</span> 瘦猪肉切丝，用盐、淀粉、料酒腌制；<br><span class="hljs-number">2.</span> 香葱、姜、蒜切末备用；<br><span class="hljs-number">3.</span> 青红椒切丝备用；<br><span class="hljs-number">4.</span> 热锅凉油，放入肉丝煸炒至变色；<br><span class="hljs-number">5.</span> 放入葱姜蒜末和青红椒丝煸炒；<br><span class="hljs-number">6.</span> 加入适量盐、糖、醋、酱油、料酒、水淀粉翻炒均匀；<br><span class="hljs-number">7.</span> 淋上少许香油即可。<br>User : 那蚝油牛肉呢？<br>Assistant : 蚝油牛肉的做法：<br><span class="hljs-number">1.</span> 牛肉切薄片，加入盐、生抽、淀粉腌制<span class="hljs-number">20</span>分钟；<br><span class="hljs-number">2.</span> 青红椒切丝，姜蒜切末备用；<br><span class="hljs-number">3.</span> 热锅冷油，下姜蒜末煸炒出香味；<br><span class="hljs-number">4.</span> 加入牛肉片快速翻炒至变色；<br><span class="hljs-number">5.</span> 加入青红椒丝翻炒均匀；<br><span class="hljs-number">6.</span> 倒入蚝油、生抽、糖、水淀粉调味；<br><span class="hljs-number">7.</span> 翻炒均匀，收汁后淋上香油即可。<br><br></code></pre></td></tr></table></figure>
+
+<p>在问完了3个问题之后，我们又问了它第四个问题，也就是我们问它的第一个问题是什么。这个时候，它因为记录了过去第1-3轮的对话，所以还能正确地回答出来，我们问的是“你是谁”。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question4 = <span class="hljs-string">&quot;我问你的第一个问题是什么？&quot;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;User : %s&quot;</span> % question4)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Assistant : %s\n&quot;</span> % conv1.ask(question4))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">User : 我问你的第一个问题是什么？<br>Assistant : 你问我：“你是谁？”<br><br></code></pre></td></tr></table></figure>
+
+<p>而这个时候，如果我们重新再问一遍“我问你的第一个问题是什么”，你会发现回答变了。因为啊，上一轮已经是第四轮了，而我们设置记住的num_of_round是3。在上一轮的问题回答完了之后，第一轮的关于“你是谁”的问答，被我们从ChatGPT的对话历史里去掉了。所以这个时候，它会告诉我们，第一个问题是“鱼香肉丝怎么做”。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question5 = <span class="hljs-string">&quot;我问你的第一个问题是什么？&quot;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;User : %s&quot;</span> % question5)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Assistant : %s\n&quot;</span> % conv1.ask(question5))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">User : 我问你的第一个问题是什么？<br>Assistant : 你问我：“请问鱼香肉丝怎么做？”<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="计算聊天机器人的成本"><a href="#计算聊天机器人的成本" class="headerlink" title="计算聊天机器人的成本"></a>计算聊天机器人的成本</h2><p>在实现聊天机器人中，我们每次都要发送一大段之前的聊天记录给到OpenAI。这是由OpenAI的GPT-3系列的大语言模型的原理所决定的。GPT-3系列的模型能够实现的功能非常简单，它就是根据你给他的一大段文字去续写后面的内容。而为了能够方便地为所有人提供服务，OpenAI也没有在服务器端维护整个对话过程自己去拼接，所以就不得不由你来拼接了。</p>
+<p>即使ChatGPT的接口是把对话分成了一个数组，但是实际上， <strong>最终发送给模型的还是拼接到一起的字符串</strong>。OpenAI在它的Python库里面提供了一个叫做 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openai/openai-python/blob/main/chatml.md">ChatML</a> 的格式，其实就是ChatGPT的API的底层实现。OpenAI实际做的，就是根据一个定义好特定分隔符的格式，将你提供的多轮对话的内容拼接在一起，提交给 gpt-3.5-turbo 这个模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">&lt;|im_start|&gt;system<br>You are ChatGPT, a large language model trained by OpenAI. Answer <span class="hljs-keyword">as</span> concisely <span class="hljs-keyword">as</span> possible.<br>Knowledge cutoff: <span class="hljs-number">2021</span>-09-01<br>Current date: <span class="hljs-number">2023</span>-03-01&lt;|im_end|&gt;<br>&lt;|im_start|&gt;user<br>How are you&lt;|im_end|&gt;<br>&lt;|im_start|&gt;assistant<br>I am doing well!&lt;|im_end|&gt;<br>&lt;|im_start|&gt;user<br>How are you now?&lt;|im_end|&gt;<br><br></code></pre></td></tr></table></figure>
+
+<p>注：chatml的文档里，你可以看到你的对话，就是通过 &lt;|im_start|&gt;system|user|assistant、&lt;|im_end|&gt; 这些分隔符分割拼装的字符串。底层仍然是一个内容续写的大语言模型。</p>
+<p>ChatGPT的对话模型用起来很方便，但是也有一点需要注意。就是在这个需要传送大量上下文的情况下，这个费用会比你想象的高。OpenAI是通过模型处理的Token数量来收费的，但是要注意，这个收费是“双向收费”。它是按照你发送给它的上下文，加上它返回给你的内容的总Token数来计算花费的Token数量的。</p>
+<p>这个从模型的原理上是合理的，因为每一个Token，无论是你发给它的，还是它返回给你的，都需要通过GPU或者CPU运算。所以你发的上下文越长，它消耗的资源也越多。但是在使用中，你可能觉得我来了10轮对话，一共1000个Token，就只会收1000个Token的费用。而实际上，第一轮对话是只消耗了100个Token，但是第二轮因为要把前面的上下文都发送出去，所以需要200个，这样10轮下来，是需要花费5500个Token，比前面说的1000个可多了不少。</p>
+<p>所以，如果做了应用要计算花费的成本，你就需要学会计算Token数。下面，我给了你一段示例代码，看看在ChatGPT的对话模型下，怎么计算Token数量。</p>
+<h3 id="通过API计算Token数量"><a href="#通过API计算Token数量" class="headerlink" title="通过API计算Token数量"></a>通过API计算Token数量</h3><p>第一种计算Token数量的方式，是从API返回的结果里面获取。我们修改一下刚才的Conversation类，重新创建一个Conversation2类。和之前只有一个不同，ask函数除了返回回复的消息之外，还会返回这次请求消耗的Token数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Conversation2</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, prompt, num_of_round</span>):<br>        self.prompt = prompt<br>        self.num_of_round = num_of_round<br>        self.messages = []<br>        self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: self.prompt&#125;)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">ask</span>(<span class="hljs-params">self, question</span>):<br>        <span class="hljs-keyword">try</span>:<br>            self.messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: question&#125;)<br>            response = openai.ChatCompletion.create(<br>                model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>,<br>                messages=self.messages,<br>                temperature=<span class="hljs-number">0.5</span>,<br>                max_tokens=<span class="hljs-number">2048</span>,<br>                top_p=<span class="hljs-number">1</span>,<br>            )<br>        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(e)<br>            <span class="hljs-keyword">return</span> e<br><br>        message = response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>]<br>        num_of_tokens = response[<span class="hljs-string">&#x27;usage&#x27;</span>][<span class="hljs-string">&#x27;total_tokens&#x27;</span>]<br>        self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: message&#125;)<br><br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(self.messages) &gt; self.num_of_round*<span class="hljs-number">2</span> + <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">del</span> self.messages[<span class="hljs-number">1</span>:<span class="hljs-number">3</span>]<br>        <span class="hljs-keyword">return</span> message, num_of_tokens<br><br></code></pre></td></tr></table></figure>
+
+<p>然后我们还是问一遍之前的问题，看看每一轮问答消耗的Token数量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">conv2 = Conversation2(prompt, <span class="hljs-number">3</span>)<br>questions = [question1, question2, question3, question4, question5]<br><span class="hljs-keyword">for</span> question <span class="hljs-keyword">in</span> questions:<br>    answer, num_of_tokens = conv2.ask(question)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;询问 &#123;%s&#125; 消耗的token数量是 : %d&quot;</span> % (question, num_of_tokens))输出结果：<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">询问 &#123;你是谁？&#125; 消耗的token数量是 : <span class="hljs-number">108</span><br>询问 &#123;请问鱼香肉丝怎么做？&#125; 消耗的token数量是 : <span class="hljs-number">410</span><br>询问 &#123;那蚝油牛肉呢？&#125; 消耗的token数量是 : <span class="hljs-number">733</span><br>询问 &#123;我问你的第一个问题是什么？&#125; 消耗的token数量是 : <span class="hljs-number">767</span><br>询问 &#123;我问你的第一个问题是什么？&#125; 消耗的token数量是 : <span class="hljs-number">774</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，前几轮的Token消耗数量在逐渐增多，但是最后3轮是一样的。这是因为我们代码里只使用过去3轮的对话内容向ChatGPT发起请求。</p>
+<h3 id="通过Tiktoken库计算Token数量"><a href="#通过Tiktoken库计算Token数量" class="headerlink" title="通过Tiktoken库计算Token数量"></a>通过Tiktoken库计算Token数量</h3><p>第二种方式，就是使用Tiktoken这个Python库，将文本分词，然后数一数Token的数量。</p>
+<p>需要注意，使用不同的GPT模型，对应着不同的Tiktoken的编码器模型。对应的文档，可以查询这个链接： <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb">https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb</a></p>
+<p>我们使用的ChatGPT，采用的是cl100k_base的编码，我们也可以试着用它计算一下第一轮对话使用的Token数量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> tiktoken<br>encoding = tiktoken.get_encoding(<span class="hljs-string">&quot;cl100k_base&quot;</span>)<br><br>conv2 = Conversation2(prompt, <span class="hljs-number">3</span>)<br>question1 = <span class="hljs-string">&quot;你是谁？&quot;</span><br>answer1, num_of_tokens = conv2.ask(question1)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;总共消耗的token数量是 : %d&quot;</span> % (num_of_tokens))<br><br>prompt_count = <span class="hljs-built_in">len</span>(encoding.encode(prompt))<br>question1_count = <span class="hljs-built_in">len</span>(encoding.encode(question1))<br>answer1_count = <span class="hljs-built_in">len</span>(encoding.encode(answer1))<br>total_count = prompt_count + question1_count + answer1_count<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Prompt消耗 %d Token, 问题消耗 %d Token，回答消耗 %d Token，总共消耗 %d Token&quot;</span> % (prompt_count, question1_count, answer1_count, total_count))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">总共消耗的token数量是 : <span class="hljs-number">104</span><br>Prompt消耗 <span class="hljs-number">65</span> Token, 问题消耗 <span class="hljs-number">5</span> Token，回答消耗 <span class="hljs-number">20</span> Token，总共消耗 <span class="hljs-number">90</span> Token<br><br></code></pre></td></tr></table></figure>
+
+<p>我们通过API获得了消耗的Token数，然后又通过Tiktoken分别计算了System的指示内容、用户的问题和AI生成的回答，发现了两者还有小小的差异。这个是因为，我们没有计算OpenAI去拼接它们内部需要的格式的Token数量。很多时候，我们都需要通过Tiktoken预先计算一下Token数量，避免提交的内容太多，导致API返回报错。</p>
+<h2 id="Gradio帮你快速搭建一个聊天界面"><a href="#Gradio帮你快速搭建一个聊天界面" class="headerlink" title="Gradio帮你快速搭建一个聊天界面"></a>Gradio帮你快速搭建一个聊天界面</h2><p>我们已经有了一个封装好的聊天机器人了。但是，现在这个机器人，我们只能自己在Python Notebook里面玩，每次问点问题还要调用代码。那么，接下来我们就给我们封装好的Convesation接口开发一个界面。</p>
+<p>直接选用Gradio这个Python库来开发这个聊天机器人的界面，因为它有这样几个好处。</p>
+<ol>
+<li>现有的代码都是用Python实现的，你不需要再去学习JavaScript、TypeScript以及相关的前端框架了。</li>
+<li>Gradio渲染出来的界面可以直接在Jupyter Notebook里面显示出来，对于不了解技术的同学，也不再需要解决其他环境搭建的问题。</li>
+<li>Gradio这个公司，已经被目前最大的开源机器学习模型社区HuggingFace收购了。你可以免费把Gradio的应用部署到HuggingFace上。我等一下就教你怎么部署，你可以把你自己做出来的聊天机器人部署上去给你的朋友们用。</li>
+<li>在后面的课程里，有些时候我们也会使用一些开源的模型，这些模型往往也托管在HuggingFace上。所以使用HuggingFace+Gradio的部署方式，特别方便我们演示给其他人看。</li>
+</ol>
+<p>注：Gradio官方也有用其他开源预训练模型创建Chatbot的教程 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://gradio.app/creating-a-chatbot/">https://gradio.app/creating-a-chatbot/</a></p>
+<p>在实际开发之前，还是按照惯例我们先安装一下Python的Gradio的包。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">conda install -c conda-forge gradio<br><br></code></pre></td></tr></table></figure>
+
+<p>Gradio应用的代码我也列在了下面，对应的逻辑也非常简单。</p>
+<ol>
+<li>首先，我们定义好了system这个系统角色的提示语，创建了一个Conversation对象。</li>
+<li>然后，我们定义了一个answer方法，简单封装了一下Conversation的ask方法。主要是通过history维护了整个会话的历史记录。并且通过responses，将用户和AI的对话分组。然后将它们两个作为函数的返回值。这个函数的签名是为了符合Gradio里Chatbot组件的函数签名的需求。</li>
+<li>最后，我们通过一段with代码，创建了对应的聊天界面。Gradio提供了一个现成的Chatbot组件，我们只需要调用它，然后提供一个文本输入框就好了。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> gradio <span class="hljs-keyword">as</span> gr<br>prompt = <span class="hljs-string">&quot;&quot;&quot;你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:</span><br><span class="hljs-string">1. 你的回答必须是中文</span><br><span class="hljs-string">2. 回答限制在100个字以内&quot;&quot;&quot;</span><br><br>conv = Conversation(prompt, <span class="hljs-number">10</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">answer</span>(<span class="hljs-params">question, history=[]</span>):<br>    history.append(question)<br>    response = conv.ask(question)<br>    history.append(response)<br>    responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>    <span class="hljs-keyword">return</span> responses, history<br><br><span class="hljs-keyword">with</span> gr.Blocks(css=<span class="hljs-string">&quot;#chatbot&#123;height:300px&#125; .overflow-y-auto&#123;height:500px&#125;&quot;</span>) <span class="hljs-keyword">as</span> demo:<br>    chatbot = gr.Chatbot(elem_id=<span class="hljs-string">&quot;chatbot&quot;</span>)<br>    state = gr.State([])<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        txt = gr.Textbox(show_label=<span class="hljs-literal">False</span>, placeholder=<span class="hljs-string">&quot;Enter text and press enter&quot;</span>).style(container=<span class="hljs-literal">False</span>)<br><br>    txt.submit(answer, [txt, state], [chatbot, state])<br><br>demo.launch()<br><br></code></pre></td></tr></table></figure>
+
+<p>你直接在Colab或者你本地的Jupyter Notebook里面，执行一下这一讲到目前的所有代码，就得到了一个可以和ChatGPT聊天的机器人了。</p>
+<p><img src="https://s2.loli.net/2023/11/16/nFKPXABfhMZj7la.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="把机器人部署到HuggingFace上去"><a href="#把机器人部署到HuggingFace上去" class="headerlink" title="把机器人部署到HuggingFace上去"></a>把机器人部署到HuggingFace上去</h2><p>有了一个可以聊天的机器人，相信你已经迫不及待地想让你的朋友也能用上它了。那么我们就把它部署到 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/">HuggingFace</a> 上去。</p>
+<ol>
+<li>首先你需要注册一个HuggingFace的账号，点击左上角的头像，然后点击 “+New Space” 创建一个新的项目空间。</li>
+</ol>
+<p><img src="https://s2.loli.net/2023/11/16/HYKzAUu8C5N4oZv.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ol>
+<li>在接下来的界面里，给你的Space取一个名字，然后在Select the Space SDK里面，选择第二个Gradio。硬件我们在这里就选择免费的，项目我们在这里选择public，让其他人也能够看到。不过要注意，public的space，是连你后面上传的代码也能够看到的。</li>
+</ol>
+<p><img src="https://s2.loli.net/2023/11/16/cBQyJCblmgTFS3d.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ol>
+<li>创建成功后，会跳转到HuggingFace的App界面。里面给了你如何Clone当前的space，然后提交代码部署App的方式。我们只需要通过Git把当前space下载下来，然后提交两个文件就可以了，分别是：</li>
+</ol>
+<ul>
+<li>app.py 包含了我们的Gradio应用；</li>
+<li>requirements.txt 包含了这个应用依赖的Python包，这里我们只依赖OpenAI这一个包。</li>
+</ul>
+<p><img src="https://s2.loli.net/2023/11/16/1FdPzY6JCBbQjpt.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="/2023/11/16/04-%E9%80%9A%E8%BF%87ChatGPT%E5%81%9A%E4%B8%AAAI%E5%BA%94%E7%94%A8/桌面\学习资料\280-100541001-专栏课-徐文浩-AI大模型之美（完结）\images\643915\30c7739844201fee8da9e86752ea4ec6.png" srcset="/img/loading.gif" lazyload></p>
+<p>代码提交之后，HuggingFace的页面会自动刷新，你可以直接看到对应的日志和Chatbot的应用。不过这个时候，我们还差一步工作。</p>
+<ol>
+<li>因为我们的代码里是通过环境变量获取OpenAI的API Key的，所以我们还要在这个HuggingFace的Space里设置一下这个环境变量。</li>
+</ol>
+<ul>
+<li><p>你可以点击界面里面的Settings，然后往下找到Repository secret。</p>
+<p><img src="https://s2.loli.net/2023/11/16/Duv3EyZ8JagU4Td.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="/2023/11/16/04-%E9%80%9A%E8%BF%87ChatGPT%E5%81%9A%E4%B8%AAAI%E5%BA%94%E7%94%A8/桌面\学习资料\280-100541001-专栏课-徐文浩-AI大模型之美（完结）\images\643915\4165279b0c1580da31e5fd152f23d875.png" srcset="/img/loading.gif" lazyload alt="图片"></p>
+</li>
+</ul>
+<p>在Name这里输入 OPENAI_API_KEY，然后在Secret value里面填入你的OpenAI的密钥。</p>
+<ul>
+<li>设置完成之后，你还需要点击一下Restart this space确保这个应用重新加载一遍，以获取到新设置的环境变量。</li>
+</ul>
+<p><img src="https://s2.loli.net/2023/11/16/sVPIYrtB8jT1Mu7.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>重新点击App这个Tab页面，试试聊天机器人是否可以正常工作了。</p>
+<p><img src="https://s2.loli.net/2023/11/16/jmsrLqwG5HzoCnu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>地址： <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/spaces/xuwenhao83/simple_chatbot">https://huggingface.co/spaces/xuwenhao83/simple_chatbot</a></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>通过这一讲，介绍了怎么使用ChatGPT的接口来实现一个聊天机器人了。我们分别实现了只保留固定轮数的对话，并且体验了它的效果。我们也明白了为什么我们总是需要把所有的上下文都发送给OpenAI的接口。然后我们通过Gradio这个库开发了一个聊天机器人界面。最后，我们将这个简单的聊天机器人部署到了HuggingFace上，让你可以分享给自己的朋友使用。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>04.通过ChatGPT做个AI应用</div>
+      <div>https://blog.longpi1.com/2023/11/16/04-通过ChatGPT做个AI应用/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/16/05-%E9%80%9A%E8%BF%87Embedding%E8%BF%9B%E8%A1%8C%E6%96%87%E6%9C%AC%E8%81%9A%E7%B1%BB%E4%B8%8E%E6%91%98%E8%A6%81%EF%BC%8C%E8%AE%A9ChatGPT%E5%AE%9E%E7%8E%B0%E6%80%BB%E7%BB%93%E5%8A%9F%E8%83%BD/" title="05.通过Embedding进行文本聚类与摘要，让ChatGPT实现总结功能">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">05.通过Embedding进行文本聚类与摘要，让ChatGPT实现总结功能</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/15/03-%E9%80%9A%E8%BF%87%E6%8F%90%E7%A4%BA%E8%AF%AD%E5%81%9A%E4%B8%AA%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/" title="03.通过提示语做个聊天机器人">
+                        <span class="hidden-mobile">03.通过提示语做个聊天机器人</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
