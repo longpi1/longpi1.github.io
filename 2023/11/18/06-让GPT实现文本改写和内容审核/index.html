@@ -1,0 +1,754 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="06.让GPT实现文本改写和内容审核">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/18/06-%E8%AE%A9GPT%E5%AE%9E%E7%8E%B0%E6%96%87%E6%9C%AC%E6%94%B9%E5%86%99%E5%92%8C%E5%86%85%E5%AE%B9%E5%AE%A1%E6%A0%B8/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/17/E87VNwmpQeRg2zr.png">
+<meta property="article:published_time" content="2023-11-17T22:59:37.000Z">
+<meta property="article:modified_time" content="2023-11-17T23:01:50.259Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/17/E87VNwmpQeRg2zr.png">
+  
+  
+  
+  <title>06.让GPT实现文本改写和内容审核 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="06.让GPT实现文本改写和内容审核"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-18 06:59" pubdate>
+          2023年11月18日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">06.让GPT实现文本改写和内容审核</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="06-让GPT实现文本改写和内容审核"><a href="#06-让GPT实现文本改写和内容审核" class="headerlink" title="06.让GPT实现文本改写和内容审核"></a>06.让GPT实现文本改写和内容审核</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>前面，已经把OpenAI最主要的接口介绍完了。这一讲是基础知识篇里面的最后一讲，会覆盖完OpenAI的GPT系列模型剩下的一些接口。也许有些接口你不一定会频繁使用，但是了解一下没有什么坏处，说不定你有什么需求就能用得上它。</p>
+<p>在这一讲里，我们会一起来看看OpenAI为文本改写和内容审核提供的功能有哪些。以及OpenAI的GPT系列有哪些模型，这些模型有哪些区别，什么情况下我们应该用什么模型。</p>
+<h2 id="文本改写，从使用提示语开始"><a href="#文本改写，从使用提示语开始" class="headerlink" title="文本改写，从使用提示语开始"></a>文本改写，从使用提示语开始</h2><p>你应该已经用过不少基于AI大语言模型的产品。很常见的一类应用，就是写作助手。比如Notion AI就能帮助你，在已经写好的文章里面选取一段内容，你可以让AI帮你修改。这个修改可以是让文本短一点或者长一点，也可以是让文本改一下自己的语气。</p>
+<p><img src="https://s2.loli.net/2023/11/17/E87VNwmpQeRg2zr.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>不过，OpenAI的GPT的系列模型是一个生成式的模型，也就是它的用法是你给它一段文字，然后它补全后面的文字。按理来说，你是没法让它修改一段内容的。当然，在看了那么多不同的“提示语”之后，相信你自然想到可以通过一段提示语来解决这个问题。比如，下面这段代码就是这样的，我们通过上一讲介绍的ChatGPT的模型来实现了这个功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">make_text_short</span>(<span class="hljs-params">text</span>):<br>    messages = []<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;你是一个用来将文本改写得短的AI助手，用户输入一段文本，你给出一段意思相同，但是短小精悍的结果&quot;</span>&#125;)<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: text&#125;)<br>    response = openai.ChatCompletion.create(<br>        model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>,<br>        messages=messages,<br>        temperature=<span class="hljs-number">0.5</span>,<br>        max_tokens=<span class="hljs-number">2048</span>,<br>        presence_penalty=<span class="hljs-number">0</span>,<br>        frequency_penalty=<span class="hljs-number">2</span>,<br>        n=<span class="hljs-number">3</span>,<br>    )<br>    <span class="hljs-keyword">return</span> response<br><br>long_text = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">在这个快节奏的现代社会中，我们每个人都面临着各种各样的挑战和困难。</span><br><span class="hljs-string">在这些挑战和困难中，有些是由外部因素引起的，例如经济萧条、全球变暖和自然灾害等。</span><br><span class="hljs-string">还有一些是由内部因素引起的，例如情感问题、健康问题和自我怀疑等。</span><br><span class="hljs-string">面对这些挑战和困难，我们需要采取积极的态度和行动来克服它们。</span><br><span class="hljs-string">这意味着我们必须具备坚韧不拔的意志和创造性思维，以及寻求外部支持的能力。</span><br><span class="hljs-string">只有这样，我们才能真正地实现自己的潜力并取得成功。</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>short_version = make_text_short(long_text)<br><br>index = <span class="hljs-number">1</span><br><span class="hljs-keyword">for</span> choice <span class="hljs-keyword">in</span> short_version[<span class="hljs-string">&quot;choices&quot;</span>]:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;version <span class="hljs-subst">&#123;index&#125;</span>: &quot;</span> + choice[<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>])<br>    index += <span class="hljs-number">1</span><br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">version <span class="hljs-number">1</span>: 现代社会中，我们面临外部和内部的挑战。要克服它们，需要积极态度、创造性思维和寻求支持能力。这样才能实现自己潜力并成功。<br>version <span class="hljs-number">2</span>: 现代社会中，我们面临各种挑战和困难。有些是外部因素引起的，如经济萧条、全球变暖等；还有些是内部因素引起的，如情感问题、健康问题等。为了克服这些困难，我们需要积极应对，并具备坚韧不拔的意志和创造性思维能力，并寻求外部支持。只有这样才能实现自己潜力并取得成功。<br>version <span class="hljs-number">3</span>: 现代社会中，我们面临各种挑战和困难。有些源于外部因素（如经济萧条、全球变暖），而另一些则来自内部（如情感问题、健康问题）。为了克服这些困难，我们需要积极应对并展现坚韧的意志和创造性思维，并寻求外界支持。只有这样，我们才能实现潜力并获得成功。<br><br></code></pre></td></tr></table></figure>
+
+<p>使用ChatGPT的模型接口，是因为它的价格比较低廉。而我们使用的参数也有以下几个调整。</p>
+<ol>
+<li>首先是我们使用了 n&#x3D;3 这个参数，也就是让AI给我们返回3个答案供我们选择。在文本改写类的应用里面，我们通常不只是直接给出答案，而是会给用户几个选项来选择。</li>
+<li>其次是我们引入了两个参数 presence_penalty&#x3D;0 以及 frequency_penalty&#x3D;2。这两个参数我们之前没有介绍过，它们和temperature参数类似，都是来控制你输出的内容的。<ol>
+<li>presence_penalty，顾名思义就是如果一个Token在前面的内容已经出现过了，那么在后面生成的时候给它的概率一定的惩罚。这样，AI就会倾向于聊新的话题和内容。在这里，我们把它设置成了默认值0。</li>
+<li>frequency_penalty，指的是对于重复出现的Token进行概率惩罚。这样，AI就会尽量使用不同的表述。在这里我们设成了最大的2，你也可以设置成最小的-2。但是那样的话，它就更容易说车轱辘话了。</li>
+</ol>
+</li>
+</ol>
+<h2 id="通过logit-bias参数精确控制内容"><a href="#通过logit-bias参数精确控制内容" class="headerlink" title="通过logit_bias参数精确控制内容"></a>通过logit_bias参数精确控制内容</h2><p>不过，无论是temperature还是presence_penalty和frequency_penalty，都是一个参数，我们没有办法精确控制哪些词我们不想出现。不过，对于这一点，OpenAI还是提供了解决方案，比如，我们想要在上面生成的内容里面，不允许出现灾害两个字，就可以这么做。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> tiktoken<br>encoding = tiktoken.get_encoding(<span class="hljs-string">&#x27;p50k_base&#x27;</span>)<br>token_ids = encoding.encode(<span class="hljs-string">&quot;灾害&quot;</span>)<br><span class="hljs-built_in">print</span>(token_ids)<br><br>bias_map = &#123;&#125;<br><span class="hljs-keyword">for</span> token_id <span class="hljs-keyword">in</span> token_ids:<br>    bias_map[token_id] = -<span class="hljs-number">100</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">make_text_short</span>(<span class="hljs-params">text</span>):<br>    messages = []<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;你是一个用来将文本改写得短的AI助手，用户输入一段文本，你给出一段意思相同，但是短小精悍的结果&quot;</span>&#125;)<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: text&#125;)<br>    response = openai.ChatCompletion.create(<br>        model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>, messages=messages, temperature=<span class="hljs-number">0.5</span>, max_tokens=<span class="hljs-number">2048</span>,<br>        n=<span class="hljs-number">3</span>, presence_penalty=<span class="hljs-number">0</span>, frequency_penalty=<span class="hljs-number">2</span>,<br>        logit_bias = bias_map,<br>    )<br>    <span class="hljs-keyword">return</span> response<br><br>short_version = make_text_short(long_text)<br><br>index = <span class="hljs-number">1</span><br><span class="hljs-keyword">for</span> choice <span class="hljs-keyword">in</span> short_version[<span class="hljs-string">&quot;choices&quot;</span>]:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;version <span class="hljs-subst">&#123;index&#125;</span>: &quot;</span> + choice[<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>])<br>    index += <span class="hljs-number">1</span><br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">[<span class="hljs-number">163</span>, <span class="hljs-number">223</span>, <span class="hljs-number">122</span>, <span class="hljs-number">22522</span>, <span class="hljs-number">111</span>]<br>version <span class="hljs-number">1</span>: 现代社会中，我们面对各种挑战和困障。有些是外部原因引起的，如经济萧条、全球变暖和自然災宣等；还有一些是内心问题，如情感、健康和自我怀念等。为克服这些困障我们需要积枝正面态度并采取行动，并具备坚韧不拔的意志与创造性思维能力以及寻求外部支持的技巧。只要这样做了, 我们就可以真正实现潜力并获得成功.<br>version <span class="hljs-number">2</span>: 现代社会中，我们面对外部和内部的挑战。为了克服这些困难示意，需要积架主动态度和行动，并具备坚韧不拔的意志、创造性思维以及寻求支持能力。只有这样才能实现潜力并取得成功。<br>version <span class="hljs-number">3</span>: 现代社会中，我们面临各种挑战和困障。有外部因素如经济萧条、全球变暖等，也有内部因素如情感问题、健康问题等。为克服这些困境，需要积架态度和行动，并具备坚韧意志、创造性思维及外部支持能力。只有这样才能实现自我潜力并取得成功。<br><br></code></pre></td></tr></table></figure>
+
+<p>这段代码里面，我们是这样做的。</p>
+<ol>
+<li>我们通过之前使用过的Tiktoken库，把我们不希望出现的“灾害”这个词儿，找到它对应的Token，然后给它们都赋了一个-100的bias。</li>
+<li>然后把整个的bias_map作为参数，传给了Completion的logit_bias参数。</li>
+</ol>
+<p>在生成结果里面，你可以看到，三个回复都没有“灾害”这两个字了。即使是之前出现的第一个回复里原来是有“灾害”这两个字的。现在一个被强行改成了繁体的“災”字，另一个干脆是给了个错别字“宣”。</p>
+<p>对于 logit_bias 参数里面的取值范围，是在-100到100之间。不过，一般情况下，设置在1到-1之间就足够了。我自己的体会是，设置成100，你一定要某些字出现，那么整个生成会慢到无法忍受。</p>
+<h2 id="使用英文来减少Token的使用"><a href="#使用英文来减少Token的使用" class="headerlink" title="使用英文来减少Token的使用"></a>使用英文来减少Token的使用</h2><p>不知道你有没有注意到，虽然灾害只有两个中文汉字，但是我们通过Tiktoken去处理的时候，我们打印了对应的Token的id是什么，实际上有5个Token。这里其实和我们之前看到的英文一样，并不是一个字或者一个单词是一个Token。事实上，同样含义的中文，目前消耗的Token数量是比英文多的。比如，我们把上面的一句话翻译成英文，然后数一下对应同样内容的中英文的Token数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">translate</span>(<span class="hljs-params">text</span>):<br>    messages = []<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;你是一个翻译，把用户的话翻译成英文&quot;</span>&#125;)<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: text&#125;)<br>    response = openai.ChatCompletion.create(<br>        model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>, messages=messages, temperature=<span class="hljs-number">0.5</span>, max_tokens=<span class="hljs-number">2048</span>,        n=<span class="hljs-number">1</span><br>    )<br>    <span class="hljs-keyword">return</span> response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>]<br><br>chinese = long_text<br>english = translate(chinese)<br><br>num_of_tokens_in_chinese = <span class="hljs-built_in">len</span>(encoding.encode(chinese))<br>num_of_tokens_in_english = <span class="hljs-built_in">len</span>(encoding.encode(english))<br><span class="hljs-built_in">print</span>(english)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;chinese: <span class="hljs-subst">&#123;num_of_tokens_in_chinese&#125;</span> tokens&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;english: <span class="hljs-subst">&#123;num_of_tokens_in_english&#125;</span> tokens&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">In this fast-paced modern society, each of us faces various challenges <span class="hljs-keyword">and</span> difficulties. Some of these challenges <span class="hljs-keyword">and</span> difficulties are caused by external factors, such <span class="hljs-keyword">as</span> economic recession, <span class="hljs-keyword">global</span> warming, <span class="hljs-keyword">and</span> natural disasters. There are also some caused by internal factors, such <span class="hljs-keyword">as</span> emotional issues, health problems, <span class="hljs-keyword">and</span> self-doubt. To overcome these challenges <span class="hljs-keyword">and</span> difficulties, we need to adopt a positive attitude <span class="hljs-keyword">and</span> take action. This means we must possess a strong will <span class="hljs-keyword">and</span> creative thinking, <span class="hljs-keyword">as</span> well <span class="hljs-keyword">as</span> the ability to seek external support. Only <span class="hljs-keyword">in</span> this way can we truly realize our potential <span class="hljs-keyword">and</span> achieve success.<br>chinese: <span class="hljs-number">432</span> tokens<br>english: <span class="hljs-number">115</span> tokens<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，同样的内容，中文消耗的Token数量超过400，而英文的Token数量只有100出头。如果你在生产环境中使用OpenAI的接口，最好还是使用英文的提示语，最多在输出结果的时候，告诉它 “generate Chinese” 之类的，可以极大地节约成本。不过，我们后面课程的演示，还是会尽量使用中文，方便你理解。</p>
+<h2 id="看看OpenAI给了我们哪些模型"><a href="#看看OpenAI给了我们哪些模型" class="headerlink" title="看看OpenAI给了我们哪些模型"></a>看看OpenAI给了我们哪些模型</h2><p>因为目前OpenAI的产品更新非常快，所以很可能会出现一个问题，我告诉你应该使用某个模型，但是这个模型已经不是效果最好或者最新的了。所以，最好的办法，还是通过它提供的接口看看它到底有哪些模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><span class="hljs-comment"># list all open ai models</span><br>engines = openai.Engine.<span class="hljs-built_in">list</span>()<br>pd = pd.DataFrame(openai.Engine.<span class="hljs-built_in">list</span>()[<span class="hljs-string">&#x27;data&#x27;</span>])<br>display(pd[[<span class="hljs-string">&#x27;id&#x27;</span>, <span class="hljs-string">&#x27;owner&#x27;</span>]])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python">	<span class="hljs-built_in">id</span>	owner<br><span class="hljs-number">0</span>	babbage	openai<br><span class="hljs-number">1</span>	davinci	openai<br><span class="hljs-number">2</span>	babbage-code-search-code	openai-dev<br><span class="hljs-number">3</span>	text-similarity-babbage-001	openai-dev<br><span class="hljs-number">4</span>	text-davinci-001	openai<br>……<br><span class="hljs-number">14</span>	text-embedding-ada-002	openai-internal<br>……<br><span class="hljs-number">30</span>	gpt-<span class="hljs-number">3.5</span>-turbo-0301	openai<br>……<br><span class="hljs-number">41</span>	gpt-<span class="hljs-number">4</span>	openai<br><span class="hljs-number">42</span>	text-search-davinci-doc-001	openai-dev<br><span class="hljs-number">43</span>	gpt-<span class="hljs-number">4</span>-0314	openai<br>……<br><span class="hljs-number">47</span>	text-similarity-davinci-001	openai-dev<br><span class="hljs-number">48</span>	text-davinci-002	openai<br><span class="hljs-number">49</span>	davinci-similarity	openai-dev<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果里有49个模型。其实顾名思义，你就能够知道这些模型是用来干啥的。比如 text-similarity-babbage-001 肯定就是用来进行相似度匹配的，就会比较适合用在零样本分类。而 text-search-davinci-doc-001 肯定就更适合用来搜索文档。</p>
+<p>尽管有些模型的名字标注了 openai-dev 或者 openai-internal，但是这些模型都是可以使用的。比如，调用get_embedding方法拿到向量，背后用的就是 text-similarity-davinci-001 模型，也是一个openai-dev的模型。</p>
+<p>不过，里面的很多模型都已经老旧了，实际上主要用的模型就是这几类。</p>
+<ol>
+<li>GPT-4家族的模型，包括 gpt-4 和 gpt-4-0314。使用的方式和ChatGPT的模型一样，其中带日期的模型表示是一个模型快照。也就是模型不会随着时间迁移不断更新。GPT-4的模型现在还很昂贵，输入1000个Token需要0.03美分，生成1000个Token则需要0.06美分。一般呢，用他帮忙代码，准确率会比较高。</li>
+<li>GPT-3.5家族的模型，包括ChatGPT所使用的gpt-3.5-turbo或者gpt-3.5-turbo-0301，以及 text-davinci-003 和 text-davinci-002 这两个模型。前者专门针对对话的形式进行了微调，并且价格便宜，无论输入输出，1000个Token都只需要0.002美分。后两个里，003的模型有一个特殊的功能，就是支持“插入文本”这个功能，我们稍后就讲。003也是基于强化学习微调的，而002则是做了监督学习下的微调。text-davinci-003和002模型比3.5-turbo要贵10倍，但是输出更稳定。可以根据自己的需要来决定。</li>
+<li>剩下的，则是 Ada、Babbage、Curie以及Davinci这四个基础模型。只适合用于下达单轮的指令，不适合考虑复杂的上下文和进行逻辑推理。这四个模型按照首字母排序，价格越来越贵，效果越来越好。而且我们如果要微调一个属于自己的模型，也需要基于这四个基础模型。</li>
+<li>最后则是 text-embedding-ada-002、text-similarity-ada-001 这些专门用途模型。一般来说，我们通过这个模型来获取Embedding，再用在其他的机器学习模型的训练，或者语义相似度的比较上。</li>
+</ol>
+<p>所有模型的名字都来自科学史上的名人。Ada来自人类史上第一位程序员Ada，她也是著名诗人拜伦的女儿。而Babadge则是设计了分析机的巴贝奇，巴贝奇分析机也被认为是现代计算机的前身。Curie则是指居里夫人，Davinci是指达芬奇。</p>
+<p>我们可以挑几个模型，试一下它们Embedding的维度数量，你就知道模型的尺寸本身就是不一样的了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> openai.embeddings_utils <span class="hljs-keyword">import</span> get_embedding<br><br>text = <span class="hljs-string">&quot;让我们来算算Embedding&quot;</span><br><br>embedding_ada = get_embedding(text, engine=<span class="hljs-string">&quot;text-embedding-ada-002&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;embedding-ada: &quot;</span>, <span class="hljs-built_in">len</span>(embedding_ada))<br><br>similarity_ada = get_embedding(text, engine=<span class="hljs-string">&quot;text-similarity-ada-001&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;similarity-ada: &quot;</span>, <span class="hljs-built_in">len</span>(similarity_ada))<br><br>babbage_similarity = get_embedding(text, engine=<span class="hljs-string">&quot;babbage-similarity&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;babbage-similarity: &quot;</span>, <span class="hljs-built_in">len</span>(babbage_similarity))<br><br>babbage_search_query = get_embedding(text, engine=<span class="hljs-string">&quot;text-search-babbage-query-001&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;search-babbage-query: &quot;</span>, <span class="hljs-built_in">len</span>(babbage_search_query))<br><br>curie = get_embedding(text, engine=<span class="hljs-string">&quot;curie-similarity&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;curie-similarity: &quot;</span>, <span class="hljs-built_in">len</span>(curie))<br><br>davinci = get_embedding(text, engine=<span class="hljs-string">&quot;text-similarity-davinci-001&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;davinci-similarity: &quot;</span>, <span class="hljs-built_in">len</span>(davinci))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">embedding-ada:  <span class="hljs-number">1536</span><br>similarity-ada:  <span class="hljs-number">1024</span><br>babbage-similarity:  <span class="hljs-number">2048</span><br>search-babbage-query:  <span class="hljs-number">2048</span><br>curie-similarity:  <span class="hljs-number">4096</span><br>davinci-similarity:  <span class="hljs-number">12288</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，最小的ada-similarity只有1024维，而最大的davinci-similarity则有12288维，所以它们的效果和价格不同也是可以理解的了。</p>
+<h2 id="插入内容，GPT也可以像BERT"><a href="#插入内容，GPT也可以像BERT" class="headerlink" title="插入内容，GPT也可以像BERT"></a>插入内容，GPT也可以像BERT</h2><p>前面介绍的时候说过，text-davinci-003 这个模型有个特殊的功能，就是“插入文本”（Inserting Text）。某种意义上来说，你也可以通过这个功能来做文本改写。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python">prefix = <span class="hljs-string">&quot;&quot;&quot;在这个快节奏的现代社会中，我们每个人都面临着各种各样的挑战和困难。</span><br><span class="hljs-string">在这些挑战和困难中，有些是由外部因素引起的，例如经济萧条、全球变暖和自然灾害等。\n&quot;&quot;&quot;</span><br><span class="hljs-comment"># 还有一些是由内部因素引起的，例如情感问题、健康问题和自我怀疑等。</span><br>suffix = <span class="hljs-string">&quot;&quot;&quot;\n面对这些挑战和困难，我们需要采取积极的态度和行动来克服它们。</span><br><span class="hljs-string">这意味着我们必须具备坚韧不拔的意志和创造性思维，以及寻求外部支持的能力。</span><br><span class="hljs-string">只有这样，我们才能真正地实现自己的潜力并取得成功。&quot;&quot;&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">insert_text</span>(<span class="hljs-params">prefix, suffix</span>):<br>    response = openai.Completion.create(<br>        model=<span class="hljs-string">&quot;text-davinci-003&quot;</span>,<br>        prompt=prefix,<br>        suffix=suffix,<br>        max_tokens=<span class="hljs-number">1024</span>,<br>        )<br>    <span class="hljs-keyword">return</span> response<br><br>response = insert_text(prefix, suffix)<br><span class="hljs-built_in">print</span>(response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;text&quot;</span>])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">另一些是内部因素，例如事业难以发展、无法解决的个人和家庭矛盾等。<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这个接口的使用，和普通的Completion接口基本一致，只有一个区别就是除了前缀的prompt参数之外，还需要一个后缀的suffix参数。</p>
+<p>不过，对于插入内容，我们同样需要注意提示语。如果我们把上面的内容稍微改一改，比如去掉Suffix一开始的换行符号，插入的文本内容有些就会在我们的预期之外。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">prefix = <span class="hljs-string">&quot;&quot;&quot;在这个快节奏的现代社会中，我们每个人都面临着各种各样的挑战和困难。</span><br><span class="hljs-string">在这些挑战和困难中，有些是由外部因素引起的，例如经济萧条、全球变暖和自然灾害等。\n&quot;&quot;&quot;</span><br><span class="hljs-comment"># 还有一些是由内部因素引起的，例如情感问题、健康问题和自我怀疑等。</span><br>suffix = <span class="hljs-string">&quot;&quot;&quot;面对这些挑战和困难，我们需要采取积极的态度和行动来克服它们。</span><br><span class="hljs-string">这意味着我们必须具备坚韧不拔的意志和创造性思维，以及寻求外部支持的能力。</span><br><span class="hljs-string">只有这样，我们才能真正地实现自己的潜力并取得成功。&quot;&quot;&quot;</span><br><br>response = insert_text(prefix, suffix)<br><span class="hljs-built_in">print</span>(response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;text&quot;</span>])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">例如，因应全球变暖，政府和人民在做出更加清晰的计划时就面临着巨大的压力，以减少大气污染和减少碳排放。<br>更重要的是，每个人必须为自己所做的付出努力，以防止这些外部环境变化的不利影响。<br>此外，也存在一些由内部因素引起的挑战和困难，比如心理问题，贫穷和学习困难。<br>例如，一些人因为焦虑或抑郁症而无法集中精力，他们的学习能力受到了影响，从而影响了他们的学业成绩。<br>再者，贫穷也是另一个棘手的话题，它影响了一个人的生活质量，从而阻碍了他们发展个人潜能的能力。<br>因此，<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，AI一下子啰嗦了很多，并且最后一句不是个完整的句子，而是下句话开头的内容。所以，在使用这个INSERT接口的时候，考虑好文本之间需要使用什么样的分隔符，是非常重要的。</p>
+<h2 id="不要乱问乱说，做个“正直”的AI"><a href="#不要乱问乱说，做个“正直”的AI" class="headerlink" title="不要乱问乱说，做个“正直”的AI"></a>不要乱问乱说，做个“正直”的AI</h2><p>接下来，介绍一下OpenAI对于自然语言处理提供的最后一个接口，也是唯一一个免费的接口——Moderate。因为OpenAI可以接受任何自然语言的输入，所有的回复也是通过模型自动生成的。一旦我们的产品依赖于它对外开放，免不了我们总会遇到一些用户输入一些奇怪的内容，比如色情、暴力等等。所以，OpenAI专门提供了一个moderate接口，可以让你对输入以及返回的内容做个检查。如果出现了这样的内容，你也可以屏蔽这些用户的访问，也可以人工审核一下用户的问题。</p>
+<p>下面我们就来看个例子，这个接口怎么用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">chatgpt</span>(<span class="hljs-params">text</span>):<br>    messages = []<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;You are a useful AI assistant&quot;</span>&#125;)<br>    messages.append( &#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: text&#125;)<br>    response = openai.ChatCompletion.create(<br>        model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>,<br>        messages=messages,<br>        temperature=<span class="hljs-number">0.5</span>,<br>        max_tokens=<span class="hljs-number">2048</span>,<br>        top_p=<span class="hljs-number">1</span>,<br>    )<br>    message = response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>]<br>    <span class="hljs-keyword">return</span> message<br><br>threaten = <span class="hljs-string">&quot;你不听我的我就拿刀砍死你&quot;</span><br><span class="hljs-built_in">print</span>(chatgpt(threaten))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">很抱歉，我是一台人工智能助手，没有实体存在，也不会对任何人或事物造成伤害。同时，我也不会对任何不适当或暴力的言语做出回应。请尊重彼此，保持良好的沟通和交流方式。<br><br></code></pre></td></tr></table></figure>
+
+<p>我们先对AI提了一句暴力威胁，可以看到，如果我们简单调用ChatGPT的API，它的返回并不是一个日常的对话，而是告知用户，不会回应暴力言论。</p>
+<p>那我们接着把这句话发送到moderate的接口看看。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">threaten = <span class="hljs-string">&quot;你不听我的我就拿刀砍死你&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">moderation</span>(<span class="hljs-params">text</span>):<br>    response = openai.Moderation.create(<br>        <span class="hljs-built_in">input</span>=text<br>    )<br>    output = response[<span class="hljs-string">&quot;results&quot;</span>][<span class="hljs-number">0</span>]<br>    <span class="hljs-keyword">return</span> output<br><span class="hljs-built_in">print</span>(moderation(threaten))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<br>  <span class="hljs-string">&quot;categories&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;hate&quot;</span>: false,<br>    <span class="hljs-string">&quot;hate/threatening&quot;</span>: false,<br>    <span class="hljs-string">&quot;self-harm&quot;</span>: false,<br>    <span class="hljs-string">&quot;sexual&quot;</span>: false,<br>    <span class="hljs-string">&quot;sexual/minors&quot;</span>: false,<br>    <span class="hljs-string">&quot;violence&quot;</span>: true,<br>    <span class="hljs-string">&quot;violence/graphic&quot;</span>: false<br>  &#125;,<br>  <span class="hljs-string">&quot;category_scores&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;hate&quot;</span>: <span class="hljs-number">0.030033664777874947</span>,<br>    <span class="hljs-string">&quot;hate/threatening&quot;</span>: <span class="hljs-number">0.0002820899826474488</span>,<br>    <span class="hljs-string">&quot;self-harm&quot;</span>: <span class="hljs-number">0.004850226454436779</span>,<br>    <span class="hljs-string">&quot;sexual&quot;</span>: <span class="hljs-number">2.2907377569936216e-05</span>,<br>    <span class="hljs-string">&quot;sexual/minors&quot;</span>: <span class="hljs-number">6.477687275463495e-09</span>,<br>    <span class="hljs-string">&quot;violence&quot;</span>: <span class="hljs-number">0.9996402263641357</span>,<br>    <span class="hljs-string">&quot;violence/graphic&quot;</span>: <span class="hljs-number">4.35576839663554e-05</span><br>  &#125;,<br>  <span class="hljs-string">&quot;flagged&quot;</span>: true<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，moderate的接口返回的是一个JSON，里面包含是否应该对输入的内容进行标记的flag字段，也包括具体是什么类型的问题的categories字段，以及对应每个categories的分数的category_scores字段。我们举的这个例子就被标记成了violence，也就是暴力。</p>
+<p>因为这个接口是免费的，所以你对所有的内容无论是输入还是输出，都可以去调用一下这个接口。而且，即使你不使用ChatGPT的AI功能，只是经营一个在线网站，你也可以把用户发送的内容拿给这个接口看一看，过滤掉那些不合适的内容。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章我们对ChatGPT的API的基础功能做了一个收尾。我们一起来看了如何通过合适的提示语，进行文本改写。并且，深入了解了Completion接口里面的一些新参数，特别是其中的 logit_bias 参数，可以帮助我们在生成的内容里面，精确避免出现我们不希望出现的Token。我们也看到了，相同的内容，目前中文消耗的Token数量要远高于英文，所以除了最后的输出，其他的提示语在生产环境下我会建议你使用英文。</p>
+<p>接着，我们一起来看了OpenAI到底提供了哪些模型，以及不同的模型适合拿来干什么。最后，我们体验了两个特殊的接口，一个是只有 text-davinci-003 模型支持的文本插入功能；另一个，则是帮助我们对色情、暴力等内容进行审核过滤的moderate接口。</p>
+<p>基础部分也就学习完了。我们已经过了一遍OpenAI的GPT模型的所有基本接口，以及如何利用这些接口完成最简单的功能。包括简单的文本处理的任务、聊天机器人、机器学习里的分类和聚类，以及文本改写和内容审核。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>06.让GPT实现文本改写和内容审核</div>
+      <div>https://blog.longpi1.com/2023/11/18/06-让GPT实现文本改写和内容审核/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/18/07.%E8%AF%AD%E4%B9%89%E6%A3%80%E7%B4%A2%EF%BC%8C%E5%88%A9%E7%94%A8Embedding%E4%BC%98%E5%8C%96%E4%BD%A0%E7%9A%84%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD/" title="07.语义检索，利用Embedding优化你的搜索功能">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">07.语义检索，利用Embedding优化你的搜索功能</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/16/05-%E9%80%9A%E8%BF%87Embedding%E8%BF%9B%E8%A1%8C%E6%96%87%E6%9C%AC%E8%81%9A%E7%B1%BB%E4%B8%8E%E6%91%98%E8%A6%81%EF%BC%8C%E8%AE%A9ChatGPT%E5%AE%9E%E7%8E%B0%E6%80%BB%E7%BB%93%E5%8A%9F%E8%83%BD/" title="05.通过Embedding进行文本聚类与摘要，让ChatGPT实现总结功能">
+                        <span class="hidden-mobile">05.通过Embedding进行文本聚类与摘要，让ChatGPT实现总结功能</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

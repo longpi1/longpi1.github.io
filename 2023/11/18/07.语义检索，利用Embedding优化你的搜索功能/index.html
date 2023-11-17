@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="07.语义检索，利用Embedding优化你的搜索功能">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/18/07.%E8%AF%AD%E4%B9%89%E6%A3%80%E7%B4%A2%EF%BC%8C%E5%88%A9%E7%94%A8Embedding%E4%BC%98%E5%8C%96%E4%BD%A0%E7%9A%84%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-17T22:59:49.000Z">
+<meta property="article:modified_time" content="2023-11-17T23:01:56.164Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>07.语义检索，利用Embedding优化你的搜索功能 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="07.语义检索，利用Embedding优化你的搜索功能"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-18 06:59" pubdate>
+          2023年11月18日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.1k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">07.语义检索，利用Embedding优化你的搜索功能</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="07-语义检索，利用Embedding优化你的搜索功能"><a href="#07-语义检索，利用Embedding优化你的搜索功能" class="headerlink" title="07. 语义检索，利用Embedding优化你的搜索功能"></a>07. 语义检索，利用Embedding优化你的搜索功能</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>Embedding向量适合作为一个中间结果，用于传统的机器学习场景，比如分类、聚类。而Completion接口，一方面可以直接拿来作为一个聊天机器人，另一方面，你只要善用提示词，就能完成合理的文案撰写、文本摘要、机器翻译等一系列的工作。</p>
+<p>不过，很多人可能会说，这个和我的日常工作又没有什么关系。的确，日常我们的需求里面，最常使用自然语言处理（NLP）技术的，是搜索、广告、推荐这样的业务。那么，今天我们就来看看，怎么利用OpenAI提供的接口来为这些需求提供些帮助。</p>
+<h2 id="让AI生成实验数据"><a href="#让AI生成实验数据" class="headerlink" title="让AI生成实验数据"></a>让AI生成实验数据</h2><p>在实际演示代码之前，我们需要一些可以拿来实验的数据。之前，我们都是在网上找一些数据集，或者直接使用一些机器学习软件包里面自带的数据集。但是，并不是所有时候我们都能很快找到合适的数据集。这个时候，我们也可以利用AI，我们直接让AI帮我们生成一些数据不就好了吗？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br>COMPLETION_MODEL = <span class="hljs-string">&quot;text-davinci-003&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_data_by_prompt</span>(<span class="hljs-params">prompt</span>):<br>    response = openai.Completion.create(<br>        engine=COMPLETION_MODEL,<br>        prompt=prompt,<br>        temperature=<span class="hljs-number">0.5</span>,<br>        max_tokens=<span class="hljs-number">2048</span>,<br>        top_p=<span class="hljs-number">1</span>,<br>    )<br>    <span class="hljs-keyword">return</span> response.choices[<span class="hljs-number">0</span>].text<br><br>prompt = <span class="hljs-string">&quot;&quot;&quot;请你生成50条淘宝网里的商品的标题，每条在30个字左右，品类是3C数码产品，标题里往往也会有一些促销类的信息，每行一条。&quot;&quot;&quot;</span><br>data = generate_data_by_prompt(prompt)<br><br></code></pre></td></tr></table></figure>
+
+<p>为了让数据和真实情况更加接近一点，我们可以好好设计一下我们的提示语。比如，我这里就指明了是淘宝的商品，品类是3C，并且标题里要包含一些促销信息。</p>
+<p>我们把拿到的返回结果，按行分割，加载到一个DataFrame里面，看看结果会是怎么样的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><br>product_names = data.strip().split(<span class="hljs-string">&#x27;\n&#x27;</span>)<br>df = pd.DataFrame(&#123;<span class="hljs-string">&#x27;product_name&#x27;</span>: product_names&#125;)<br>df.head()<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">    product_name<br><span class="hljs-number">0</span>	<span class="hljs-number">1.</span> 【限时特惠】Apple/苹果 iPhone <span class="hljs-number">11</span> Pro Max 手机<br><span class="hljs-number">1</span>	<span class="hljs-number">2.</span> 【超值折扣】Huawei/华为 P30 Pro 智能手机<br><span class="hljs-number">2</span>	<span class="hljs-number">3.</span> 【热销爆款】OPPO Reno 10X Zoom 全网通手机<br><span class="hljs-number">3</span>	<span class="hljs-number">4.</span> 【限量特价】Xiaomi/小米 <span class="hljs-number">9</span> Pro 5G 手机<br><span class="hljs-number">4</span>	<span class="hljs-number">5.</span> 【限时促销】Apple/苹果 iPad Pro <span class="hljs-number">11</span>寸 平板<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，AI为我们生成了50条商品信息，并且每一个都带上了一些促销相关的标签。不过，在返回的结果里面，每一行都带上了一个标号，所以我们需要简单处理一下，去掉这个标号拿到一些干净的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">df.product_name = df.product_name.apply(<span class="hljs-keyword">lambda</span> x: x.split(<span class="hljs-string">&#x27;.&#x27;</span>)[<span class="hljs-number">1</span>].strip())<br>df.head()<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">     product_name<br><span class="hljs-number">0</span>	【限时特惠】Apple/苹果 iPhone <span class="hljs-number">11</span> Pro Max 手机<br><span class="hljs-number">1</span>	【超值折扣】Huawei/华为 P30 Pro 智能手机<br><span class="hljs-number">2</span>	【热销爆款】OPPO Reno 10X Zoom 全网通手机<br><span class="hljs-number">3</span>	【限量特价】Xiaomi/小米 <span class="hljs-number">9</span> Pro 5G 手机<br><span class="hljs-number">4</span>	【限时促销】Apple/苹果 iPad Pro <span class="hljs-number">11</span>寸 平板<br><br></code></pre></td></tr></table></figure>
+
+<p>我们可以如法炮制，再生成一些女装的商品名称，覆盖不同的品类，这样后面我们演示搜索效果的时候就会方便一点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">clothes_prompt = <span class="hljs-string">&quot;&quot;&quot;请你生成50条淘宝网里的商品的标题，每条在30个字左右，品类是女性的服饰箱包等等，标题里往往也会有一些促销类的信息，每行一条。&quot;&quot;&quot;</span><br>clothes_data = generate_data_by_prompt(clothes_prompt)<br>clothes_product_names = clothes_data.strip().split(<span class="hljs-string">&#x27;\n&#x27;</span>)<br>clothes_df = pd.DataFrame(&#123;<span class="hljs-string">&#x27;product_name&#x27;</span>: clothes_product_names&#125;)<br>clothes_df.product_name = clothes_df.product_name.apply(<span class="hljs-keyword">lambda</span> x: x.split(<span class="hljs-string">&#x27;.&#x27;</span>)[<span class="hljs-number">1</span>].strip())<br>clothes_df.head()<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">    product_name<br><span class="hljs-number">0</span>	【新款】时尚百搭羊绒毛衣，暖洋洋温暖你的冬天<br><span class="hljs-number">1</span>	【热卖】复古气质翻领毛衣，穿出时尚感<br><span class="hljs-number">2</span>	【特价】轻薄百搭棉衣，舒适温暖，冬季必备<br><span class="hljs-number">3</span>	【限时】经典百搭牛仔外套，轻松搭配，时尚范<br><span class="hljs-number">4</span>	【全新】简约大气羊绒连衣裙，温柔优雅<br><br></code></pre></td></tr></table></figure>
+
+<p>然后我们把这两个DataFrame拼接在一起，就是我们接下来用于做搜索实验的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">df = pd.concat([df, clothes_df], axis=<span class="hljs-number">0</span>)<br>df = df.reset_index(drop=<span class="hljs-literal">True</span>)<br>display(df)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">	product_name<br><span class="hljs-number">0</span>	【新款】Apple/苹果 iPhone <span class="hljs-number">11</span> Pro Max 智能手机<br><span class="hljs-number">1</span>	【特惠】华为P30 Pro 8GB+256GB 全网通版<br><span class="hljs-number">2</span>	【限量】OnePlus 7T Pro 8GB+256GB 全网通<br><span class="hljs-number">3</span>	【新品】小米CC9 Pro 8GB+256GB 全网通版<br><span class="hljs-number">4</span>	【热销】三星Galaxy Note10+ 8GB+256GB 全网通<br>...	...<br><span class="hljs-number">92</span>	【优惠】气质小清新拼接百搭双肩斜挎包<br><span class="hljs-number">93</span>	【热卖】活力色彩精致小巧百搭女士单肩斜挎包<br><span class="hljs-number">94</span>	【特价】简约可爱原宿风时尚双肩斜挎包<br><span class="hljs-number">95</span>	【折扣】潮流小清新拼接百搭女士单肩斜挎包<br><span class="hljs-number">96</span>	【特惠】百搭潮流活力色彩拼色双肩斜挎<br><br></code></pre></td></tr></table></figure>
+
+<p>不过如果你多试几次，你会发现AI有时候返回的条数没有50条，不过没有关系，这个基本不影响我们使用这个数据源。你完全可以多运行几次，获得足够你需要的数据。</p>
+<h2 id="通过Embedding进行语义搜索"><a href="#通过Embedding进行语义搜索" class="headerlink" title="通过Embedding进行语义搜索"></a>通过Embedding进行语义搜索</h2><p>那对于搜索问题，我们可以用GPT模型干些什么呢？像百度、阿里这样的巨头公司自然有很多内部复杂的策略和模型，但是对于大部分中小公司，特别是刚开始提供搜索功能的时候，往往是使用Elasticsearch这个开源项目。而Elasticsearch背后的搜索原理，则是先分词，然后再使用倒排索引。</p>
+<p>简单来说，就是把上面的“气质小清新拼接百搭双肩斜挎包”这样的商品名称，拆分成“气质”“小清新”“拼接”“百搭”“双肩”“斜挎包”。每个标题都是这样切分。然后，建立一个索引，比如“气质”这个词，出现过的标题的编号，都按编号顺序跟在气质后面。其他的词也类似。</p>
+<p>然后，当用户搜索的时候，比如用户搜索“气质背包”，也会拆分成“气质”和“背包”两个词。然后就根据这两个词，找到包含这些词的标题，根据出现的词的数量、权重等等找出一些商品。</p>
+<p>但是，这个策略有一个缺点，就是如果我们有同义词，那么这么简单地去搜索是搜不到的。比如，我们如果搜“自然淡雅背包”，虽然语义上很接近，但是因为“自然”“淡雅”“背包”这三个词在这个商品标题里都没有出现，所以就没有办法匹配上了。为了提升搜索效果，你就得做更多的工程研发工作，比如找一个同义词表，把标题里出现的同义词也算上等等。</p>
+<p>不过，有了OpenAI的Embedding接口，我们就可以把一段文本的语义表示成一段向量。而向量之间是可以计算距离的，这个我们在之前的情感分析的零样本分类里就演示过了。那如果我们把用户的搜索，也通过Embedding接口变成向量。然后把它和所有的商品的标题计算一下余弦距离，找出离我们搜索词最近的几个向量。那最近的几个向量，其实就是语义和这个商品相似的，而并不一定需要相同的关键词。</p>
+<p>那根据这个思路，我们不妨用代码来试一试。</p>
+<p>首先，我们还是要把随机生成出来的所有商品标题，都计算出来它们的Embedding，然后存下来。这里的代码，基本和之前通过Embedding进行分类和聚类一致，就不再详细讲解了。我们还是利用backoff和batch处理，让代码能够容错，并且快速处理完这些商品标题。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 导入所需的库</span><br><span class="hljs-keyword">from</span> openai.embeddings_utils <span class="hljs-keyword">import</span> get_embeddings<br><span class="hljs-keyword">import</span> openai<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> backoff<br><br><span class="hljs-comment"># 设置 OpenAI API 密钥</span><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br><span class="hljs-comment"># 指定要使用的嵌入模型</span><br>embedding_model = <span class="hljs-string">&quot;text-embedding-ada-002&quot;</span><br><br><span class="hljs-comment"># 指定批处理大小</span><br>batch_size = <span class="hljs-number">100</span><br><br><span class="hljs-comment"># 定义使用指数退避的装饰器，以处理 OpenAI API 的速率限制错误</span><br><span class="hljs-meta">@backoff.on_exception(<span class="hljs-params">backoff.expo, openai.error.RateLimitError</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_embeddings_with_backoff</span>(<span class="hljs-params">prompts, engine</span>):<br>    <span class="hljs-comment"># 用于存储所有嵌入的列表</span><br>    embeddings = []<br>    <br>    <span class="hljs-comment"># 按批次获取嵌入</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(prompts), batch_size):<br>        <span class="hljs-comment"># 从原始提示列表中提取当前批次</span><br>        batch = prompts[i:i+batch_size]<br>        <br>        <span class="hljs-comment"># 获取当前批次的嵌入并添加到列表中</span><br>        embeddings += get_embeddings(list_of_text=batch, engine=engine)<br>    <br>    <span class="hljs-comment"># 返回所有嵌入</span><br>    <span class="hljs-keyword">return</span> embeddings<br><br><span class="hljs-comment"># 从数据框中获取产品名称列表</span><br>prompts = df.product_name.tolist()<br><br><span class="hljs-comment"># 将所有产品名称分割成大小为 batch_size 的批次</span><br>prompt_batches = [prompts[i:i+batch_size] <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(prompts), batch_size)]<br><br><span class="hljs-comment"># 用于存储所有嵌入的列表</span><br>embeddings = []<br><br><span class="hljs-comment"># 遍历每个批次，并使用指数退避的方式获取嵌入</span><br><span class="hljs-keyword">for</span> batch <span class="hljs-keyword">in</span> prompt_batches:<br>    <span class="hljs-comment"># 获取当前批次的嵌入并添加到列表中</span><br>    batch_embeddings = get_embeddings_with_backoff(prompts=batch, engine=embedding_model)<br>    embeddings += batch_embeddings<br><br><span class="hljs-comment"># 将嵌入列添加到数据框中</span><br>df[<span class="hljs-string">&quot;embedding&quot;</span>] = embeddings<br><br><span class="hljs-comment"># 将带有嵌入的数据框保存为 Parquet 文件</span><br>df.to_parquet(<span class="hljs-string">&quot;data/taobao_product_title.parquet&quot;</span>, index=<span class="hljs-literal">False</span>)<br><br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们就可以定义一个search_product的搜索函数，接受三个参数，一个df代表用于搜索的数据源，一个query代表用于搜索的搜索词，然后一个n代表搜索返回多少条记录。而这个函数就干了这样三件事情。</p>
+<ol>
+<li>调用OpenAI的API将搜索词也转换成Embedding。</li>
+<li>将这个Embedding和DataFrame里的每一个Embedding都计算一下余弦距离。</li>
+<li>根据余弦相似度去排序，返回距离最近的n个标题。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> openai.embeddings_utils <span class="hljs-keyword">import</span> get_embedding, cosine_similarity<br><br><span class="hljs-comment"># search through the reviews for a specific product</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">search_product</span>(<span class="hljs-params">df, query, n=<span class="hljs-number">3</span>, pprint=<span class="hljs-literal">True</span></span>):<br>    product_embedding = get_embedding(<br>        query,<br>        engine=embedding_model<br>    )<br>    df[<span class="hljs-string">&quot;similarity&quot;</span>] = df.embedding.apply(<span class="hljs-keyword">lambda</span> x: cosine_similarity(x, product_embedding))<br><br>    results = (<br>        df.sort_values(<span class="hljs-string">&quot;similarity&quot;</span>, ascending=<span class="hljs-literal">False</span>)<br>        .head(n)<br>        .product_name<br>    )<br>    <span class="hljs-keyword">if</span> pprint:<br>        <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> results:<br>            <span class="hljs-built_in">print</span>(r)<br>    <span class="hljs-keyword">return</span> results<br><br>results = search_product(df, <span class="hljs-string">&quot;自然淡雅背包&quot;</span>, n=<span class="hljs-number">3</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>我们就拿刚才举的那个例子，使用“自然淡雅背包”作为搜索词，调用这个search_product函数，然后拿前3个返回结果。可以看到，尽管在关键词上完全不同，但是返回的结果里，的确包含了“小清新百搭拼色女士单肩斜挎包”这个商品。</p>
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">【新品】潮流简约可爱时尚双肩斜挎包<br>【优惠】精致小巧可爱双肩斜挎包<br>【新品】小清新百搭拼色女士单肩斜挎包<br><br></code></pre></td></tr></table></figure>
+
+<p>注意，因为我们的商品标题都是随机生成的，所以你得到的数据集和搜索结果可能都和我不一样，根据实际情况测试你想要的搜索词即可。</p>
+<h2 id="利用Embedding信息进行商品推荐的冷启动"><a href="#利用Embedding信息进行商品推荐的冷启动" class="headerlink" title="利用Embedding信息进行商品推荐的冷启动"></a>利用Embedding信息进行商品推荐的冷启动</h2><p>Embedding的向量距离，不仅可以用于搜索，也可以用于 <strong>商品推荐里的冷启动</strong>。主流的推荐算法，主要是依托于用户“看了又看”这样的行为信息。也就是如果有很多用户看了OPPO的手机，又去看了vivo的手机，那么在用户看OPPO手机的时候，我们就可以向他推荐vivo手机。但是，往往一个新的商品，或者新的平台，没有那么多相关的行为数据。这个时候，我们同样可以根据商品名称在语义上的相似度，来进行商品推荐。</p>
+<p>我们这里的代码实现和上面的搜索例子基本一致，唯一的差别就是商品名称的Embedding是根据输入的商品名称，从DataFrame里找到的，而不是通过调用OpenAI的Embedding API获取。因为这个Embedding我们之前已经计算过一遍了，没有必要浪费成本再请求一次。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">recommend_product</span>(<span class="hljs-params">df, product_name, n=<span class="hljs-number">3</span>, pprint=<span class="hljs-literal">True</span></span>):<br>    product_embedding = df[df[<span class="hljs-string">&#x27;product_name&#x27;</span>] == product_name].iloc[<span class="hljs-number">0</span>].embedding<br>    df[<span class="hljs-string">&quot;similarity&quot;</span>] = df.embedding.apply(<span class="hljs-keyword">lambda</span> x: cosine_similarity(x, product_embedding))<br><br>    results = (<br>        df.sort_values(<span class="hljs-string">&quot;similarity&quot;</span>, ascending=<span class="hljs-literal">False</span>)<br>        .head(n)<br>        .product_name<br>    )<br>    <span class="hljs-keyword">if</span> pprint:<br>        <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> results:<br>            <span class="hljs-built_in">print</span>(r)<br>    <span class="hljs-keyword">return</span> results<br><br>results = recommend_product(df, <span class="hljs-string">&quot;【限量】OnePlus 7T Pro 8GB+256GB 全网通&quot;</span>, n=<span class="hljs-number">3</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">【限量】OnePlus 7T Pro 8GB+256GB 全网通<br>【新品】OnePlus 7T Pro 8GB+256GB 全网通<br>【限量】荣耀V30 Pro 8GB+256GB 全网通版<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="通过FAISS加速搜索过程"><a href="#通过FAISS加速搜索过程" class="headerlink" title="通过FAISS加速搜索过程"></a>通过FAISS加速搜索过程</h2><p>不过，上面的示例代码里面，还有一个问题。那就是每次我们进行搜索或者推荐的时候，我们都要把输入的Embedding和我们要检索的数据的所有Embedding都计算一次余弦相似度。例子里，我们检索的数据只有100条，但是在实际的应用中，即使不是百度、谷歌那样的搜索引擎，搜索对应的内容条数在几百万上千万的情况也不在少数。如果每次搜索都要计算几百万次余弦距离，那速度肯定慢得不行。</p>
+<p>这个问题也有解决办法。我们可以利用一些向量数据库，或者能够快速搜索相似性的软件包就好了。比如，我比较推荐你使用Facebook开源的Faiss这个Python包，它的全称就是Facebook AI Similarity Search，也就是快速进行高维向量的相似性搜索。</p>
+<p>我们把上面的代码改写一下，先把DataFrame里面计算好的Embedding向量都加载到Faiss的索引里，然后让Faiss帮我们快速找到最相似的向量，来看看效果怎么样。</p>
+<p>当然，按照惯例我们还是需要先安装Faiss这个Python库。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">conda install -c conda-forge faiss<br><br></code></pre></td></tr></table></figure>
+
+<p>把索引加载到Faiss里面非常容易，我们直接把整个的Embedding变成一个二维矩阵，整个加载到Faiss里面就好了。在加载之前，我们先要定义好Faiss索引的维度数，也就是我们Embedding向量的维度数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> faiss<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">load_embeddings_to_faiss</span>(<span class="hljs-params">df</span>):<br>    embeddings = np.array(df[<span class="hljs-string">&#x27;embedding&#x27;</span>].tolist()).astype(<span class="hljs-string">&#x27;float32&#x27;</span>)<br>    index = faiss.IndexFlatL2(embeddings.shape[<span class="hljs-number">1</span>])<br>    index.add(embeddings)<br>    <span class="hljs-keyword">return</span> index<br><br>index = load_embeddings_to_faiss(df)<br><br></code></pre></td></tr></table></figure>
+
+<p>而搜索Faiss也非常容易，我们把查询变成Embedding，然后再把Embedding转换成一个numpy的array向量，然后直接对刚才生成的索引 index 调用 search 方法，并且指定返回的结果数量就可以了。</p>
+<p>返回拿到的，只有索引的index，也就是加载在Faiss里面的第几个索引。我们还是要根据这个，在DataFrame里面，反查到对应的是DataFrame里面的第几行，以及这一行商品的标题是什么，就能获得搜索的结果。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">search_index</span>(<span class="hljs-params">index, df, query, k=<span class="hljs-number">5</span></span>):<br>    query_vector = np.array(get_embedding(query, engine=embedding_model)).reshape(<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>).astype(<span class="hljs-string">&#x27;float32&#x27;</span>)<br>    distances, indexes = index.search(query_vector, k)<br><br>    results = []<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(indexes)):<br>        product_names = df.iloc[indexes[i]][<span class="hljs-string">&#x27;product_name&#x27;</span>].values.tolist()<br>        results.append((distances[i], product_names))<br>    <span class="hljs-keyword">return</span> results<br><br>products = search_index(index, df, <span class="hljs-string">&quot;自然淡雅背包&quot;</span>, k=<span class="hljs-number">3</span>)<br><br><span class="hljs-keyword">for</span> distances, product_names <span class="hljs-keyword">in</span> products:<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(distances)):<br>        <span class="hljs-built_in">print</span>(product_names[i], distances[i])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">【新品】潮流简约可爱时尚双肩斜挎包 <span class="hljs-number">0.22473168</span><br>【优惠】精致小巧可爱双肩斜挎包 <span class="hljs-number">0.22881898</span><br>【新品】小清新百搭拼色女士单肩斜挎包 <span class="hljs-number">0.22901852</span><br><br></code></pre></td></tr></table></figure>
+
+<p>我们同样用“自然淡雅背包”这个搜索词，可以看到搜索结果和之前我们自己计算余弦距离排序的结果是一样的。</p>
+<p>Faiss的原理，是通过ANN这样的近似最近邻的算法，快速实现相似性的搜索。</p>
+<p>Faiss这个库能够加载的数据量，受限于我们的内存大小。如果你的数据量进一步增长，就需要选用一些向量数据库来进行搜索。比如OpenAI就推荐了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.pinecone.io/">Pinecone</a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://weaviate.io/">Weaviate</a>，国内目前来说 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://milvus.io/">Milvus</a> 是个不错的向量开源数据库</p>
+<p>当然，无论是搜索还是推荐，使用Embedding的相似度都只是一种快速启动的方式。需要真正做到更好的效果，一定也需要投入更复杂的策略。比如根据用户行为的反馈，更好地排序搜索和推荐结果。但是，对于提供一个简单的搜索或者推荐功能来说，通过文本的Embedding的相似度，是一个很好的快速启动的方式。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>通过这篇文章，让我们已经有了快速优化现有业务里的推荐和搜索功能的思路了。这篇文章主要为以下三个点。</p>
+<p>第一，是在没有合适的测试数据的时候，我们完全可以让AI给我们生成一些数据。既节约了在网上找数据的时间，也能根据自己的要求生成特定特征的数据。比如，我们就可以要求在商品标题里面有些促销相关的信息。</p>
+<p>第二，是如何利用Embedding之间的余弦相似度作为语义上的相似度，优化搜索。通过Embedding的相似度，我们不要求搜索词和查询的内容之间有完全相同的关键字，而只要它们的语义信息接近就好了。</p>
+<p>第三，是如何通过Faiss这样的Python库，或者其他的向量数据库来快速进行向量之间的检索。而不是必须每一次搜索都和整个数据库计算一遍余弦相似度。</p>
+<p>通过对于我们自己的数据计算Embedding，然后索引起来，我们可以将外部的知识和信息引入到使用GPT模型的应用里来。后面，会进一步学习如何利用这些外部知识，开发更加复杂的AI应用。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>07.语义检索，利用Embedding优化你的搜索功能</div>
+      <div>https://blog.longpi1.com/2023/11/18/07.语义检索，利用Embedding优化你的搜索功能/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/18/06-%E8%AE%A9GPT%E5%AE%9E%E7%8E%B0%E6%96%87%E6%9C%AC%E6%94%B9%E5%86%99%E5%92%8C%E5%86%85%E5%AE%B9%E5%AE%A1%E6%A0%B8/" title="06.让GPT实现文本改写和内容审核">
+                        <span class="hidden-mobile">06.让GPT实现文本改写和内容审核</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
