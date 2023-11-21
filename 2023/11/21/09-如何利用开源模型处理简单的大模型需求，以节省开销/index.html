@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="09.如何利用开源模型处理简单的大模型需求，以节省开销">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/21/09-%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%BC%80%E6%BA%90%E6%A8%A1%E5%9E%8B%E5%A4%84%E7%90%86%E7%AE%80%E5%8D%95%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%9C%80%E6%B1%82%EF%BC%8C%E4%BB%A5%E8%8A%82%E7%9C%81%E5%BC%80%E9%94%80/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/17/gYlrLsKqtoXaIEG.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/17/ybIuMtEAgwfnV7a.png">
+<meta property="article:published_time" content="2023-11-21T03:26:10.000Z">
+<meta property="article:modified_time" content="2023-11-21T03:30:43.492Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/17/gYlrLsKqtoXaIEG.png">
+  
+  
+  
+  <title>09.如何利用开源模型处理简单的大模型需求，以节省开销 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="09.如何利用开源模型处理简单的大模型需求，以节省开销"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-21 11:26" pubdate>
+          2023年11月21日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">09.如何利用开源模型处理简单的大模型需求，以节省开销</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="09-如何利用开源模型处理简单的大模型需求，以节省开销"><a href="#09-如何利用开源模型处理简单的大模型需求，以节省开销" class="headerlink" title="09.如何利用开源模型处理简单的大模型需求，以节省开销"></a>09.如何利用开源模型处理简单的大模型需求，以节省开销</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>目前ChatGPT的api调用比较头痛的问题就是费用问题，对于公司来说，除了费用之外，ChatGPT还有一个问题是数据安全。因为每个国家的数据监管要求不同，并不是所有的数据，都适合通过OpenAI的API来处理的。所以，从这两个角度出发，我们需要一个OpenAI以外的解决方案。那对于没有足够技术储备的中小型公司来说，最可行的一个思路就是利用好开源的大语言模型。</p>
+<h2 id="在Colab里使用GPU"><a href="#在Colab里使用GPU" class="headerlink" title="在Colab里使用GPU"></a>在Colab里使用GPU</h2><p>这一篇文章要使用一些开源模型，对于没有NVidia GPU的同学。这里建议通过Colab来运行对应的Notebook，并且注意，要把对应的运行环境设置成GPU。</p>
+<p><img src="https://s2.loli.net/2023/11/17/gYlrLsKqtoXaIEG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ol>
+<li>先选择菜单栏里的Runtime或者代码执行程序，然后点击Change runtime type。</li>
+</ol>
+<p><img src="https://s2.loli.net/2023/11/17/ybIuMtEAgwfnV7a.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>​	2.然后在弹出的对话框里，把Hardware accelerator换成GPU，然后点击Save就可以了。</p>
+<p>只要用得不是太多，Colab的GPU是可以免费使用的。</p>
+<h2 id="HuggingfaceEmbedding，你的开源伙伴"><a href="#HuggingfaceEmbedding，你的开源伙伴" class="headerlink" title="HuggingfaceEmbedding，你的开源伙伴"></a>HuggingfaceEmbedding，你的开源伙伴</h2><p>之前llama-index向量搜索部分，是不是可以用开源模型的Embedding给替换掉呢？</p>
+<p>当然是可以的，llama-index支持自己直接定义一个定制化的Embedding，对应的代码放在了下面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">conda install -c conda-forge sentence-transformers<br><br></code></pre></td></tr></table></figure>
+
+<p>注：需要先安装一下sentence-transformers这个库。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><span class="hljs-keyword">import</span> faiss<br><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> SimpleDirectoryReader, LangchainEmbedding, GPTFaissIndex, ServiceContext<br><span class="hljs-keyword">from</span> langchain.embeddings.huggingface <span class="hljs-keyword">import</span> HuggingFaceEmbeddings<br><span class="hljs-keyword">from</span> langchain.text_splitter <span class="hljs-keyword">import</span> CharacterTextSplitter<br><span class="hljs-keyword">from</span> llama_index.node_parser <span class="hljs-keyword">import</span> SimpleNodeParser<br><br>openai.api_key = <span class="hljs-string">&quot;&quot;</span><br><br>text_splitter = CharacterTextSplitter(separator=<span class="hljs-string">&quot;\n\n&quot;</span>, chunk_size=<span class="hljs-number">100</span>, chunk_overlap=<span class="hljs-number">20</span>)<br>parser = SimpleNodeParser(text_splitter=text_splitter)<br>documents = SimpleDirectoryReader(<span class="hljs-string">&#x27;./data/faq/&#x27;</span>).load_data()<br>nodes = parser.get_nodes_from_documents(documents)<br><br>embed_model = LangchainEmbedding(HuggingFaceEmbeddings(<br>    model_name=<span class="hljs-string">&quot;sentence-transformers/paraphrase-multilingual-mpnet-base-v2&quot;</span><br>))<br>service_context = ServiceContext.from_defaults(embed_model=embed_model)<br><br>dimension = <span class="hljs-number">768</span><br>faiss_index = faiss.IndexFlatIP(dimension)<br>index = GPTFaissIndex(nodes=nodes,faiss_index=faiss_index, service_context=service_context)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">INFO:sentence_transformers.SentenceTransformer:Load pretrained SentenceTransformer: sentence-transformers/paraphrase-multilingual-mpnet-base-v2<br>INFO:sentence_transformers.SentenceTransformer:Use pytorch device: cpu<br>WARNING:root:Created a chunk of size <span class="hljs-number">130</span>, which <span class="hljs-keyword">is</span> longer than the specified <span class="hljs-number">100</span><br>……<br>INFO:llama_index.token_counter.token_counter:&gt; [build_index_from_documents] Total LLM token usage: <span class="hljs-number">0</span> tokens<br>INFO:llama_index.token_counter.token_counter:&gt; [build_index_from_documents] Total embedding token usage: <span class="hljs-number">3198</span> tokens<br><br></code></pre></td></tr></table></figure>
+
+<p>在这个例子里面，我们使用了一个面向电商的FAQ的纯文本文件作为输入。里面是一系列预设好的FAQ问答对。为了确保我们没有使用OpenAI的API，我们先把openai.api_key给设成了一个空字符串。然后，我们定义了一个embeded_model，这个embeded_model里面，我们包装的是一个HuggingFaceEmbeddings的类。</p>
+<p>因为HuggingFace为基于transformers的模型定义了一个标准，所以大部分模型你只需要传入一个模型名称，HuggingFacebEmbedding这个类就会下载模型、加载模型，并通过模型来计算你输入的文本的Embedding。使用HuggingFace的好处是，你可以通过一套代码使用所有的transfomers类型的模型。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://sbert.net/">sentence-transformers</a> 是目前效果最好的语义搜索类的模型，它在BERT的基础上采用了对比学习的方式，来区分文本语义的相似度，它包括了一系列的预训练模型。我们在这里，选用的是 sentence-transformers下面的 paraphrase-multilingual-mpnet-base-v2 模型。顾名思义，这个是一个支持多语言（multilingual）并且能把语句和段落（paraphrase）变成向量的一个模型。因为我们给的示例都是中文，所以选取了这个模型。你可以根据你要解决的实际问题，来选取一个适合自己的模型。</p>
+<p>我们还是使用Faiss这个库来作为我们的向量索引库，所以需要指定一下向量的维度，paraphrase-multilingual-mpnet-base-v2 这个模型的维度是768，所以我们就把维度定义成768维。</p>
+<p>相应的对文档的切分，我们使用的是CharacterTextSplitter，并且在参数上我们做了一些调整。</p>
+<p>首先，我们把“\n\n”这样两个连续的换行符作为一段段文本的分隔符，因为我们的FAQ数据里，每一个问答对都有一个空行隔开，正好是连续两个换行。</p>
+<p>然后，我们把chunk_size设置得比较小，只有100。这是因为我们所使用的开源模型是个小模型，这样我们才能在单机加载起来。它能够支持的输入长度有限，只有128个Token，超出的部分会进行截断处理。如果我们不设置chunk_size，llama-index会自动合并多个chunk变成一个段落。</p>
+<p>其次，我们还增加了一个小小的参数，叫做chunk_overlap。这个参数代表我们自动合并小的文本片段的时候，可以接受多大程度的重叠。它的默认值是200，超过了单段文档的chunk_size，所以我们这里要把它设小一点，不然程序会报错。</p>
+<p>我们可以在对应的verbose日志里看到，这里的Embedding使用了3198个Token，不过这些Token都是我们通过sentence_transformers类型的开源模型计算的，不需要花钱。你的成本就节约下来了。</p>
+<p>在创建完整个索引之后，我们就可以拿一些常见的电商类型的FAQ问题试一试。</p>
+<p>问题1：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs plain">from llama_index import QueryMode<br><br>openai.api_key = os.environ.get(&quot;OPENAI_API_KEY&quot;)<br><br>response = index.query(<br>    &quot;请问你们海南能发货吗？&quot;,<br>    mode=QueryMode.EMBEDDING,<br>    verbose=True,<br>)<br>print(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Got node text: Q: 支持哪些省份配送？<br>A: 我们支持全国大部分省份的配送，包括北京、上海、天津、重庆、河北、山西、辽宁、吉林、黑龙江、江苏、浙江、安徽、福建、江西、山东、河南、湖北、湖南、广东、海南、四川、贵州、云南、陕西、甘肃、青海、台湾、内蒙古、广西、西藏、宁夏和新疆...<br><br>INFO:llama_index.token_counter.token_counter:&gt; [query] Total LLM token usage: 341 tokens<br>INFO:llama_index.token_counter.token_counter:&gt; [query] Total embedding token usage: 24 tokens<br><br>是的，我们支持海南省的配送。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题2：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs plain">response = index.query(<br>    &quot;你们用哪些快递公司送货？&quot;,<br>    mode=QueryMode.EMBEDDING,<br>    verbose=True,<br>)<br>print(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Got node text: Q: 提供哪些快递公司的服务？<br>A: 我们与顺丰速运、圆通速递、申通快递、韵达快递、中通快递、百世快递等多家知名快递公司合作。...<br>INFO:llama_index.token_counter.token_counter:&gt; [query] Total LLM token usage: 281 tokens<br>INFO:llama_index.token_counter.token_counter:&gt; [query] Total embedding token usage: 27 tokens<br><br>我们与顺丰速运、圆通速递、申通快递、韵达快递、中通快递、百世快递等多家知名快递公司合作，用他们的服务送货。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题3：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs plain">response = index.query(<br>    &quot;你们的退货政策是怎么样的？&quot;,<br>    mode=QueryMode.EMBEDDING,<br>    verbose=True,<br>)<br>print(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Got node text: Q: 退货政策是什么？<br>A: 自收到商品之日起7天内，如产品未使用、包装完好，您可以申请退货。某些特殊商品可能不支持退货，请在购买前查看商品详情页面的退货政策。...<br>INFO:llama_index.token_counter.token_counter:&gt; [query] Total LLM token usage: 393 tokens<br>INFO:llama_index.token_counter.token_counter:&gt; [query] Total embedding token usage: 27 tokens<br><br>我们的退货政策是自收到商品之日起7天内，如产品未使用、包装完好，您可以申请退货。某些特殊商品可能不支持退货，请在购买前查看商品详情页面的退货政策。<br><br></code></pre></td></tr></table></figure>
+
+<p>我们在问问题的时候，指定了query的mode是Embedding。通过三个常用的问题，我们可以看到，AI都给出了正确的回答，效果还是不错的。</p>
+<h2 id="使用ChatGLM提供对话效果"><a href="#使用ChatGLM提供对话效果" class="headerlink" title="使用ChatGLM提供对话效果"></a>使用ChatGLM提供对话效果</h2><p>通过上面的代码，我们已经把生成Embedding以及利用Embedding的相似度进行搜索搞定了。但是，我们在实际问答的过程中，使用的还是OpenAI的Completion API。那么这一部分我们有没有办法也替换掉呢？</p>
+<p>同样的，我们寻求开源模型的帮助。在这里，我们就不妨来试一下来自清华大学的ChatGLM语言模型，看看中文的开源语言模型，是不是也有基本的知识理解和推理能力。</p>
+<p>首先我们还是要安装一些依赖包，因为icetk我没有找到Conda的源，所以我们这里通过pip来安装，但是在Conda的包管理器里一样能够看到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">pip install icetk<br>pip install cpm_kernels<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们还是先通过transformers来加载模型。 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/THUDM/GLM-130B">ChatGLM</a> 最大的一个模型有1300亿个参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> AutoTokenizer, AutoModel<br>tokenizer = AutoTokenizer.from_pretrained(<span class="hljs-string">&quot;THUDM/chatglm-6b-int4&quot;</span>, trust_remote_code=<span class="hljs-literal">True</span>)<br>model = AutoModel.from_pretrained(<span class="hljs-string">&quot;THUDM/chatglm-6b-int4&quot;</span>, trust_remote_code=<span class="hljs-literal">True</span>).half().cuda()<br>model = model.<span class="hljs-built_in">eval</span>()<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">Explicitly passing a `revision` <span class="hljs-keyword">is</span> encouraged when loading a model <span class="hljs-keyword">with</span> custom code to ensure no malicious code has been contributed <span class="hljs-keyword">in</span> a newer revision.<br>Explicitly passing a `revision` <span class="hljs-keyword">is</span> encouraged when loading a configuration <span class="hljs-keyword">with</span> custom code to ensure no malicious code has been contributed <span class="hljs-keyword">in</span> a newer revision.<br>Explicitly passing a `revision` <span class="hljs-keyword">is</span> encouraged when loading a model <span class="hljs-keyword">with</span> custom code to ensure no malicious code has been contributed <span class="hljs-keyword">in</span> a newer revision.<br>No compiled kernel found.<br>Compiling kernels : /root/.cache/huggingface/modules/transformers_modules/THUDM/chatglm-6b-int4/dac03c3ac833dab2845a569a9b7f6ac4e8c5dc9b/quantization_kernels.c<br>Compiling gcc -O3 -fPIC -std=c99 /root/.cache/huggingface/modules/transformers_modules/THUDM/chatglm-6b-int4/dac03c3ac833dab2845a569a9b7f6ac4e8c5dc9b/quantization_kernels.c -shared -o /root/.cache/huggingface/modules/transformers_modules/THUDM/chatglm-6b-int4/dac03c3ac833dab2845a569a9b7f6ac4e8c5dc9b/quantization_kernels.so<br>Kernels compiled : /root/.cache/huggingface/modules/transformers_modules/THUDM/chatglm-6b-int4/dac03c3ac833dab2845a569a9b7f6ac4e8c5dc9b/quantization_kernels.so<br>Load kernel : /root/.cache/huggingface/modules/transformers_modules/THUDM/chatglm-6b-int4/dac03c3ac833dab2845a569a9b7f6ac4e8c5dc9b/quantization_kernels.so<br>Using quantization cache<br>Applying quantization to glm layers<br><br></code></pre></td></tr></table></figure>
+
+<p>但是这么大的模型，无论是你自己的电脑，还是Colab提供的GPU和TPU显然都放不了。所以我们只能选用一个裁剪后的60亿个参数的版本，并且我们还必须用int-4量化的方式，而不是用float16的浮点数。所以，这里我们的模型名字就叫做 chatglm-6b-int4，也就是 6B的参数量，通过int-4量化。然后，在这里，我们希望通过GPU进行模型的计算，所以加载模型的时候调用了.cuda()。</p>
+<p>这里加载模型的时候，我们还设置了一个 trust_remote_code &#x3D; true 的参数，这是因为ChatGLM的模型不是一个Huggingface官方发布的模型，而是由用户贡献的，所以需要你显式确认你信任这个模型的代码，它不会造成恶意的破坏。我们反正是在Colab里面运行这个代码，所以倒是不用太担心。</p>
+<p>如果你想要用CPU运行，可以把模型加载的代码换成下面这样。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">model = AutoModel.from_pretrained(<span class="hljs-string">&quot;THUDM/chatglm-6b-int4&quot;</span>,trust_remote_code=<span class="hljs-literal">True</span>).<span class="hljs-built_in">float</span>()<br><br></code></pre></td></tr></table></figure>
+
+<p>不过，我不建议你这么做。你没有GPU的话，还是直接使用Colab的GPU就好了。因为CPU在运行对话的时候非常慢。</p>
+<p>在拿到模型之后我们就可以尝试着通过这个模型来进行问答了。</p>
+<p>问题1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">自收到商品之日起7天内，如产品未使用、包装完好，您可以申请退货。某些特殊商品可能不支持退货，请在购买前查看商品详情页面的退货政策。</span><br><span class="hljs-string"></span><br><span class="hljs-string">根据以上信息，请回答下面的问题：</span><br><span class="hljs-string"></span><br><span class="hljs-string">Q: 你们的退货政策是怎么样的？</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>response, history = model.chat(tokenizer, question, history=[])<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">我们的退货政策是在产品未使用、包装完好的情况下，自收到商品之日起<span class="hljs-number">7</span>天内可以退货。请注意，某些特殊商品可能不支持退货，在购买前请查看商品详情页面的退货政策，以了解具体情况。<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，ChatGLM的回答，的确是按照我们提示语里面有的上下文给出的。我们可以试着去掉提供的FAQ的内容，看看它的回答是怎样的。</p>
+<p>问题2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">Q: 你们的退货政策是怎么样的？</span><br><span class="hljs-string">A:</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>response, history = model.chat(tokenizer, question, history=[])<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">我们公司的政策是，如果您在购买后的<span class="hljs-number">7</span>天内发现我们的产品不符合您的期望，可以申请退货。退货条件如下：<br><span class="hljs-number">1.</span> 符合退货政策要求的产品；<br><span class="hljs-number">2.</span> 未使用或损坏的产品；<br><span class="hljs-number">3.</span> 符合退货地点的要求，即退货地址与购买地址相同；<br><span class="hljs-number">4.</span> 符合退货流程的要求，即您需要提供有效的退货单并完成退货流程。<br>如果符合上述退货政策要求，我们将尽快处理您的退货申请，并为您退款。请注意，如果您已经使用了我们的产品，或者产品有损坏或变质等情况，我们将无法为您提供退货服务。<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，在没有合适的上下文信息的时候，它编造出了一些原本没有的要求，比如“退货地址与购买地址相同”。</p>
+<p>我们再来看一个例子，看看它能不能拥有简单的推理能力。我们的上下文里只说了可以送到海南，没有说是否支持三亚这个城市，看看这个时候AI能不能回答对这个问题。</p>
+<p>问题3：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">我们支持全国大部分省份的配送，包括北京、上海、天津、重庆、河北、山西、辽宁、吉林、黑龙江、江苏、浙江、安徽、福建、江西、山东、河南、湖北、湖南、广东、海南、四川、贵州、云南、陕西、甘肃、青海、台湾、内蒙古、广西、西藏、宁夏和新疆.</span><br><span class="hljs-string"></span><br><span class="hljs-string">根据以上信息，请回答下面的问题：</span><br><span class="hljs-string"></span><br><span class="hljs-string">Q: 你们能配送到三亚吗？</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>response, history = model.chat(tokenizer, question, history=[])<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">是的，我们支持全国大部分省份的配送，包括三亚市。<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，ChatGLM知道是可以配送到三亚的。不过万一是巧合呢？我们再看看在上下文里面，去掉了东三省，然后问问它能不能送到哈尔滨。</p>
+<p>问题4：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">我们支持全国大部分省份的配送，包括北京、上海、天津、重庆、河北、山西、江苏、浙江、安徽、福建、江西、山东、河南、湖北、湖南、广东、海南、四川、贵州、云南、陕西、甘肃、青海、台湾、内蒙古、广西、西藏、宁夏和新疆.但是不能配送到东三省</span><br><span class="hljs-string"></span><br><span class="hljs-string">根据以上信息，请回答下面的问题：</span><br><span class="hljs-string"></span><br><span class="hljs-string">Q: 你们能配送到哈尔滨吗？</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>response, history = model.chat(tokenizer, question, history=[])<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>回答：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">很抱歉，我们目前不能配送到哈尔滨。<br><br></code></pre></td></tr></table></figure>
+
+<p>结果也是正确的，这个时候，ChatGLM会回答我们是送不到哈尔滨的。既然ChatGLM能够正确回答这个问题，那我们的FAQ问答就可以用ChatGLM来搞定了。</p>
+<h2 id="将ChatGLM封装成LLM"><a href="#将ChatGLM封装成LLM" class="headerlink" title="将ChatGLM封装成LLM"></a>将ChatGLM封装成LLM</h2><p>不过上面的代码里面，我们用的还是原始的ChatGLM的模型代码，还不能直接通过query来访问llama-index直接得到答案。要做到这一点倒也不难，我们把它封装成一个LLM类，让我们的index使用这个指定的大语言模型就好了。对应的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://gpt-index.readthedocs.io/en/latest/how_to/customization/custom_llms.html">llama-index 的文档</a>，你也可以自己去看一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><span class="hljs-keyword">import</span> faiss<br><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> SimpleDirectoryReader, LangchainEmbedding, GPTFaissIndex, ServiceContext<br><span class="hljs-keyword">from</span> langchain.embeddings.huggingface <span class="hljs-keyword">import</span> HuggingFaceEmbeddings<br><span class="hljs-keyword">from</span> langchain.text_splitter <span class="hljs-keyword">import</span> CharacterTextSplitter<br><span class="hljs-keyword">from</span> llama_index.node_parser <span class="hljs-keyword">import</span> SimpleNodeParser<br><br><span class="hljs-keyword">from</span> langchain.llms.base <span class="hljs-keyword">import</span> LLM<br><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> LLMPredictor<br><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Optional</span>, <span class="hljs-type">List</span>, Mapping, <span class="hljs-type">Any</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomLLM</span>(<span class="hljs-title class_ inherited__">LLM</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_call</span>(<span class="hljs-params">self, prompt: <span class="hljs-built_in">str</span>, stop: <span class="hljs-type">Optional</span>[<span class="hljs-type">List</span>[<span class="hljs-built_in">str</span>]] = <span class="hljs-literal">None</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>        response, history = model.chat(tokenizer, prompt, history=[])<br>        <span class="hljs-keyword">return</span> response<br><br><span class="hljs-meta">    @property</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_identifying_params</span>(<span class="hljs-params">self</span>) -&gt; Mapping[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]:<br>        <span class="hljs-keyword">return</span> &#123;<span class="hljs-string">&quot;name_of_model&quot;</span>: <span class="hljs-string">&quot;chatglm-6b-int4&quot;</span>&#125;<br><br><span class="hljs-meta">    @property</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_llm_type</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;custom&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>我们把这个CustomLLM对象，传入index的构造函数里，重新运行一下我们的问题，看看效果是怎样的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.text_splitter <span class="hljs-keyword">import</span> SpacyTextSplitter<br><br>llm_predictor = LLMPredictor(llm=CustomLLM())<br><br>text_splitter = CharacterTextSplitter(separator=<span class="hljs-string">&quot;\n\n&quot;</span>, chunk_size=<span class="hljs-number">100</span>, chunk_overlap=<span class="hljs-number">20</span>)<br>parser = SimpleNodeParser(text_splitter=text_splitter)<br>documents = SimpleDirectoryReader(<span class="hljs-string">&#x27;./drive/MyDrive/colab_data/faq/&#x27;</span>).load_data()<br>nodes = parser.get_nodes_from_documents(documents)<br><br>embed_model = LangchainEmbedding(HuggingFaceEmbeddings(<br>    model_name=<span class="hljs-string">&quot;sentence-transformers/paraphrase-multilingual-mpnet-base-v2&quot;</span><br>))<br>service_context = ServiceContext.from_defaults(embed_model=embed_model, llm_predictor=llm_predictor)<br><br>dimension = <span class="hljs-number">768</span><br>faiss_index = faiss.IndexFlatIP(dimension)<br>index = GPTFaissIndex(nodes=nodes, faiss_index=faiss_index, service_context=service_context)<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> QuestionAnswerPrompt<br><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> QueryMode<br><br>QA_PROMPT_TMPL = (<br>    <span class="hljs-string">&quot;&#123;context_str&#125;&quot;</span><br>    <span class="hljs-string">&quot;\n\n&quot;</span><br>    <span class="hljs-string">&quot;根据以上信息，请回答下面的问题：\n&quot;</span><br>    <span class="hljs-string">&quot;Q: &#123;query_str&#125;\n&quot;</span><br>    )<br>QA_PROMPT = QuestionAnswerPrompt(QA_PROMPT_TMPL)<br><br>response = index.query(<br>    <span class="hljs-string">&quot;请问你们海南能发货吗？&quot;</span>,<br>    mode=QueryMode.EMBEDDING,<br>    text_qa_template=QA_PROMPT,<br>    verbose=<span class="hljs-literal">True</span>,<br>)<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Got node text: Q: 支持哪些省份配送？<br>A: 我们支持全国大部分省份的配送，包括北京、上海、天津、重庆、河北、山西、辽宁、吉林、黑龙江、江苏、浙江、安徽、福建、江西、山东、河南、湖北、湖南、广东、海南、四川、贵州、云南、陕西、甘肃、青海、台湾、内蒙古、广西、西藏、宁夏和新疆...<br><br>海南能发货。<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这样处理之后，我们就可以直接使用ChatGLM的模型，来进行我们的FAQ的问答了。</p>
+<p>现在，我们有了一个通过paraphrase-multilingual-mpnet-base-v2模型来计算Embeddding并进行语义搜索，然后通过chatglm-6b-int4的模型来进行问答的解决方案了。而且这两个模型，可以跑在一块家用级别的显卡上。是不是很厉害？</p>
+<h2 id="开源模型的不足之处"><a href="#开源模型的不足之处" class="headerlink" title="开源模型的不足之处"></a>开源模型的不足之处</h2><p>看起来，我们这个本机就能运行的小模型似乎已经完成了。数据安全，又不用担心花费。但显然，事情没有那么简单。因为刚才我们处理的电商FAQ问题比较简单，我们再拿一个稍微复杂一点的问题来看看效果。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python">text_splitter = SpacyTextSplitter(pipeline=<span class="hljs-string">&quot;zh_core_web_sm&quot;</span>, chunk_size = <span class="hljs-number">128</span>, chunk_overlap=<span class="hljs-number">32</span>)<br>parser = SimpleNodeParser(text_splitter=text_splitter)<br>documents = SimpleDirectoryReader(<span class="hljs-string">&#x27;./drive/MyDrive/colab_data/zhaohuaxishi/&#x27;</span>).load_data()<br>nodes = parser.get_nodes_from_documents(documents)<br><br>embed_model = LangchainEmbedding(HuggingFaceEmbeddings(<br>    model_name=<span class="hljs-string">&quot;sentence-transformers/paraphrase-multilingual-mpnet-base-v2&quot;</span><br>))<br>service_context = ServiceContext.from_defaults(embed_model=embed_model, llm_predictor=llm_predictor)<br><br>dimension = <span class="hljs-number">768</span><br>faiss_index = faiss.IndexFlatIP(dimension)<br>index = GPTFaissIndex(nodes=nodes, faiss_index=faiss_index, service_context=service_context)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">INFO:sentence_transformers.SentenceTransformer:Load pretrained SentenceTransformer: sentence-transformers/paraphrase-multilingual-mpnet-base-v2<br>INFO:sentence_transformers.SentenceTransformer:Use pytorch device: cpu<br>……<br>INFO:llama_index.token_counter.token_counter:&gt; [build_index_from_documents] Total LLM token usage: <span class="hljs-number">0</span> tokens<br>INFO:llama_index.token_counter.token_counter:&gt; [build_index_from_documents] Total embedding token usage: <span class="hljs-number">91882</span> tokens<br><br></code></pre></td></tr></table></figure>
+
+<p>这一次，我们输入索引起来的数据，是鲁迅先生整套《朝花夕拾》的散文集。选用这个是因为对应作品的版权已经过了保护期。我们来看看，在这套文集的内容里面，使用我们上面的纯开源方案，效果会是怎样的。</p>
+<p>对应的模型和索引加载的代码基本一致，只有一个小小的区别，就是在文本分割的时候，我们用了上一讲介绍过的SpacyTextSplitter，因为这里都是散文的内容，而不是确定好格式的QA对。所以通过SpacyTextSplitter来分句，并在允许的时候合并小的片段是有意义的。</p>
+<p>然后，我们试着问一下上一讲我们问过的问题，看看效果怎么样。</p>
+<p>问题1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># query will use the same embed_model</span><br><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> QueryMode<br><span class="hljs-keyword">from</span> llama_index <span class="hljs-keyword">import</span> QuestionAnswerPrompt<br><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br>QA_PROMPT_TMPL = (<br>    <span class="hljs-string">&quot;下面的内容来自鲁迅先生的散文集《朝花夕拾》，很多内容是以第一人称写的 \n&quot;</span><br>    <span class="hljs-string">&quot;---------------------\n&quot;</span><br>    <span class="hljs-string">&quot;&#123;context_str&#125;&quot;</span><br>    <span class="hljs-string">&quot;\n---------------------\n&quot;</span><br>    <span class="hljs-string">&quot;根据这些信息，请回答问题: &#123;query_str&#125;\n&quot;</span><br>    <span class="hljs-string">&quot;如果您不知道的话，请回答不知道\n&quot;</span><br>)<br>QA_PROMPT = QuestionAnswerPrompt(QA_PROMPT_TMPL)<br><br>response = index.query(<br>    <span class="hljs-string">&quot;鲁迅先生在日本学习医学的老师是谁？&quot;</span>,<br>    mode=QueryMode.EMBEDDING,<br>    similarity_top_k = <span class="hljs-number">1</span>,<br>    text_qa_template=QA_PROMPT,<br>    verbose=<span class="hljs-literal">True</span>,<br>)<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Got node text: 一将书放在讲台上，便用了缓慢而很有顿挫的声调，向学生介绍自己道：——<br>    “我就是叫作藤野严九郎的……。”<br><br><br>后面有几个人笑起来了。<br>他接着便讲述解剖学在日本发达的历史，那些大大小小的书，便是从最初到现今关于这一门学问的著作。...<br><br>鲁迅先生在日本学习医学的老师是藤野严九郎。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">response = index.query(<br>    <span class="hljs-string">&quot;鲁迅先生是在日本的哪个城市学习医学的？&quot;</span>,<br>    mode=QueryMode.EMBEDDING,<br>    similarity_top_k = <span class="hljs-number">1</span>,<br>    text_qa_template=QA_PROMPT,<br>    verbose=<span class="hljs-literal">True</span>,<br>)<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Got node text: 有时我常常想：他的对于我的热心的希望，不倦的教诲，小而言之，是为中国，就是希望中国有新的医学；大而言之，是为学术，就是希望新的医学传到中国去。...<br><br>根据这些信息，无法得出鲁迅先生是在日本的哪个城市学习医学的答案。<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，有些问题在这个模式下，定位到的文本片段是正确的。但是有些问题，虽然定位的还算是一个相关的片段，但是的确无法得出答案。</p>
+<p>在这个过程中，我们可以观察到这样一个问题： 那就是单机的开源小模型能够承载的文本输入的长度问题。在我们使用OpenAI的gpt-3.5-turbo模型的时候，我们最长支持4096个Token，也就是一个文本片段可以放上上千字在里面。但是我们这里单机用的paraphrase-multilingual-mpnet-base-v2模型，只能支持128个Token的输入，虽然对应的Tokenizer不一样，但是就算一个字一个Token，也就100个字而已。这使得我们检索出来的内容的上下文太少了，很多时候没有足够的信息，让语言模型去回答。</p>
+<p>当然，这个问题并不是无法弥补的。我们可以通过把更大规模的模型，部署到云端来解决。这个内容，我们课程的第三部分专门有一讲会讲解。</p>
+<p>不过，有一个更难解决的问题，就是模型的推理能力问题。比如，我们可以再试试之前给商品总结英文名称和卖点的例子。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;&quot;&quot;Consideration proudct : 工厂现货PVC充气青蛙夜市地摊热卖充气玩具发光蛙儿童水上玩具</span><br><span class="hljs-string"></span><br><span class="hljs-string">1. Compose human readale product title used on Amazon in english within 20 words.</span><br><span class="hljs-string">2. Write 5 selling points for the products in Amazon.</span><br><span class="hljs-string">3. Evaluate a price range for this product in U.S.</span><br><span class="hljs-string"></span><br><span class="hljs-string">Output the result in json format with three properties called title, selling_points and price_range&quot;&quot;&quot;</span><br>response, history = model.chat(tokenizer, question, history=[])<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-number">1.</span> title: 充气玩具青蛙夜市地摊卖<br><span class="hljs-number">2.</span> selling_points:<br>    - 工厂现货：保证产品质量<br>    - PVC充气：环保耐用<br>    - 夜市地摊：方便销售<br>    - 热卖：最受欢迎产品<br>    - 儿童水上玩具：适合各种年龄段儿童<br><span class="hljs-number">3.</span> price_range: (<span class="hljs-keyword">in</span> USD)<br>    - low:   $<span class="hljs-number">1.99</span><br>    - high:   $<span class="hljs-number">5.99</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，虽然这个结果不算太离谱，多少和问题还是有些关系的。但是无论是翻译成英文，还是使用JSON返回，模型都没有做到。给到的卖点也没有任何“推理出来”的性质，都是简单地对标题的重复描述。即使你部署一个更大版本的模型到云端，也好不到哪里去。</p>
+<p>这也是ChatGPT让人震撼的原因，的确目前它的效果还是要远远超出任何一个竞争对手和开源项目的。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>好了，最后我们来回顾一下。这一讲里，我们一起尝试用开源模型来代替ChatGPT。我们通过sentence_transfomers类型的模型，生成了文本分片的Embedding，并且基于这个Embedding来进行语义检索。我们通过 ChatGLM 这个开源模型，实现了基于上下文提示语的问答。在简单的电商QA这样的场景里，效果也还是不错的。即使我们使用的都是单机小模型，它也能正确回答出来。这些方法，也能节约我们的成本。不用把钱都交给OpenAI，可以攒着买显卡来训练自己的模型。</p>
+<p>但是，当我们需要解决更加复杂的问题时，比如需要更长的上下文信息，或者需要模型本身更强的推理能力的时候，这样的小模型就远远不够用了。更长的上下文信息检索，我们还能够通过在云端部署更大规模的模型，解决部分问题。但是模型的推理能力，目前的确没有好的解决方案。</p>
+<p>所以不得不佩服，OpenAI的在AGI这个目标上耕耘多年后震惊世人的效果。</p>
+<p>另外，ChatGLM并不是唯一的中文大语言模型，开源社区目前在快速推进，尝试用各种方式提供更好的开源大模型。比如基于斯坦福的Alpaca数据集进行微调的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/ymcui/Chinese-LLaMA-Alpaca">Chinese-LLaMA-Alpaca</a>，链家科技开源的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/LianjiaTech/BELLE">BELLE</a>。你可以挑选一个模型试一试，看看它们的效果和ChatGLM比起来怎么样。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>基于开源模型来解决问题的思路并非我的原创，网上也有不少其他朋友用类似的方式解决了自己的问题。比如 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://mp.weixin.qq.com/s/iplUoK_JYeL_9EC7Ttt3tw">《让 LLM 回答问题更靠谱》这篇文章</a> 就组合了三个模型来完成了医学领域的语义搜索、语义匹配排序，以及最终的问答语句生成。你可以读一下。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>09.如何利用开源模型处理简单的大模型需求，以节省开销</div>
+      <div>https://blog.longpi1.com/2023/11/21/09-如何利用开源模型处理简单的大模型需求，以节省开销/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/21/08.%E9%80%9A%E8%BF%87Llama%20Index%E5%AE%9E%E7%8E%B0%E5%85%88%E6%90%9C%E7%B4%A2%E3%80%81%E5%90%8E%E6%8F%90%E7%A4%BA%EF%BC%8C%E6%88%90%E4%B8%BA%E2%80%9C%E7%AC%AC%E4%BA%8C%E5%A4%A7%E8%84%91%E2%80%9D%E6%A8%A1%E5%BC%8F/" title="Index实现先搜索、后提示，成为“第二大脑”模式">
+                        <span class="hidden-mobile">Index实现先搜索、后提示，成为“第二大脑”模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
