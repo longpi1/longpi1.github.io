@@ -1,0 +1,774 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10. 通过调用GPT API帮你实现单元测试的生成">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/22/10.%20%E9%80%9A%E8%BF%87%E8%B0%83%E7%94%A8GPT%20API%E5%B8%AE%E4%BD%A0%E5%AE%9E%E7%8E%B0%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E7%94%9F%E6%88%90/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/21/STaqXxPiF9fwKRd.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/21/zdBnQoZ1VigTu8r.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/21/4cwRts1OohNELJk.png">
+<meta property="article:published_time" content="2023-11-22T03:10:42.000Z">
+<meta property="article:modified_time" content="2023-11-22T03:11:35.996Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/21/STaqXxPiF9fwKRd.png">
+  
+  
+  
+  <title>10. 通过调用GPT API帮你实现单元测试的生成 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="10. 通过调用GPT API帮你实现单元测试的生成"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-22 11:10" pubdate>
+          2023年11月22日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">10. 通过调用GPT API帮你实现单元测试的生成</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="10-通过调用GPT-API帮你实现单元测试的生成"><a href="#10-通过调用GPT-API帮你实现单元测试的生成" class="headerlink" title="10. 通过调用GPT API帮你实现单元测试的生成"></a>10. 通过调用GPT API帮你实现单元测试的生成</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>虽然GPT在我们探索性地开发一些功能的时候，已经极大地提高了我们的效率。但是这个过程并不能做成一个产品。我们理想中的产品应该是“自动档”的，我们只要用自然语言输入自己的需求，对应的代码就自动写出来了。如果中间出现了错误，AI可以自己拿到反馈来更正，而不需要我们人工去介入调试，或者复制粘贴。</p>
+<h2 id="先让GPT-4写个代码"><a href="#先让GPT-4写个代码" class="headerlink" title="先让GPT-4写个代码"></a>先让GPT-4写个代码</h2><p>这个思路听起来似乎有些科幻，但是随着GPT-4的发布，以及未来模型能力的进一步增长，这其实并不是遥不可及的。不过，这个时候你应该还只有GPT-3.5的API权限。所以这一讲，我们还是先把目标放低一点，先来 <strong>通过大语言模型，帮我们自动写单元测试代码</strong>。整个过程仍然是一个自动档的体验，只是能够提供的能力还相对比较简单，仅限于为现有代码提供单元测试而已。</p>
+<p>这个想法，源自OpenAI Cookbook提供的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openai/openai-cookbook/blob/main/examples/Unit_test_writing_using_a_multi-step_prompt.ipynb"><strong>AI 写单元测试的示例</strong></a>。但是那个例子里面的代码，已经不能使用了，因为对应的code-davinci-002模型已经被OpenAI下线了。但是例子里，分步骤分析问题，通过多个Prompts来完成单元测试的想法，还是非常有借鉴意义的。</p>
+<p>后续，随着你拿到GPT-4的API乃至未来可能会出现的GPT-5，你都完全可以用同样的方法完成更复杂的“自动写代码”的程序。</p>
+<h2 id="设计一个有些挑战的小题目"><a href="#设计一个有些挑战的小题目" class="headerlink" title="设计一个有些挑战的小题目"></a>设计一个有些挑战的小题目</h2><p>要写测试，我们要先有一个程序。为了避免这个题目本身就在AI的训练数据集里面，它直接知道答案，我们就不选用像Leetcode这样的题库了。我用了这样一个我觉得很有意思的小题目，也就是让Python根据我们输入的一个整数代表的秒数，格式化成一段自然语言描述的时间。比如，输入1就返回1s，输入61就返回1min1s。</p>
+<p>需求：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">用Python写一个函数，进行时间格式化输出，比如：<br>输入  输出<br><span class="hljs-number">1</span>  1s<br><span class="hljs-number">61</span>  1min1s<br>要求仅需要格式化到小时(?h?<span class="hljs-built_in">min</span>?s)，即可<br><br></code></pre></td></tr></table></figure>
+
+<p>题目有了，我们还需要一个正确的解题程序。我们今天的重点不是怎么用AI刷题，所以我们不如直接让ChatGPT帮我们把程序写好。</p>
+<p><img src="https://s2.loli.net/2023/11/21/STaqXxPiF9fwKRd.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>这是对应的Notebook里面的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">format_time</span>(<span class="hljs-params">seconds</span>):<br>    minutes, seconds = <span class="hljs-built_in">divmod</span>(seconds, <span class="hljs-number">60</span>)<br>    hours, minutes = <span class="hljs-built_in">divmod</span>(minutes, <span class="hljs-number">60</span>)<br>    <span class="hljs-keyword">if</span> hours &gt; <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;hours&#125;</span>h<span class="hljs-subst">&#123;minutes&#125;</span>min<span class="hljs-subst">&#123;seconds&#125;</span>s&quot;</span><br>    <span class="hljs-keyword">elif</span> minutes &gt; <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;minutes&#125;</span>min<span class="hljs-subst">&#123;seconds&#125;</span>s&quot;</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;seconds&#125;</span>s&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，AI快速给出了一个小程序，看上去没啥问题，能够完成我们想要的基本功能。</p>
+<p>既然ChatGPT可以写代码，我们自然也可以让它帮我们把单元测试也写好。</p>
+<p><img src="https://s2.loli.net/2023/11/21/zdBnQoZ1VigTu8r.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">conda install pytest<br><br></code></pre></td></tr></table></figure>
+
+<p>这是对应的Notebook里面的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pytest<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_format_time</span>():<br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-number">1</span>) == <span class="hljs-string">&quot;1s&quot;</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-number">59</span>) == <span class="hljs-string">&quot;59s&quot;</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-number">60</span>) == <span class="hljs-string">&quot;1min0s&quot;</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-number">61</span>) == <span class="hljs-string">&quot;1min1s&quot;</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-number">3600</span>) == <span class="hljs-string">&quot;1h0min0s&quot;</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-number">3661</span>) == <span class="hljs-string">&quot;1h1min1s&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<p><strong>乍一看，我们的单元测试已经写完了，那这一讲就结束了吗？当然不是了。如果你是一个比较有经验的程序员，你就会发现这个单元测试其实还是有好几个问题的。</strong></p>
+<ol>
+<li>这个测试没有考虑负数。如果我们输入的是负数会怎么样？</li>
+<li>没有考虑非整数类型的输入，如果我们输入浮点数 1.0 会怎么样？字符串“abc”会怎么样？nil这样的空值会怎么样？</li>
+<li>是即使是整数，我们还没有考虑过，超过24小时的话，格式化后的结果是怎么样的。</li>
+</ol>
+<h2 id="分解步骤撰写Prompts"><a href="#分解步骤撰写Prompts" class="headerlink" title="分解步骤撰写Prompts"></a>分解步骤撰写Prompts</h2><p><strong>所以，很多事情不是我们直接把问题一塞，给到ChatGPT就能解决的。</strong> <strong>我们需要反过来自己思考一下，如果我们自己来为一段代码写单元测试，我们会怎么做？</strong></p>
+<p>OpenAI的示例里给出了一个很好的思路，那就是把问题拆分成三个步骤。</p>
+<ol>
+<li>把代码提交给大语言模型，让大语言模型解释一下，这个代码是在干什么。</li>
+<li>把代码以及代码的解释一起交给大语言模型，让大语言模型规划一下，针对这个代码逻辑，我们到底要写哪几个TestCase。如果在这个过程里，大语言模型规划的TestCase数量太少，那么我们就重复第二步，让AI多生成几个TestCase。</li>
+<li>针对上面的TestCase的详细描述，再提交给大语言模型，让它根据这些描述生成具体的测试代码。在这个过程中，我们还会对生成的代码，进行一次语法检查，如果语法检查没法通过，我们就要让AI重新生成一下。这个可以避免因为大语言模型的概率采样不稳定，导致生成的代码无法运行的问题。</li>
+</ol>
+<p>最后，我们来实际运行一下这些代码，看看我们的代码能不能通过这些自动化测试。</p>
+<h3 id="请AI解释要测试的代码"><a href="#请AI解释要测试的代码" class="headerlink" title="请AI解释要测试的代码"></a>请AI解释要测试的代码</h3><p>那最后，我们就根据这个步骤一步步拆解，通过Python程序来把整个过程“自动化”掉。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">gpt35</span>(<span class="hljs-params">prompt, model=<span class="hljs-string">&quot;text-davinci-002&quot;</span>, temperature=<span class="hljs-number">0.4</span>, max_tokens=<span class="hljs-number">1000</span>,</span><br><span class="hljs-params">          top_p=<span class="hljs-number">1</span>, stop=[<span class="hljs-string">&quot;\n\n&quot;</span>, <span class="hljs-string">&quot;\n\t\n&quot;</span>, <span class="hljs-string">&quot;\n    \n&quot;</span>]</span>):<br>    response = openai.Completion.create(<br>        model=model,<br>        prompt = prompt,<br>        temperature = temperature,<br>        max_tokens = max_tokens,<br>        top_p = top_p,<br>        stop = stop<br>        )<br>    message = response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;text&quot;</span>]<br>    <span class="hljs-keyword">return</span> message<br><br>code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">def format_time(seconds):</span><br><span class="hljs-string">    minutes, seconds = divmod(seconds, 60)</span><br><span class="hljs-string">    hours, minutes = divmod(minutes, 60)</span><br><span class="hljs-string"></span><br><span class="hljs-string">    if hours &gt; 0:</span><br><span class="hljs-string">        return f&quot;&#123;hours&#125;h&#123;minutes&#125;min&#123;seconds&#125;s&quot;</span><br><span class="hljs-string">    elif minutes &gt; 0:</span><br><span class="hljs-string">        return f&quot;&#123;minutes&#125;min&#123;seconds&#125;s&quot;</span><br><span class="hljs-string">    else:</span><br><span class="hljs-string">        return f&quot;&#123;seconds&#125;s&quot;</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">explain_code</span>(<span class="hljs-params">function_to_test, unit_test_package=<span class="hljs-string">&quot;pytest&quot;</span></span>):<br>    prompt = <span class="hljs-string">f&quot;&quot;&quot;&quot;# How to write great unit tests with <span class="hljs-subst">&#123;unit_test_package&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">In this advanced tutorial for experts, we&#x27;ll use Python 3.10 and `<span class="hljs-subst">&#123;unit_test_package&#125;</span>` to write a suite of unit tests to verify the behavior of the following function.</span><br><span class="hljs-string">```python</span><br><span class="hljs-string"><span class="hljs-subst">&#123;function_to_test&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">Before writing any unit tests, let&#x27;s review what each element of the function is doing exactly and what the author&#x27;s intentions may have been.</span><br><span class="hljs-string">- First,&quot;&quot;&quot;</span><br>    response = gpt35(prompt)<br>    <span class="hljs-keyword">return</span> response, prompt<br><br>code_explaination, prompt_to_explain_code = explain_code(code)<br><span class="hljs-built_in">print</span>(code_explaination)<br><br></code></pre></td></tr></table></figure>
+
+<p>在第一步里，我们的代码做了这样几件事情。</p>
+<p>首先是定义了一个gpt35的函数，对调用GPT3.5的模型做了简单的封装。其中有2点需要注意。</p>
+<ol>
+<li>我们默认使用 text-davinci-002 模型，这是一个通过监督学习微调的生成文本的模型。因为这里我们希望生成目标明确的文本的代码解释，所以选用了这个模型。</li>
+<li>我们对stop做了特殊的设置，只要连续两个换行或者类似连续两个换行的情况出现，就中止数据的生成。这是避免模型一口气连测试代码也生成出来。那样的话，我们没法对测试代码的生成提出具体的要求。通过stop，我们可以确保在第一步，只解释现在的功能代码有什么用。</li>
+</ol>
+<p>然后，我们通过一组精心设置过的提示语，让GPT模型为我们来解释代码。我们在提示语里做了4件事情。</p>
+<ul>
+<li>指定了使用 pytest 这个测试包。</li>
+<li>把对应要测试的代码，也提供给了GPT模型。</li>
+<li>告诉AI，要精确描述代码做了什么。</li>
+<li>在最后一行用 “- First” 开头，引导GPT模型，逐步分行描述要测试的代码干了什么。</li>
+</ul>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain"> we use the `divmod` built-in function to get the quotient and remainder of `seconds` divided by 60. This is assigned to the variables `minutes` and `seconds`, respectively.<br>- Next, we do the same thing with `minutes` and 60, assigning the results to `hours` and `minutes`.<br>- Finally, we use string interpolation to return a string formatted according to how many hours/minutes/seconds are left.<br><br></code></pre></td></tr></table></figure>
+
+<p>运行第一步的代码，我们可以看到，AI回复了几个步骤，详细地描述了我们格式化时间的代码是怎么做的。</p>
+<h3 id="请AI根据代码解释制定测试计划"><a href="#请AI根据代码解释制定测试计划" class="headerlink" title="请AI根据代码解释制定测试计划"></a>请AI根据代码解释制定测试计划</h3><p>接下来，我们就根据生成的这个详细描述，请AI为我们制定一下具体的测试计划。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_a_test_plan</span>(<span class="hljs-params">full_code_explaination, unit_test_package=<span class="hljs-string">&quot;pytest&quot;</span></span>):<br>    prompt_to_explain_a_plan = <span class="hljs-string">f&quot;&quot;&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string">A good unit test suite should aim to:</span><br><span class="hljs-string">- Test the function&#x27;s behavior for a wide range of possible inputs</span><br><span class="hljs-string">- Test edge cases that the author may not have foreseen</span><br><span class="hljs-string">- Take advantage of the features of `<span class="hljs-subst">&#123;unit_test_package&#125;</span>` to make the tests easy to write and maintain</span><br><span class="hljs-string">- Be easy to read and understand, with clean code and descriptive names</span><br><span class="hljs-string">- Be deterministic, so that the tests always pass or fail in the same way</span><br><span class="hljs-string"></span><br><span class="hljs-string">`<span class="hljs-subst">&#123;unit_test_package&#125;</span>` has many convenient features that make it easy to write and maintain unit tests. We&#x27;ll use them to write unit tests for the function above.</span><br><span class="hljs-string"></span><br><span class="hljs-string">For this particular function, we&#x27;ll want our unit tests to handle the following diverse scenarios (and under each scenario, we include a few examples as sub-bullets):</span><br><span class="hljs-string">-&quot;&quot;&quot;</span><br>    prompt = full_code_explaination + prompt_to_explain_a_plan<br>    response = gpt35(prompt)<br>    <span class="hljs-keyword">return</span> response, prompt<br><br>test_plan, prompt_to_get_test_plan = generate_a_test_plan(prompt_to_explain_code + code_explaination)<br><span class="hljs-built_in">print</span>(test_plan)<br><br></code></pre></td></tr></table></figure>
+
+<p>我们整个测试计划的提示语，同样经过了精心设计。我们先是对AI做了几个要求。</p>
+<ol>
+<li>我们要求测试用例，尽量考虑输入的范围广一些。</li>
+<li>我们要求AI想一些连代码作者没有想到过的边界条件。</li>
+<li>我们希望AI能够利用好 pytest 这个测试包的特性。</li>
+<li>希望测试用例清晰易读，测试的代码要干净。</li>
+<li>我们要求测试代码的输出结果是确定的，要么通过，要么失败，不要有随机性。</li>
+</ol>
+<p><strong>然后，我们的提示语并没有立刻让AI去写测试代码，而是说我们要举几个例子。这样，AI就会生成一系列的示例。</strong> 我们对测试用例的提示是非常详尽的，这也是我们前面第一步没有直接让AI生成测试用例的原因。因为那样的话，我们没法在提示语中间插入这些详尽的要求。对具体的测试用例，只能寄希望于AI想得多一些。</p>
+<p>最后，我们发给AI的提示语，则是既包括了第一步要求解释代码的内容，也包括AI生成的对代码的解释，以及这里我们新增的对测试用例的要求，提供了非常详细的上下文，这样AI的表现也会更好、更有逻辑性。</p>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs plain"> Normal behavior:<br>    - `format_time(0)` should return `&quot;0s&quot;`<br>    - `format_time(59)` should return `&quot;59s&quot;`<br>    - `format_time(60)` should return `&quot;1min0s&quot;`<br>    - `format_time(119)` should return `&quot;1min59s&quot;`<br>    - `format_time(3600)` should return `&quot;1h0min0s&quot;`<br>    - `format_time(3601)` should return `&quot;1h0min1s&quot;`<br>    - `format_time(3660)` should return `&quot;1h1min0s&quot;`<br>    - `format_time(7200)` should return `&quot;2h0min0s&quot;`<br>- Invalid inputs:<br>    - `format_time(None)` should raise a `TypeError`<br>    - `format_time(&quot;abc&quot;)` should raise a `TypeError`<br>    - `format_time(-1)` should raise a `ValueError`<br><br></code></pre></td></tr></table></figure>
+
+<p>我运行了一下这个代码，可以看到，AI提供了很多测试用例。并且，里面考虑了好几种情况，包括我们前面提到的负数这样的特殊条件，也包括输入字符串，以及None这样的内容。</p>
+<p>不过，生成哪些用例其实是有一定的随机性的。这个也是大语言模型的一个缺点，就是可控性差。有时候，AI可能就只生成了3个用例，那样的话就会有很多情况我们的用例覆盖不到。</p>
+<p>所以，我们可以在生成用例之后，加一个步骤，检查一下到底生成了多少个用例。如果太少的话，我们就让AI再生成一些。我在下面给了一段示例代码，通过“\n-”这样一个换行加横杆的标记来判断之前生成的测试用例数量，如果比我们设定的下限少，我们就再添加一段提示语，让AI再生成一些。</p>
+<p>这里的提示语，我们要特别提醒AI考虑一下测试罕见情况和边界条件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python">not_enough_test_plan = <span class="hljs-string">&quot;&quot;&quot;The function is called with a valid number of seconds</span><br><span class="hljs-string">    - `format_time(1)` should return `&quot;1s&quot;`</span><br><span class="hljs-string">    - `format_time(59)` should return `&quot;59s&quot;`</span><br><span class="hljs-string">    - `format_time(60)` should return `&quot;1min&quot;`</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br>approx_min_cases_to_cover = <span class="hljs-number">7</span><br>elaboration_needed = test_plan.count(<span class="hljs-string">&quot;\n-&quot;</span>) +<span class="hljs-number">1</span> &lt; approx_min_cases_to_cover<br><span class="hljs-keyword">if</span> elaboration_needed:<br>        prompt_to_elaborate_on_the_plan = <span class="hljs-string">f&quot;&quot;&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string">In addition to the scenarios above, we&#x27;ll also want to make sure we don&#x27;t forget to test rare or unexpected edge cases (and under each edge case, we include a few examples as sub-bullets):</span><br><span class="hljs-string">-&quot;&quot;&quot;</span><br>        more_test_plan, prompt_to_get_test_plan = generate_a_test_plan(prompt_to_explain_code + code_explaination + not_enough_test_plan + prompt_to_elaborate_on_the_plan)<br>        <span class="hljs-built_in">print</span>(more_test_plan)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plain"> The function is called with a valid number of seconds<br>    - `format_time(1)` should return `&quot;1s&quot;`<br>    - `format_time(59)` should return `&quot;59s&quot;`<br>    - `format_time(60)` should return `&quot;1min&quot;`<br>- The function is called with an invalid number of seconds<br>    - `format_time(-1)` should raise a `ValueError`<br>    - `format_time(&quot;60&quot;)` should raise a `TypeError`<br>- The function is called with a `None` value<br>    - `format_time(None)` should raise a `TypeError`<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="根据测试计划生成测试代码"><a href="#根据测试计划生成测试代码" class="headerlink" title="根据测试计划生成测试代码"></a>根据测试计划生成测试代码</h3><p>当然，大部分情况下，生成的测试用例数都和我们前面的实际情况是一样的。那我们就可以直接用原来的代码、代码的解释以及测试用例，作为提示语，让AI帮我们写具体的测试了。</p>
+<p>这里的提示语也没有什么稀奇的，其实就是把前面已经生成的所有内容拼接在一起，然后要求AI根据前面的内容来写具体的测试代码。唯一有一点值得注意的是，为了避免AI忘记一开头功能代码的内容，我们特地再在提示语的最后，再次给AI看了一下我们要测试的功能代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_test_cases</span>(<span class="hljs-params">function_to_test, unit_test_package=<span class="hljs-string">&quot;pytest&quot;</span></span>):<br>    starter_comment = <span class="hljs-string">&quot;Below, each test case is represented by a tuple passed to the @pytest.mark.parametrize decorator&quot;</span><br>    prompt_to_generate_the_unit_test = <span class="hljs-string">f&quot;&quot;&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string">Before going into the individual tests, let&#x27;s first look at the complete suite of unit tests as a cohesive whole. We&#x27;ve added helpful comments to explain what each line does.</span><br><span class="hljs-string">```python</span><br><span class="hljs-string">import <span class="hljs-subst">&#123;unit_test_package&#125;</span>  # used for our unit tests</span><br><span class="hljs-string"></span><br><span class="hljs-string"><span class="hljs-subst">&#123;function_to_test&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">#<span class="hljs-subst">&#123;starter_comment&#125;</span>&quot;&quot;&quot;</span><br>    full_unit_test_prompt = prompt_to_explain_code + code_explaination + test_plan + prompt_to_generate_the_unit_test<br>    <span class="hljs-keyword">return</span> gpt35(model=<span class="hljs-string">&quot;text-davinci-003&quot;</span>, prompt=full_unit_test_prompt, stop=<span class="hljs-string">&quot;```&quot;</span>), prompt_to_generate_the_unit_test<br><br>unit_test_response, prompt_to_generate_the_unit_test = generate_test_cases(code)<br><span class="hljs-built_in">print</span>(unit_test_response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python">.<br><span class="hljs-comment">#The first element of the tuple is the name of the test case, and the second element is the value to be passed to the format_time() function.</span><br><span class="hljs-meta">@pytest.mark.parametrize(<span class="hljs-params"><span class="hljs-string">&#x27;test_input,expected&#x27;</span>, [</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-string">&#x27;0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;59&#x27;</span>, <span class="hljs-string">&#x27;59s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;60&#x27;</span>, <span class="hljs-string">&#x27;1min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;119&#x27;</span>, <span class="hljs-string">&#x27;1min59s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;3600&#x27;</span>, <span class="hljs-string">&#x27;1h0min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;3601&#x27;</span>, <span class="hljs-string">&#x27;1h0min1s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;3660&#x27;</span>, <span class="hljs-string">&#x27;1h1min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;7200&#x27;</span>, <span class="hljs-string">&#x27;2h0min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_format_time</span>(<span class="hljs-params">test_input, expected</span>):<br>    <span class="hljs-comment">#For each test case, we call the format_time() function and compare the returned value to the expected value.</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-built_in">int</span>(test_input)) == expected<br><br><span class="hljs-comment">#We use the @pytest.mark.parametrize decorator again to test the invalid inputs.</span><br><span class="hljs-meta">@pytest.mark.parametrize(<span class="hljs-params"><span class="hljs-string">&#x27;test_input&#x27;</span>, [</span></span><br><span class="hljs-params"><span class="hljs-meta">    <span class="hljs-literal">None</span>,</span></span><br><span class="hljs-params"><span class="hljs-meta">    <span class="hljs-string">&#x27;abc&#x27;</span>,</span></span><br><span class="hljs-params"><span class="hljs-meta">    -<span class="hljs-number">1</span></span></span><br><span class="hljs-params"><span class="hljs-meta">]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_format_time_invalid_inputs</span>(<span class="hljs-params">test_input</span>):<br>    <span class="hljs-comment">#For each invalid input, we expect a TypeError or ValueError to be raised.</span><br>    <span class="hljs-keyword">with</span> pytest.raises((TypeError, ValueError)):<br>        format_time(test_input)<br><br></code></pre></td></tr></table></figure>
+
+<p>运行一下这段提示语，我们就拿到了最终输出的测试代码。可以看到，这个测试代码不仅有正常情况下的测试，也包含了异常输入的测试。</p>
+<h3 id="通过AST库进行语法检查"><a href="#通过AST库进行语法检查" class="headerlink" title="通过AST库进行语法检查"></a>通过AST库进行语法检查</h3><p>不过这还没有完，我们最好还是再检查一下生成的测试代码的语法，这个可以通过Python的AST库来完成。不过需要注意，检查语法的时候，我们不仅需要生成的测试代码，也需要原来的功能代码，不然是没办法通过语法检查的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> ast<br><br>code_start_index = prompt_to_generate_the_unit_test.find(<span class="hljs-string">&quot;```python\n&quot;</span>) + <span class="hljs-built_in">len</span>(<span class="hljs-string">&quot;```python\n&quot;</span>)<br>code_output = prompt_to_generate_the_unit_test[code_start_index:] + unit_test_response<br><span class="hljs-keyword">try</span>:<br>    ast.parse(code_output)<br><span class="hljs-keyword">except</span> SyntaxError <span class="hljs-keyword">as</span> e:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Syntax error in generated code: <span class="hljs-subst">&#123;e&#125;</span>&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>很幸运，我们一次就通过了语法检查。那么接下来，我们就可以把对应的整个测试代码打印出来，执行试一试。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(code_output)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pytest  <span class="hljs-comment"># used for our unit tests</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">format_time</span>(<span class="hljs-params">seconds</span>):<br>    minutes, seconds = <span class="hljs-built_in">divmod</span>(seconds, <span class="hljs-number">60</span>)<br>    hours, minutes = <span class="hljs-built_in">divmod</span>(minutes, <span class="hljs-number">60</span>)<br><br>    <span class="hljs-keyword">if</span> hours &gt; <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;hours&#125;</span>h<span class="hljs-subst">&#123;minutes&#125;</span>min<span class="hljs-subst">&#123;seconds&#125;</span>s&quot;</span><br>    <span class="hljs-keyword">elif</span> minutes &gt; <span class="hljs-number">0</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;minutes&#125;</span>min<span class="hljs-subst">&#123;seconds&#125;</span>s&quot;</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;seconds&#125;</span>s&quot;</span><br><br><span class="hljs-comment">#Below, each test case is represented by a tuple passed to the @pytest.mark.parametrize decorator.</span><br><span class="hljs-comment">#The first element of the tuple is the name of the test case, and the second element is the value to be passed to the format_time() function.</span><br><span class="hljs-meta">@pytest.mark.parametrize(<span class="hljs-params"><span class="hljs-string">&#x27;test_input,expected&#x27;</span>, [</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-string">&#x27;0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;59&#x27;</span>, <span class="hljs-string">&#x27;59s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;60&#x27;</span>, <span class="hljs-string">&#x27;1min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;119&#x27;</span>, <span class="hljs-string">&#x27;1min59s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;3600&#x27;</span>, <span class="hljs-string">&#x27;1h0min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;3601&#x27;</span>, <span class="hljs-string">&#x27;1h0min1s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;3660&#x27;</span>, <span class="hljs-string">&#x27;1h1min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">    (<span class="hljs-params"><span class="hljs-string">&#x27;7200&#x27;</span>, <span class="hljs-string">&#x27;2h0min0s&#x27;</span></span>),</span></span><br><span class="hljs-params"><span class="hljs-meta">]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_format_time</span>(<span class="hljs-params">test_input, expected</span>):<br>    <span class="hljs-comment">#For each test case, we call the format_time() function and compare the returned value to the expected value.</span><br>    <span class="hljs-keyword">assert</span> format_time(<span class="hljs-built_in">int</span>(test_input)) == expected<br><br><span class="hljs-comment">#We use the @pytest.mark.parametrize decorator again to test the invalid inputs.</span><br><span class="hljs-meta">@pytest.mark.parametrize(<span class="hljs-params"><span class="hljs-string">&#x27;test_input&#x27;</span>, [</span></span><br><span class="hljs-params"><span class="hljs-meta">    <span class="hljs-literal">None</span>,</span></span><br><span class="hljs-params"><span class="hljs-meta">    <span class="hljs-string">&#x27;abc&#x27;</span>,</span></span><br><span class="hljs-params"><span class="hljs-meta">    -<span class="hljs-number">1</span></span></span><br><span class="hljs-params"><span class="hljs-meta">]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">test_format_time_invalid_inputs</span>(<span class="hljs-params">test_input</span>):<br>    <span class="hljs-comment">#For each invalid input, we expect a TypeError or ValueError to be raised.</span><br>    <span class="hljs-keyword">with</span> pytest.raises((TypeError, ValueError)):<br>        format_time(test_input)<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="看看自动生成的测试帮我们抓了什么Bug"><a href="#看看自动生成的测试帮我们抓了什么Bug" class="headerlink" title="看看自动生成的测试帮我们抓了什么Bug"></a>看看自动生成的测试帮我们抓了什么Bug</h3><p>我们可以把对应生成的代码，单独复制到一个auto_unit_test.py文件里面。然后去命令行里执行一下 pytest 这个命令，看看结果是怎样的。我这里，对应的会有一个测试用例失败，就是当输入是-1的时候，测试用例预期会遇到一个TypeError或者ValueError的报错，但是实际并没有。</p>
+<p><img src="https://s2.loli.net/2023/11/21/4cwRts1OohNELJk.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们可以试着在Notebook里面调用一下 format_time(-1)，看看自动化测试跑得对不对。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">format_time(-<span class="hljs-number">1</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;59min59s&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，输入-1的时候，输出变成了59min59s，看来AI生成的测试代码的确帮我们捕捉到了一个Bug。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>在这一篇文章中，我们也有了一段完整的，可以针对一个Python函数生成一整套自动化测试的功能了，而且它还真的帮我们抓到了一个Bug。 <strong>生成整套测试代码的过程里，我们不需要人工地复制粘帖任何内容，全都是代码自动完成的，是一个“自动档”的过程。</strong></p>
+<p>之所以能做到这一点，是因为我们巧妙地利用了一个方法，就是将一个问题，拆分成多个提示语的步骤，循序渐进地让AI通过解释代码，构造测试用例，最后再根据代码的解释和设计的测试用例，生成最终的自动化测试。</p>
+<p>多步提示语带来的一个好处，就是我们的内容是更加有条理、有逻辑的，也更符合我们平时写文字的方式，而不是一股脑地把各种要求都放在提示语的开头，这在解决复杂问题时往往效果不好。</p>
+<p>此外，我们这里使用的提示语也非常重要。正是因为我们能够分步骤提示AI，所以我们能在拿到代码的解释之后，让AI考虑各种边界条件。而AI也很给力，给出-1、None这样的特殊输入，让我们的测试代码最终真的抓住了程序里的Bug。</p>
+<p><strong>回过头来看，如果我们只是直接把代码往ChatGPT里一贴，虽然也能生成测试用例，但是那些测试用例就比较欠考虑，不会涵盖各种边角的情况。</strong></p>
+<p><strong>所以要生成完善的单元测试代码，我们还是需要结合GPT API进行代码生成。</strong></p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>之所以我们要循序渐进地提示AI，让AI生成例子再生成代码，是因为现在的大语言模型，有一种叫做“思维链（CoT）”的能力。当我们给出更详细的推理步骤的时候，AI的表现会更好。在OpenAI Cookbook里，专门有一章讲解 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/openai/openai-cookbook/blob/main/techniques_to_improve_reliability.md">思维链能力</a>，可以去好好研读一下。另外如何通过<strong>langchain</strong>的链式调用实现维护性更高的代码可查看下一篇文章。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>10. 通过调用GPT API帮你实现单元测试的生成</div>
+      <div>https://blog.longpi1.com/2023/11/22/10. 通过调用GPT API帮你实现单元测试的生成/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/22/11-%E9%80%9A%E8%BF%87LangChain%E7%9A%84%E9%93%BE%E5%BC%8F%E8%B0%83%E7%94%A8%E7%AE%80%E5%8C%96%E5%A4%9A%E6%AD%A5%E6%8F%90%E7%A4%BA%E8%AF%AD/" title="11.通过LangChain的链式调用简化多步提示语">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">11.通过LangChain的链式调用简化多步提示语</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/21/09-%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E5%BC%80%E6%BA%90%E6%A8%A1%E5%9E%8B%E5%A4%84%E7%90%86%E7%AE%80%E5%8D%95%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%9C%80%E6%B1%82%EF%BC%8C%E4%BB%A5%E8%8A%82%E7%9C%81%E5%BC%80%E9%94%80/" title="09.如何利用开源模型处理简单的大模型需求，以节省开销">
+                        <span class="hidden-mobile">09.如何利用开源模型处理简单的大模型需求，以节省开销</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
