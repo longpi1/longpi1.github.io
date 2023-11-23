@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="13.通过Langchain的“记忆力”实现聊天机器人">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/23/13-%E9%80%9A%E8%BF%87Langchain%E7%9A%84%E2%80%9C%E8%AE%B0%E5%BF%86%E5%8A%9B%E2%80%9D%E5%AE%9E%E7%8E%B0%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/21/uTltjWP382eS4NZ.png">
+<meta property="article:published_time" content="2023-11-23T02:05:16.000Z">
+<meta property="article:modified_time" content="2023-11-23T02:06:41.392Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/21/uTltjWP382eS4NZ.png">
+  
+  
+  
+  <title>13.通过Langchain的“记忆力”实现聊天机器人 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="13.通过Langchain的“记忆力”实现聊天机器人"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-23 10:05" pubdate>
+          2023年11月23日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">13.通过Langchain的“记忆力”实现聊天机器人</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="13-通过Langchain的“记忆力”实现聊天机器人"><a href="#13-通过Langchain的“记忆力”实现聊天机器人" class="headerlink" title="13.通过Langchain的“记忆力”实现聊天机器人"></a>13.通过Langchain的“记忆力”实现聊天机器人</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>在过去的文章里，我们深入了解了Langchain的第一个核心功能，也就是LLMChain。 LLMChain能够帮助我们链式地调用一系列命令，这里面既包含直接调用OpenAI的API，也包括调用其他外部接口，或者自己实现的Python代码。但是这一连串的调用，还只是完成一个小任务。我们很多时候还是希望用一个互动聊天的过程，来完成整个任务。</p>
+<p>所以LangChain并不是只有链式调用这样一个核心功能，它还封装了很多其他能力，来方便我们开发AI应用。比如，让AI能够拥有“记忆力”，也就是记住我们聊天上下文的能力。在之前文章中做的聊天机器人里面，为了能够让ChatGPT知道整个聊天的上下文，我们需要把历史的对话记录都传给它。但是，因为能够接收的Token数量有上限，所以我们只能设定一个参数，只保留最后几轮对话。我们最后把这个功能，抽象成了一个Conversation类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai<br><span class="hljs-keyword">import</span> os<br><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Conversation</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, prompt, num_of_round</span>):<br>        self.prompt = prompt<br>        self.num_of_round = num_of_round<br>        self.messages = []<br>        self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: self.prompt&#125;)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">ask</span>(<span class="hljs-params">self, question</span>):<br>        <span class="hljs-keyword">try</span>:<br>            self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: question&#125;)<br>            response = openai.ChatCompletion.create(<br>                model=<span class="hljs-string">&quot;gpt-3.5-turbo&quot;</span>,<br>                messages=self.messages,<br>                temperature=<span class="hljs-number">0.5</span>,<br>                max_tokens=<span class="hljs-number">2048</span>,<br>                top_p=<span class="hljs-number">1</span>,<br>            )<br>        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:<br>            <span class="hljs-built_in">print</span>(e)<br>            <span class="hljs-keyword">return</span> e<br><br>        message = response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;message&quot;</span>][<span class="hljs-string">&quot;content&quot;</span>]<br>        self.messages.append(&#123;<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: message&#125;)<br><br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(self.messages) &gt; self.num_of_round*<span class="hljs-number">2</span> + <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">del</span> self.messages[<span class="hljs-number">1</span>:<span class="hljs-number">3</span>] //Remove the first <span class="hljs-built_in">round</span> conversation left.<br>        <span class="hljs-keyword">return</span> message<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="BufferWindow，滑动窗口记忆"><a href="#BufferWindow，滑动窗口记忆" class="headerlink" title="BufferWindow，滑动窗口记忆"></a>BufferWindow，滑动窗口记忆</h2><p>这个基于一个固定长度的滑动窗口的“记忆”功能，被直接内置在LangChain里面了。在Langchain里，把对于整个对话过程的上下文叫做Memory。任何一个LLMChain，我们都可以给它加上一个Memory，来让它记住最近的对话上下文。我也把对应的代码放在了下面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationBufferWindowMemory<br><br>template = <span class="hljs-string">&quot;&quot;&quot;你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:</span><br><span class="hljs-string">1. 你的回答必须是中文</span><br><span class="hljs-string">2. 回答限制在100个字以内</span><br><span class="hljs-string"></span><br><span class="hljs-string">&#123;chat_history&#125;</span><br><span class="hljs-string">Human: &#123;human_input&#125;</span><br><span class="hljs-string">Chatbot:&quot;&quot;&quot;</span><br><br>prompt = PromptTemplate(<br>    input_variables=[<span class="hljs-string">&quot;chat_history&quot;</span>, <span class="hljs-string">&quot;human_input&quot;</span>],<br>    template=template<br>)<br>memory = ConversationBufferWindowMemory(memory_key=<span class="hljs-string">&quot;chat_history&quot;</span>, k=<span class="hljs-number">3</span>)<br>llm_chain = LLMChain(<br>    llm=OpenAI(),<br>    prompt=prompt,<br>    memory=memory,<br>    verbose=<span class="hljs-literal">True</span><br>)<br>llm_chain.predict(human_input=<span class="hljs-string">&quot;你是谁？&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27; 我是一个中国厨师，我可以帮助你做菜。我会根据你的口味和特殊要求，精心烹饪出独特美味的中国菜肴。&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，我们做的事情其实和之前的Conversation类似，我们定义了一个PromptTemplate来输入我们的指示。然后，在LLMChain构造的时候，我们为它指定了一个叫做 ConversationBufferWindowMemory的memory对象，并且为这个memory对象定义了k&#x3D;3，也就是只保留最近三轮的对话内容。</p>
+<p>到第四轮的时候它还是能够记得我们问它的第一个问题是“你是谁”，但是第5轮的时候，已经变成“鱼香肉丝怎么做？”了。这就是因为我们选择只保留过去3轮对话。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">llm_chain.predict(human_input=<span class="hljs-string">&quot;鱼香肉丝怎么做？&quot;</span>)<br>llm_chain.predict(human_input=<span class="hljs-string">&quot;那宫保鸡丁呢？&quot;</span>)<br>llm_chain.predict(human_input=<span class="hljs-string">&quot;我问你的第一句话是什么？&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27; 你是谁？&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>再次询问第一句话是什么：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">llm_chain.predict(human_input=<span class="hljs-string">&quot;我问你的第一句话是什么？&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27; 你问我的第一句话是“鱼香肉丝怎么做？”&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>事实上，你可以直接调用memory的load_memory_variables方法，它会直接返回memory里实际记住的对话内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">memory.load_memory_variables(&#123;&#125;)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&#x27;chat_history&#x27;</span>: <span class="hljs-string">&#x27;Human: 那宫保鸡丁呢？\nAI:  宫保鸡丁是一道经典的中国家常菜，需要准备鸡肉、花生米、干辣椒、葱、姜、蒜、料酒、盐、糖、胡椒粉、鸡精和醋。将鸡肉切成小块，放入盐水中浸泡，把其他食材切成小块，将花生米放入油锅中炸，再加入鸡肉和其他食材，炒至入味即可。\nHuman: 我问你的第一句话是什么？\nAI:  你是谁？\nHuman: 我问你的第一句话是什么？\nAI:  你问我的第一句话是“鱼香肉丝怎么做？”&#x27;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="SummaryMemory，把小结作为历史记忆"><a href="#SummaryMemory，把小结作为历史记忆" class="headerlink" title="SummaryMemory，把小结作为历史记忆"></a>SummaryMemory，把小结作为历史记忆</h2><p>使用BufferWindow这样的滑动窗口有一个坏处，就是几轮对话之后，AI就把一开始聊的内容给忘了。遇到这种情况，可以让AI去总结一下前面几轮对话的内容。这样，我们就不怕对话轮数太多或者太长了。</p>
+<p>同样的，Langchain也提供了一个ConversationSummaryMemory，可以实现这样的功能，我们还是通过一段简单的代码来看看它是怎么用的。</p>
+<p>代码中只有两个需要注意的点。</p>
+<p>第一个是对于我们定义的 <strong>ConversationSummaryMemory</strong>，它的构造函数也接受一个LLM对象。<strong>这个对象会专门用来生成历史对话的小结，是可以和对话本身使用的LLM对象不同的。</strong></p>
+<p>第二个是这次我们没有使用LLMChain这个对象，而是用了封装好的ConversationChain。用ConversationChain的话，其实我们是可以不用自己定义PromptTemplate来维护历史聊天记录的，但是为了使用中文的PromptTemplate，我们在这里还是自定义了对应的Prompt。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> ConversationChain<br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationSummaryMemory<br>llm = OpenAI(temperature=<span class="hljs-number">0</span>)<br>memory = ConversationSummaryMemory(llm=OpenAI())<br><br>prompt_template = <span class="hljs-string">&quot;&quot;&quot;你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:</span><br><span class="hljs-string">1. 你的回答必须是中文</span><br><span class="hljs-string">2. 回答限制在100个字以内</span><br><span class="hljs-string"></span><br><span class="hljs-string">&#123;history&#125;</span><br><span class="hljs-string">Human: &#123;input&#125;</span><br><span class="hljs-string">AI:&quot;&quot;&quot;</span><br>prompt = PromptTemplate(<br>    input_variables=[<span class="hljs-string">&quot;history&quot;</span>, <span class="hljs-string">&quot;input&quot;</span>], template=prompt_template<br>)<br>conversation_with_summary = ConversationChain(<br>    llm=llm,<br>    memory=memory,<br>    prompt=prompt,<br>    verbose=<span class="hljs-literal">True</span><br>)<br>conversation_with_summary.predict(<span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;你好&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:<br><span class="hljs-number">1.</span> 你的回答必须是中文<br><span class="hljs-number">2.</span> 回答限制在<span class="hljs-number">100</span>个字以内<br><br>Human: 你好<br>AI:<br>&gt; Finished chain.<br><span class="hljs-string">&#x27; 你好，我可以帮你做菜。我会根据你的口味和喜好，结合当地的食材，制作出美味可口的菜肴。我会尽力做出最好的菜肴，让你满意。&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>在我们打开了ConversationChain的Verbose模式，然后再次询问AI第二个问题的时候，你可以看到，在Verbose的信息里面，没有历史聊天记录，而是多了一段对之前聊天内容的英文小结。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">conversation_with_summary.predict(<span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;鱼香肉丝怎么做？&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:<br><span class="hljs-number">1.</span> 你的回答必须是中文<br><span class="hljs-number">2.</span> 回答限制在<span class="hljs-number">100</span>个字以内<br><br>The human greeted the AI <span class="hljs-keyword">and</span> the AI responded that it can <span class="hljs-built_in">help</span> cook by combining local ingredients <span class="hljs-keyword">and</span> tailor the meal to the human<span class="hljs-string">&#x27;s tastes and preferences. It promised to make the best dishes possible to the human&#x27;</span>s satisfaction.<br>Human: 鱼香肉丝怎么做？<br>AI:<br>&gt; Finished chain.<br><br><span class="hljs-string">&#x27; 鱼香肉丝是一道经典的家常菜，需要准备肉丝、葱姜蒜、鱼香调料、豆瓣酱、醋、糖、盐等调料，先将肉丝用盐、料酒、胡椒粉腌制，然后炒锅里放入葱姜蒜爆香，加入肉丝翻炒，加入鱼香调料、豆瓣酱、醋、糖等调料，最后放入少许水煮熟即可。&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>而如果这个时候我们调用 memory的load_memory_variables方法，可以看到记录下来的history是一小段关于对话的英文小结。而不是像上面那样，记录完整的历史对话。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">memory.load_memory_variables(&#123;&#125;)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&#x27;history&#x27;</span>: <span class="hljs-string">&#x27;\nThe human greeted the AI, to which the AI replied that it was a Chinese chef that enjoyed making Chinese dishes such as braised pork, Kung Pao chicken, and Fish-fragrant pork shreds. The AI also said that it would use fresh ingredients and carefully cook each dish to make them delicious. When the human asked about how to make Fish-fragrant pork shreds, the AI replied that it needed to prepare ingredients such as meat shreds, scallions, ginger, garlic, peppers, Sichuan pepper, soy sauce, sugar, vinegar, cooking wine, and cornstarch. The AI then explained that the meat shreds should first be marinated with cornstarch, cooking wine, salt, and pepper, and then the scallions, ginger, garlic, and peppers should be stir-fried in a wok, followed by the addition of the meat shreds. Finally, soy sauce, sugar, vinegar, and cornstarch should be added to season the dish.&#x27;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>而如果我们进一步通过conversation_with_summary去和AI对话，就会看到英文的小结内容会随着对话内容不断变化。每一次AI都是把之前的小结和新的对话交给memory中定义的LLM再次进行小结。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">conversation_with_summary.predict(<span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;那蚝油牛肉呢？&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:<br><span class="hljs-number">1.</span> 你的回答必须是中文<br><span class="hljs-number">2.</span> 回答限制在<span class="hljs-number">100</span>个字以内<br><br>The human greeted the AI <span class="hljs-keyword">and</span> the AI responded that it can <span class="hljs-built_in">help</span> cook by combining local ingredients <span class="hljs-keyword">and</span> tailor the meal to the human<span class="hljs-string">&#x27;s tastes and preferences. It promised to make the best dishes possible to the human&#x27;</span>s satisfaction. When asked how to make 鱼香肉丝, the AI responded that it requires the preparation of meat slices, scallion, ginger, garlic, fish sauce, doubanjiang, vinegar, sugar <span class="hljs-keyword">and</span> salt. The meat slices should be marinated <span class="hljs-keyword">with</span> salt, cooking wine <span class="hljs-keyword">and</span> pepper, then stir-fried <span class="hljs-keyword">with</span> scallion, ginger <span class="hljs-keyword">and</span> garlic. The fish sauce, doubanjiang, vinegar, sugar <span class="hljs-keyword">and</span> salt should be added <span class="hljs-keyword">in</span>, <span class="hljs-keyword">with</span> some water added to cook the dish.<br>Human: 那蚝油牛肉呢？<br>AI:<br>&gt; Finished chain.<br><br><span class="hljs-string">&#x27; 蚝油牛肉需要准备牛肉、蚝油、葱、姜、蒜、料酒、盐、糖、醋、淀粉和水。牛肉应先用盐、料酒和胡椒粉腌制，然后和葱、姜、蒜一起爆炒，再加入蚝油、糖、盐、醋和水，最后加入淀粉勾芡即可。&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="两者结合，使用SummaryBufferMemory"><a href="#两者结合，使用SummaryBufferMemory" class="headerlink" title="两者结合，使用SummaryBufferMemory"></a>两者结合，使用SummaryBufferMemory</h2><p>虽然SummaryMemory可以支持更长的对话轮数，但是它也有一个缺点，就是 <strong>即使是最近几轮的对话，记录的也不是精确的内容</strong>。当你问“上一轮我问的问题是什么？”的时候，它其实没法给出准确的回答。不过，相信你也想到了，我们把BufferMemory和SummaryMemory结合一下不就好了吗？没错，LangChain里还真提供了一个这样的解决方案，就叫做ConversationSummaryBufferMemory。</p>
+<p>下面，我们就来看看ConversationSummaryBufferMemory怎么用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> PromptTemplate<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> ConversationChain<br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationSummaryBufferMemory<br><span class="hljs-keyword">from</span> langchain.llms <span class="hljs-keyword">import</span> OpenAI<br><br>SUMMARIZER_TEMPLATE = <span class="hljs-string">&quot;&quot;&quot;请将以下内容逐步概括所提供的对话内容，并将新的概括添加到之前的概括中，形成新的概括。</span><br><span class="hljs-string"></span><br><span class="hljs-string">EXAMPLE</span><br><span class="hljs-string">Current summary:</span><br><span class="hljs-string">Human询问AI对人工智能的看法。AI认为人工智能是一种积极的力量。</span><br><span class="hljs-string"></span><br><span class="hljs-string">New lines of conversation:</span><br><span class="hljs-string">Human：为什么你认为人工智能是一种积极的力量？</span><br><span class="hljs-string">AI：因为人工智能将帮助人类发挥他们的潜能。</span><br><span class="hljs-string"></span><br><span class="hljs-string">New summary:</span><br><span class="hljs-string">Human询问AI对人工智能的看法。AI认为人工智能是一种积极的力量，因为它将帮助人类发挥他们的潜能。</span><br><span class="hljs-string">END OF EXAMPLE</span><br><span class="hljs-string"></span><br><span class="hljs-string">Current summary:</span><br><span class="hljs-string">&#123;summary&#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">New lines of conversation:</span><br><span class="hljs-string">&#123;new_lines&#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">New summary:&quot;&quot;&quot;</span><br><br>SUMMARY_PROMPT = PromptTemplate(<br>    input_variables=[<span class="hljs-string">&quot;summary&quot;</span>, <span class="hljs-string">&quot;new_lines&quot;</span>], template=SUMMARIZER_TEMPLATE<br>)<br><br>memory = ConversationSummaryBufferMemory(llm=OpenAI(), prompt=SUMMARY_PROMPT, max_token_limit=<span class="hljs-number">256</span>)<br><br>CHEF_TEMPLATE = <span class="hljs-string">&quot;&quot;&quot;你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:</span><br><span class="hljs-string">1. 你的回答必须是中文。</span><br><span class="hljs-string">2. 对于做菜步骤的回答尽量详细一些。</span><br><span class="hljs-string"></span><br><span class="hljs-string">&#123;history&#125;</span><br><span class="hljs-string">Human: &#123;input&#125;</span><br><span class="hljs-string">AI:&quot;&quot;&quot;</span><br>CHEF_PROMPT = PromptTemplate(<br>    input_variables=[<span class="hljs-string">&quot;history&quot;</span>, <span class="hljs-string">&quot;input&quot;</span>], template=CHEF_TEMPLATE<br>)<br><br>conversation_with_summary = ConversationChain(<br>    llm=OpenAI(model_name=<span class="hljs-string">&quot;text-davinci-003&quot;</span>, stop=<span class="hljs-string">&quot;\n\n&quot;</span>, max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>),<br>    prompt=CHEF_PROMPT,<br>    memory=memory,<br>    verbose=<span class="hljs-literal">True</span><br>)<br>answer = conversation_with_summary.predict(<span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;你是谁？&quot;</span>)<br><span class="hljs-built_in">print</span>(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:<br>1. 你的回答必须是中文。<br>2. 对于做菜步骤的回答尽量详细一些。<br><br>Human: 你是谁？<br>AI:<br>&gt; Finished chain.<br> 我是一个中国厨师，您有什么可以问我的关于做菜的问题吗？<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>这个代码显得有些长，这是为了演示的时候让你看得更加清楚一些。我把Langchain原来默认的对Memory进行小结的提示语模版从英文改成中文的了，不过这个翻译工作我也是让ChatGPT帮我做的。如果你想了解原始的英文提示语是什么样的，可以去看一下它源码里面的 _DEFAULT_SUMMARIZER_TEMPLATE，对应的链接我也放在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hwchase17/langchain/blob/master/langchain/memory/prompt.py">这里</a> 了。</li>
+<li>我们定义了一个 ConversationSummaryBufferMemory，在这个Memory的构造函数里面，我们指定了使用的LLM、提示语，以及一个max_token_limit参数。max_token_limit参数，其实就是告诉我们，当对话的长度到多长之后，我们就应该调用LLM去把文本内容小结一下。</li>
+<li>后面的代码其实就和前面其他的例子基本一样了。</li>
+</ol>
+<p>因为我们在代码里面打开了Verbose模式，所以你能看到实际AI记录的整个对话历史是怎么样的。当我们连续多问AI几句话，你就会看到，随着对话轮数的增加，Token数量超过了前面的max_token_limit 。于是SummaryBufferMemory就会触发，对前面的对话进行小结，也就会出现一个 System的信息部分，里面是聊天历史的小结，而后面完整记录的实际对话轮数就变少了。</p>
+<p>我们先问鱼香肉丝怎么做，Verbose的信息里还是显示历史的聊天记录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">answer = conversation_with_summary.predict(input=&quot;请问鱼香肉丝怎么做？&quot;)<br>print(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:<br>1. 你的回答必须是中文。<br>2. 对于做菜步骤的回答尽量详细一些。<br>Human: 你是谁？<br>AI:  我是一个中国厨师，您有什么可以问我的关于做菜的问题吗？<br>Human: 请问鱼香肉丝怎么做？<br>AI:<br>&gt; Finished chain.<br> 鱼香肉丝是一道很受欢迎的中国菜，准备材料有：猪肉、木耳、胡萝卜、葱姜蒜、花椒、八角、辣椒、料酒、糖、盐、醋、麻油、香油。做法步骤如下：1. 将猪肉切成薄片，用料酒、盐、糖、醋、麻油抓匀；2. 将木耳洗净，切碎；3. 将胡萝卜切丝；4. 将葱姜蒜切碎；5. 将花椒、八角、辣椒放入油锅中炸熟；6. 将葱姜蒜炒香；7. 加入猪肉片翻炒；8. 加入木耳、胡萝卜丝、花椒、八角、辣椒翻炒；9. 加入盐、糖、醋、麻油、香油调味；10. 加入水煮熟，即可出锅。<br><br></code></pre></td></tr></table></figure>
+
+<p>等到我们再问蚝油牛肉，前面的对话就被小结到System下面去了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">answer = conversation_with_summary.predict(input=&quot;那蚝油牛肉呢？&quot;)<br>print(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>你是一个中国厨师，用中文回答做菜的问题。你的回答需要满足以下要求:<br>1. 你的回答必须是中文。<br>2. 对于做菜步骤的回答尽量详细一些。<br>System:<br>Human询问AI是谁，AI回答自己是一个中国厨师，并问Human是否有关于做菜的问题。Human问AI如何做出鱼香肉丝，AI回答准备材料有猪肉、木耳、胡萝卜、葱姜蒜、花椒、八角、辣椒、料酒、糖、盐、醋、麻油、香油，做法步骤是将猪肉切成薄片，用料酒、盐、糖、醋、麻油抓匀，木耳<br>Human: 那蚝油牛肉呢？<br>AI:<br>&gt; Finished chain.<br> 准备材料有牛肉、葱、姜、蒜、蚝油、料酒、醋、糖、盐、香油，做法步骤是先将牛肉切成薄片，用料酒、盐、糖、醋、麻油抓匀，然后将葱、姜、蒜切碎，加入蚝油拌匀，最后加入香油搅拌均匀即可。<br><br></code></pre></td></tr></table></figure>
+
+<p>当然，在你实际使用SummaryBufferMemory的时候，并不需要把各个Prompt都改成自定义的中文版本。用默认的英文Prompt就足够了。因为在Verbose信息里出现的System信息并不会在实际的对话进行过程中显示给用户。这部分提示，只要AI自己能够理解就足够了。当然，你也可以根据实际对话的效果，来改写自己需要的提示语。</p>
+<p><img src="https://s2.loli.net/2023/11/21/uTltjWP382eS4NZ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>Pinecone 在自己网站上给出了一个数据对比，不同类型的Memory，随着对话轮数的增长，占用的Token数量的变化。你可以去看一看，不同的Memory在不同的参数下，占用的Token数量是不同的。比较合理的方式，还是使用这里的ConversationSummaryBufferMemory，这样既可以在记录少数对话内容的时候，记住的东西更加精确，也可以在对话轮数增长之后，既能够记住各种信息，又不至于超出Token数量的上限。</p>
+<p>不过，在运行程序的过程里，你应该可以感觉到现在程序跑得有点儿慢。这是因为我们使用 ConversationSummaryBufferMemory很多时候要调用多次OpenAI的API。在字数超过 max_token_limit 的时候，需要额外调用一次API来做小结。而且这样做，对应的Token数量消耗也是不少的。</p>
+<p>所以， <strong>不是所有的任务，都适合通过调用一次ChatGPT的API来解决。</strong> 很多时候，你还是可以多思考是否可以用上一讲介绍的 UtilityChain 和 TransformChain 来解决问题。</p>
+<h2 id="让AI存储历史对话"><a href="#让AI存储历史对话" class="headerlink" title="让AI存储历史对话"></a>让AI存储历史对话</h2><p>我们不仅可以在整个对话过程里，使用我们的Memory功能。如果你之前已经有了一系列的历史对话，我们也可以通过Memory提供的save_context接口，把历史聊天记录灌进去。然后基于这个Memory让AI接着和用户对话。比如下面我们就把一组电商客服历史对话记录给了SummaryBufferMemory。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs plain">memory = ConversationSummaryBufferMemory(llm=OpenAI(), prompt=SUMMARY_PROMPT, max_token_limit=40)<br>memory.save_context(<br>    &#123;&quot;input&quot;: &quot;你好&quot;&#125;,<br>    &#123;&quot;ouput&quot;: &quot;你好，我是客服李四，有什么我可以帮助您的么&quot;&#125;<br>    )<br>memory.save_context(<br>    &#123;&quot;input&quot;: &quot;我叫张三，在你们这里下了一张订单，订单号是 2023ABCD，我的邮箱地址是 customer@abc.com，但是这个订单十几天了还没有收到货&quot;&#125;,<br>    &#123;&quot;ouput&quot;: &quot;好的，您稍等，我先为您查询一下您的订单&quot;&#125;<br>    )<br>memory.load_memory_variables(&#123;&#125;)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;history&#x27;: &#x27;System: \nHuman和AI打招呼，AI介绍自己是客服李四，问Human有什么可以帮助的。Human提供订单号和邮箱地址，AI表示会为其查询订单状态。&#x27;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>注：为了演示方便，我设置了一个很小的 max_token_limit，但是这个问题在大的 max_token_limit 下，面对上下文比较多的会话一样会有问题。</p>
+<p>通过调用 memory.load_memory_variables 方法，我们发现AI对整段对话做了小结。但是这个小结有个问题，就是 <strong>它并没有提取到我们最关注的信息</strong>，比如用户的订单号、用户的邮箱。只有有了这些信息，AI才能够去查询订单，拿到结果然后回答用户的问题。</p>
+<p>以前在还没有ChatGPT的时代，在客服聊天机器人这样的领域，我们会通过命名实体识别的方式，把邮箱、订单号之类的关键信息提取出来。在有了ChatGPT这样的大语言模型之后，我们还是应该这样做。不过我们不是让专门的命名实体识别的算法做，而是直接让ChatGPT帮我们做。Langchain也内置了一个EntityMemory的封装，让AI自动帮我们提取这样的信息。我们来试一试。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs plain">from langchain.chains import ConversationChain<br>from langchain.memory import ConversationEntityMemory<br>from langchain.memory.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE<br><br>entityMemory = ConversationEntityMemory(llm=llm)<br>conversation = ConversationChain(<br>    llm=llm,<br>    verbose=True,<br>    prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,<br>    memory=entityMemory<br>)<br><br>answer=conversation.predict(input=&quot;我叫张老三，在你们这里下了一张订单，订单号是 2023ABCD，我的邮箱地址是 customer@abc.com，但是这个订单十几天了还没有收到货&quot;)<br>print(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new ConversationChain chain...<br>Prompt after formatting:<br>You are an assistant to a human, powered by a large language model trained by OpenAI.<br>You are designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, you are able to generate human-like text based on the input you receive, allowing you to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.<br>You are constantly learning and improving, and your capabilities are constantly evolving. You are able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. You have access to some personalized information provided by the human in the Context section below. Additionally, you are able to generate your own text based on the input you receive, allowing you to engage in discussions and provide explanations and descriptions on a wide range of topics.<br>Overall, you are a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether the human needs help with a specific question or just wants to have a conversation about a particular topic, you are here to assist.<br>Context:<br>&#123;&#x27;张老三&#x27;: &#x27;&#x27;, &#x27;2023ABCD&#x27;: &#x27;&#x27;, &#x27;customer@abc.com&#x27;: &#x27;&#x27;&#125;<br>Current conversation:<br>Last line:<br>Human: 我叫张老三，在你们这里下了一张订单，订单号是 2023ABCD，我的邮箱地址是 customer@abc.com，但是这个订单十几天了还没有收到货<br>You:<br>&gt; Finished chain.<br> 您好，张老三，我很抱歉你没有收到货。我们会尽快核实订单信息，并尽快给您处理，请您耐心等待，如果有任何疑问，欢迎您随时联系我们。<br><br></code></pre></td></tr></table></figure>
+
+<p>我们还是使用ConversationChain，只是这一次，我们指定使用EntityMemory。可以看到，在Verbose的日志里面，整个对话的提示语，多了一个叫做 Context 的部分，里面包含了刚才用户提供的姓名、订单号和邮箱。</p>
+<p>进一步，我们把memory里面存储的东西打印出来。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">print(conversation.memory.entity_store.store)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;张老三&#x27;: &#x27;张老三是一位订单号为2023ABCD、邮箱地址为customer@abc.com的客户。&#x27;, &#x27;2023ABCD&#x27;: &#x27;2023ABCD is an order placed by customer@abc.com that has not been received after more than ten days.&#x27;, &#x27;customer@abc.com&#x27;: &#x27;Email address of Zhang Lao San, who placed an order with Order Number 2023ABCD, but has not received the goods more than ten days later.&#x27;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，EntityMemory里面不仅存储了这些命名实体的名字，也对应的把命名实体所关联的上下文记录了下来。这个时候，如果我们再通过对话来询问相关的问题，AI也能够答上来。</p>
+<p>问题1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">answer=conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;我刚才的订单号是多少？&quot;</span>)<br><span class="hljs-built_in">print</span>(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">您的订单号是2023ABCD。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">answer=conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-string">&quot;订单2023ABCD是谁的订单？&quot;</span>)<br><span class="hljs-built_in">print</span>(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">订单2023ABCD是您张老三的订单，您的邮箱地址是customer@abc.com。<br><br></code></pre></td></tr></table></figure>
+
+<p>这些往往才是我们在聊天的过程中真正关注的信息。如果我们要做一个电商客服，后续的对话需要查询订单号、用户姓名的时候，这些信息是必不可少的。</p>
+<p>事实上，我们不仅可以把这些Memory放在内存里面，还可以进一步把它们存放在Redis这样的外部存储里面。这样即使我们的服务进程消失了，这些“记忆”也不会丢失。你可以对照着 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://python.langchain.com/en/latest/modules/memory/examples/agent_with_memory_in_db.html">官方文档</a> 尝试一下。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这一篇主要为你讲解了<strong>Langchain</strong>里面的<strong>Memory</strong>功能。Memory对整个对话的过程里我们希望记住的东西做了封装。我们可以通过BufferWindowMemory记住过去几轮的对话，通过<strong>SummaryMemory概括对话的历史并记下来</strong>。也可以将两者结合，使用<strong>BufferSummaryMemory</strong>来<strong>维护一个对整体对话做了小结</strong>，同时又记住最近几轮对话的“记忆”。</p>
+<p>不过， <strong>更具有实用意义的是 EntityMemory</strong>。在实际使用AI进行对话的过程中，并不是让它不分轻重地记住一切内容，而是有一些我们要关注的核心要点。比如，如果你要搭建一个电商客服的聊天机器人，你肯定希望它记住具体的订单号、用户的邮箱等等。这个时候，我们就可以使用EntityMemory，它会帮助我们记住整个对话里面的“<strong>命名实体”（Entity</strong>），保留实际在对话中我们最关心的信息。</p>
+<p>在过去的几讲里面，从llama-index开始，我们已经学会了将外部的资料库索引起来进行问答，也学会了通过Langchain的链式调用，实时获取外部的数据信息，或者运行Python程序。这一讲，我们又专门研究了怎样记住对话中我们关心的部分。</p>
+<p><strong>将这些能力组合起来，我们就可以搭建一个完整的，属于自己的聊天机器人。</strong> 我们可以根据用户提供的订单号，去查询订单物流信息，安抚客户；也可以根据用户想要了解的商品，查询我们的商品库，进行商品导购。而这些，也是我们下一讲要解决的问题。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>在Pinecone提供的Langchain AI Handbook里面，专门测试了一下，从BufferWindowMemory到BufferSummaryMemory，对于上下文保持的能力，以及消耗的Token数量的统计。那个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.pinecone.io/learn/langchain-conversational-memory/">教程</a> 你也可以去看一下。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>13.通过Langchain的“记忆力”实现聊天机器人</div>
+      <div>https://blog.longpi1.com/2023/11/23/13-通过Langchain的“记忆力”实现聊天机器人/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/23/12.%E6%B7%B1%E5%85%A5%E4%BD%BF%E7%94%A8LLMChain%EF%BC%8C%E8%BF%9E%E6%8E%A5%E5%A4%96%E9%83%A8%E5%B7%A5%E5%85%B7Google%E7%AD%89/" title="12.深入使用LLMChain，连接外部工具Google等">
+                        <span class="hidden-mobile">12.深入使用LLMChain，连接外部工具Google等</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

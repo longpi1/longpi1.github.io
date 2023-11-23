@@ -1,0 +1,765 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="12.深入使用LLMChain，连接外部工具Google等">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/23/12.%E6%B7%B1%E5%85%A5%E4%BD%BF%E7%94%A8LLMChain%EF%BC%8C%E8%BF%9E%E6%8E%A5%E5%A4%96%E9%83%A8%E5%B7%A5%E5%85%B7Google%E7%AD%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/21/2mwtYiV4eqovC9b.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/21/Pe5uaCWSGB3RjUY.png">
+<meta property="article:published_time" content="2023-11-23T02:03:02.000Z">
+<meta property="article:modified_time" content="2023-11-23T02:06:31.154Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/21/2mwtYiV4eqovC9b.png">
+  
+  
+  
+  <title>12.深入使用LLMChain，连接外部工具Google等 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="12.深入使用LLMChain，连接外部工具Google等"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-23 10:03" pubdate>
+          2023年11月23日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">12.深入使用LLMChain，连接外部工具Google等</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="12-深入使用LLMChain，连接外部工具Google等"><a href="#12-深入使用LLMChain，连接外部工具Google等" class="headerlink" title="12. 深入使用LLMChain，连接外部工具Google等"></a>12. 深入使用LLMChain，连接外部工具Google等</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>上一讲里，一起学习了怎么通过LangChain这个Python包，链式地调用OpenAI的API。通过链式调用的方式，我们可以把一个需要询问AI多轮才能解决的问题封装起来，把一个通过自然语言多轮调用才能解决的问题，变成了一个函数调用。</p>
+<p>不过，LangChain能够帮到我们的远不止这一点。前一阵，ChatGPT发布了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://openai.com/blog/chatgpt-plugins">Plugins</a> 这个插件机制。通过Plugins，ChatGPT可以浏览整个互联网，还可以接上Wolfram这样的科学计算工具，能够实现很多原先光靠大语言模型解决不好的问题。不过，这个功能目前还是处于wait list的状态，我也还没有拿到权限。</p>
+<p>不过没有关系，我们通过LangChain也能实现这些类似的功能。今天这一篇文章，继续深入挖掘一下Langchain，看看它怎么解决这些问题。</p>
+<h2 id="解决AI数理能力的难题"><a href="#解决AI数理能力的难题" class="headerlink" title="解决AI数理能力的难题"></a>解决AI数理能力的难题</h2><p>很多人发现，虽然ChatGPT回答各种问题的时候都像模像样的，但是一到计算三位数乘法的时候就露馅儿了。感觉它只是快速估计了一个数字，而不是真的准确计算了。我们来看下面这段代码，我们让OpenAI帮我们计算一下 352 x 493 等于多少，你会发现，它算得大差不差，但还是算错了。这就很尴尬，如果我们真的想要让它来担任一个小学数学的助教，总是给出错误的答案也不是个事儿。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br><span class="hljs-keyword">from</span> langchain.prompts <span class="hljs-keyword">import</span> PromptTemplate<br><span class="hljs-keyword">from</span> langchain.llms <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> LLMChain<br><br>llm = OpenAI(model_name=<span class="hljs-string">&quot;text-davinci-003&quot;</span>, max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>)<br>multiply_prompt = PromptTemplate(template=<span class="hljs-string">&quot;请计算一下&#123;question&#125;是多少?&quot;</span>, input_variables=[<span class="hljs-string">&quot;question&quot;</span>])<br>math_chain = LLMChain(llm=llm, prompt=multiply_prompt, output_key=<span class="hljs-string">&quot;answer&quot;</span>)<br>answer = math_chain.run(&#123;<span class="hljs-string">&quot;question&quot;</span>: <span class="hljs-string">&quot;352乘以493&quot;</span>&#125;)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;OpenAI API 说答案是:&quot;</span>, answer)<br><br>python_answer = <span class="hljs-number">352</span> * <span class="hljs-number">493</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Python 说答案是:&quot;</span>, python_answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">OpenAI API 说答案是:<br>352 x 493 = 174,336<br>Python 说答案是: 173536<br><br></code></pre></td></tr></table></figure>
+
+<p>注：可以看到，OpenAI给出的结果，答案是错误的。</p>
+<p>不过，有人很聪明，说虽然ChatGPT直接算这些数学题不行，但是它不是会写代码吗？我们直接让它帮我们写一段利用Python计算这个数学式子的代码不就好了吗？的确，如果你让它写一段Python代码，给出的代码是没有问题的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">multiply_by_python_prompt = PromptTemplate(template=<span class="hljs-string">&quot;请写一段Python代码，计算&#123;question&#125;?&quot;</span>, input_variables=[<span class="hljs-string">&quot;question&quot;</span>])<br>math_chain = LLMChain(llm=llm, prompt=multiply_by_python_prompt, output_key=<span class="hljs-string">&quot;answer&quot;</span>)<br>answer = math_chain.run(&#123;<span class="hljs-string">&quot;question&quot;</span>: <span class="hljs-string">&quot;352乘以493&quot;</span>&#125;)<br><span class="hljs-built_in">print</span>(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-number">352</span> * <span class="hljs-number">493</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>不过，我们不想再把这段代码，复制粘贴到Python的解释器或者Notebook里面，再去手工执行一遍。所以，我们可以在后面再调用一个Python解释器，让整个过程自动完成，对应的代码我也放在了下面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">multiply_by_python_prompt = PromptTemplate(template=<span class="hljs-string">&quot;请写一段Python代码，计算&#123;question&#125;?&quot;</span>, input_variables=[<span class="hljs-string">&quot;question&quot;</span>])<br>math_chain = LLMChain(llm=llm, prompt=multiply_by_python_prompt, output_key=<span class="hljs-string">&quot;answer&quot;</span>)<br>answer_code = math_chain.run(&#123;<span class="hljs-string">&quot;question&quot;</span>: <span class="hljs-string">&quot;352乘以493&quot;</span>&#125;)<br><br><span class="hljs-keyword">from</span> langchain.utilities <span class="hljs-keyword">import</span> PythonREPL<br>python_repl = PythonREPL()<br>result = python_repl.run(answer_code)<br><span class="hljs-built_in">print</span>(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-number">173536</span><br><br></code></pre></td></tr></table></figure>
+
+<p>注：生成的Python脚本是正确的，再通过调用Python解释器就能得到正确的计算结果。</p>
+<p>可以看到，LangChain里面内置了一个utilities的包，里面包含了PythonREPL这个类，可以实现对Python解释器的调用。如果你去翻看一下对应代码的源码的话，它其实就是简单地调用了一下系统自带的exec方法，来执行Python代码。utilities里面还有很多其他的类，能够实现很多功能，比如可以直接运行Bash脚本，调用Google Search的API等等。你可以去LangChain的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://python.langchain.com/en/latest/modules/agents/tools.html">文档</a>，看看它内置的这些工具类有哪些。</p>
+<p>如果你仔细想一下，你会发现这其实也是一种链式调用。只不过，调用链里面的第二步，不是去访问OpenAI的API而已。所以，对于这些工具能力，LangChain也把它们封装成了LLMChain的形式。比如刚才的数学计算问题，是一个先生成Python脚本，再调用Python解释器的过程，LangChain就把这个过程封装成了一个叫做 LLMMathChain的LLMChain。不需要自己去生成代码，再调用PythonREPL，只要直接调用LLMMathChain，它就会在背后把这一切都给做好，对应的代码我也放在下面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> LLMMathChain<br><br>llm_math = LLMMathChain(llm=llm, verbose=<span class="hljs-literal">True</span>)<br>result = llm_math.run(<span class="hljs-string">&quot;请计算一下352乘以493是多少?&quot;</span>)<br><span class="hljs-built_in">print</span>(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new LLMMathChain chain...<br>请计算一下<span class="hljs-number">352</span>乘以<span class="hljs-number">493</span>是多少?<br><br><span class="hljs-built_in">print</span>(<span class="hljs-number">352</span> * <span class="hljs-number">493</span>)<br><br>Answer: <span class="hljs-number">173536</span><br>&gt; Finished chain.<br>Answer: <span class="hljs-number">173536</span><br><br></code></pre></td></tr></table></figure>
+
+<p>LangChain也把前面讲过的utilities包里面的很多功能，都封装成了Utility Chains。比如，SQLDatabaseChain可以直接根据你的数据库生成SQL，然后获取数据，LLMRequestsChain可以通过API调用外部系统，获得想要的答案。你可以直接在LangChain关于Utility Chains的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://python.langchain.com/en/latest/modules/agents/tools.html">文档</a> 里面，找到有哪些工具可以用。</p>
+<p><img src="https://s2.loli.net/2023/11/21/2mwtYiV4eqovC9b.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="通过RequestsChain获取实时外部信息"><a href="#通过RequestsChain获取实时外部信息" class="headerlink" title="通过RequestsChain获取实时外部信息"></a>通过RequestsChain获取实时外部信息</h2><p>这里我们来重点讲一讲如何通过API来调用外部系统，获得想要的答案。之前在介绍llama-index的时候，我们已经介绍过一种为AI引入外部知识的方法了，那就是计算这些外部知识的Embedding，然后作为索引先保存下来。但是，这只适用于处理那些预先准备好会被问到的知识，比如一本书、一篇论文。这些东西，内容多但是固定，也不存在时效性问题，我们可以提前索引好，而且用户问的问题往往也有很强的相似性。</p>
+<p>但是，对于时效性强的问题，这个方法不太适用，因为我们可能没有必要不停地更新索引。比如，你想要知道实时的天气情况，我们不太可能把全球所有城市最新的天气信息每隔几分钟都索引一遍。</p>
+<p>这个时候，我们可以使用LLMRequestsChain，通过一个HTTP请求来得到问题的答案。最简单粗暴的一个办法，就是直接通过一个HTTP请求来问一下Google。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> LLMRequestsChain<br><br>template = <span class="hljs-string">&quot;&quot;&quot;在 &gt;&gt;&gt; 和 &lt;&lt;&lt; 直接是来自Google的原始搜索结果.</span><br><span class="hljs-string">请把对于问题 &#x27;&#123;query&#125;&#x27; 的答案从里面提取出来，如果里面没有相关信息的话就说 &quot;找不到&quot;</span><br><span class="hljs-string">请使用如下格式：</span><br><span class="hljs-string">Extracted:&lt;answer or &quot;找不到&quot;&gt;</span><br><span class="hljs-string"><span class="hljs-meta">&gt;&gt;&gt; </span>&#123;requests_result&#125; &lt;&lt;&lt;</span><br><span class="hljs-string">Extracted:&quot;&quot;&quot;</span><br><br>PROMPT = PromptTemplate(<br>    input_variables=[<span class="hljs-string">&quot;query&quot;</span>, <span class="hljs-string">&quot;requests_result&quot;</span>],<br>    template=template,<br>)<br>requests_chain = LLMRequestsChain(llm_chain = LLMChain(llm=OpenAI(temperature=<span class="hljs-number">0</span>), prompt=PROMPT))<br>question = <span class="hljs-string">&quot;今天上海的天气怎么样？&quot;</span><br>inputs = &#123;<br>    <span class="hljs-string">&quot;query&quot;</span>: question,<br>    <span class="hljs-string">&quot;url&quot;</span>: <span class="hljs-string">&quot;https://www.google.com/search?q=&quot;</span> + question.replace(<span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;+&quot;</span>)<br>&#125;<br>result=requests_chain(inputs)<br><span class="hljs-built_in">print</span>(result)<br><span class="hljs-built_in">print</span>(result[<span class="hljs-string">&#x27;output&#x27;</span>])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;query&#x27;: &#x27;今天上海的天气怎么样？&#x27;, &#x27;url&#x27;: &#x27;https://www.google.com/search?q=今天上海的天气怎么样？&#x27;, &#x27;output&#x27;: &#x27;小雨; 10℃～15℃; 东北风 风力4-5级&#x27;&#125;<br>小雨; 10℃～15℃; 东北风 风力4-5级<br><br></code></pre></td></tr></table></figure>
+
+<p>我们来看看这段代码，基于LLMRequestsChain，我们用到了之前使用过的好几个技巧。</p>
+<ol>
+<li>首先，因为我们是简单粗暴地搜索Google。但是我们想要的是一个有价值的天气信息，而不是整个网页。所以，我们还需要通过ChatGPT把网页搜索结果里面的答案给找出来。所以我们定义了一个PromptTemplate，通过一段提示语，让OpenAI为我们在搜索结果里面，找出问题的答案，而不是去拿原始的HTML页面。</li>
+<li>然后，我们使用了LLMRequestsChain，并且把刚才PromptTemplate构造的一个普通的LLMChain，作为构造函数的一个参数，传给LLMRequestsChain，帮助我们在搜索之后处理搜索结果。</li>
+<li>对应的搜索词，通过query这个参数传入，对应的原始搜索结果，则会默认放到requests_results里。而通过我们自己定义的PromptTemplate抽取出来的最终答案，则会放到output这个输出参数里面。</li>
+</ol>
+<p>我们运行一下，就可以看到我们通过简单搜索Google加上通过OpenAI提取搜索结果里面的答案，就得到了最新的天气信息。</p>
+<h2 id="通过TransformationChain转换数据格式"><a href="#通过TransformationChain转换数据格式" class="headerlink" title="通过TransformationChain转换数据格式"></a>通过TransformationChain转换数据格式</h2><p>有了实时的外部数据，我们就又有很多做应用的创意了。比如说，我们可以根据气温来推荐大家穿什么衣服。我们可以要求如果最低温度低于0度，就要推荐用户去穿羽绒服。或者，根据是否下雨来决定要不要提醒用户出门带伞。</p>
+<p>不过，在现在的返回结果里，天气信息（天气、温度、风力）只是一段文本，而不是可以直接获取的JSON格式。当然，我们可以在LLMChain里面再链式地调用一次OpenAI的接口，把这段文本转换成JSON格式。但是，这样做的话，一来还要消耗更多的Token、花更多的钱，二来这也会进一步增加程序需要运行的时间，毕竟一次往返的网络请求也是很慢的。这里的文本格式其实很简单，我们完全可以通过简单的字符串处理完成解析。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">parse_weather_info</span>(<span class="hljs-params">weather_info: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">dict</span>:<br>    <span class="hljs-comment"># 将天气信息拆分成不同部分</span><br>    parts = weather_info.split(<span class="hljs-string">&#x27;; &#x27;</span>)<br><br>    <span class="hljs-comment"># 解析天气</span><br>    weather = parts[<span class="hljs-number">0</span>].strip()<br><br>    <span class="hljs-comment"># 解析温度范围，并提取最小和最大温度</span><br>    temperature_range = parts[<span class="hljs-number">1</span>].strip().replace(<span class="hljs-string">&#x27;℃&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>).split(<span class="hljs-string">&#x27;～&#x27;</span>)<br>    temperature_min = <span class="hljs-built_in">int</span>(temperature_range[<span class="hljs-number">0</span>])<br>    temperature_max = <span class="hljs-built_in">int</span>(temperature_range[<span class="hljs-number">1</span>])<br><br>    <span class="hljs-comment"># 解析风向和风力</span><br>    wind_parts = parts[<span class="hljs-number">2</span>].split(<span class="hljs-string">&#x27; &#x27;</span>)<br>    wind_direction = wind_parts[<span class="hljs-number">0</span>].strip()<br>    wind_force = wind_parts[<span class="hljs-number">1</span>].strip()<br><br>    <span class="hljs-comment"># 返回解析后的天气信息字典</span><br>    weather_dict = &#123;<br>        <span class="hljs-string">&#x27;weather&#x27;</span>: weather,<br>        <span class="hljs-string">&#x27;temperature_min&#x27;</span>: temperature_min,<br>        <span class="hljs-string">&#x27;temperature_max&#x27;</span>: temperature_max,<br>        <span class="hljs-string">&#x27;wind_direction&#x27;</span>: wind_direction,<br>        <span class="hljs-string">&#x27;wind_force&#x27;</span>: wind_force<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> weather_dict<br><br><span class="hljs-comment"># 示例</span><br>weather_info = <span class="hljs-string">&quot;小雨; 10℃～15℃; 东北风 风力4-5级&quot;</span><br>weather_dict = parse_weather_info(weather_info)<br><span class="hljs-built_in">print</span>(weather_dict)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&#x27;weather&#x27;</span>: <span class="hljs-string">&#x27;小雨&#x27;</span>, <span class="hljs-string">&#x27;temperature&#x27;</span>: &#123;<span class="hljs-string">&#x27;min&#x27;</span>: <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;max&#x27;</span>: <span class="hljs-number">15</span>&#125;, <span class="hljs-string">&#x27;wind&#x27;</span>: &#123;<span class="hljs-string">&#x27;direction&#x27;</span>: <span class="hljs-string">&#x27;东北风&#x27;</span>, <span class="hljs-string">&#x27;level&#x27;</span>: <span class="hljs-string">&#x27;风力4-5级&#x27;</span>&#125;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>注：上面这段代码，其实是我让GPT-4写的。</p>
+<p>我们在这里实现了一个 <strong>parse_weather_info</strong> 函数，可以把前面LLMRequestsChain的输出结果，解析成一个dict。不过，我们能不能更进一步，把这个解析的逻辑，也传到LLMChain的链式调用的最后呢？答案当然是可以的。对于这样的要求，Langchain里面也有一个专门的解决方案，叫做TransformChain，也就是做格式转换。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> TransformChain, SequentialChain<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">transform_func</span>(<span class="hljs-params">inputs: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">dict</span>:<br>    text = inputs[<span class="hljs-string">&quot;output&quot;</span>]<br>    <span class="hljs-keyword">return</span> &#123;<span class="hljs-string">&quot;weather_info&quot;</span> : parse_weather_info(text)&#125;<br><br>transformation_chain = TransformChain(input_variables=[<span class="hljs-string">&quot;output&quot;</span>],<br>                                      output_variables=[<span class="hljs-string">&quot;weather_info&quot;</span>], transform=transform_func)<br><br>final_chain = SequentialChain(chains=[requests_chain, transformation_chain],<br>                              input_variables=[<span class="hljs-string">&quot;query&quot;</span>, <span class="hljs-string">&quot;url&quot;</span>], output_variables=[<span class="hljs-string">&quot;weather_info&quot;</span>])<br>final_result = final_chain.run(inputs)<br><span class="hljs-built_in">print</span>(final_result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&#x27;weather&#x27;</span>: <span class="hljs-string">&#x27;小雨&#x27;</span>, <span class="hljs-string">&#x27;temperature&#x27;</span>: &#123;<span class="hljs-string">&#x27;min&#x27;</span>: <span class="hljs-number">10</span>, <span class="hljs-string">&#x27;max&#x27;</span>: <span class="hljs-number">15</span>&#125;, <span class="hljs-string">&#x27;wind&#x27;</span>: &#123;<span class="hljs-string">&#x27;direction&#x27;</span>: <span class="hljs-string">&#x27;东北风&#x27;</span>, <span class="hljs-string">&#x27;level&#x27;</span>: <span class="hljs-string">&#x27;风力4-5级&#x27;</span>&#125;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>注：在requests_chain后面跟上一个transformation_chain，我们就能把结果解析成dict，供后面其他业务使用结构化的数据。</p>
+<ol>
+<li>我们在这里，先定义了一个transform_func，对前面的parse_weather_info函数做了一下简单的封装。它的输入，是整个LLMChain里，执行到TransformChain之前的整个输出结果的dict。我们前面看到整个LLMRequestsChain里面的天气信息的文本内容，是通过output这个key拿到的，所以这里我们也是先通过它来拿到天气信息的文本内容，再调用 parse_weather_info 解析，并且把结果输出到 weather_info 这个字段里。</li>
+<li>然后，我们就定义了一个TransformChain，里面的输入参数就是 output，输出参数就是 weather_info。</li>
+<li>最后，我们通过上一讲用过的 SequentialChain，将前面的LLMRequestsChain和这里的TransformChain串联到一起，变成一个新的叫做 final_chain 的LLMChain。</li>
+</ol>
+<p>在这三步完成之后，未来我们想要获得天气信息，并且拿到一个dict形式的输出，只要调用 final_chain的run方法，输入我们关于天气的搜索文本就好了。</p>
+<p><img src="https://s2.loli.net/2023/11/21/Pe5uaCWSGB3RjUY.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>最后，我们来梳理一下final_chain都做了哪些事。</p>
+<ol>
+<li>通过一个HTTP请求，根据搜索词拿到Google的搜索结果页。</li>
+<li>把我们定义的Prompt提交给OpenAI，然后把我们搜索的问题和结果页都发给了OpenAI，让它从里面提取出搜索结果页里面的天气信息。</li>
+<li>最后我们通过 transform_func 解析拿到的天气信息的文本，被转换成一个dict。这样，后面的程序就好处理了。</li>
+</ol>
+<h2 id="通过VectorDBQA来实现先搜索再回复的能力"><a href="#通过VectorDBQA来实现先搜索再回复的能力" class="headerlink" title="通过VectorDBQA来实现先搜索再回复的能力"></a>通过VectorDBQA来实现先搜索再回复的能力</h2><p>此外，还有一个常用的LLMChain，就是我们之前介绍的llama-index的使用场景，也就是针对自己的资料库进行问答。我们预先把资料库索引好，然后每次用户来问问题的时候，都是先到这个资料库里搜索，再把问题和答案一并交给AI，让它去组织语言回答。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs plain">from langchain.embeddings.openai import OpenAIEmbeddings<br>from langchain.vectorstores import FAISS<br>from langchain.text_splitter import SpacyTextSplitter<br>from langchain import OpenAI, VectorDBQA<br>from langchain.document_loaders import TextLoader<br><br>llm = OpenAI(temperature=0)<br>loader = TextLoader(&#x27;./data/ecommerce_faq.txt&#x27;)<br>documents = loader.load()<br>text_splitter = SpacyTextSplitter(chunk_size=256, pipeline=&quot;zh_core_web_sm&quot;)<br>texts = text_splitter.split_documents(documents)<br><br>embeddings = OpenAIEmbeddings()<br>docsearch = FAISS.from_documents(texts, embeddings)<br><br>faq_chain = VectorDBQA.from_chain_type(llm=llm, vectorstore=docsearch, verbose=True)<br><br></code></pre></td></tr></table></figure>
+
+<p>注：上面的代码创建了一个基于 FAISS 进行向量存储的 docsearch的索引，以及基于这个索引的VectorDBQA这个LLMChain，<strong>VectorDBQA是一个专门用于对向量数据库进行提问的链条。</strong></p>
+<p>先来看第一段代码，我们通过一个TextLoader把文件加载进来，还通过SpacyTextSplitter给文本分段，确保每个分出来的Document都是一个完整的句子。因为我们这里的文档是电商FAQ的内容，都比较短小精悍，所以我们设置的chunk_size只有256。然后，我们定义了使用OpenAIEmbeddings来给文档创建Embedding，通过FAISS把它存储成一个VectorStore。最后，我们通过VectorDBQA的from_chain_type 定义了一个LLM。对应的FAQ内容，我是请ChatGPT为我编造之后放在了ecommerce_faq.txt这个文件里。</p>
+<p>问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">question = &quot;请问你们的货，能送到三亚吗？大概需要几天？&quot;<br>result = faq_chain.run(question)<br>print(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new VectorDBQA chain...<br>&gt; Finished chain.<br> 我们支持全国大部分省份的配送，包括三亚。一般情况下，大部分城市的订单在2-3个工作日内送达，偏远地区可能需要5-7个工作日。具体送货时间可能因订单商品、配送地址和物流公司而异。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">question = &quot;请问你们的退货政策是怎么样的？&quot;<br>result = faq_chain.run(question)<br>print(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new VectorDBQA chain...<br>&gt; Finished chain.<br>自收到商品之日起7天内，如产品未使用、包装完好，您可以申请退货。某些特殊商品可能不支持退货，请在购买前查看商品详情页面的退货政策。<br><br></code></pre></td></tr></table></figure>
+
+<p>我向它提了两个不同类型的问题，faq_chain都能够正确地回答出来。你可以去看看data目录下面的ecommerce_faq.txt文件，看看它的回答是不是和文档写的内容一致。在VectorDBQA这个LLMChain背后，其实也是通过一系列的链式调用，来完成搜索VectorStore，再向AI发起Completion请求这样两个步骤的。</p>
+<p>可以看到LLMChain是一个很强大的武器，它可以把解决一个问题需要的多个步骤串联到一起。这个步骤可以是调用我们的语言模型，也可以是调用一个外部API，或者在内部我们定义一个Python函数。这大大增强了我们利用大语言模型的能力，特别是能够弥补它的很多不足之处，<strong>比如缺少有时效的信息，通过HTTP调用比较慢等等。</strong></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>可以看到，Langchain的链式调用并不局限于使用大语言模型的接口。这一讲里，我们就看到四种常见的将大语言模型的接口和其他能力结合在一起的链式调用。</p>
+<ol>
+<li>LLMMathChain能够通过Python解释器变成一个计算器，让AI能够准确地进行数学运算。</li>
+<li>通过RequestsChain，我们可以直接调用外部API，然后再让AI从返回的结果里提取我们关心的内容。</li>
+<li>TransformChain能够让我们根据自己的要求对数据进行处理和转化，我们可以把AI返回的自然语言的结果进一步转换成结构化的数据，方便其他程序去处理。</li>
+<li>VectorDBQA能够完成和llama-index相似的事情，只要预先做好内部数据资料的Embedding和索引，通过对LLMChain进行一次调用，我们就可以直接获取回答的结果。</li>
+</ol>
+<p>这些能力大大增强了AI的实用性，解决了几个之前大语言模型处理得不好的问题，包括数学计算能力、实时数据能力、和现有程序结合的能力，以及搜索属于自己的资料库的能力。你完全可以定义自己需要的LLMChain，通过程序来完成各种任务，然后合理地组合不同类型的LLMChain对象，来实现连ChatGPT都做不到的事情。而ChatGPT Plugins的实现机制，其实也是类似的。</p>
+<h2 id="思考题"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2><p>最后，我给你留一道思考题。我们前面说过，Langchain里有SQLDatabaseChain可以直接让我们写需求访问数据库。在官方文档里也给出了对应的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://langchain.readthedocs.io/en/latest/modules/chains/examples/sqlite.html">例子</a>，你可以去试一试体验一下，想一想它是通过什么样的提示语信息，来让AI写出可以直接执行的SQL的？</p>
+<p>欢迎你把你体验之后的感受以及思考后的结果分享在评论区，也欢迎你把这一讲分享给感兴趣的朋友，我们下一讲再见！</p>
+<h2 id="推荐试用"><a href="#推荐试用" class="headerlink" title="推荐试用"></a>推荐试用</h2><p>目前对于Langchain的讲解，都是通过Python编程的方式来实现真实业务场景的需求的。有人直接为Langchain做了一个可以拖拽的图形界面叫做 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/logspace-ai/langflow">LangFlow</a>。你可以试着下载体验一下，看看图形界面是不是可以进一步提升你的效率。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>12.深入使用LLMChain，连接外部工具Google等</div>
+      <div>https://blog.longpi1.com/2023/11/23/12.深入使用LLMChain，连接外部工具Google等/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/23/13-%E9%80%9A%E8%BF%87Langchain%E7%9A%84%E2%80%9C%E8%AE%B0%E5%BF%86%E5%8A%9B%E2%80%9D%E5%AE%9E%E7%8E%B0%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/" title="13.通过Langchain的“记忆力”实现聊天机器人">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">13.通过Langchain的“记忆力”实现聊天机器人</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/22/HuggingFace%E4%BB%8B%E7%BB%8D%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="HuggingFace介绍与使用">
+                        <span class="hidden-mobile">HuggingFace介绍与使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
