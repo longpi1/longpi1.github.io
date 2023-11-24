@@ -1,0 +1,821 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="14.通过LangChain的Agent，让AI做决策">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/24/14-%E9%80%9A%E8%BF%87LangChain%E7%9A%84Agent%EF%BC%8C%E8%AE%A9AI%E5%81%9A%E5%86%B3%E7%AD%96/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-11-24T05:23:02.000Z">
+<meta property="article:modified_time" content="2023-11-24T05:25:39.573Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>14.通过LangChain的Agent，让AI做决策 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="14.通过LangChain的Agent，让AI做决策"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-24 13:23" pubdate>
+          2023年11月24日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          20k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">14.通过LangChain的Agent，让AI做决策</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="14-通过LangChain的Agent，让AI做决策"><a href="#14-通过LangChain的Agent，让AI做决策" class="headerlink" title="14. 通过LangChain的Agent，让AI做决策"></a>14. 通过LangChain的Agent，让AI做决策</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>到目前为止。我们所有基于ChatGPT的应用，基本都是“单项技能”，比如前面关于“藤野先生”的问题，或者查询最新的天气或者通过Python算算术。本质上都是限制AI只针对我们预先索引的数据，或者实时搜索的数据进行回答。</p>
+<h2 id="支持多种单项能力，让AI做个选择题"><a href="#支持多种单项能力，让AI做个选择题" class="headerlink" title="支持多种单项能力，让AI做个选择题"></a>支持多种单项能力，让AI做个选择题</h2><p>但是，如果我们真的想要做一个能跑在生产环境上的AI聊天机器人，我们需要的不只一个单项技能。它应该针对你自己的数据有很多个不同的“单项技能”，就拿我比较熟悉的电商领域来说，我们至少需要这样三个技能。</p>
+<ol>
+<li>我们需要一个“导购咨询”的单项技能，能够查询自己商品库里的商品信息为用户做导购和推荐。</li>
+<li>然后需要一个“售中咨询”的单项技能，能够查询订单的物流轨迹，对买了东西还没有收到货的用户给出安抚和回复。</li>
+<li>最后还需要一个“FAQ”的单项技能，能够把整个电商网站的FAQ索引起来，当用户问到退货政策、运费、支付方式等问题的时候，我们可以从FAQ里面拿到对应的答案，回复给用户。</li>
+</ol>
+<p>同时，对于这三个单项技能，AI要能够自己判断什么时候该用什么样的技能。而不是需要人工介入，或者写一堆if…else的代码。</p>
+<p>在学习了这么多讲的内容之后，你可以先想想，你有没有什么办法可以通过ChatGPT做到这些呢？直接一次性提供三个“单项技能”，还要在三个单项技能之间选择合适的技能，的确不是靠简单的几行代码或者LLMChain能够解决的。</p>
+<p>但是我们可以采用一个在写大型系统的时候常用的思路，就是“分而治之”。对于每一个单项技能，我们都可以通过之前几讲学习的内容，把它们变成一个LLMChain。然后，对于用户问的问题，我们不妨先问问AI，让它告诉我们应该选用哪一个LLMChain来回答问题好了。</p>
+<p>我们在下面就写了这样一段代码，通过提示语让AI做一个选择题。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><br>openai.api_key = os.environ.get(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br><span class="hljs-keyword">from</span> langchain.prompts <span class="hljs-keyword">import</span> PromptTemplate<br><span class="hljs-keyword">from</span> langchain.llms <span class="hljs-keyword">import</span> OpenAIChat<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> LLMChain<br><br>llm = OpenAIChat(max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>)<br>multiple_choice = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">请针对 &gt;&gt;&gt; 和 &lt;&lt;&lt; 中间的用户问题，选择一个合适的工具去回答她的问题。只要用A、B、C的选项字母告诉我答案。</span><br><span class="hljs-string">如果你觉得都不合适，就选D。</span><br><span class="hljs-string"></span><br><span class="hljs-string">&gt;&gt;&gt;&#123;question&#125;&lt;&lt;&lt;</span><br><span class="hljs-string"></span><br><span class="hljs-string">我们有的工具包括：</span><br><span class="hljs-string">A. 一个能够查询商品信息，为用户进行商品导购的工具</span><br><span class="hljs-string">B. 一个能够查询订单信息，获得最新的订单情况的工具</span><br><span class="hljs-string">C. 一个能够搜索商家的退换货政策、运费、物流时长、支付渠道、覆盖国家的工具</span><br><span class="hljs-string">D. 都不合适</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>multiple_choice_prompt = PromptTemplate(template=multiple_choice, input_variables=[<span class="hljs-string">&quot;question&quot;</span>])<br>choice_chain = LLMChain(llm=llm, prompt=multiple_choice_prompt, output_key=<span class="hljs-string">&quot;answer&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>对应的，我们可以试试问不同的问题，看看它能不能选择一个正确的工具。</p>
+<p>问题1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;我想买一件衣服，但是不知道哪个款式好看，你能帮我推荐一下吗？&quot;</span><br><span class="hljs-built_in">print</span>(choice_chain(question))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;question&#x27;: &#x27;我想买一件衣服，但是不知道哪个款式好看，你能帮我推荐一下吗？&#x27;, &#x27;answer&#x27;: &#x27;\n\nA. 一个能够查询商品信息，为用户进行商品导购的工具。&#x27;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>问题2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;我有一张订单，订单号是 2022ABCDE，一直没有收到，能麻烦帮我查一下吗？&quot;</span><br><span class="hljs-built_in">print</span>(choice_chain(question))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;question&#x27;: &#x27;我有一张订单，订单号是 2022ABCDE，一直没有收到，能麻烦帮我查一下吗？&#x27;, &#x27;answer&#x27;: &#x27;\n\nB. 一个能够查询订单信息，获得最新的订单情况的工具。&#x27;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>问题3：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;请问你们的货，能送到三亚吗？大概需要几天？&quot;</span><br><span class="hljs-built_in">print</span>(choice_chain(question))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;question&#x27;: &#x27;请问你们的货，能送到三亚吗？大概需要几天？&#x27;, &#x27;answer&#x27;: &#x27;\n\nC. 一个能够搜索商家的退换货政策、运费、物流时长、支付渠道、覆盖国家的工具。&#x27;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>问题4：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;今天天气怎么样？&quot;</span><br><span class="hljs-built_in">print</span>(choice_chain(question))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&#x27;question&#x27;: &#x27;今天天气怎么样？&#x27;, &#x27;answer&#x27;: &#x27;\n\nD. 都不合适，因为这个问题需要的是天气预报信息，我们需要提供一个天气预报查询工具或者引导用户去查看天气预报网站或应用程序。&#x27;&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，我们试了四个问题，ChatGPT都给出了正确的答案。在拿到答案之后，你可以直接再通过一个TransformChain，去匹配返回结果的前缀，看看是A、B、C、D中的哪一个，再来决定后面可以去调用哪个LLMChain。</p>
+<h2 id="Langchain里面的代理与特工：Agent"><a href="#Langchain里面的代理与特工：Agent" class="headerlink" title="Langchain里面的代理与特工：Agent"></a>Langchain里面的代理与特工：Agent</h2><p>这样一个“分治法”的思路，你在真实的业务场景中一定会遇到的。无论是哪行哪业的客服聊天机器人，其实都会有能够直接通过资料库就回答的用户问题，也会有和用户自己或者公司产品相关的信息，需要通过检索的方式来提供。所以，这样一个“先做一个选择题”的思路，Langchain就把它发扬光大了，建立起了Agent这个抽象概念。</p>
+<p>Agent翻译成中文，有两个意思。一个叫做代理人，比如在美国你买房子、租房子，都要通过Real Estate Agent，也就是“房产代理”，其实就是我们这里说的“中介”。另一个意思，叫做“特工”，这是指Agent是有自主行动能力的，它可以根据你提出的要求，直接使用提供的工具采取行动。它不只是做完选择题就完事儿了，而是直接拿起选中的工具进行下一步的行动。Langchain的Agent其实这两个意思都包含，可以说名字取得是非常得当了。</p>
+<p>下面我们来看看上面这个例子，我们怎么通过Langchain提供的Agent直接采取行动来解决问题。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.agents <span class="hljs-keyword">import</span> initialize_agent, Tool<br><span class="hljs-keyword">from</span> langchain.llms <span class="hljs-keyword">import</span> OpenAI<br><br>llm = OpenAI(temperature=<span class="hljs-number">0</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">search_order</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;订单状态：已发货；发货日期：2023-01-01；预计送达时间：2023-01-10&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">recommend_product</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;红色连衣裙&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">faq</span>(<span class="hljs-params">intput: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;7天无理由退货&quot;</span><br><br>tools = [<br>    Tool(<br>        name = <span class="hljs-string">&quot;Search Order&quot;</span>,func=search_order,<br>        description=<span class="hljs-string">&quot;useful for when you need to answer questions about customers orders&quot;</span><br>    ),<br>    Tool(name=<span class="hljs-string">&quot;Recommend Product&quot;</span>, func=recommend_product,<br>         description=<span class="hljs-string">&quot;useful for when you need to answer questions about product recommendations&quot;</span><br>    ),<br>    Tool(name=<span class="hljs-string">&quot;FAQ&quot;</span>, func=faq,<br>         description=<span class="hljs-string">&quot;useful for when you need to answer questions about shopping policies, like return policy, shipping policy, etc.&quot;</span><br>    )<br>]<br><br>agent = initialize_agent(tools, llm, agent=<span class="hljs-string">&quot;zero-shot-react-description&quot;</span>, verbose=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>这段代码由三个部分组成。</p>
+<ol>
+<li>首先，我们定义了三个函数，分别叫做search_order、recommend_product 以及 faq。它们的输入都是一个字符串，输出是我们写好的对于问题的回答。</li>
+<li>然后，我们针对这三个函数，创建了一个Tool对象的数组，把这三个函数分别封装在了三个Tool对象里面。每一个Tool的对象，在函数之外，还定义了一个名字，并且定义了Tool的description。这个description就是告诉AI，这个Tool是干什么用的。就像这一讲一开始的那个例子一样，AI会根据问题以及这些描述来做选择题。</li>
+<li>最后，我们创建了一个agent对象，指定它会用哪些Tools、LLM对象以及agent的类型。在agent的类型这里，我们选择了zero-shot-react-description。这里的zero-shot就是指我们在课程一开始就讲过的“零样本分类”，也就是不给AI任何例子，直接让它根据自己的推理能力来做决策。而react description，指的是根据你对于Tool的描述（description）进行推理（Reasoning）并采取行动（Action）。</li>
+</ol>
+<p>这里的这个ReAct，并不是来自Facebook的前端框架的名字，而是来自一篇Google Brain的论文 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://ai.googleblog.com/2022/11/react-synergizing-reasoning-and-acting.html">ReAct: Synergizing Reasoning and Acting in Language Models</a>。有兴趣的话，你可以去阅读一下，了解具体的原理和思路。</p>
+<p>在有了这个agent之后，我们不妨尝试一下，直接对着这个Agent，来重新问一遍刚才的三个问题。</p>
+<p>问题1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;我想买一件衣服，但是不知道哪个款式好看，你能帮我推荐一下吗？&quot;</span><br>result = agent.run(question)<br><span class="hljs-built_in">print</span>(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new AgentExecutor chain...<br> I need to recommend a product.<br>Action: Recommend Product<br>Action Input: Clothes<br>Observation: 红色连衣裙<br>Thought: I now know the final answer.<br>Final Answer: 我推荐红色连衣裙。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题2：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">question = &quot;我有一张订单，订单号是 2022ABCDE，一直没有收到，能麻烦帮我查一下吗？&quot;<br>result = agent.run(question)<br>print(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new AgentExecutor chain...<br> I need to find out the status of the order<br>Action: Search Order<br>Action Input: 2022ABCDE<br>Observation: 订单状态：已发货；发货日期：2023-01-01；预计送达时间：2023-01-10<br>Thought: I now know the final answer<br>Final Answer: 您的订单 2022ABCDE 已发货，预计将于2023-01-10送达。<br>&gt; Finished chain.<br>您的订单 2022ABCDE 已发货，预计将于2023-01-10送达。<br><br></code></pre></td></tr></table></figure>
+
+<p>问题3:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs plain">question = &quot;请问你们的货，能送到三亚吗？大概需要几天？&quot;<br>result = agent.run(question)<br>print(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new AgentExecutor chain...<br> I need to find out the shipping policy <span class="hljs-keyword">and</span> delivery time<br>Action: FAQ<br>Action Input: Shipping policy <span class="hljs-keyword">and</span> delivery time<br>Observation: <span class="hljs-number">7</span>天无理由退货<br>Thought: I need to find out the delivery time<br>Action: FAQ<br>Action Input: Delivery time<br>Observation: <span class="hljs-number">7</span>天无理由退货<br>Thought: I need to find out <span class="hljs-keyword">if</span> we can deliver to Sanya<br>Action: FAQ<br>Action Input: Delivery to Sanya<br>Observation: <span class="hljs-number">7</span>天无理由退货<br>Thought: I now know the final answer<br>Final Answer: 我们可以把货送到三亚，大概需要<span class="hljs-number">7</span>天。<br>&gt; Finished chain.<br>我们可以把货送到三亚，大概需要<span class="hljs-number">7</span>天。<br><br></code></pre></td></tr></table></figure>
+
+<p>因为在代码里面，我们把Agent的Verbose模式打开了，所以在输出结果里面，你可以直接看到Agent整个思考的日志。从这里，你会发现几个有意思的现象。</p>
+<p>第一个，是Agent每一步的操作，可以分成5个步骤，分别是Action、Action Input、Observation、Thought，最后输出一个Final Answer。</p>
+<ol>
+<li>Action，就是根据用户的输入，选择应该选取哪一个Tool，然后行动。</li>
+<li>Action Input，就是根据需要使用的Tool，从用户的输入里提取出相关的内容，可以输入到Tool里面。</li>
+<li>Oberservation，就是观察通过使用Tool得到的一个输出结果。</li>
+<li>Thought，就是再看一眼用户的输入，判断一下该怎么做。</li>
+<li>Final Answer，就是Thought在看到Obersavation之后，给出的最终输出。</li>
+</ol>
+<p>第二个，就是我们最后那个“货需要几天送到三亚”的问题，没有遵循上面的5个步骤，而是在第4步Thought之后，重新回到了Action。并且在这样反复三次之后，才不得已强行回答了问题。但是给出的答案，其实并不一定准确，因为我们的回答里面并没有说能不能送到三亚。</p>
+<p>这一整个过程，其实也是通过一段Prompt来实现的，你可以去看一下Langchain源码里， <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hwchase17/langchain/blob/master/langchain/agents/mrkl/prompt.py">mrkl 对应的 Prompt 的源代码</a>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># flake8: noqa</span><br>PREFIX = <span class="hljs-string">&quot;&quot;&quot;Answer the following questions as best you can. You have access to the following tools:&quot;&quot;&quot;</span><br>FORMAT_INSTRUCTIONS = <span class="hljs-string">&quot;&quot;&quot;Use the following format:</span><br><span class="hljs-string"></span><br><span class="hljs-string">Question: the input question you must answer</span><br><span class="hljs-string">Thought: you should always think about what to do</span><br><span class="hljs-string">Action: the action to take, should be one of [&#123;tool_names&#125;]</span><br><span class="hljs-string">Action Input: the input to the action</span><br><span class="hljs-string">Observation: the result of the action</span><br><span class="hljs-string"><span class="hljs-meta">... </span>(this Thought/Action/Action Input/Observation can repeat N times)</span><br><span class="hljs-string">Thought: I now know the final answer</span><br><span class="hljs-string">Final Answer: the final answer to the original input question&quot;&quot;&quot;</span><br>SUFFIX = <span class="hljs-string">&quot;&quot;&quot;Begin!</span><br><span class="hljs-string"></span><br><span class="hljs-string">Question: &#123;input&#125;</span><br><span class="hljs-string">Thought:&#123;agent_scratchpad&#125;&quot;&quot;&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>其实它就是把一系列的工具名称和对应的描述交给了OpenAI，让它根据用户输入的需求，选取对应的工具，然后提取用户输入中和用户相关的信息。本质上，只是我们上面让AI做选择题的一种扩展而已。</p>
+<h3 id="通过max-iterations限制重试次数"><a href="#通过max-iterations限制重试次数" class="headerlink" title="通过max_iterations限制重试次数"></a>通过max_iterations限制重试次数</h3><p>前面这个反复思考3次，其实是Agent本身的功能。因为实际很多逻辑处理，现在都是通过AI的大语言模型这个黑盒子自动进行的，有时候也不一定准。所以AI会在Thought的时候，看一下回答得是否靠谱，如果不靠谱的话，它会想一个办法重试。如果你希望AI不要不断重试，也不要强行回答，在觉得不靠谱的时候，试个一两次就停下来。那么，你在创建Agent的时候，设置 max_iterations 这个参数就好了。下面我们就把参数设置成2，看看效果会是怎么样的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">agent = initialize_agent(tools, llm, agent=<span class="hljs-string">&quot;zero-shot-react-description&quot;</span>, max_iterations = <span class="hljs-number">2</span>, verbose=<span class="hljs-literal">True</span>)<br>question = <span class="hljs-string">&quot;请问你们的货，能送到三亚吗？大概需要几天？&quot;</span><br>result = agent.run(question)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;===&quot;</span>)<br><span class="hljs-built_in">print</span>(result)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;===&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new AgentExecutor chain...<br> I need to find out the shipping policy<br>Action: FAQ<br>Action Input: Shipping policy<br>Observation: 7天无理由退货<br>Thought: I need to find out the shipping time<br>Action: FAQ<br>Action Input: Shipping time<br>Observation: 7天无理由退货<br>Thought:<br>&gt; Finished chain.<br>===<br>Agent stopped due to max iterations.<br>===<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，这个时候，AI重试了两次就不再重试。并且，也没有强行给出一个回答，而是告诉你，Agent因为max iterations的设置而中止了。这样，你可以把AI回答不上来的问题，切换给人工客服回答。</p>
+<h3 id="通过VectorDBQA让Tool支持问答"><a href="#通过VectorDBQA让Tool支持问答" class="headerlink" title="通过VectorDBQA让Tool支持问答"></a>通过VectorDBQA让Tool支持问答</h3><p>当然，这么简单的问题我们完全可以让AI答上来。现在答不上来的原因是无论我们问什么问题，FQA这个工具的回答都是7天无理由退货。而正确的方式其实也有，我们可以直接使用 VectorDBQA这个LLMChain，把它也封装成一个Tool。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.embeddings.openai <span class="hljs-keyword">import</span> OpenAIEmbeddings<br><span class="hljs-keyword">from</span> langchain.vectorstores <span class="hljs-keyword">import</span> FAISS<br><span class="hljs-keyword">from</span> langchain.text_splitter <span class="hljs-keyword">import</span> SpacyTextSplitter<br><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> OpenAI, VectorDBQA<br><span class="hljs-keyword">from</span> langchain.document_loaders <span class="hljs-keyword">import</span> TextLoader<br><br>llm = OpenAI(temperature=<span class="hljs-number">0</span>)<br>loader = TextLoader(<span class="hljs-string">&#x27;./data/ecommerce_faq.txt&#x27;</span>)<br>documents = loader.load()<br>text_splitter = SpacyTextSplitter(chunk_size=<span class="hljs-number">256</span>, pipeline=<span class="hljs-string">&quot;zh_core_web_sm&quot;</span>)<br>texts = text_splitter.split_documents(documents)<br><br>embeddings = OpenAIEmbeddings()<br>docsearch = FAISS.from_documents(texts, embeddings)<br><br>faq_chain = VectorDBQA.from_chain_type(llm=llm, vectorstore=docsearch, verbose=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，把这LLMChain的run方法包装到一个Tool里面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.agents <span class="hljs-keyword">import</span> tool<br><br><span class="hljs-meta">@tool(<span class="hljs-params"><span class="hljs-string">&quot;FAQ&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">faq</span>(<span class="hljs-params">intput: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;&quot;useful for when you need to answer questions about shopping policies, like return policy, shipping policy, etc.&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> faq_chain.run(intput)<br><br>tools = [<br>    Tool(<br>        name = <span class="hljs-string">&quot;Search Order&quot;</span>,func=search_order,<br>        description=<span class="hljs-string">&quot;useful for when you need to answer questions about customers orders&quot;</span><br>    ),<br>    Tool(name=<span class="hljs-string">&quot;Recommend Product&quot;</span>, func=recommend_product,<br>         description=<span class="hljs-string">&quot;useful for when you need to answer questions about product recommendations&quot;</span><br>    ),<br>    faq<br>]<br><br>agent = initialize_agent(tools, llm, agent=<span class="hljs-string">&quot;zero-shot-react-description&quot;</span>, verbose=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>这里，我们对Tool的写法做了一些小小的改变，使得代码更加容易维护了。我们通过@tool 这个Python的decorator功能，将FAQ这个函数直接变成了Tool对象，这可以减少我们每次创建 Tools的时候都要指定name和description的工作。</p>
+<p>接着，我们再通过Agent来运行一下刚才的问题，一样能够得到正确的答案。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;请问你们的货，能送到三亚吗？大概需要几天？&quot;</span><br>result = agent.run(question)<br><span class="hljs-built_in">print</span>(result)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new AgentExecutor chain...<br> I need to find out the shipping policy <span class="hljs-keyword">and</span> delivery time.<br>Action: FAQ<br>Action Input: shipping policy <span class="hljs-keyword">and</span> delivery time<br>&gt; Entering new VectorDBQA chain...<br>&gt; Finished chain.<br>Observation:  一般情况下，大部分城市的订单在<span class="hljs-number">2</span>-<span class="hljs-number">3</span>个工作日内送达，偏远地区可能需要<span class="hljs-number">5</span>-<span class="hljs-number">7</span>个工作日。具体送货时间可能因订单商品、配送地址和物流公司而异。<br>Thought: I now know the final answer.<br>Final Answer: 一般情况下，大部分城市的订单在<span class="hljs-number">2</span>-<span class="hljs-number">3</span>个工作日内送达，偏远地区可能需要<span class="hljs-number">5</span>-<span class="hljs-number">7</span>个工作日。具体送货时间可能因订单商品、配送地址和物流公司而异。<br>&gt; Finished chain.<br>一般情况下，大部分城市的订单在<span class="hljs-number">2</span>-<span class="hljs-number">3</span>个工作日内送达，偏远地区可能需要<span class="hljs-number">5</span>-<span class="hljs-number">7</span>个工作日。具体送货时间可能因订单商品、配送地址和物流公司而异。<br><br></code></pre></td></tr></table></figure>
+
+<p>对于商品的推荐，我们可以如法炮制，也把对应的商品信息，存到VectorStore里，然后通过 <strong>先搜索后问答</strong> 的方式来解决。对应的数据同样由ChatGPT出品，代码和上面的FAQ基本类似，我就不再一一重复了。</p>
+<p>重新构建Agent：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> langchain.text_splitter <span class="hljs-keyword">import</span> CharacterTextSplitter<br><span class="hljs-keyword">from</span> langchain.document_loaders <span class="hljs-keyword">import</span> CSVLoader<br><br>product_loader = CSVLoader(<span class="hljs-string">&#x27;./data/ecommerce_products.csv&#x27;</span>)<br>product_documents = product_loader.load()<br>product_text_splitter = CharacterTextSplitter(chunk_size=<span class="hljs-number">1024</span>, separator=<span class="hljs-string">&quot;\n&quot;</span>)<br>product_texts = product_text_splitter.split_documents(product_documents)<br>product_search = FAISS.from_documents(product_texts, OpenAIEmbeddings())<br>product_chain = VectorDBQA.from_chain_type(llm=llm, vectorstore=product_search, verbose=<span class="hljs-literal">True</span>)<br><br><span class="hljs-meta">@tool(<span class="hljs-params"><span class="hljs-string">&quot;FAQ&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">faq</span>(<span class="hljs-params">intput: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;&quot;useful for when you need to answer questions about shopping policies, like return policy, shipping policy, etc.&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> faq_chain.run(intput)<br><br><span class="hljs-meta">@tool(<span class="hljs-params"><span class="hljs-string">&quot;Recommend Product&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">recommend_product</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;&quot;useful for when you need to search and recommend products and recommend it to the user&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> product_chain.run(<span class="hljs-built_in">input</span>)<br><br>tools = [<br>    Tool(<br>        name = <span class="hljs-string">&quot;Search Order&quot;</span>,func=search_order,<br>        description=<span class="hljs-string">&quot;useful for when you need to answer questions about customers orders&quot;</span><br>    ),<br>    recommend_product, faq]<br><br>agent = initialize_agent(tools, llm, agent=<span class="hljs-string">&quot;zero-shot-react-description&quot;</span>, verbose=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>询问Agent问题：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;我想买一件衣服，想要在春天去公园穿，但是不知道哪个款式好看，你能帮我推荐一下吗？&quot;</span><br>answer = agent.run(question)<br><span class="hljs-built_in">print</span>(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new AgentExecutor chain...<br> I need to recommend a product to the user.<br>Action: Recommend Product<br>Action Input: Clothing <span class="hljs-keyword">for</span> park <span class="hljs-keyword">in</span> spring<br>&gt; Entering new VectorDBQA chain...<br>&gt; Finished chain.<br>Observation:  休闲、简约风格的长款风衣，休闲、运动风格的长款卫衣，清新、甜美风格的长袖连衣裙都可以在春天去公园穿着。<br>Thought: I now know the final answer.<br>Final Answer: 休闲、简约风格的长款风衣，休闲、运动风格的长款卫衣，清新、甜美风格的长袖连衣裙都可以在春天去公园穿着。<br>&gt; Finished chain.<br>休闲、简约风格的长款风衣，休闲、运动风格的长款卫衣，清新、甜美风格的长袖连衣裙都可以在春天去公园穿着。<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="优化Prompt，让AI不要胡思乱想"><a href="#优化Prompt，让AI不要胡思乱想" class="headerlink" title="优化Prompt，让AI不要胡思乱想"></a>优化Prompt，让AI不要胡思乱想</h3><p>对于订单查询，使用向量检索就不太合适了，我们直接拿着订单号去数据库里查就好了。不过我们不是一个Python编程课，这里就不演示怎么用Python写SQL了。我们偷个懒，就在对应的函数里造几条数据，根据用户输入的订单号不同，就返回不同的订单状态，找不到的话，就告诉用户找不到订单就好。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> json<br><br>ORDER_1 = <span class="hljs-string">&quot;20230101ABC&quot;</span><br>ORDER_2 = <span class="hljs-string">&quot;20230101EFG&quot;</span><br><br>ORDER_1_DETAIL = &#123;<br>    <span class="hljs-string">&quot;order_number&quot;</span>: ORDER_1,<br>    <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;已发货&quot;</span>,<br>    <span class="hljs-string">&quot;shipping_date&quot;</span> : <span class="hljs-string">&quot;2023-01-03&quot;</span>,<br>    <span class="hljs-string">&quot;estimated_delivered_date&quot;</span>: <span class="hljs-string">&quot;2023-01-05&quot;</span>,<br>&#125;<br><br>ORDER_2_DETAIL = &#123;<br>    <span class="hljs-string">&quot;order_number&quot;</span>: ORDER_2,<br>    <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;未发货&quot;</span>,<br>    <span class="hljs-string">&quot;shipping_date&quot;</span> : <span class="hljs-literal">None</span>,<br>    <span class="hljs-string">&quot;estimated_delivered_date&quot;</span>: <span class="hljs-literal">None</span>,<br>&#125;<br><br><span class="hljs-keyword">import</span> re<br><br><span class="hljs-meta">@tool(<span class="hljs-params"><span class="hljs-string">&quot;Search Order&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">search_order</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>:<span class="hljs-built_in">str</span></span>)-&gt;<span class="hljs-built_in">str</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;useful for when you need to answer questions about customers orders&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">input</span>.strip() == ORDER_1:<br>        <span class="hljs-keyword">return</span> json.dumps(ORDER_1_DETAIL)<br>    <span class="hljs-keyword">elif</span> <span class="hljs-built_in">input</span>.strip() == ORDER_2:<br>        <span class="hljs-keyword">return</span> json.dumps(ORDER_2_DETAIL)<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;对不起，根据<span class="hljs-subst">&#123;<span class="hljs-built_in">input</span>&#125;</span>没有找到您的订单&quot;</span><br><br>tools = [search_order,recommend_product, faq]<br>agent = initialize_agent(tools, llm=OpenAI(temperature=<span class="hljs-number">0</span>), agent=<span class="hljs-string">&quot;zero-shot-react-description&quot;</span>, verbose=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们就可以试着来让Agent帮我们查一下订单号。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question = <span class="hljs-string">&quot;我有一张订单，订单号是 2022ABCDE，一直没有收到，能麻烦帮我查一下吗？&quot;</span><br>answer = agent.run(question)<br><span class="hljs-built_in">print</span>(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new AgentExecutor chain...<br> I need to find out the status of the order.<br>Action: Search Order<br>Action Input: 2022ABCDE<br>Observation: 对不起，根据2022ABCDE没有找到您的订单<br>Thought: I need to find out more information about the order.<br>Action: Search Order<br>Action Input: 2022ABCDE<br>Observation: 对不起，根据2022ABCDE没有找到您的订单<br>Thought: I need to contact customer service for more information.<br>Action: FAQ<br>Action Input: 订单查询<br>&gt; Entering new VectorDBQA chain...<br>&gt; Finished chain.<br>Observation: 要查询订单，请登录您的帐户，然后点击“我的订单”页面。在此页面上，您可以查看所有订单及其当前状态。如果您没有帐户，请使用订单确认电子邮件中的链接创建一个帐户。如果您有任何问题，请联系客服。<br>Thought: I now know the final answer.<br>Final Answer: 要查询订单，请登录您的帐户，然后点击“我的订单”页面。在此页面上，您可以查看所有订单及其当前状态。如果您没有帐户，请使用订单确认电子邮件中的链接创建一个帐户。如果您有任何问题，请联系客服。<br>&gt; Finished chain.<br>要查询订单，请登录您的帐户，然后点击“我的订单”页面。在此页面上，您可以查看所有订单及其当前状态。如果您没有帐户，请使用订单确认电子邮件中的链接创建一个帐户。如果您有任何问题，请联系客服。<br><br></code></pre></td></tr></table></figure>
+
+<p>结果稍稍让人有些意外，我们输入了一个不存在的订单号，我们原本期望，AI能够告诉我们订单号找不到。但是，它却是在发现回复是找不到订单的时候，重复调用OpenAI的思考策略，并最终尝试从FAQ里拿一个查询订单的问题来敷衍用户。这并不是我们想要的，这也是以前很多“人工智障”类型的智能客服常常会遇到的问题，所以我们还是想个办法解决它。</p>
+<p>解决的方法也不复杂，我们只需要调整一下search_order这个Tool的提示语。通过这个提示语，Agent会知道，这个工具就应该在找不到订单的时候，告诉用户找不到订单或者请它再次确认。这个时候，它就会根据这个答案去回复用户。下面是对应修改运行后的结果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs plain">import re<br><br>@tool(&quot;Search Order&quot;)<br>def search_order(input:str)-&gt;str:<br>    &quot;&quot;&quot;一个帮助用户查询最新订单状态的工具，并且能处理以下情况：<br>    1. 在用户没有输入订单号的时候，会询问用户订单号<br>    2. 在用户输入的订单号查询不到的时候，会让用户二次确认订单号是否正确&quot;&quot;&quot;<br>    pattern = r&quot;\d+[A-Z]+&quot;<br>    match = re.search(pattern, input)<br><br>    order_number = input<br>    if match:<br>        order_number = match.group(0)<br>    else:<br>        return &quot;请问您的订单号是多少？&quot;<br>    if order_number == ORDER_1:<br>        return json.dumps(ORDER_1_DETAIL)<br>    elif order_number == ORDER_2:<br>        return json.dumps(ORDER_2_DETAIL)<br>    else:<br>        return f&quot;对不起，根据&#123;input&#125;没有找到您的订单&quot;<br><br>tools = [search_order,recommend_product, faq]<br>agent = initialize_agent(tools, llm=OpenAI(temperature=0), agent=&quot;zero-shot-react-description&quot;, verbose=True)<br><br>question = &quot;我有一张订单，订单号是 2022ABCDE，一直没有收到，能麻烦帮我查一下吗？&quot;<br>answer = agent.run(question)<br>print(answer)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs plain">&gt; Entering new AgentExecutor chain...<br> 我需要查询订单状态<br>Action: Search Order<br>Action Input: 2022ABCDE<br>Observation: 对不起，根据2022ABCDE没有找到您的订单<br>Thought: 我需要再次确认订单号是否正确<br>Action: Search Order<br>Action Input: 2022ABCDE<br>Observation: 对不起，根据2022ABCDE没有找到您的订单<br>Thought: 我现在知道最终答案<br>Final Answer: 对不起，根据您输入的订单号2022ABCDE没有找到您的订单，请您再次确认订单号是否正确。<br>&gt; Finished chain.<br>对不起，根据您输入的订单号2022ABCDE没有找到您的订单，请您再次确认订单号是否正确。<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="通过多轮对话实现订单查询"><a href="#通过多轮对话实现订单查询" class="headerlink" title="通过多轮对话实现订单查询"></a>通过多轮对话实现订单查询</h3><p>看起来，我们的客服聊天机器人已经搞定了。但是，其实我们还有几个可以优化的空间。</p>
+<ol>
+<li>我们应该支持多轮聊天。因为用户不一定是在第一轮提问的时候，就给出了自己的订单号。</li>
+<li>我们其实可以直接让Search Order这个Tool，回答用户的问题，没有必要再让Agent思考一遍。</li>
+</ol>
+<p>那我们就把代码再改造一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><br>answer_order_info = PromptTemplate(<br>    template=<span class="hljs-string">&quot;请把下面的订单信息回复给用户： \n\n &#123;order&#125;?&quot;</span>, input_variables=[<span class="hljs-string">&quot;order&quot;</span>]<br>)<br>answer_order_llm = LLMChain(llm=ChatOpenAI(temperature=<span class="hljs-number">0</span>),  prompt=answer_order_info)<br><br><span class="hljs-meta">@tool(<span class="hljs-params"><span class="hljs-string">&quot;Search Order&quot;</span>, return_direct=<span class="hljs-literal">True</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">search_order</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>:<span class="hljs-built_in">str</span></span>)-&gt;<span class="hljs-built_in">str</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;useful for when you need to answer questions about customers orders&quot;&quot;&quot;</span><br>    pattern = <span class="hljs-string">r&quot;\d+[A-Z]+&quot;</span><br>    <span class="hljs-keyword">match</span> = re.search(pattern, <span class="hljs-built_in">input</span>)<br><br>    order_number = <span class="hljs-built_in">input</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">match</span>:<br>        order_number = <span class="hljs-keyword">match</span>.group(<span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;请问您的订单号是多少？&quot;</span><br>    <span class="hljs-keyword">if</span> order_number == ORDER_1:<br>        <span class="hljs-keyword">return</span> answer_order_llm.run(json.dumps(ORDER_1_DETAIL))<br>    <span class="hljs-keyword">elif</span> order_number == ORDER_2:<br>        <span class="hljs-keyword">return</span> answer_order_llm.run(json.dumps(ORDER_2_DETAIL))<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;对不起，根据<span class="hljs-subst">&#123;<span class="hljs-built_in">input</span>&#125;</span>没有找到您的订单&quot;</span><br><br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationBufferMemory<br><span class="hljs-keyword">from</span> langchain.chat_models <span class="hljs-keyword">import</span> ChatOpenAI<br><br>tools = [search_order,recommend_product, faq]<br>chatllm=ChatOpenAI(temperature=<span class="hljs-number">0</span>)<br>memory = ConversationBufferMemory(memory_key=<span class="hljs-string">&quot;chat_history&quot;</span>, return_messages=<span class="hljs-literal">True</span>)<br>conversation_agent = initialize_agent(tools, chatllm,<br>                                      agent=<span class="hljs-string">&quot;conversational-react-description&quot;</span>,<br>                                      memory=memory, verbose=<span class="hljs-literal">True</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>第一个改造还是在Search Order这个工具上的。首先，我们给这个Tool设置了一个参数，叫做 return_direct &#x3D; True，这个参数是告诉AI，在拿到这个工具的回复之后，不要再经过Thought那一步思考，直接把我们的回答给到用户就好了。设了这个参数之后，你就会发现AI不会在没有得到一个订单号的时候继续去反复思考，尝试使用工具，而是会直接去询问用户的订单号。</p>
+<p>伴随着这个修改，对于查询到的订单号，我们就不能直接返回一个JSON字符串了，而是通过answer_order_llm这个工具来组织语言文字。</p>
+<p>第二个改造是我们使用的Agent，我们把Agent换成了converstional-react-description。这样我们就支持多轮对话了，同时我们也把对应的LLM换成了ChatOpenAI，这样成本更低。并且，我们还需要为这个Agent设置一下memory。</p>
+<p>改造好之后，我们不妨来看看，这个AI现在是不是终于智能一点了。</p>
+<p>问题1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question1 = <span class="hljs-string">&quot;我有一张订单，一直没有收到，能麻烦帮我查一下吗？&quot;</span><br>answer1 = conversation_agent.run(question1)<br><span class="hljs-built_in">print</span>(answer1)<br><br></code></pre></td></tr></table></figure>
+
+<p>回答1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new AgentExecutor chain...<br>Thought: Do I need to use a tool? Yes<br>Action: Search Order<br>Action Input: 我有一张订单，一直没有收到，能麻烦帮我查一下吗？<br>Observation: 请问您的订单号是多少？<br><br>&gt; Finished chain.<br>请问您的订单号是多少？<br><br></code></pre></td></tr></table></figure>
+
+<p>问题2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question2 = <span class="hljs-string">&quot;我的订单号是20230101ABC&quot;</span><br>answer2 = conversation_agent.run(question2)<br><span class="hljs-built_in">print</span>(answer2)<br><br></code></pre></td></tr></table></figure>
+
+<p>回答2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new AgentExecutor chain...<br>Thought: Do I need to use a tool? Yes<br>Action: Search Order<br>Action Input: <span class="hljs-number">20230</span>101ABC<br>Observation:<br>尊敬的用户，您的订单信息如下：<br>订单号：<span class="hljs-number">20230</span>101ABC<br>订单状态：已发货<br>发货日期：<span class="hljs-number">2023</span>年<span class="hljs-number">1</span>月<span class="hljs-number">3</span>日<br>预计送达日期：<span class="hljs-number">2023</span>年<span class="hljs-number">1</span>月<span class="hljs-number">5</span>日<br>如有任何疑问，请随时联系我们。感谢您的购买！<br><br>&gt; Finished chain.<br><br>尊敬的用户，您的订单信息如下：<br>订单号：<span class="hljs-number">20230</span>101ABC<br>订单状态：已发货<br>发货日期：<span class="hljs-number">2023</span>年<span class="hljs-number">1</span>月<span class="hljs-number">3</span>日<br>预计送达日期：<span class="hljs-number">2023</span>年<span class="hljs-number">1</span>月<span class="hljs-number">5</span>日<br>如有任何疑问，请随时联系我们。感谢您的购买！<br><br></code></pre></td></tr></table></figure>
+
+<p>问题3:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">question3 = <span class="hljs-string">&quot;你们的退货政策是怎么样的？&quot;</span><br>answer3 = conversation_agent.run(question3)<br><span class="hljs-built_in">print</span>(answer3)<br><br></code></pre></td></tr></table></figure>
+
+<p>回答3:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">&gt; Entering new AgentExecutor chain...<br>Thought: Do I need to use a tool? Yes<br>Action: FAQ<br>Action Input: 退货政策<br>&gt; Entering new VectorDBQA chain...<br>&gt; Finished chain.<br>Observation: 自收到商品之日起<span class="hljs-number">7</span>天内，如产品未使用、包装完好，您可以申请退货。某些特殊商品可能不支持退货，请在购买前查看商品详情页面的退货政策。<br>Thought:Do I need to use a tool? No<br>AI: Our <span class="hljs-keyword">return</span> policy allows <span class="hljs-keyword">for</span> returns within <span class="hljs-number">7</span> days of receiving the product, <span class="hljs-keyword">as</span> long <span class="hljs-keyword">as</span> the product <span class="hljs-keyword">is</span> unused <span class="hljs-keyword">and</span> <span class="hljs-keyword">in</span> its original packaging. Some special products may <span class="hljs-keyword">not</span> be eligible <span class="hljs-keyword">for</span> returns, so please check the product details page before purchasing.<br>&gt; Finished chain.<br>Our <span class="hljs-keyword">return</span> policy allows <span class="hljs-keyword">for</span> returns within <span class="hljs-number">7</span> days of receiving the product, <span class="hljs-keyword">as</span> long <span class="hljs-keyword">as</span> the product <span class="hljs-keyword">is</span> unused <span class="hljs-keyword">and</span> <span class="hljs-keyword">in</span> its original packaging. Some special products may <span class="hljs-keyword">not</span> be eligible <span class="hljs-keyword">for</span> returns, so please check the product details page before purchasing.<br><br></code></pre></td></tr></table></figure>
+
+<p>好了，现在你已经有了一个有基本功能的电商客服聊天机器人了。你只需要在现有的这个代码上做一些改造，将自己的数据源导入进去，就可以拿真实的用户问题去试一试，看看效果怎么样了。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章介绍了Langchain的Agent的基本功能。通过“先让AI做个选择题”的方式，Langchain让AI自动为我们选择合适的Tool去调用。 <strong>我们可以把回答不同类型问题的LLMChain封装成不同的Tool，也可以直接让Tool去调用内部查询订单状态的功能</strong>。我也为你实际演示了将Agent、Memory、VectorStore、LLMChain组合在一起的过程，创建了一个有完整电商客服功能的聊天机器人。</p>
+<p>我们对于Langchain的介绍也就告一段落了。作为大语言模型领域目前最火的一个开源项目，Langchain有非常丰富的功能。我这里介绍的也只是它的核心功能，它支持丰富的Tool、不同类型的VectorStore和内置的其他LLMChain，都等待你自己去 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://langchain.readthedocs.io/en/latest/">它的文档</a> 里发掘了。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>Langchain里面的zero-shot-react-description这个想法，来自一个知名的AI创业公司AI21 Labs的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://arxiv.org/pdf/2205.00445.pdf">论文 MRKL Systems</a>。你有兴趣的话，可以去阅读一下。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>14.通过LangChain的Agent，让AI做决策</div>
+      <div>https://blog.longpi1.com/2023/11/24/14-通过LangChain的Agent，让AI做决策/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/24/15-%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%A6%82%E4%BD%95%E6%A8%A1%E5%9E%8B%E5%BE%AE%E8%B0%83%E4%B8%8E%E6%B5%81%E5%BC%8F%E7%94%9F%E6%88%90/" title="15.大语言模型如何模型微调与流式生成">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">15.大语言模型如何模型微调与流式生成</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/23/13-%E9%80%9A%E8%BF%87Langchain%E7%9A%84%E2%80%9C%E8%AE%B0%E5%BF%86%E5%8A%9B%E2%80%9D%E5%AE%9E%E7%8E%B0%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA/" title="13.通过Langchain的“记忆力”实现聊天机器人">
+                        <span class="hidden-mobile">13.通过Langchain的“记忆力”实现聊天机器人</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

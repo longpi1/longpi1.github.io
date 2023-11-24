@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="15.大语言模型如何模型微调与流式生成">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/24/15-%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%A6%82%E4%BD%95%E6%A8%A1%E5%9E%8B%E5%BE%AE%E8%B0%83%E4%B8%8E%E6%B5%81%E5%BC%8F%E7%94%9F%E6%88%90/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/MoEi8lS4WUFQ1Gk.png">
+<meta property="article:published_time" content="2023-11-24T05:23:39.000Z">
+<meta property="article:modified_time" content="2023-11-24T05:25:48.324Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/22/MoEi8lS4WUFQ1Gk.png">
+  
+  
+  
+  <title>15.大语言模型如何模型微调与流式生成 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="15.大语言模型如何模型微调与流式生成"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-24 13:23" pubdate>
+          2023年11月24日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">15.大语言模型如何模型微调与流式生成</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="15-大语言模型如何模型微调与流式生成"><a href="#15-大语言模型如何模型微调与流式生成" class="headerlink" title="15.大语言模型如何模型微调与流式生成"></a>15.大语言模型如何模型微调与流式生成</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>在之前介绍llama-index和LangChain的几讲里面，我们学习了如何将大语言模型和你自己的知识库组合到一起来解决问题。这个方法中，我们不需要对我们使用的模型做任何调整，而是通过将我们的数据用Embedding向量索引起来，然后在使用的时候查询索引来解决问题。</p>
+<p>不过，其实我们也完全可以利用我们自己的数据，创建一个新的模型来回答问题。这个方法，就是OpenAI提供的模型微调（Fine-tune）功能。这也是我们要探讨的大语言模型的最后一个主题。</p>
+<h2 id="如何进行模型微调？"><a href="#如何进行模型微调？" class="headerlink" title="如何进行模型微调？"></a>如何进行模型微调？</h2><p>模型微调，是因为无论是ChatGPT还是GPT-4都不是全知全能的AI。在很多垂直的领域，它的回答还是常常会出错。其中很大一部分原因，是它也缺少特定领域的训练数据。而如果我们有比较丰富的垂直领域的数据，那么就可以利用这些数据来“微调”一个特别擅长这个垂直领域的模型。在这个模型“微调”完成之后，我们就可以直接向模型提问了。而不用再像之前使用llama-index或者LangChain那样，先通过Embedding来查询相关资料，然后把查找到的资料也一并提交给OpenAI来获得所需要的答案。</p>
+<p>OpenAI模型微调的过程，并不复杂。你只需要把数据提供给OpenAI就好了，对应的整个微调的过程是在云端的“黑盒子”里进行的。需要提供的数据格式是一个文本文件，每一行都是一个Prompt，以及对应这个Prompt的Completion接口会生成的内容。</p>
+<p>就像下面的示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs plain">&#123;&quot;prompt&quot;: &quot;&lt;prompt text&gt;&quot;, &quot;completion&quot;: &quot;&lt;ideal generated text&gt;&quot;&#125;<br>&#123;&quot;prompt&quot;: &quot;&lt;prompt text&gt;&quot;, &quot;completion&quot;: &quot;&lt;ideal generated text&gt;&quot;&#125;<br>&#123;&quot;prompt&quot;: &quot;&lt;prompt text&gt;&quot;, &quot;completion&quot;: &quot;&lt;ideal generated text&gt;&quot;&#125;<br>...<br><br></code></pre></td></tr></table></figure>
+
+<p>模型微调的过程，就是根据输入的内容，在原来的基础模型上训练。这个基础模型 Ada、Babbage、Curie和Davinci 其中的一个。每一个示例，都会导致基础模型原有参数发生变化。整个微调过程结束之后，变化后的参数就会被固定下来，变成一个只有你可以使用的新模型。</p>
+<p>如果你提供了很多医疗行业的文本内容，那么微调出来的新模型就会拥有更多医疗领域的知识，以及对话的风格。而如果你给的是笑话大全，那么微调出来的模型就更擅长讲笑话。而且要注意，微调之后的模型，不仅有你用来微调的数据的相关知识，原先基础模型里面的绝大部分知识和能力它也还都保留着。</p>
+<h2 id="来一个擅长写“历史英雄人物和奥特曼一起打怪兽”的AI"><a href="#来一个擅长写“历史英雄人物和奥特曼一起打怪兽”的AI" class="headerlink" title="来一个擅长写“历史英雄人物和奥特曼一起打怪兽”的AI"></a>来一个擅长写“历史英雄人物和奥特曼一起打怪兽”的AI</h2><p>那今天我们来微调一个什么样的模型呢？我周围有不少朋友家里都有孩子，都特别迷恋奥特曼打怪兽的故事。他们就向我提过一个需求，说能不能利用ChatGPT来做一个专门讲奥特曼打怪兽故事的应用。可以是可以，不过，为了让这个故事既能精彩一点，又有点教育意义，我们就再找一些历史上的英雄人物，赋予他们一些超能力，来和奥特曼一起打怪兽。而对应的故事数据，我们也用ChatGPT的模型来帮我们生成。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os,openai,backoff<br><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><br>openai.api_key = os.getenv(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br>dynasties= [<span class="hljs-string">&#x27;唐&#x27;</span>, <span class="hljs-string">&#x27;宋&#x27;</span>, <span class="hljs-string">&#x27;元&#x27;</span>, <span class="hljs-string">&#x27;明&#x27;</span>, <span class="hljs-string">&#x27;清&#x27;</span>, <span class="hljs-string">&#x27;汉&#x27;</span>, <span class="hljs-string">&#x27;魏&#x27;</span>, <span class="hljs-string">&#x27;晋&#x27;</span>, <span class="hljs-string">&#x27;南北朝&#x27;</span>]<br>super_powers = [<span class="hljs-string">&#x27;隐形&#x27;</span>, <span class="hljs-string">&#x27;飞行&#x27;</span>, <span class="hljs-string">&#x27;读心术&#x27;</span>, <span class="hljs-string">&#x27;瞬间移动&#x27;</span>, <span class="hljs-string">&#x27;不死之身&#x27;</span>, <span class="hljs-string">&#x27;喷火&#x27;</span>]<br>story_types = [<span class="hljs-string">&#x27;轻松&#x27;</span>, <span class="hljs-string">&#x27;努力&#x27;</span>, <span class="hljs-string">&#x27;艰难&#x27;</span>]<br><br><span class="hljs-meta">@backoff.on_exception(<span class="hljs-params">backoff.expo, openai.error.RateLimitError</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">gpt35</span>(<span class="hljs-params">prompt, max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>, top_p=<span class="hljs-number">1</span>, frequency_penalty=<span class="hljs-number">0</span>, presence_penalty=<span class="hljs-number">0</span></span>):<br>    response = openai.Completion.create(<br>        engine=<span class="hljs-string">&quot;text-davinci-003&quot;</span>,<br>        prompt=prompt,<br>        max_tokens=max_tokens,<br>        temperature=temperature,<br>        top_p=top_p,<br>        frequency_penalty=frequency_penalty,<br>        presence_penalty=presence_penalty)<br>    <span class="hljs-keyword">return</span> response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;text&quot;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">prepare_stories</span>(<span class="hljs-params">dynasties, super_powers, story_types, output_file=<span class="hljs-string">&quot;data/ultraman_stories.csv&quot;</span></span>):<br>    df = pd.DataFrame()<br>    repeat = <span class="hljs-number">3</span><br>    <span class="hljs-keyword">for</span> dynasty <span class="hljs-keyword">in</span> dynasties:<br>        <span class="hljs-keyword">for</span> super_power <span class="hljs-keyword">in</span> super_powers:<br>            <span class="hljs-keyword">for</span> story_type <span class="hljs-keyword">in</span> story_types:<br>                   <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(repeat):<br>                        prompt = <span class="hljs-string">f&quot;&quot;&quot;请你用中文写一段300字的故事，情节跌宕起伏，讲述一位<span class="hljs-subst">&#123;dynasty&#125;</span>朝时期的英雄人物，穿越到现代，拥有了<span class="hljs-subst">&#123;super_power&#125;</span>这样的超能力，通过<span class="hljs-subst">&#123;story_type&#125;</span>的战斗，帮助奥特曼一起打败了怪兽的故事。&quot;&quot;&quot;</span><br>                        story = gpt35(prompt)<br>                        row = &#123;<span class="hljs-string">&quot;dynasty&quot;</span>: dynasty, <span class="hljs-string">&quot;super_power&quot;</span>: super_power, <span class="hljs-string">&quot;story_type&quot;</span>: story_type, <span class="hljs-string">&quot;story&quot;</span>: story&#125;<br>                        row = pd.DataFrame([row])<br>                        df = pd.concat([df, row], axis=<span class="hljs-number">0</span>, ignore_index=<span class="hljs-literal">True</span>)<br><br>    df.to_csv(<span class="hljs-string">&quot;data/ultraman_stories.csv&quot;</span>)<br><br>prepare_stories(dynasties, super_powers, story_types)<br><br></code></pre></td></tr></table></figure>
+
+<p>这部分代码非常简单，我们定义了一系列朝代、超能力和故事的类型。然后通过三重循环，让AI根据这三者的组合来生成一系列故事。这些生成出来的故事，也就构成了我们用来微调模型的训练数据。因为数据量不大，我就直接用CSV把它存下来了。在这个过程中，数据是一条条生成的，比较慢，也比较消耗Token，你可以不用运行，直接拿我运行后生成的结果数据就好。</p>
+<p>拿到了这些数据，我们就可以来微调模型了。我们之前已经通过pip安装了OpenAI的包，这里面自带了命令行工具，方便我们把对应的CSV格式的数据转换成微调模型所需要的JSONL格式的文件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">df = pd.read_csv(<span class="hljs-string">&quot;data/ultraman_stories.csv&quot;</span>)<br>df[<span class="hljs-string">&#x27;sub_prompt&#x27;</span>] = df[<span class="hljs-string">&#x27;dynasty&#x27;</span>] + <span class="hljs-string">&quot;,&quot;</span> + df[<span class="hljs-string">&#x27;super_power&#x27;</span>] + <span class="hljs-string">&quot;,&quot;</span> + df[<span class="hljs-string">&#x27;story_type&#x27;</span>]<br>prepared_data = df.loc[:,[<span class="hljs-string">&#x27;sub_prompt&#x27;</span>,<span class="hljs-string">&#x27;story&#x27;</span>]]<br>prepared_data.rename(columns=&#123;<span class="hljs-string">&#x27;sub_prompt&#x27;</span>:<span class="hljs-string">&#x27;prompt&#x27;</span>, <span class="hljs-string">&#x27;story&#x27;</span>:<span class="hljs-string">&#x27;completion&#x27;</span>&#125;, inplace=<span class="hljs-literal">True</span>)<br>prepared_data.to_csv(<span class="hljs-string">&#x27;data/prepared_data.csv&#x27;</span>,index=<span class="hljs-literal">False</span>)<br><br><span class="hljs-keyword">import</span> subprocess<br><br>subprocess.run(<span class="hljs-string">&#x27;openai tools fine_tunes.prepare_data --file data/prepared_data.csv --quiet&#x27;</span>.split())<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">……<br>Wrote modified file to `data/prepared_data_prepared.jsonl`<br>Feel free to take a look!<br>Now use that file when fine-tuning:<br>&gt; openai api fine_tunes.create -t <span class="hljs-string">&quot;data/prepared_data_prepared.jsonl&quot;</span><br>After you’ve fine-tuned a model, remember that your prompt has to end <span class="hljs-keyword">with</span> the indicator string ` -&gt;` <span class="hljs-keyword">for</span> the model to start generating completions, rather than continuing <span class="hljs-keyword">with</span> the prompt. Make sure to include `stop=[<span class="hljs-string">&quot;.&quot;</span>]` so that the generated texts ends at the expected place.<br>Once your model starts training, it<span class="hljs-string">&#x27;ll approximately take 8.82 minutes to train a `curie` model, and less for `ada` and `babbage`. Queue will approximately take half an hour per job ahead of you.</span><br><span class="hljs-string"></span><br><span class="hljs-string">CompletedProcess(args=[&#x27;</span>openai<span class="hljs-string">&#x27;, &#x27;</span>tools<span class="hljs-string">&#x27;, &#x27;</span>fine_tunes.prepare_data<span class="hljs-string">&#x27;, &#x27;</span>--file<span class="hljs-string">&#x27;, &#x27;</span>data/prepared_data.csv<span class="hljs-string">&#x27;, &#x27;</span>--quiet<span class="hljs-string">&#x27;], returncode=0)</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<p>上面的代码主要做了两个动作。首先，是对数据做了一些处理，来准备微调。对于微调，我们使用的Prompt不再是一个完整的句子，而是只用了“朝代”+“超能力”+“故事类型”拼接在一起的字符串，中间用逗号隔开。然后把这个字符串和生成的故事，用Prompt和Completion作为列名存储成了一个CSV。</p>
+<p>其次，我们通过subprocess调用了命令行里的OpenAI工具，把上面的CSV文件，转化成了一个JSONL格式的文件。从输出的日志里面可以看到，这个文件叫做 data&#x2F;prepared_data_prepared.jsonl。</p>
+<p>如果我们打开这个JSONL文件看一眼，是下面这样的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&quot;prompt&quot;</span>:<span class="hljs-string">&quot;唐,隐形,轻松 -&gt;&quot;</span>,<span class="hljs-string">&quot;completion&quot;</span>:<span class="hljs-string">&quot; \n\n一位叫做李明的英雄人物，出生在唐朝时期。他是一个勇敢的将军，在他的一生中，他打败了许多敌人，为自己的国家和人民做出了许多贡献。\n\n一天，李明意外被一道神秘的光束穿越到了现代。他发现自己拥有了超能力，可以隐形，可以飞行，可以发射光束，可以放出火焰，可以穿墙而过等等。\n\n李明发现，在现代，怪兽们正在摧毁地球，他决定和奥特曼一起，用自己的超能力，帮助奥特曼消灭怪兽们。\n\n于是，李明和奥特曼开始了一场艰苦的战斗，他们用自己的超能力，一招一式，击退了怪兽们，最终成功地拯救了地球。\n\n在这场战斗之后，地球上的人们都对李明充满了敬佩，他从此成为了一位英雄，他的事迹也被传颂了很久。李明也因此被永远铭记在人们心中，成为了一位不朽的英雄。.&quot;</span>&#125;<br>&#123;<span class="hljs-string">&quot;prompt&quot;</span>:<span class="hljs-string">&quot;唐,隐形,轻松 -&gt;&quot;</span>,<span class="hljs-string">&quot;completion&quot;</span>:<span class="hljs-string">&quot; \n\n这是一个关于英雄的故事，发生在唐朝时期的中国。一个叫李自成的勇士，他拥有过人的勇气，英勇的行为让他成为当时最受尊敬的人物。\n\n一天，李自成被一道神秘的光芒笼罩住，他突然发现自己似乎穿越时空，来到了现代。他惊讶地发现，自己竟然拥有了一种超能力，可以让自己隐形。\n\n李自成接受了这种超能力，他发现这种能力可以让自己变得更加强大，他决定利用这种能力来帮助人们。\n\n一次，李自成发现有一群怪兽正在破坏城市，他决定和奥特曼一起出动，利用自己的超能力，把怪兽一个个击败，最终成功拯救了城市，令众人欢呼雀跃。\n\n自此，李自成受到了众人的尊敬，他成为了这个城市的英雄，他也把自己的超能力用在了正义的事业上，为人们做出了许多贡献，他也成为了一个英雄。.&quot;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，转换后的数据文件，在Prompt的最后，多了一个“-&gt;”符号。而在Completion的开头，多了两个“\n\n”的换行，结尾则是多了一个“.”。这是为了方便我们后续在使用这个模型生成数据的时候，控制生成结果。未来在使用模型的时候，Prompt需要以“-&gt;\n”这个提示符结束，并且将stop设置成“.”。这样，模型就会自然套用我们微调里的模式来生成文本。</p>
+<p>有了准备好的数据，我们只要再通过subprocess调用OpenAI的命令行工具，来提交微调的指令就可以了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">subprocess.run(<span class="hljs-string">&#x27;openai api fine_tunes.create --training_file data/prepared_data_prepared.jsonl --model curie --suffix &quot;ultraman&quot;&#x27;</span>.split())<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">Upload progress: <span class="hljs-number">100</span>%|██████████| 446k/446k [<span class="hljs-number">00</span>:<span class="hljs-number">00</span>&lt;<span class="hljs-number">00</span>:<span class="hljs-number">00</span>, 201Mit/s]<br>Uploaded file <span class="hljs-keyword">from</span> data/prepared_data_prepared.jsonl: file-yn0BfnPmgvf7n0sfQzQRbbeE<br>Created fine-tune: ft-3oxkr1zBVB4fJWogJDDjQbr0<br>Streaming events until fine-tuning <span class="hljs-keyword">is</span> complete...<br>(Ctrl-C will interrupt the stream, but <span class="hljs-keyword">not</span> cancel the fine-tune)<br>[<span class="hljs-number">2023</span>-04-04 <span class="hljs-number">10</span>:<span class="hljs-number">51</span>:<span class="hljs-number">51</span>] Created fine-tune: ft-3oxkr1zBVB4fJWogJDDjQbr0<br><br>CompletedProcess(args=[<span class="hljs-string">&#x27;openai&#x27;</span>, <span class="hljs-string">&#x27;api&#x27;</span>, <span class="hljs-string">&#x27;fine_tunes.create&#x27;</span>, <span class="hljs-string">&#x27;--training_file&#x27;</span>, <span class="hljs-string">&#x27;data/prepared_data_prepared.jsonl&#x27;</span>, <span class="hljs-string">&#x27;--model&#x27;</span>, <span class="hljs-string">&#x27;curie&#x27;</span>, <span class="hljs-string">&#x27;--suffix&#x27;</span>, <span class="hljs-string">&#x27;&quot;ultraman&quot;&#x27;</span>], returncode=<span class="hljs-number">0</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>在这个微调的指令里面，我们指定了三个参数，分别是用来训练的数据文件、一个基础模型，以及生成模型的后缀。这里，我们选用了Curie作为基础模型，因为是讲奥特曼的故事，所以模型后缀我给它取了一个ultraman的名字。</p>
+<p>我们的数据量不大，所以微调很快，几分钟就能完成。那接下来我们就可以使用这个模型了。我们可以通过下面的fine_tunes.list指令，找出所有我们微调的模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">subprocess.run(<span class="hljs-string">&#x27;openai api fine_tunes.list&#x27;</span>.split())<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<br>  <span class="hljs-string">&quot;data&quot;</span>: [<br>    &#123;<br>      <span class="hljs-string">&quot;created_at&quot;</span>: <span class="hljs-number">1680576711</span>,<br>      <span class="hljs-string">&quot;fine_tuned_model&quot;</span>: <span class="hljs-string">&quot;curie:ft-bothub-ai:ultraman-2023-04-04-03-03-26&quot;</span>,<br>      <span class="hljs-string">&quot;hyperparams&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;batch_size&quot;</span>: <span class="hljs-number">1</span>,<br>        <span class="hljs-string">&quot;learning_rate_multiplier&quot;</span>: <span class="hljs-number">0.2</span>,<br>        <span class="hljs-string">&quot;n_epochs&quot;</span>: <span class="hljs-number">4</span>,<br>        <span class="hljs-string">&quot;prompt_loss_weight&quot;</span>: <span class="hljs-number">0.01</span><br>      &#125;,<br>      <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;ft-3oxkr1zBVB4fJWogJDDjQbr0&quot;</span>,<br>      <span class="hljs-string">&quot;model&quot;</span>: <span class="hljs-string">&quot;curie&quot;</span>,<br>      <span class="hljs-string">&quot;object&quot;</span>: <span class="hljs-string">&quot;fine-tune&quot;</span>,<br>      <span class="hljs-string">&quot;organization_id&quot;</span>: <span class="hljs-string">&quot;YOUR_ORGANIZATION_ID&quot;</span>,<br>      <span class="hljs-string">&quot;result_files&quot;</span>: [<br>        &#123;<br>          <span class="hljs-string">&quot;bytes&quot;</span>: <span class="hljs-number">107785</span>,<br>          <span class="hljs-string">&quot;created_at&quot;</span>: <span class="hljs-number">1680577408</span>,<br>          <span class="hljs-string">&quot;filename&quot;</span>: <span class="hljs-string">&quot;compiled_results.csv&quot;</span>,<br>          <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;RESULT_FILE_ID&quot;</span>,<br>          <span class="hljs-string">&quot;object&quot;</span>: <span class="hljs-string">&quot;file&quot;</span>,<br>          <span class="hljs-string">&quot;purpose&quot;</span>: <span class="hljs-string">&quot;fine-tune-results&quot;</span>,<br>          <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;processed&quot;</span>,<br>          <span class="hljs-string">&quot;status_details&quot;</span>: null<br>...<br>    &#125;<br>  ],<br>  <span class="hljs-string">&quot;object&quot;</span>: <span class="hljs-string">&quot;list&quot;</span><br>&#125;<br>CompletedProcess(args=[<span class="hljs-string">&#x27;openai&#x27;</span>, <span class="hljs-string">&#x27;api&#x27;</span>, <span class="hljs-string">&#x27;fine_tunes.list&#x27;</span>], returncode=<span class="hljs-number">0</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>在输出的JSON里面，你可以看到我们有一个fine_tuned_model字段，里面的值叫做“curie:ft-bothub-ai:ultraman-2023-04-04-03-03-26”，这个就是刚刚让OpenAI给我们微调完的模型。</p>
+<p>这个模型的使用方法，和我们使用text-davinci-003之类的模型是一样的，只要在API里面把对应的model字段换掉就好了，对应的代码我也放在了下面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> openai<br><br>openai.api_key = os.getenv(<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">write_a_story</span>(<span class="hljs-params">prompt</span>):<br>    response = openai.Completion.create(<br>        model=<span class="hljs-string">&quot;curie:ft-bothub-ai:ultraman-2023-04-04-03-03-26&quot;</span>,<br>        prompt=prompt,<br>        temperature=<span class="hljs-number">0.7</span>,<br>        max_tokens=<span class="hljs-number">2000</span>,<br>        top_p=<span class="hljs-number">1</span>,<br>        stop=[<span class="hljs-string">&quot;.&quot;</span>])<br>    <span class="hljs-keyword">return</span> response[<span class="hljs-string">&quot;choices&quot;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&quot;text&quot;</span>]<br><br>story = write_a_story(<span class="hljs-string">&quot;宋,发射激光,艰难 -&gt;\n&quot;</span>)<br><span class="hljs-built_in">print</span>(story)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">宋朝时期，有一位叫林先生的英雄人物，他勇敢而又坚韧，曾经拯救过无数的人民，他的英勇表现让他赢得了众多的尊敬。<br>一天，林先生突然发现自己穿越到了现代，他发现自己拥有了一种神奇的超能力，可以发射激光，他开始研究自己的能力，发现自己可以用激光来攻击敌人。<br>林先生决定把自己的能力用来拯救人类，于是他和奥特曼一起出发，开始与怪兽作战。他们一路走来，林先生用他的激光来打击怪兽，奥特曼则用他的武器来打击怪兽。<br>在一场艰苦的战斗中，林先生和奥特曼终于击败了怪兽，拯救了人类。林先生也因此获得了无数的赞誉，他也成为了一位传奇英雄。<br>林先生的故事被传唱了几百年，他的英勇事迹也成为了一个永恒的传奇，让人们永远不忘。<br><br></code></pre></td></tr></table></figure>
+
+<p>对应在调用模型的时候，我们使用的提示语就是“朝代”+“超能力”+“故事类型”，并且跟着“-&gt;\n”，而stop则是设置成了“.”。</p>
+<p>因为这是一个微调的模型，它不仅拥有我们训练数据提供的知识，也包括基础模型里的各种信息。所以我们使用的朝代、超能力和故事类型也可以是在之前微调数据里面没有出现过的。比如，上面的例子里，我们使用的超能力叫做“发射激光”，并不是我们拿来微调的数据里面有的一种超能力。你可以试试看，使用别的朝代、故事的类型，效果会是怎么样的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">story = write_a_story(<span class="hljs-string">&quot;秦,龙卷风,辛苦 -&gt;\n&quot;</span>)<br><span class="hljs-built_in">print</span>(story)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">曾经有一位叫苏轼的英雄人物，他曾经英勇地抵抗过许多强大的敌人，拯救了许多被危险封印的百姓。他曾经在一次战争中发挥过自己的作用，赢得了许多胜利，被尊为英雄。<br>然而，苏轼却在一次激烈的战斗中牺牲了，他的灵魂被封印在一个古老的石头里，隔着一层玻璃，一直沉睡了几百年。<br>苏轼的灵魂在穿越时空，来到了现代，他发现自己拥有了一种超能力，这就是龙卷风，他可以使自己的身体具有超强的力量，甚至可以抵抗恶魔的攻击。<br>苏轼在现代的世界里，发现了一种可怕的怪兽，它们正在摧毁着人类的家园，苏轼决定要拯救这个世界，于是他和奥特曼一起出发，开始了一场史诗般的战斗。<br>在苏轼和奥特曼的帮助下，苏轼利用自己的超能力，一次次击退怪兽的攻击，最终他们成功地打败了怪兽，拯救了人类。<br>苏轼的事迹在这里传唱了很久，他成为了一位永恒的英雄，他的故事也被传唱了下来，让人们永远不会忘记他的英勇事迹。<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="模型微调的成本考量"><a href="#模型微调的成本考量" class="headerlink" title="模型微调的成本考量"></a>模型微调的成本考量</h2><p>细心的人可能注意到了，我们这里选用的基础模型是Curie，而不是效果最好的Davinci。之所以做出这样的选择，是出于成本的考虑。</p>
+<p><img src="https://s2.loli.net/2023/11/22/MoEi8lS4WUFQ1Gk.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>注：数据来源于 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://openai.com/pricing#language-models">https://openai.com/pricing#language-models</a></p>
+<p><strong>使用微调模型的成本要远远高于使用OpenAI内置的模型。</strong> 以Davinci为基础微调的模型，使用的时候，每1000个Token的成本是0.12美元，是使用内置的text-davinci-003的6倍，是我们最常用的 gpt-3.5-turbo 的60倍。所以，如果只是一般的讲故事的应用，这个成本实在是太高了。就算是我们选择基于Curie微调，1000个Token的使用成本也在0.012美元，虽然比text-davinci-003要便宜，但也是gpt-3.5-turbo的6倍。</p>
+<p>对于模型微调的效果，我们也可以通过一个OpenAI提供的命令fine_tunes.results来看。对应的，我们需要提供给它一个微调任务的id。这个id，可以在fine_tunes.list列出的fine_tunes模型的id参数里找到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">subprocess.run(<span class="hljs-string">&#x27;openai api fine_tunes.results -i ft-3oxkr1zBVB4fJWogJDDjQbr0&#x27;</span>.split())<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs python">step,elapsed_tokens,elapsed_examples,training_loss,training_sequence_accuracy,training_token_accuracy<br><span class="hljs-number">1</span>,<span class="hljs-number">625</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0.8805545861742778</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.75</span><br><span class="hljs-number">2</span>,<span class="hljs-number">1258</span>,<span class="hljs-number">2</span>,<span class="hljs-number">0.8059815050491868</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.7766830870279147</span><br><span class="hljs-number">3</span>,<span class="hljs-number">1859</span>,<span class="hljs-number">3</span>,<span class="hljs-number">0.7964038042175758</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.7862068965517242</span><br><span class="hljs-number">4</span>,<span class="hljs-number">2548</span>,<span class="hljs-number">4</span>,<span class="hljs-number">0.805052303553852</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.7774436090225564</span><br><span class="hljs-number">5</span>,<span class="hljs-number">3197</span>,<span class="hljs-number">5</span>,<span class="hljs-number">0.7503930440556053</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.7808</span><br><span class="hljs-number">6</span>,<span class="hljs-number">3846</span>,<span class="hljs-number">6</span>,<span class="hljs-number">0.7992317049403261</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.7770700636942676</span><br><span class="hljs-number">7</span>,<span class="hljs-number">4775</span>,<span class="hljs-number">7</span>,<span class="hljs-number">0.6649006477473822</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.7927232635060639</span><br><span class="hljs-number">8</span>,<span class="hljs-number">5432</span>,<span class="hljs-number">8</span>,<span class="hljs-number">0.6493354803676822</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8049921996879875</span><br><span class="hljs-number">9</span>,<span class="hljs-number">6265</span>,<span class="hljs-number">9</span>,<span class="hljs-number">0.6568901059838095</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.802937576499388</span><br><span class="hljs-number">10</span>,<span class="hljs-number">7122</span>,<span class="hljs-number">10</span>,<span class="hljs-number">0.6578856167468091</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8100358422939068</span><br><span class="hljs-number">11</span>,<span class="hljs-number">7827</span>,<span class="hljs-number">11</span>,<span class="hljs-number">0.5687322367928961</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8279411764705882</span><br><span class="hljs-number">12</span>,<span class="hljs-number">8404</span>,<span class="hljs-number">12</span>,<span class="hljs-number">0.6334827334911788</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8172043010752689</span><br><span class="hljs-number">13</span>,<span class="hljs-number">9061</span>,<span class="hljs-number">13</span>,<span class="hljs-number">0.5771709139683721</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.825</span><br><span class="hljs-number">14</span>,<span class="hljs-number">9822</span>,<span class="hljs-number">14</span>,<span class="hljs-number">0.6079089517825593</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8100407055630936</span><br><span class="hljs-number">15</span>,<span class="hljs-number">10399</span>,<span class="hljs-number">15</span>,<span class="hljs-number">0.6481047367374327</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8154121863799283</span><br><span class="hljs-number">16</span>,<span class="hljs-number">11208</span>,<span class="hljs-number">16</span>,<span class="hljs-number">0.5528688982071029</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8352490421455939</span><br><span class="hljs-number">17</span>,<span class="hljs-number">11913</span>,<span class="hljs-number">17</span>,<span class="hljs-number">0.6525803676480848</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8093841642228738</span><br><span class="hljs-number">18</span>,<span class="hljs-number">12546</span>,<span class="hljs-number">18</span>,<span class="hljs-number">0.5230526420679229</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8363047001620746</span><br><span class="hljs-number">19</span>,<span class="hljs-number">13163</span>,<span class="hljs-number">19</span>,<span class="hljs-number">0.6065665546680247</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8236272878535774</span><br><span class="hljs-number">20</span>,<span class="hljs-number">13796</span>,<span class="hljs-number">20</span>,<span class="hljs-number">0.5983224045073889</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8199672667757774</span><br><span class="hljs-number">21</span>,<span class="hljs-number">14549</span>,<span class="hljs-number">21</span>,<span class="hljs-number">0.6440337136896056</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8267394270122783</span><br><span class="hljs-number">22</span>,<span class="hljs-number">15190</span>,<span class="hljs-number">22</span>,<span class="hljs-number">0.6029605409912032</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8110749185667753</span><br><span class="hljs-number">23</span>,<span class="hljs-number">15759</span>,<span class="hljs-number">23</span>,<span class="hljs-number">0.5089513997451476</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.838475499092559</span><br><span class="hljs-number">24</span>,<span class="hljs-number">16440</span>,<span class="hljs-number">24</span>,<span class="hljs-number">0.557213810807506</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.8265460030165912</span><br>...<br><span class="hljs-number">1855</span>,<span class="hljs-number">1228711</span>,<span class="hljs-number">1855</span>,<span class="hljs-number">0.2610049068084409</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.9219765929778934</span><br><span class="hljs-number">1856</span>,<span class="hljs-number">1229312</span>,<span class="hljs-number">1856</span>,<span class="hljs-number">0.21196416716076574</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.9312714776632303</span><br><span class="hljs-number">1857</span>,<span class="hljs-number">1229945</span>,<span class="hljs-number">1857</span>,<span class="hljs-number">0.14050147435694596</span>,<span class="hljs-number">0.0</span>,<span class="hljs-number">0.9556650246305419</span><br><br></code></pre></td></tr></table></figure>
+
+<p>在这个命令的输出结果里，你可以在第二列elapsed_tokens看到训练消耗的Token数量。而最后一列 training_token_accuracy，则代表微调后的模型，成功预测微调的数据里下一个Token的准确率。在我们使用的这个例子里面，可以看到一开始准确率只有75%，但是随着训练数据迭代轮数的增加，准确率越来越高，达到了95%以上。</p>
+<h2 id="增量训练，不断优化模型"><a href="#增量训练，不断优化模型" class="headerlink" title="增量训练，不断优化模型"></a>增量训练，不断优化模型</h2><p>微调模型比较高昂的价格，限制了它的使用。 <strong>不过，微调模型还有一个能力，就是我们可以在已经微调了的模型上根据新数据做进一步地微调。</strong> 这个在很多垂直领域是非常有用，比如在医学、金融这样的领域，我们就可以不断收集新的数据，不断在前一个微调模型的基础之上继续微调我们的模型，让模型的效果越来越好。而这些领域往往也能承受更高一些的成本。</p>
+<p>进一步地微调其实操作起来并不复杂，就是再准备一些数据，以之前已经微调好的模型为基础模型来操作就好了。</p>
+<p>生成一些额外的数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">dynasties= [<span class="hljs-string">&#x27;秦&#x27;</span>, <span class="hljs-string">&#x27;五代&#x27;</span>, <span class="hljs-string">&#x27;隋&#x27;</span>]<br>super_powers = [<span class="hljs-string">&#x27;龙卷风&#x27;</span>, <span class="hljs-string">&#x27;冰冻大海&#x27;</span>, <span class="hljs-string">&#x27;流星火雨&#x27;</span>]<br>story_types = [<span class="hljs-string">&#x27;轻松&#x27;</span>, <span class="hljs-string">&#x27;努力&#x27;</span>, <span class="hljs-string">&#x27;艰难&#x27;</span>, <span class="hljs-string">&#x27;勇敢&#x27;</span>, <span class="hljs-string">&#x27;辛苦&#x27;</span>]<br><br>new_stories = <span class="hljs-string">&quot;data/ultraman_stories_more.csv&quot;</span><br>prepare_stories(dynasties, super_powers, story_types, repeat=<span class="hljs-number">3</span>, output_file=new_stories)<br><br></code></pre></td></tr></table></figure>
+
+<p>转换数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python">df = pd.read_csv(new_stories)<br>df[<span class="hljs-string">&#x27;sub_prompt&#x27;</span>] = df[<span class="hljs-string">&#x27;dynasty&#x27;</span>] + <span class="hljs-string">&quot;,&quot;</span> + df[<span class="hljs-string">&#x27;super_power&#x27;</span>] + <span class="hljs-string">&quot;,&quot;</span> + df[<span class="hljs-string">&#x27;story_type&#x27;</span>]<br>prepared_data = df.loc[:,[<span class="hljs-string">&#x27;sub_prompt&#x27;</span>,<span class="hljs-string">&#x27;story&#x27;</span>]]<br>prepared_data.rename(columns=&#123;<span class="hljs-string">&#x27;sub_prompt&#x27;</span>:<span class="hljs-string">&#x27;prompt&#x27;</span>, <span class="hljs-string">&#x27;story&#x27;</span>:<span class="hljs-string">&#x27;completion&#x27;</span>&#125;, inplace=<span class="hljs-literal">True</span>)<br>new_stories_prepared = <span class="hljs-string">&#x27;data/prepared_data_more.csv&#x27;</span><br>prepared_data.to_csv(new_stories_prepared, index=<span class="hljs-literal">False</span>)<br><br>subprocess.run(<span class="hljs-string">&#x27;openai tools fine_tunes.prepare_data --file data/prepared_data_more.csv --quiet&#x27;</span>.split())<br><br></code></pre></td></tr></table></figure>
+
+<p>继续微调：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">subprocess.run(<span class="hljs-string">&#x27;openai api fine_tunes.create --training_file data/prepared_data_more_prepared.jsonl --model curie:ft-bothub-ai:ultraman-2023-04-04-03-03-26 --suffix &quot;ultraman&quot; --learning_rate_multiplier 0.2&#x27;</span>.split())<br><br></code></pre></td></tr></table></figure>
+
+<p>在原有的模型上微调的时候，我们要修改两个参数。</p>
+<ol>
+<li>第一个是model参数，我们把Curie换成了我们刚才微调之后的模型 <strong>curie:ft-bothub-ai:ultraman-2023-04-04-03-03-26</strong>。</li>
+<li>第二个是learning_rate_multiplier，这个参数的默认值是根据你的样本数量在0.05 到 0.2 不等。如果你继续微调的样本数要比之前微调的数据量小很多，你就可以调得大一点。</li>
+</ol>
+<p>微调更新之后，模型的名称没有变，老的模型就被更新成了微调后的新模型，我们再来试一下这个新模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">fine_tuned = write_a_story(<span class="hljs-string">&quot;五代,流星火雨,艰难 -&gt;\n&quot;</span>)<br><span class="hljs-built_in">print</span>(fine_tuned)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">这是一个发生在一个古老的世界，一个叫做“六代”的世界。这个世界有着一种叫做“超能力”的特性，可以让人穿越时空，穿越到现代。<br>一位叫做“英雄”的人物，他来自于六代，但他拥有了一种叫做“流星火雨”的超能力，他可以把自己的身体变成一个火焰，然后穿越时空，来到现代。<br>他来到现代，发现这个世界变得越来越危险，有一种叫做“怪兽”的存在，他们想要毁灭这个世界。英雄决定帮助奥特曼一起打败怪兽，于是他们开始了一场激烈的战斗。<br>英雄凭借着自己的超能力，以及奥特曼的力量，战胜了怪兽，拯救了这个世界。最后，英雄又一次穿越回六代，这次他拥有了一种叫做“流星火雨”的超能力，他可以把自己的身体变成一个火焰，然后穿越时空，拯救又一次六代。<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="流式生成"><a href="#流式生成" class="headerlink" title="流式生成"></a>流式生成</h2><p>通过模型微调，我们拥有了一个可以讲故事的AI模型。不过，故事生成的体验稍微有点差。它不像是我们在ChatGPT的Web界面里那样一个词一个词地蹦出来，就像一个真人在给你讲故事那样。不过要做到这一点也并不难，因为OpenAI的Completion接口是提供了这样返回结果的模式的，你只需要把代码小小地修改一下就好了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">write_a_story_by_stream</span>(<span class="hljs-params">prompt</span>):<br>    response = openai.Completion.create(<br>        model=<span class="hljs-string">&quot;curie:ft-bothub-ai:ultraman-2023-04-04-03-03-26&quot;</span>,<br>        prompt=prompt,<br>        temperature=<span class="hljs-number">0.7</span>,<br>        max_tokens=<span class="hljs-number">2000</span>,<br>        stream=<span class="hljs-literal">True</span>,<br>        top_p=<span class="hljs-number">1</span>,<br>        stop=[<span class="hljs-string">&quot;.&quot;</span>])<br>    <span class="hljs-keyword">return</span> response<br><br>response = write_a_story_by_stream(<span class="hljs-string">&quot;汉,冰冻大海,艰难 -&gt;\n&quot;</span>)<br><br><span class="hljs-keyword">for</span> event <span class="hljs-keyword">in</span> response:<br>    event_text = event[<span class="hljs-string">&#x27;choices&#x27;</span>][<span class="hljs-number">0</span>][<span class="hljs-string">&#x27;text&#x27;</span>]<br>    <span class="hljs-built_in">print</span>(event_text, end = <span class="hljs-string">&#x27;&#x27;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">一位叫李英的汉朝时期的英雄人物，穿越到了现代，拥有了一种超能力，可以把自己的身体冰冻到极限，他发现自己可以拥有超越情感的力量，可以把任何人都冻僵，他也发现自己可以控制全局，可以控制时间，可以控制物质，可以控制情景，他发现自己可以控制一切，他变得更加强大。<br>李英发现，地球正面临着一个叫做怪兽的强大敌人的威胁，他决定去帮助奥特曼一起打败怪兽。于是，他和奥特曼一起开始了一系列的战斗，他们一起抵抗着怪兽的攻击，最终，他们成功地消灭了怪兽，拯救了地球。<br>李英受到了所有人的赞赏，他也成为了一个英雄，他的事迹被传颂了几百年，他的故事也被记录在历史书中，他也成为了一个永恒的传奇。<br><br></code></pre></td></tr></table></figure>
+
+<p>我们在调用Completion接口的时候，启用了<strong>stream&#x3D;True</strong>这个参数。然后对于返回结果，我们不再是直接拿到整个response然后打印出来。而是拿到一个可以通过迭代器访问的一系列events，每一个event都包含了一部分新生成的文本。你试着运行一下这段代码，就能体验到AI把一个个词吐给你，好像真的在实时讲故事一样的感觉了。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章里一起学习了OpenAI大语言模型里的最后两个功能。</p>
+<p>第一个是模型微调，模型微调给我们提供了一个非常实用的能力， <strong>我们可以利用自己的数据，在OpenAI的基础模型上，调整模型参数生成一个新模型</strong>。这样我们就能够根据自己专有的垂直领域的数据，来生产一个专属于我们自己的模型。而且，我们可以根据新收集到的数据，不断在这个模型上继续微调迭代。不过，微调后的模型使用成本比较高，你需要自己核算一下，究竟是微调模型ROI比较高，还是使用前面的外部知识库的方式更划算一些。</p>
+<p>在模型微调之外，我们还了解了OpenAI接口上的一个小功能，也就是 <strong>流式地数据生成</strong>。通过开启流式地文本生成，我们可以交付给用户更好的交互体验。特别是在使用比较慢的模型，比如GPT-4，或者生成的文本很长的时候，效果特别明显。用户不需要等上几十秒才能看到结果。</p>
+<p>那到这里，大语言模型部分我们也就介绍完了。从最基本的两个API，Completion和Embedding开始，介绍了各种各样的应用场景和使用方法。可以看到，现在的大语言模型几乎是“万能”的。下可以拿来做机器学习的输入数据，上可以直接让它自己决定调用什么API，怎么解决用户的问题。相信看到这里的你，已经掌握如何使用大语言模型了，接下来就要多想想在你的实际工作里如何把它用起来了。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>OpenAI在自己的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://platform.openai.com/docs/guides/fine-tuning/weights-biases">官方文档</a> 里，推荐了通过 Weight &amp; Bias 这个公司的产品，来追踪微调后的模型的实验、模型与数据集。Weight &amp; Bias 也在自己的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://docs.wandb.ai/guides/integrations/openai?utm_source=wandb_docs&utm_medium=code&utm_campaign=OpenAI+API">文档</a> 里，提供了一个对WIT数据集进行模型微调的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://colab.research.google.com/github/wandb/examples/blob/master/colabs/openai/Fine_tune_GPT_3_with_Weights_%26_Biases.ipynb#scrollTo=Qnxnp5uZZQOi">Notebook</a>，你有兴趣的话也可以去看一下。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>15.大语言模型如何模型微调与流式生成</div>
+      <div>https://blog.longpi1.com/2023/11/24/15-大语言模型如何模型微调与流式生成/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/24/16-Whisper-ChatGPT%EF%BC%9AAI%E5%AE%9E%E7%8E%B0%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" title="16.Whisper+ChatGPT：AI实现语音识别">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">16.Whisper+ChatGPT：AI实现语音识别</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/24/14-%E9%80%9A%E8%BF%87LangChain%E7%9A%84Agent%EF%BC%8C%E8%AE%A9AI%E5%81%9A%E5%86%B3%E7%AD%96/" title="14.通过LangChain的Agent，让AI做决策">
+                        <span class="hidden-mobile">14.通过LangChain的Agent，让AI做决策</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
