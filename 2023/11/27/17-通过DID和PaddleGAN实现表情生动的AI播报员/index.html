@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="17.通过DID和PaddleGAN实现表情生动的AI播报员">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/27/17-%E9%80%9A%E8%BF%87DID%E5%92%8CPaddleGAN%E5%AE%9E%E7%8E%B0%E8%A1%A8%E6%83%85%E7%94%9F%E5%8A%A8%E7%9A%84AI%E6%92%AD%E6%8A%A5%E5%91%98/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/wBlT7h32qdYfxEj.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/bHxvog1duFa38SV.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/Pk3ylVKxUtjMLgi.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/8GkgWB7pm1OoRrb.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/X2WzDA4MYdGrChJ.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/22/rhXYEgweLOkWo1K.png">
+<meta property="article:published_time" content="2023-11-27T08:55:28.000Z">
+<meta property="article:modified_time" content="2023-11-27T09:24:39.807Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/22/wBlT7h32qdYfxEj.png">
+  
+  
+  
+  <title>17.通过DID和PaddleGAN实现表情生动的AI播报员 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="17.通过DID和PaddleGAN实现表情生动的AI播报员"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-27 16:55" pubdate>
+          2023年11月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          21k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">17.通过DID和PaddleGAN实现表情生动的AI播报员</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="17-通过DID和PaddleGAN实现表情生动的AI播报员"><a href="#17-通过DID和PaddleGAN实现表情生动的AI播报员" class="headerlink" title="17.通过DID和PaddleGAN实现表情生动的AI播报员"></a>17.通过DID和PaddleGAN实现表情生动的AI播报员</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>有了语音识别、ChatGPT，再加上这个语音合成，我们就可以做一个能和我们语音聊天的机器人了。不过光有声音还不够，我们还希望这个声音可以是某一个特定的人的声音。就好像在电影《Her》里面那样，AI因为用了影星斯嘉丽·约翰逊的配音，也吸引到不少观众。最后，光有声音还不够，我们还希望能够有视觉上的效果，最好能够模拟自己真的在镜头面前侃侃而谈的样子。</p>
+<p>这些需求结合在一起，就是最近市面上很火的“数字人”，也是我们这一讲要学习的内容。当然，在这么短的时间里，我们做出来的数字人的效果肯定比不上商业公司的方案。不过作为概念演示也完全够用了。</p>
+<h2 id="制作一个语音聊天机器人"><a href="#制作一个语音聊天机器人" class="headerlink" title="制作一个语音聊天机器人"></a>制作一个语音聊天机器人</h2><h3 id="从文本ChatBot起步"><a href="#从文本ChatBot起步" class="headerlink" title="从文本ChatBot起步"></a>从文本ChatBot起步</h3><p>我们先从最简单的文本ChatBot起步，先来做一个文本聊天机器人。对应的代码逻辑和之前的ChatGPT应用基本一样，整个的UI界面也还是使用Gradio来创建。</p>
+<p>唯一的区别在于，把原先自己封装的Conversation类换成了Langchain的ConversationChain来实现，并且使用了SummaryBufferMemory。这样，我们就不需要强行设定只保留过去几轮对话了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><span class="hljs-keyword">import</span> gradio <span class="hljs-keyword">as</span> gr<br><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> ConversationChain<br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationSummaryBufferMemory<br><span class="hljs-keyword">from</span> langchain.chat_models <span class="hljs-keyword">import</span> ChatOpenAI<br><br>openai.api_key = os.environ[<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>]<br><br>memory = ConversationSummaryBufferMemory(llm=ChatOpenAI(), max_token_limit=<span class="hljs-number">2048</span>)<br>conversation = ConversationChain(<br>    llm=OpenAI(max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>),<br>    memory=memory,<br>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, history=[]</span>):<br>    history.append(<span class="hljs-built_in">input</span>)<br>    response = conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>)<br>    history.append(response)<br>    responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>    <span class="hljs-keyword">return</span> responses, history<br><br><span class="hljs-keyword">with</span> gr.Blocks(css=<span class="hljs-string">&quot;#chatbot&#123;height:800px&#125; .overflow-y-auto&#123;height:800px&#125;&quot;</span>) <span class="hljs-keyword">as</span> demo:<br>    chatbot = gr.Chatbot(elem_id=<span class="hljs-string">&quot;chatbot&quot;</span>)<br>    state = gr.State([])<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        txt = gr.Textbox(show_label=<span class="hljs-literal">False</span>, placeholder=<span class="hljs-string">&quot;Enter text and press enter&quot;</span>).style(container=<span class="hljs-literal">False</span>)<br><br>    txt.submit(predict, [txt, state], [chatbot, state])<br><br>demo.launch()<br><br></code></pre></td></tr></table></figure>
+
+<p>对应界面：</p>
+<p><img src="https://s2.loli.net/2023/11/22/wBlT7h32qdYfxEj.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="增加语音输入功能"><a href="#增加语音输入功能" class="headerlink" title="增加语音输入功能"></a>增加语音输入功能</h3><p>接着，我们来给这个聊天机器人加上语音输入的功能，Gradio自带Audio模块，所以要做到这一点也不难。</p>
+<ol>
+<li>首先，我们在Gradio的界面代码里面增加一个Audio组件。这个组件可以录制你的麦克风的声音。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">with</span> gr.Row():<br>    txt = gr.Textbox(show_label=<span class="hljs-literal">False</span>, placeholder=<span class="hljs-string">&quot;Enter text and press enter&quot;</span>).style(container=<span class="hljs-literal">False</span>)<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>然后，我们封装了一个transcribe方法，通过调用OpenAI的Whisper API就能够完成语音识别。这里有一点需要注意，OpenAI的Whisper API有点笨，它是根据文件名的后缀来判断是否是它支持的文件格式的。而Gradio的Audio组件录制出来的WAV文件没有后缀，所以我们要在这里做个文件重命名的工作。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">transcribe</span>(<span class="hljs-params">audio</span>):<br>    os.rename(audio, audio + <span class="hljs-string">&#x27;.wav&#x27;</span>)<br>    audio_file = <span class="hljs-built_in">open</span>(audio + <span class="hljs-string">&#x27;.wav&#x27;</span>, <span class="hljs-string">&quot;rb&quot;</span>)<br>    transcript = openai.Audio.transcribe(<span class="hljs-string">&quot;whisper-1&quot;</span>, audio_file)<br>    <span class="hljs-keyword">return</span> transcript[<span class="hljs-string">&#x27;text&#x27;</span>]<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>接着，我们就要把麦克风录好的声音自动发送给语音识别，然后再提交给原先基于文本聊天的机器人就好了。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">audio.change(process_audio, [audio, state], [chatbot, state])<br><br></code></pre></td></tr></table></figure>
+
+<p>我们先在Audio的change事件里，定义了触发process_audio的函数。这样，一旦麦克风的声音录制下来，就会直接触发聊天对话，不需要再单独手工提交一次内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">process_audio</span>(<span class="hljs-params">audio, history=[]</span>):<br>    text = transcribe(audio)<br>    <span class="hljs-keyword">return</span> predict(text, history)<br><br></code></pre></td></tr></table></figure>
+
+<p>然后在process_audio函数里，我们先是转录对应的文本，再调用文本聊天机器人的predict函数，触发对话。</p>
+<p>修改后的完整代码在下面，你可以在本地运行，体验一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><span class="hljs-keyword">import</span> gradio <span class="hljs-keyword">as</span> gr<br><span class="hljs-keyword">import</span> azure.cognitiveservices.speech <span class="hljs-keyword">as</span> speechsdk<br><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> ConversationChain<br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationSummaryBufferMemory<br><span class="hljs-keyword">from</span> langchain.chat_models <span class="hljs-keyword">import</span> ChatOpenAI<br><br>openai.api_key = os.environ[<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>]<br><br>memory = ConversationSummaryBufferMemory(llm=ChatOpenAI(), max_token_limit=<span class="hljs-number">2048</span>)<br>conversation = ConversationChain(<br>    llm=OpenAI(max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>),<br>    memory=memory,<br>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, history=[]</span>):<br>    history.append(<span class="hljs-built_in">input</span>)<br>    response = conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>)<br>    history.append(response)<br>    responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>    <span class="hljs-keyword">return</span> responses, history<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">transcribe</span>(<span class="hljs-params">audio</span>):<br>    os.rename(audio, audio + <span class="hljs-string">&#x27;.wav&#x27;</span>)<br>    audio_file = <span class="hljs-built_in">open</span>(audio + <span class="hljs-string">&#x27;.wav&#x27;</span>, <span class="hljs-string">&quot;rb&quot;</span>)<br>    transcript = openai.Audio.transcribe(<span class="hljs-string">&quot;whisper-1&quot;</span>, audio_file)<br>    <span class="hljs-keyword">return</span> transcript[<span class="hljs-string">&#x27;text&#x27;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">process_audio</span>(<span class="hljs-params">audio, history=[]</span>):<br>    text = transcribe(audio)<br>    <span class="hljs-keyword">return</span> predict(text, history)<br><br><span class="hljs-keyword">with</span> gr.Blocks(css=<span class="hljs-string">&quot;#chatbot&#123;height:350px&#125; .overflow-y-auto&#123;height:500px&#125;&quot;</span>) <span class="hljs-keyword">as</span> demo:<br>    chatbot = gr.Chatbot(elem_id=<span class="hljs-string">&quot;chatbot&quot;</span>)<br>    state = gr.State([])<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        txt = gr.Textbox(show_label=<span class="hljs-literal">False</span>, placeholder=<span class="hljs-string">&quot;Enter text and press enter&quot;</span>).style(container=<span class="hljs-literal">False</span>)<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        audio = gr.Audio(source=<span class="hljs-string">&quot;microphone&quot;</span>, <span class="hljs-built_in">type</span>=<span class="hljs-string">&quot;filepath&quot;</span>)<br><br>    txt.submit(predict, [txt, state], [chatbot, state])<br>    audio.change(process_audio, [audio, state], [chatbot, state])<br><br>demo.launch()<br><br></code></pre></td></tr></table></figure>
+
+<p>对应界面：</p>
+<p><img src="https://s2.loli.net/2023/11/22/bHxvog1duFa38SV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="增加语音回复功能"><a href="#增加语音回复功能" class="headerlink" title="增加语音回复功能"></a>增加语音回复功能</h3><p>在能够接收语音输入之后，我们要做的就是让AI也能够用语音来回答我们的问题。而这个功能，我们只需要封装一个函数，来实现语音合成与播放的功能，然后在predict函数里面，拿到ChatGPT返回的回答之后调用一下这个函数就好了。</p>
+<ol>
+<li>封装一个函数进行语音合成与播放。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">speech_config = speechsdk.SpeechConfig(subscription=os.environ.get(<span class="hljs-string">&#x27;AZURE_SPEECH_KEY&#x27;</span>), region=os.environ.get(<span class="hljs-string">&#x27;AZURE_SPEECH_REGION&#x27;</span>))<br>audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=<span class="hljs-literal">True</span>)<br><br><span class="hljs-comment"># The language of the voice that speaks.</span><br>speech_config.speech_synthesis_language=<span class="hljs-string">&#x27;zh-CN&#x27;</span><br>speech_config.speech_synthesis_voice_name=<span class="hljs-string">&#x27;zh-CN-XiaohanNeural&#x27;</span><br><br>speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">play_voice</span>(<span class="hljs-params">text</span>):<br>    speech_synthesizer.speak_text_async(text)<br><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>在拿到ChatGPT的返回结果之后调用一下这个函数。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, history=[]</span>):<br>    history.append(<span class="hljs-built_in">input</span>)<br>    response = conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>)<br>    history.append(response)<br>    play_voice(response)<br>    responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>    <span class="hljs-keyword">return</span> responses, history<br><br></code></pre></td></tr></table></figure>
+
+<p>完整的语音对话的Demo代码我一并放在了下面，直接部署到Gradio里面体验即可。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os<br><span class="hljs-keyword">import</span> gradio <span class="hljs-keyword">as</span> gr<br><span class="hljs-keyword">import</span> azure.cognitiveservices.speech <span class="hljs-keyword">as</span> speechsdk<br><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> ConversationChain<br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationSummaryBufferMemory<br><span class="hljs-keyword">from</span> langchain.chat_models <span class="hljs-keyword">import</span> ChatOpenAI<br><br>openai.api_key = os.environ[<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>]<br><br>memory = ConversationSummaryBufferMemory(llm=ChatOpenAI(), max_token_limit=<span class="hljs-number">2048</span>)<br>conversation = ConversationChain(<br>    llm=OpenAI(max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>),<br>    memory=memory,<br>)<br><br>speech_config = speechsdk.SpeechConfig(subscription=os.environ.get(<span class="hljs-string">&#x27;AZURE_SPEECH_KEY&#x27;</span>), region=os.environ.get(<span class="hljs-string">&#x27;AZURE_SPEECH_REGION&#x27;</span>))<br>audio_config = speechsdk.audio.AudioOutputConfig(use_default_speaker=<span class="hljs-literal">True</span>)<br><br><span class="hljs-comment"># The language of the voice that speaks.</span><br>speech_config.speech_synthesis_language=<span class="hljs-string">&#x27;zh-CN&#x27;</span><br>speech_config.speech_synthesis_voice_name=<span class="hljs-string">&#x27;zh-CN-XiaohanNeural&#x27;</span><br><br>speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">play_voice</span>(<span class="hljs-params">text</span>):<br>    speech_synthesizer.speak_text_async(text)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, history=[]</span>):<br>    history.append(<span class="hljs-built_in">input</span>)<br>    response = conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>)<br>    history.append(response)<br>    play_voice(response)<br>    responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>    <span class="hljs-keyword">return</span> responses, history<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">transcribe</span>(<span class="hljs-params">audio</span>):<br>    os.rename(audio, audio + <span class="hljs-string">&#x27;.wav&#x27;</span>)<br>    audio_file = <span class="hljs-built_in">open</span>(audio + <span class="hljs-string">&#x27;.wav&#x27;</span>, <span class="hljs-string">&quot;rb&quot;</span>)<br>    transcript = openai.Audio.transcribe(<span class="hljs-string">&quot;whisper-1&quot;</span>, audio_file)<br>    <span class="hljs-keyword">return</span> transcript[<span class="hljs-string">&#x27;text&#x27;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">process_audio</span>(<span class="hljs-params">audio, history=[]</span>):<br>    text = transcribe(audio)<br>    <span class="hljs-keyword">return</span> predict(text, history)<br><br><span class="hljs-keyword">with</span> gr.Blocks(css=<span class="hljs-string">&quot;#chatbot&#123;height:800px&#125; .overflow-y-auto&#123;height:800px&#125;&quot;</span>) <span class="hljs-keyword">as</span> demo:<br>    chatbot = gr.Chatbot(elem_id=<span class="hljs-string">&quot;chatbot&quot;</span>)<br>    state = gr.State([])<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        txt = gr.Textbox(show_label=<span class="hljs-literal">False</span>, placeholder=<span class="hljs-string">&quot;Enter text and press enter&quot;</span>).style(container=<span class="hljs-literal">False</span>)<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        audio = gr.Audio(source=<span class="hljs-string">&quot;microphone&quot;</span>, <span class="hljs-built_in">type</span>=<span class="hljs-string">&quot;filepath&quot;</span>)<br><br>    txt.submit(predict, [txt, state], [chatbot, state])<br>    audio.change(process_audio, [audio, state], [chatbot, state])<br><br>demo.launch()<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="用D-ID给语音对口型"><a href="#用D-ID给语音对口型" class="headerlink" title="用D-ID给语音对口型"></a>用D-ID给语音对口型</h2><p>这里我们设计的聊天机器人不仅能够完全听懂我们说的话，还能通过语音来对话，这的确是一件很酷的事情。而且这里我们算上空行，也只用了60行代码。不过，我们并不会止步于此。接下来，我们还要为这个聊天机器人配上视频画面和口型。</p>
+<p>现在，国内外已经有一些公司开始提供基于AI生成能对上口型的“数字人”的业务了。这里，我们就来试试目前用户比较多的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.d-id.com/">D-ID</a> 提供的API，毕竟它直接为所有开发者提供了开放平台，并且还有5分钟的免费额度。</p>
+<h3 id="通过D-ID生成视频"><a href="#通过D-ID生成视频" class="headerlink" title="通过D-ID生成视频"></a>通过D-ID生成视频</h3><p>首先，你要去d-id.com注册一个账号。别紧张，d-id.com 有邮箱就能注册账号，不像ChatGPT那么麻烦，并且D-ID送给注册用户20次调用API的机会，我们可以好好利用这些免费额度。</p>
+<p>注册好账号以后，你就可以去访问自己的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://studio.d-id.com/account-settings">Account Setting</a> 页面生成一个API_KEY了。</p>
+<p><img src="https://s2.loli.net/2023/11/22/Pk3ylVKxUtjMLgi.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>之后，你可以查看一下D-ID的文档，里面不仅有API的使用说明，还有一个类似Playground的界面，你可以设置参数，并且可以测试调用API。</p>
+<p><img src="https://s2.loli.net/2023/11/22/8GkgWB7pm1OoRrb.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们设置一下对应的API KEY并且确保安装了requests这个专门用来写HTTP请求的Python包，就可以测试一下这个代码的效果了。</p>
+<p>安装requests包：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">pip install requests<br><br></code></pre></td></tr></table></figure>
+
+<p>设置DID_API_KEY的环境变量：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">export DID_API_KEY=YOUR_DID_API_KEY<br><br></code></pre></td></tr></table></figure>
+
+<p>我们可以先调用D-ID的 <strong>Create A Talk</strong> 接口，来创建一段小视频。只需要输入两个东西：一个是我们希望这个视频念出来的文本信息input，另一个就是一个清晰的正面头像照片。</p>
+<p>在下面的代码里面可以看到，这其实就是一个简单的HTTP请求，并且文本转换成语音的过程，其实调用的也是Azure的语音合成功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> os<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_talk</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, avatar_url,</span><br><span class="hljs-params">                  voice_type = <span class="hljs-string">&quot;microsoft&quot;</span>,</span><br><span class="hljs-params">                  voice_id = <span class="hljs-string">&quot;zh-CN-XiaomoNeural&quot;</span>,</span><br><span class="hljs-params">                  api_key = os.environ.get(<span class="hljs-params"><span class="hljs-string">&#x27;DID_API_KEY&#x27;</span></span>)</span>):<br>    url = <span class="hljs-string">&quot;https://api.d-id.com/talks&quot;</span><br>    payload = &#123;<br>        <span class="hljs-string">&quot;script&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>            <span class="hljs-string">&quot;provider&quot;</span>: &#123;<br>                <span class="hljs-string">&quot;type&quot;</span>: voice_type,<br>                <span class="hljs-string">&quot;voice_id&quot;</span>: voice_id<br>            &#125;,<br>            <span class="hljs-string">&quot;ssml&quot;</span>: <span class="hljs-string">&quot;false&quot;</span>,<br>            <span class="hljs-string">&quot;input&quot;</span>: <span class="hljs-built_in">input</span><br>        &#125;,<br>        <span class="hljs-string">&quot;config&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;fluent&quot;</span>: <span class="hljs-string">&quot;false&quot;</span>,<br>            <span class="hljs-string">&quot;pad_audio&quot;</span>: <span class="hljs-string">&quot;0.0&quot;</span><br>        &#125;,<br>        <span class="hljs-string">&quot;source_url&quot;</span>: avatar_url<br>    &#125;<br>    headers = &#123;<br>        <span class="hljs-string">&quot;accept&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span>,<br>        <span class="hljs-string">&quot;content-type&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span>,<br>        <span class="hljs-string">&quot;authorization&quot;</span>: <span class="hljs-string">&quot;Basic &quot;</span> + api_key<br>    &#125;<br><br>    response = requests.post(url, json=payload, headers=headers)<br>    <span class="hljs-keyword">return</span> response.json()<br><br>avatar_url = <span class="hljs-string">&quot;https://cdn.discordapp.com/attachments/1065596492796153856/1095617463112187984/John_Carmack_Potrait_668a7a8d-1bb0-427d-8655-d32517f6583d.png&quot;</span><br>text = <span class="hljs-string">&quot;今天天气真不错呀。&quot;</span><br><br>response = generate_talk(<span class="hljs-built_in">input</span>=text, avatar_url=avatar_url)<br><span class="hljs-built_in">print</span>(response)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&#x27;id&#x27;</span>: <span class="hljs-string">&#x27;tlk_Nk9OfTGu_ZvLztD3HHC4b&#x27;</span>, <span class="hljs-string">&#x27;created_at&#x27;</span>: <span class="hljs-string">&#x27;2023-04-12T03:07:38.593Z&#x27;</span>, <span class="hljs-string">&#x27;created_by&#x27;</span>: <span class="hljs-string">&#x27;google-oauth2|103752135956955592319&#x27;</span>, <span class="hljs-string">&#x27;status&#x27;</span>: <span class="hljs-string">&#x27;created&#x27;</span>, <span class="hljs-string">&#x27;object&#x27;</span>: <span class="hljs-string">&#x27;talk&#x27;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>这段代码运行成功之后，返回的结果是一个JSON。JSON里面有一个对应视频的id，我们可以通过这个id用Get A Talk的API拿到我们刚刚生成的口播视频，然后在Notebook里面播放。</p>
+<p>获取生成的Talk视频：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_a_talk</span>(<span class="hljs-params"><span class="hljs-built_in">id</span>, api_key = os.environ.get(<span class="hljs-params"><span class="hljs-string">&#x27;DID_API_KEY&#x27;</span></span>)</span>):<br>    url = <span class="hljs-string">&quot;https://api.d-id.com/talks/&quot;</span> + <span class="hljs-built_in">id</span><br>    headers = &#123;<br>        <span class="hljs-string">&quot;accept&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span>,<br>        <span class="hljs-string">&quot;authorization&quot;</span>: <span class="hljs-string">&quot;Basic &quot;</span>+api_key<br>    &#125;<br>    response = requests.get(url, headers=headers)<br>    <span class="hljs-keyword">return</span> response.json()<br><br>talk = get_a_talk(response[<span class="hljs-string">&#x27;id&#x27;</span>])<br><span class="hljs-built_in">print</span>(talk)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<span class="hljs-string">&#x27;metadata&#x27;</span>: &#123;<span class="hljs-string">&#x27;driver_url&#x27;</span>: <span class="hljs-string">&#x27;bank://lively/driver-03/original&#x27;</span>, <span class="hljs-string">&#x27;mouth_open&#x27;</span>: <span class="hljs-literal">False</span>, <span class="hljs-string">&#x27;num_faces&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;num_frames&#x27;</span>: <span class="hljs-number">48</span>, <span class="hljs-string">&#x27;processing_fps&#x27;</span>: <span class="hljs-number">22.996171137505605</span>, <span class="hljs-string">&#x27;resolution&#x27;</span>: [<span class="hljs-number">512</span>, <span class="hljs-number">512</span>], <span class="hljs-string">&#x27;size_kib&#x27;</span>: <span class="hljs-number">386.990234375</span>&#125;, <span class="hljs-string">&#x27;audio_url&#x27;</span>: <span class="hljs-string">&#x27;https://d-id-talks-prod.s3.us-west-2.amazonaws.com/google-oauth2%7C103752135956955592319/tlk_Nk9OfTGu_ZvLztD3HHC4b/microsoft.wav?AWSAccessKeyId=AKIA5CUMPJBIK65W6FGA&amp;Expires=1681355260&amp;Signature=2RluUIQyg%2FnIz54O2xEIr%2FqjaXA%3D&#x27;</span>, <span class="hljs-string">&#x27;created_at&#x27;</span>: <span class="hljs-string">&#x27;2023-04-12T03:07:38.593Z&#x27;</span>, <span class="hljs-string">&#x27;face&#x27;</span>: &#123;<span class="hljs-string">&#x27;mask_confidence&#x27;</span>: -<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;detection&#x27;</span>: [<span class="hljs-number">205</span>, <span class="hljs-number">115</span>, <span class="hljs-number">504</span>, <span class="hljs-number">552</span>], <span class="hljs-string">&#x27;overlap&#x27;</span>: <span class="hljs-string">&#x27;no&#x27;</span>, <span class="hljs-string">&#x27;size&#x27;</span>: <span class="hljs-number">618</span>, <span class="hljs-string">&#x27;top_left&#x27;</span>: [<span class="hljs-number">45</span>, <span class="hljs-number">25</span>], <span class="hljs-string">&#x27;face_id&#x27;</span>: <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;detect_confidence&#x27;</span>: <span class="hljs-number">0.9987131357192993</span>&#125;, <span class="hljs-string">&#x27;config&#x27;</span>: &#123;<span class="hljs-string">&#x27;stitch&#x27;</span>: <span class="hljs-literal">False</span>, <span class="hljs-string">&#x27;pad_audio&#x27;</span>: <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;align_driver&#x27;</span>: <span class="hljs-literal">True</span>, <span class="hljs-string">&#x27;sharpen&#x27;</span>: <span class="hljs-literal">True</span>, <span class="hljs-string">&#x27;auto_match&#x27;</span>: <span class="hljs-literal">True</span>, <span class="hljs-string">&#x27;normalization_factor&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;logo&#x27;</span>: &#123;<span class="hljs-string">&#x27;url&#x27;</span>: <span class="hljs-string">&#x27;d-id-logo&#x27;</span>, <span class="hljs-string">&#x27;position&#x27;</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>]&#125;, <span class="hljs-string">&#x27;motion_factor&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;result_format&#x27;</span>: <span class="hljs-string">&#x27;.mp4&#x27;</span>, <span class="hljs-string">&#x27;fluent&#x27;</span>: <span class="hljs-literal">False</span>, <span class="hljs-string">&#x27;align_expand_factor&#x27;</span>: <span class="hljs-number">0.3</span>&#125;, <span class="hljs-string">&#x27;source_url&#x27;</span>: <span class="hljs-string">&#x27;https://d-id-talks-prod.s3.us-west-2.amazonaws.com/google-oauth2%7C103752135956955592319/tlk_Nk9OfTGu_ZvLztD3HHC4b/source/noelle.jpeg?AWSAccessKeyId=AKIA5CUMPJBIK65W6FGA&amp;Expires=1681355260&amp;Signature=LNSFBaEUWtPYUo469qzmUGeHzec%3D&#x27;</span>, <span class="hljs-string">&#x27;created_by&#x27;</span>: <span class="hljs-string">&#x27;google-oauth2|103752135956955592319&#x27;</span>, <span class="hljs-string">&#x27;status&#x27;</span>: <span class="hljs-string">&#x27;done&#x27;</span>, <span class="hljs-string">&#x27;driver_url&#x27;</span>: <span class="hljs-string">&#x27;bank://lively/&#x27;</span>, <span class="hljs-string">&#x27;modified_at&#x27;</span>: <span class="hljs-string">&#x27;2023-04-12T03:07:42.570Z&#x27;</span>, <span class="hljs-string">&#x27;user_id&#x27;</span>: <span class="hljs-string">&#x27;google-oauth2|103752135956955592319&#x27;</span>, <span class="hljs-string">&#x27;result_url&#x27;</span>: <span class="hljs-string">&#x27;https://d-id-talks-prod.s3.us-west-2.amazonaws.com/google-oauth2%7C103752135956955592319/tlk_Nk9OfTGu_ZvLztD3HHC4b/noelle.mp4?AWSAccessKeyId=AKIA5CUMPJBIK65W6FGA&amp;Expires=1681355262&amp;Signature=slWpvS1eEqcw4N%2FqVWN6K0zewuU%3D&#x27;</span>, <span class="hljs-string">&#x27;id&#x27;</span>: <span class="hljs-string">&#x27;tlk_Nk9OfTGu_ZvLztD3HHC4b&#x27;</span>, <span class="hljs-string">&#x27;duration&#x27;</span>: <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;started_at&#x27;</span>: <span class="hljs-string">&#x27;2023-04-12T03:07:40.402&#x27;</span>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>将对应的视频展示播放出来：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> IPython.display <span class="hljs-keyword">import</span> display, HTML<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">play_mp4_video</span>(<span class="hljs-params">url</span>):<br>    video_tag = <span class="hljs-string">f&quot;&quot;&quot;</span><br><span class="hljs-string">    &lt;video width=&quot;640&quot; height=&quot;480&quot; controls&gt;</span><br><span class="hljs-string">        &lt;source src=&quot;<span class="hljs-subst">&#123;url&#125;</span>&quot; type=&quot;video/mp4&quot;&gt;</span><br><span class="hljs-string">    Your browser does not support the video tag.</span><br><span class="hljs-string">    &lt;/video&gt;</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    <span class="hljs-keyword">return</span> HTML(video_tag)<br>result_url = talk[<span class="hljs-string">&#x27;result_url&#x27;</span>])<br>play_mp4_video(result_url)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出展示：</p>
+<p><img src="https://s2.loli.net/2023/11/22/X2WzDA4MYdGrChJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>在这里，我用Midjourney生成了一张ID Software的创始人——大神约翰卡马克的头像。然后让D-ID给这个头像生成对应的对口型的视频，看到心目中的技术偶像开口说话还是非常让人震撼的。</p>
+<h3 id="将视频嵌入到Gradio应用中"><a href="#将视频嵌入到Gradio应用中" class="headerlink" title="将视频嵌入到Gradio应用中"></a>将视频嵌入到Gradio应用中</h3><p>有了这样可以对口型播放的视频，我们就可以再改造一下刚才通过Gradio创建的应用，不要光让机器人用语音了，直接用视频来开口说话吧。</p>
+<p>我们在前面语音聊天界面的基础上，又做了几处改造。</p>
+<ol>
+<li>我们在原有的Gradio界面中，又增加了一个HTML组件，显示头像图片，并用来播放对好口型的视频。默认一开始，显示的是一张图片。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python">……<br>    <span class="hljs-keyword">with</span> gr.Row():<br>        video = gr.HTML(<span class="hljs-string">f&#x27;&lt;img src=&quot;<span class="hljs-subst">&#123;avatar_url&#125;</span>&quot; width=&quot;320&quot; height=&quot;240&quot; alt=&quot;John Carmack&quot;&gt;&#x27;</span>, live=<span class="hljs-literal">False</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>注：这里增加了一个用来播放视频的HTML组件。</p>
+<ol>
+<li>在录音转录后触发Predict函数的时候，我们不再通过Azure的语音合成技术来生成语音，而是直接使用 D-ID 的API来生成基于头像的且口型同步的视频动画。并且视频动画在生成之后，将前面HTML组件的内容替换成新生成的视频，并自动播放。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, history=[]</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">input</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>        history.append(<span class="hljs-built_in">input</span>)<br>        response = conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>)<br>        video_url = get_mp4_video(<span class="hljs-built_in">input</span>=response, avatar_url=avatar_url)<br>        video_html = <span class="hljs-string">f&quot;&quot;&quot;&lt;video width=&quot;320&quot; height=&quot;240&quot; controls autoplay&gt;&lt;source src=&quot;<span class="hljs-subst">&#123;video_url&#125;</span>&quot; type=&quot;video/mp4&quot;&gt;&lt;/video&gt;&quot;&quot;&quot;</span><br>        history.append(response)<br>        responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>        <span class="hljs-keyword">return</span> responses, video_html, history<br>    <span class="hljs-keyword">else</span>:<br>        video_html = <span class="hljs-string">f&#x27;&lt;img src=&quot;<span class="hljs-subst">&#123;avatar_url&#125;</span>&quot; width=&quot;320&quot; height=&quot;240&quot; alt=&quot;John Carmack&quot;&gt;&#x27;</span><br>        responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>        <span class="hljs-keyword">return</span> responses, video_html, history<br><br></code></pre></td></tr></table></figure>
+
+<p>注：通过ChatGPT获取回答，然后将回答和头像一起生成一个视频文件自动播放。</p>
+<ol>
+<li>在获取视频的时候需要注意一点，就是我们需要等待视频在D-ID的服务器生成完毕，才能拿到对应的result_url。其实更合理的做法是注册一个webhook，等待d-id通过webhook通知我们视频生成完毕了，再播放视频。不过考虑到演示的简便和代码数量，我们就没有再启用一个HTTP服务来接收webhook，而是采用sleep 1秒然后重试的方式，来实现获取视频的效果。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_mp4_video</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, avatar_url=avatar_url</span>):<br>    response = generate_talk(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>, avatar_url=avatar_url)<br>    talk = get_a_talk(response[<span class="hljs-string">&#x27;id&#x27;</span>])<br>    video_url = <span class="hljs-string">&quot;&quot;</span><br>    index = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">while</span> index &lt; <span class="hljs-number">30</span>:<br>        index += <span class="hljs-number">1</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;result_url&#x27;</span> <span class="hljs-keyword">in</span> talk:<br>            video_url = talk[<span class="hljs-string">&#x27;result_url&#x27;</span>]<br>            <span class="hljs-keyword">return</span> video_url<br>        <span class="hljs-keyword">else</span>:<br>            time.sleep(<span class="hljs-number">1</span>)<br>            talk = get_a_talk(response[<span class="hljs-string">&#x27;id&#x27;</span>])<br>    <span class="hljs-keyword">return</span> video_url<br><br></code></pre></td></tr></table></figure>
+
+<p>注：result_url字段会在服务器端把整个视频生成完成之后才出现，所以我们需要循环等待。</p>
+<p>改造完整体代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> openai, os, time, requests<br><span class="hljs-keyword">import</span> gradio <span class="hljs-keyword">as</span> gr<br><span class="hljs-keyword">from</span> gradio <span class="hljs-keyword">import</span> HTML<br><span class="hljs-keyword">from</span> langchain <span class="hljs-keyword">import</span> OpenAI<br><span class="hljs-keyword">from</span> langchain.chains <span class="hljs-keyword">import</span> ConversationChain<br><span class="hljs-keyword">from</span> langchain.memory <span class="hljs-keyword">import</span> ConversationSummaryBufferMemory<br><span class="hljs-keyword">from</span> langchain.chat_models <span class="hljs-keyword">import</span> ChatOpenAI<br><br>openai.api_key = os.environ[<span class="hljs-string">&quot;OPENAI_API_KEY&quot;</span>]<br><br>memory = ConversationSummaryBufferMemory(llm=ChatOpenAI(), max_token_limit=<span class="hljs-number">2048</span>)<br>conversation = ConversationChain(<br>    llm=OpenAI(max_tokens=<span class="hljs-number">2048</span>, temperature=<span class="hljs-number">0.5</span>),<br>    memory=memory,<br>)<br><br>avatar_url = <span class="hljs-string">&quot;https://cdn.discordapp.com/attachments/1065596492796153856/1095617463112187984/John_Carmack_Potrait_668a7a8d-1bb0-427d-8655-d32517f6583d.png&quot;</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_talk</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, avatar_url,</span><br><span class="hljs-params">                  voice_type = <span class="hljs-string">&quot;microsoft&quot;</span>,</span><br><span class="hljs-params">                  voice_id = <span class="hljs-string">&quot;zh-CN-YunyeNeural&quot;</span>,</span><br><span class="hljs-params">                  api_key = os.environ.get(<span class="hljs-params"><span class="hljs-string">&#x27;DID_API_KEY&#x27;</span></span>)</span>):<br>    url = <span class="hljs-string">&quot;https://api.d-id.com/talks&quot;</span><br>    payload = &#123;<br>        <span class="hljs-string">&quot;script&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br>            <span class="hljs-string">&quot;provider&quot;</span>: &#123;<br>                <span class="hljs-string">&quot;type&quot;</span>: voice_type,<br>                <span class="hljs-string">&quot;voice_id&quot;</span>: voice_id<br>            &#125;,<br>            <span class="hljs-string">&quot;ssml&quot;</span>: <span class="hljs-string">&quot;false&quot;</span>,<br>            <span class="hljs-string">&quot;input&quot;</span>: <span class="hljs-built_in">input</span><br>        &#125;,<br>        <span class="hljs-string">&quot;config&quot;</span>: &#123;<br>            <span class="hljs-string">&quot;fluent&quot;</span>: <span class="hljs-string">&quot;false&quot;</span>,<br>            <span class="hljs-string">&quot;pad_audio&quot;</span>: <span class="hljs-string">&quot;0.0&quot;</span><br>        &#125;,<br>        <span class="hljs-string">&quot;source_url&quot;</span>: avatar_url<br>    &#125;<br>    headers = &#123;<br>        <span class="hljs-string">&quot;accept&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span>,<br>        <span class="hljs-string">&quot;content-type&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span>,<br>        <span class="hljs-string">&quot;authorization&quot;</span>: <span class="hljs-string">&quot;Basic &quot;</span> + api_key<br>    &#125;<br><br>    response = requests.post(url, json=payload, headers=headers)<br>    <span class="hljs-keyword">return</span> response.json()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_a_talk</span>(<span class="hljs-params"><span class="hljs-built_in">id</span>, api_key = os.environ.get(<span class="hljs-params"><span class="hljs-string">&#x27;DID_API_KEY&#x27;</span></span>)</span>):<br>    url = <span class="hljs-string">&quot;https://api.d-id.com/talks/&quot;</span> + <span class="hljs-built_in">id</span><br>    headers = &#123;<br>        <span class="hljs-string">&quot;accept&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span>,<br>        <span class="hljs-string">&quot;authorization&quot;</span>: <span class="hljs-string">&quot;Basic &quot;</span>+api_key<br>    &#125;<br>    response = requests.get(url, headers=headers)<br>    <span class="hljs-keyword">return</span> response.json()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_mp4_video</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, avatar_url=avatar_url</span>):<br>    response = generate_talk(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>, avatar_url=avatar_url)<br>    talk = get_a_talk(response[<span class="hljs-string">&#x27;id&#x27;</span>])<br>    video_url = <span class="hljs-string">&quot;&quot;</span><br>    index = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">while</span> index &lt; <span class="hljs-number">30</span>:<br>        index += <span class="hljs-number">1</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;result_url&#x27;</span> <span class="hljs-keyword">in</span> talk:<br>            video_url = talk[<span class="hljs-string">&#x27;result_url&#x27;</span>]<br>            <span class="hljs-keyword">return</span> video_url<br>        <span class="hljs-keyword">else</span>:<br>            time.sleep(<span class="hljs-number">1</span>)<br>            talk = get_a_talk(response[<span class="hljs-string">&#x27;id&#x27;</span>])<br>    <span class="hljs-keyword">return</span> video_url<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">predict</span>(<span class="hljs-params"><span class="hljs-built_in">input</span>, history=[]</span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">input</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>        history.append(<span class="hljs-built_in">input</span>)<br>        response = conversation.predict(<span class="hljs-built_in">input</span>=<span class="hljs-built_in">input</span>)<br>        video_url = get_mp4_video(<span class="hljs-built_in">input</span>=response, avatar_url=avatar_url)<br>        video_html = <span class="hljs-string">f&quot;&quot;&quot;&lt;video width=&quot;320&quot; height=&quot;240&quot; controls autoplay&gt;&lt;source src=&quot;<span class="hljs-subst">&#123;video_url&#125;</span>&quot; type=&quot;video/mp4&quot;&gt;&lt;/video&gt;&quot;&quot;&quot;</span><br>        history.append(response)<br>        responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>        <span class="hljs-keyword">return</span> responses, video_html, history<br>    <span class="hljs-keyword">else</span>:<br>        video_html = <span class="hljs-string">f&#x27;&lt;img src=&quot;<span class="hljs-subst">&#123;avatar_url&#125;</span>&quot; width=&quot;320&quot; height=&quot;240&quot; alt=&quot;John Carmack&quot;&gt;&#x27;</span><br>        responses = [(u,b) <span class="hljs-keyword">for</span> u,b <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(history[::<span class="hljs-number">2</span>], history[<span class="hljs-number">1</span>::<span class="hljs-number">2</span>])]<br>        <span class="hljs-keyword">return</span> responses, video_html, history<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">transcribe</span>(<span class="hljs-params">audio</span>):<br>    os.rename(audio, audio + <span class="hljs-string">&#x27;.wav&#x27;</span>)<br>    audio_file = <span class="hljs-built_in">open</span>(audio + <span class="hljs-string">&#x27;.wav&#x27;</span>, <span class="hljs-string">&quot;rb&quot;</span>)<br>    transcript = openai.Audio.transcribe(<span class="hljs-string">&quot;whisper-1&quot;</span>, audio_file, prompt=<span class="hljs-string">&quot;这是一段简体中文的问题。&quot;</span>)<br>    <span class="hljs-keyword">return</span> transcript[<span class="hljs-string">&#x27;text&#x27;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">process_audio</span>(<span class="hljs-params">audio, history=[]</span>):<br>    <span class="hljs-keyword">if</span> audio <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>:<br>        text = transcribe(audio)<br>        <span class="hljs-keyword">return</span> predict(text, history)<br>    <span class="hljs-keyword">else</span>:<br>        text = <span class="hljs-literal">None</span><br>        <span class="hljs-keyword">return</span> predict(text, history)<br><br><span class="hljs-keyword">with</span> gr.Blocks(css=<span class="hljs-string">&quot;#chatbot&#123;height:500px&#125; .overflow-y-auto&#123;height:500px&#125;&quot;</span>) <span class="hljs-keyword">as</span> demo:<br>    chatbot = gr.Chatbot(elem_id=<span class="hljs-string">&quot;chatbot&quot;</span>)<br>    state = gr.State([])<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        txt = gr.Textbox(show_label=<span class="hljs-literal">False</span>, placeholder=<span class="hljs-string">&quot;Enter text and press enter&quot;</span>).style(container=<span class="hljs-literal">False</span>)<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        audio = gr.Audio(source=<span class="hljs-string">&quot;microphone&quot;</span>, <span class="hljs-built_in">type</span>=<span class="hljs-string">&quot;filepath&quot;</span>)<br><br>    <span class="hljs-keyword">with</span> gr.Row():<br>        video = gr.HTML(<span class="hljs-string">f&#x27;&lt;img src=&quot;<span class="hljs-subst">&#123;avatar_url&#125;</span>&quot; width=&quot;320&quot; height=&quot;240&quot; alt=&quot;John Carmack&quot;&gt;&#x27;</span>, live=<span class="hljs-literal">False</span>)<br><br>    txt.submit(predict, [txt, state], [chatbot, video, state])<br>    audio.change(process_audio, [audio, state], [chatbot, video, state])<br><br>demo.launch()<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/22/rhXYEgweLOkWo1K.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>改造完整个应用，你可以试着运行一下。你的问题会由ID大神卡马克“亲口”+“当面”回答，是不是非常酷炫？</p>
+<h2 id="体验PaddleGAN开源模型下的数字主播"><a href="#体验PaddleGAN开源模型下的数字主播" class="headerlink" title="体验PaddleGAN开源模型下的数字主播"></a>体验PaddleGAN开源模型下的数字主播</h2><p>不过，使用D-ID的价格也不便宜，而前面的各个模块，我其实都给你看过对应的开源解决方案。比如ChatGPT我们可以用ChatGLM来代替，语音识别我们可以使用本地的Whisper模型，语音合成也可以通过PaddleSpeech里的fastspeech2的开源模型来完成。那么，我们这里也来尝试一下通过开源模型来合成这样的口播视频。</p>
+<p>目前比较容易找到的解决方案，是百度PaddlePaddle下的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/JiehangXie/PaddleBoBo">PaddleBobo</a> 开源项目。它背后使用的是PaddleGAN的对抗生成网络算法，来实现唇形和表情的匹配。不过PaddleGAN很久没有更新了，对于最新的Python3.10的支持和依赖有些问题。我们也只能在这里做一个简单的演示。</p>
+<p>这里的代码你不一定需要运行，因为这个程序对于GPU的显存要求比较高，而且对于Python以及Cuda的版本都有要求。而如果你使用CPU的话，对应的视频合成需要很长时间。你体验一下最后合成的视频效果就好了。</p>
+<p>首先我们需要配置一个Python3.8的环境，并且安装对应的依赖包。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python">conda create -n py38 python=<span class="hljs-number">3.8</span><br>conda activate py38<br><br><span class="hljs-comment">#pip install paddlepaddle</span><br><span class="hljs-comment">#安装使用GPU的PaddlePaddle</span><br>pip install paddlepaddle-gpu<br>pip install ppgan<br>pip install isort<br>pip install typing-extensions<br>pip install lazy-<span class="hljs-built_in">object</span>-proxy<br>pip install wrapt<br>pip install yacs<br>pip install paddlespeech<br>pip install <span class="hljs-string">&quot;numpy&lt;1.24.0&quot;</span><br><br>brew install ffmpeg<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们将PaddleBobo的代码通过Git下载到本地，并进入对应的目录。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">git clone https://github.com/JiehangXie/PaddleBoBo<br>cd PaddleBobo<br><br></code></pre></td></tr></table></figure>
+
+<p>我们将约翰卡马克的头像文件命名成johncarmack.png，复制到PaddleBobo的file&#x2F;input目录下，然后修改对应的default.yml的配置，让我们的视频都基于约翰卡马克的头像来生成。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python">GANDRIVING:<br>  FOM_INPUT_IMAGE: <span class="hljs-string">&#x27;./file/input/johncarmack.png&#x27;</span><br>  FOM_DRIVING_VIDEO: <span class="hljs-string">&#x27;./file/input/zimeng.mp4&#x27;</span><br>  FOM_OUTPUT_VIDEO: <span class="hljs-string">&#x27;./file/input/johncarmack.mp4&#x27;</span><br><br>TTS:<br>  SPEED: <span class="hljs-number">1.0</span><br>  PITCH: <span class="hljs-number">1.0</span><br>  ENERGY: <span class="hljs-number">1.0</span><br><br>SAVEPATH:<br>  VIDEO_SAVE_PATH: <span class="hljs-string">&#x27;./file/output/video/&#x27;</span><br>  AUDIO_SAVE_PATH: <span class="hljs-string">&#x27;./file/output/audio/&#x27;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>注：修改GanDriving的相关配置。</p>
+<p>接着我们按照PaddleBobo的文档，通过create_virtual_human先生成一个能够动起来的人脸视频。如果你使用的是CPU的话，这个过程会很长，需要一两个小时。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">python create_virtual_human.py --config default.yaml<br><br></code></pre></td></tr></table></figure>
+
+<p>因为PaddleBobo这个项目有一段时间没有维护了，对于最新版本的PaddleSpeech有一些小小的兼容问题，所以你还需要调整一下 PaddleTools 里面的TTS.py文件，修改import MODEL_HOME包的名称。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> paddlespeech.utils.env <span class="hljs-keyword">import</span> MODEL_HOME<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们再通过generate_demo输入我们希望这个视频口播的文字是什么。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">python general_demo.py \<br>    --human ./file/<span class="hljs-built_in">input</span>/johncarmack.mp4 \<br>    --output johncarmack_output.mp4 \<br>    --text <span class="hljs-string">&quot;我是约翰卡马克，很高兴认识大家&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<p>最后生成的视频文件，我也放到我们的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/xuwenhao/geektime-ai-course/tree/main/data">代码库的 data 目录</a> 里了，你可以下载下来体验一下效果是怎么样的。目前来说，通过GAN生成影像的方式，需要花费的时间还是比较长的，未来的技术发展也可能更偏向于Diffuser类型的算法，因此今天我们更多地是提供一种新的体验，让你感受一下人工智能带来的影像方面的创新。</p>
+<p>这些命令行对应的Python程序其实也很简单，不超过50行代码，你有兴趣的话，可以读一下源代码看看它具体是调用哪些模型来实现的。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章打造了一个可以通过语音来交互的聊天机器人。进一步地，我们通过D-ID.com这个SaaS，提供了一个能够对上口型、有表情的数字人来回复问题。当然，D-ID.com的价格比较昂贵，尤其是对于API调用的次数和生成视频的数量都有一定的限制。所以我们进一步尝试使用开源的PaddleBobo项目，来根据文本生成带口型的口播视频。而如果我们把语音识别从云换成本地的Whisper模型，把ChatGPT换成之前测试过的开源的ChatGLM，我们就有了一个完全开源的数字人解决方案。</p>
+<p>当然，演示的数字人，从效果上来看还很一般。不过，要知道我们并没有使用任何数据对模型进行微调，而是完全使用预训练好的开源模型。我写对应的演示代码也就只用了一两天晚上的时间而已。如果想要进一步优化效果，我们完全可以基于这些开源模型进一步去改造微调。</p>
+<p>今天，大部分开源的深度学习技术已经进入了一个重大的拐点，任何人都可以通过云服务的API和开源模型搭建一个AI产品出来了。希望这一讲能让你拥有充足的知识和足够的创意去做出一个与众不同的产品来。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>关于数字人，有很多开源方案，比如 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/zhangchenxu528/FACIAL">FACIAL</a> 就是由多个院校和三星研究院合作的解决方案。你也可以基于它们提供的代码来训练一个。感兴趣的话，可以去读一读它们的源码和论文。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>17.通过DID和PaddleGAN实现表情生动的AI播报员</div>
+      <div>https://blog.longpi1.com/2023/11/27/17-通过DID和PaddleGAN实现表情生动的AI播报员/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/27/18-CLIP%E6%A8%A1%E5%9E%8B%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%BB%93%E5%90%88%E5%9B%BE%E5%83%8F%E7%9A%84%E5%BA%94%E7%94%A8/" title="18.CLIP模型：大模型结合图像的应用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">18.CLIP模型：大模型结合图像的应用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/24/16-Whisper-ChatGPT%EF%BC%9AAI%E5%AE%9E%E7%8E%B0%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" title="16.Whisper+ChatGPT：AI实现语音识别">
+                        <span class="hidden-mobile">16.Whisper+ChatGPT：AI实现语音识别</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

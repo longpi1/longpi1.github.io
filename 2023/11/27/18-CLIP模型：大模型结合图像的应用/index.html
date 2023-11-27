@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="18.CLIP模型：大模型结合图像的应用">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/27/18-CLIP%E6%A8%A1%E5%9E%8B%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%BB%93%E5%90%88%E5%9B%BE%E5%83%8F%E7%9A%84%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/EQ5At1aoeBqGzT7.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/Wfe193BLoiTcXsY.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/3nZlGT1kcmj47gB.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/R8quJok1fDS2Ozx.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/2KwZNtIUpVOaozS.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/5ugHzw9JkOlW1Di.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/ujgAk94spO2Dhvr.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/zvnbYWX6D1B8SgA.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/R7evIJlwV68dBPW.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/jmvBIY5Ox9l41ob.png">
+<meta property="article:published_time" content="2023-11-27T08:57:30.000Z">
+<meta property="article:modified_time" content="2023-11-27T09:24:56.503Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/23/EQ5At1aoeBqGzT7.png">
+  
+  
+  
+  <title>18.CLIP模型：大模型结合图像的应用 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="18.CLIP模型：大模型结合图像的应用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-27 16:57" pubdate>
+          2023年11月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">18.CLIP模型：大模型结合图像的应用</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="18-CLIP模型：大模型结合图像的应用"><a href="#18-CLIP模型：大模型结合图像的应用" class="headerlink" title="18.CLIP模型：大模型结合图像的应用"></a>18.CLIP模型：大模型结合图像的应用</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>前面已经学完了文本和音频的部分。接下来，进入最后一部分，也就是图像模块了。</p>
+<p>与视觉和语音一样，Transformer架构的模型在过去几年里也逐渐成为了图像领域的一个主流研究方向。自然，发表了GPT和Whisper的OpenAI也不会落后。一贯相信“大力出奇迹”的OpenAI，就拿4亿张互联网上找到的图片，以及图片对应的ALT文字训练了一个叫做CLIP的多模态模型。今天，我们就看看在实际的应用里怎么使用这个模型。在学习的过程中你会发现， <strong>我们不仅可以把它拿来做常见的图片分类、目标检测，也能够用来优化业务场景里面的商品搜索和内容推荐。</strong></p>
+<h2 id="多模态的CLIP模型"><a href="#多模态的CLIP模型" class="headerlink" title="多模态的CLIP模型"></a>多模态的CLIP模型</h2><p>相信你最近已经听到过很多次“多模态”这个词儿了，无论是在OpenAI对GPT-4的介绍里，还是之前介绍llama-index的时候，这个名词都已经出现过了。</p>
+<p><strong>所谓“多模态”，就是多种媒体形式的内容。</strong> 我们看到很多评测里面都拿GPT模型来做数学试题，那么如果我们遇到一个平面几何题的话，光有题目的文字信息是不够的，还需要把对应的图形一并提供给AI才可以。而这也是我们通往通用人工智能的必经之路，因为真实世界就是多模态的。我们每天除了处理文本信息，还会看视频、图片以及和人说话。</p>
+<p>而CLIP这个模型，就是一个多模态模型。一如即往，OpenAI仍然是通过海量数据来训练一个大模型。整个模型使用了互联网上的4亿张图片，它不仅能够分别理解图片和文本，还通过对比学习建立了图片和文本之间的关系。这个也是未来我们能够通过写几个提示词就能用AI画图的一个起点。</p>
+<p><img src="https://s2.loli.net/2023/11/23/EQ5At1aoeBqGzT7.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>CLIP的思路其实不复杂，就是互联网上已有的大量公开的图片数据。而且其中有很多已经通过HTML标签里面的title或者alt字段，提供了对图片的文本描述。那我们只要训练一个模型，将文本转换成一个向量，也将图片转换成一个向量。图片向量应该和自己的文本描述向量的距离尽量近，和其他的文本向量要尽量远。那么这个模型，就能够把图片和文本映射到同一个空间里。我们就能够通过向量同时理解图片和文本了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">&lt;img src=<span class="hljs-string">&quot;img_girl.jpg&quot;</span> alt=<span class="hljs-string">&quot;Girl in a jacket&quot;</span> width=<span class="hljs-string">&quot;500&quot;</span> height=<span class="hljs-string">&quot;600&quot;</span>&gt;<br><br>&lt;img src=<span class="hljs-string">&quot;/img/html/vangogh.jpg&quot;</span><br>     title=<span class="hljs-string">&quot;Van Gogh, Self-portrait.&quot;</span>&gt;<br><br></code></pre></td></tr></table></figure>
+
+<p>注：img标签里的alt和title字段，提供了对图片的文本描述。</p>
+<h2 id="图片的零样本分类"><a href="#图片的零样本分类" class="headerlink" title="图片的零样本分类"></a>图片的零样本分类</h2><p>理解了CLIP模型的基本思路，那么我们不妨来试一试这个模型怎么能够把文本和图片关联起来。我们刚刚介绍过的Transformers可以说是当今大模型领域事实上的标准，那我就还是用Transformers库来给你举个例子好了，你可以看一下对应的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> PIL <span class="hljs-keyword">import</span> Image<br><span class="hljs-keyword">from</span> IPython.display <span class="hljs-keyword">import</span> display<br><span class="hljs-keyword">from</span> IPython.display <span class="hljs-keyword">import</span> Image <span class="hljs-keyword">as</span> IPyImage<br><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> CLIPProcessor, CLIPModel<br><br>model = CLIPModel.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br>processor = CLIPProcessor.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_image_feature</span>(<span class="hljs-params">filename: <span class="hljs-built_in">str</span></span>):<br>    image = Image.<span class="hljs-built_in">open</span>(filename).convert(<span class="hljs-string">&quot;RGB&quot;</span>)<br>    processed = processor(images=image, return_tensors=<span class="hljs-string">&quot;pt&quot;</span>, padding=<span class="hljs-literal">True</span>, truncation=<span class="hljs-literal">True</span>)<br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        image_features = model.get_image_features(pixel_values=processed[<span class="hljs-string">&quot;pixel_values&quot;</span>])<br>    <span class="hljs-keyword">return</span> image_features<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_text_feature</span>(<span class="hljs-params">text: <span class="hljs-built_in">str</span></span>):<br>    processed = processor(text=text, return_tensors=<span class="hljs-string">&quot;pt&quot;</span>, padding=<span class="hljs-literal">True</span>, truncation=<span class="hljs-literal">True</span>)<br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        text_features = model.get_text_features(processed[<span class="hljs-string">&#x27;input_ids&#x27;</span>])<br>    <span class="hljs-keyword">return</span> text_features<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">cosine_similarity</span>(<span class="hljs-params">tensor1, tensor2</span>):<br>    tensor1_normalized = tensor1 / tensor1.norm(dim=-<span class="hljs-number">1</span>, keepdim=<span class="hljs-literal">True</span>)<br>    tensor2_normalized = tensor2 / tensor2.norm(dim=-<span class="hljs-number">1</span>, keepdim=<span class="hljs-literal">True</span>)<br>    <span class="hljs-keyword">return</span> (tensor1_normalized * tensor2_normalized).<span class="hljs-built_in">sum</span>(dim=-<span class="hljs-number">1</span>)<br><br>image_tensor = get_image_feature(<span class="hljs-string">&quot;./data/cat.jpg&quot;</span>)<br><br>cat_text = <span class="hljs-string">&quot;This is a cat.&quot;</span><br>cat_text_tensor = get_text_feature(cat_text)<br><br>dog_text = <span class="hljs-string">&quot;This is a dog.&quot;</span><br>dog_text_tensor = get_text_feature(dog_text)<br><br>display(IPyImage(filename=<span class="hljs-string">&#x27;./data/cat.jpg&#x27;</span>))<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with cat : &quot;</span>, cosine_similarity(image_tensor, cat_text_tensor))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with dog : &quot;</span>, cosine_similarity(image_tensor, dog_text_tensor))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/Wfe193BLoiTcXsY.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">Similarity <span class="hljs-keyword">with</span> cat :  tensor([<span class="hljs-number">0.2482</span>])<br>Similarity <span class="hljs-keyword">with</span> dog :  tensor([<span class="hljs-number">0.2080</span>])<br><br></code></pre></td></tr></table></figure>
+
+<p>这个代码并不复杂，分成了这样几个步骤。</p>
+<ol>
+<li>我们先是通过Transformers库的CLIPModel和CLIPProcessor，加载了clip-vit-base-patch32这个模型，用来处理我们的图片和文本信息。</li>
+<li>在get_image_features方法里，我们做了两件事情。</li>
+</ol>
+<ul>
+<li>首先，我们通过刚才拿到的CLIPProcessor对图片做预处理，变成一系列的数值特征表示的向量。这个预处理的过程，其实就是把原始的图片，变成一个个像素的RGB值；然后统一图片的尺寸，以及对于不规则的图片截取中间正方形的部分，最后做一下数值的归一化。具体的操作步骤，已经封装在CLIPProcessor里了，你可以不用关心。</li>
+<li>然后，我们再通过CLIPModel，把上面的数值向量，推断成一个表达了图片含义的张量（Tensor）。这里，你就把它当成是一个向量就好了。</li>
+</ul>
+<ol>
+<li>同样的，get_text_features也是类似的，先把对应的文本通过CLIPProcessor转换成Token，然后再通过模型推断出表示文本的张量。</li>
+<li>然后，我们定义了一个cosine_similarity函数，用来计算两个张量之间的余弦相似度。</li>
+<li>最后，我们就可以利用上面的这些函数，来计算图片和文本之间的相似度了。我们拿了一张程序员们最喜欢的猫咪照片，和“This is a cat.” 以及 “This is a dog.” 的文本做比较。可以看到，结果的确是猫咪照片和“This is a cat.” 的相似度要更高一些。</li>
+</ol>
+<p>我们可以再多拿一些文本来进行比较。图片里面，实际是2只猫咪在沙发上，那么我们分别试试”There are two cats.”、”This is a couch.”以及一个完全不相关的“This is a truck.”，看看效果怎么样。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python">two_cats_text = <span class="hljs-string">&quot;There are two cats.&quot;</span><br>two_cats_text_tensor = get_text_feature(two_cats_text)<br><br>truck_text = <span class="hljs-string">&quot;This is a truck.&quot;</span><br>truck_text_tensor = get_text_feature(truck_text)<br><br>couch_text = <span class="hljs-string">&quot;This is a couch.&quot;</span><br>couch_text_tensor = get_text_feature(couch_text)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with cat : &quot;</span>, cosine_similarity(image_tensor, cat_text_tensor))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with dog : &quot;</span>, cosine_similarity(image_tensor, dog_text_tensor))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with two cats : &quot;</span>, cosine_similarity(image_tensor, two_cats_text_tensor))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with truck : &quot;</span>, cosine_similarity(image_tensor, truck_text_tensor))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Similarity with couch : &quot;</span>, cosine_similarity(image_tensor, couch_text_tensor))<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">Similarity <span class="hljs-keyword">with</span> cat :  tensor([<span class="hljs-number">0.2482</span>])<br>Similarity <span class="hljs-keyword">with</span> dog :  tensor([<span class="hljs-number">0.2080</span>])<br>Similarity <span class="hljs-keyword">with</span> two cats :  tensor([<span class="hljs-number">0.2723</span>])<br>Similarity <span class="hljs-keyword">with</span> truck :  tensor([<span class="hljs-number">0.1814</span>])<br>Similarity <span class="hljs-keyword">with</span> couch :  tensor([<span class="hljs-number">0.2376</span>])<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到，“There are two cats.” 的相似度最高，因为图里有沙发，所以“This is a couch.”的相似度也要高于“This is a dog.”。而Dog好歹和Cat同属于宠物，相似度也比完全不相关的Truck要高一些。可以看到，CLIP模型对图片和文本的语义理解是非常到位的。</p>
+<p>看到这里，你有没有觉得和文本零样本分类很像？的确，CLIP模型的一个非常重要的用途就是零样本分类。在CLIP这样的模型出现之前，图像识别已经是一个准确率非常高的领域了。通过RESNET架构的卷积神经网络，在ImageNet这样的大数据集上，已经能够做到90%以上的准确率了。</p>
+<p>但是这些模型都有一个缺陷，就是它们都是基于监督学习的方式来进行分类的。这意味着两点，一个是 <strong>所有的分类需要预先定义好</strong>，比如ImageNet就是预先定义好了1000个分类。另一个是 <strong>数据必须标注</strong>，我们在训练模型之前，要给用来训练的图片标注好属于什么类。</p>
+<p>这带来一个问题，就是如果我们需要增加一个分类，就要重新训练一个模型。比如我们发现数据里面没有标注“沙发”，为了能够识别出沙发，就得标注一堆数据，同时需要重新训练模型来调整模型参数的权重，需要花费很多时间。</p>
+<p>但是，在CLIP这样的模型里，并不需要这样做。因为对应的文本信息，是从海量图片自带的文本信息里来的。并且因为在学习的过程中，模型也学习到了文本之间的关联，所以如果要对一张图片在多个类别中进行分类，只需要简单地列出分类的文本名称，然后每一个都和图片算一下向量表示之间的乘积，再通过Softmax算法做一下多分类的判别就好了。</p>
+<p>下面就是这样一段示例代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> PIL <span class="hljs-keyword">import</span> Image<br><br><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> CLIPProcessor, CLIPModel<br><br>model = CLIPModel.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br>processor = CLIPProcessor.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br><br>image_file = <span class="hljs-string">&quot;./data/cat.jpg&quot;</span><br>image =  Image.<span class="hljs-built_in">open</span>(image_file)<br><br>categories = [<span class="hljs-string">&quot;cat&quot;</span>, <span class="hljs-string">&quot;dog&quot;</span>, <span class="hljs-string">&quot;truck&quot;</span>, <span class="hljs-string">&quot;couch&quot;</span>]<br>categories_text = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x: <span class="hljs-string">f&quot;a photo of a <span class="hljs-subst">&#123;x&#125;</span>&quot;</span>, categories))<br>inputs = processor(text=categories_text, images=image, return_tensors=<span class="hljs-string">&quot;pt&quot;</span>, padding=<span class="hljs-literal">True</span>)<br><br>outputs = model(**inputs)<br>logits_per_image = outputs.logits_per_image<br>probs = logits_per_image.softmax(dim=<span class="hljs-number">1</span>)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(categories)):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;categories[i]&#125;</span>\t<span class="hljs-subst">&#123;probs[<span class="hljs-number">0</span>][i].item():<span class="hljs-number">.2</span>%&#125;</span>&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">cat	<span class="hljs-number">74.51</span>%<br>dog	<span class="hljs-number">0.39</span>%<br>truck	<span class="hljs-number">0.04</span>%<br>couch	<span class="hljs-number">25.07</span>%<br><br></code></pre></td></tr></table></figure>
+
+<p>代码非常简单，我们还是先加载model和processor。不过这一次，我们不再是通过计算余弦相似度来进行分类了。而是直接通过一个分类的名称，用softmax算法来计算图片应该分类到具体某一个类的名称的概率。在这里，我们给所有名称都加上了一个“a photo of a ”的前缀。这是为了让文本数据更接近CLIP模型拿来训练的输入数据，因为大部分采集到的图片相关的alt和title信息都不大可能会是一个单词，而是一句完整的描述。</p>
+<p><img src="https://s2.loli.net/2023/11/23/3nZlGT1kcmj47gB.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们把图片和文本都传入到Processor，它会进行数据预处理。然后直接把这个inputs塞给Model，就可以拿到输出结果了。输出结果的logits_per_image字段就是每一段文本和我们要分类的图片在计算完内积之后的结果。我们只要再把这个结果通过Softmax计算一下，就能得到图片属于各个分类的概率。</p>
+<p>从我们上面运行的结果可以看到，结果还是非常准确的，模型判断有75%的概率是一只猫，25%的概率是沙发。这的确也是图片中实际有的元素，而且从图片来看，猫才是图片里的主角。</p>
+<p>你可以自己找一些的图片，定义一些自己的分类，来看看分类效果如何。不过需要注意，CLIP是用英文文本进行预训练的，分类的名字你也需要用英文。</p>
+<h2 id="通过CLIP进行目标检测"><a href="#通过CLIP进行目标检测" class="headerlink" title="通过CLIP进行目标检测"></a>通过CLIP进行目标检测</h2><p>除了能够实现零样本的图像分类之外，我们也可以将它应用到零样本下的目标检测中。目标检测其实就是是在图像中框出特定区域，然后对这个区域内的图像内容进行分类。因此，我们同样可以用CLIP来实现目标检测任务。</p>
+<p>事实上，Google就基于CLIP，开发了OWL-ViT这个模型来做零样本的目标检测，我们可以直接使用Pipeline来试一试它是怎么帮助我们做目标检测的。</p>
+<p>目标检测：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> pipeline<br><br>detector = pipeline(model=<span class="hljs-string">&quot;google/owlvit-base-patch32&quot;</span>, task=<span class="hljs-string">&quot;zero-shot-object-detection&quot;</span>)<br>detected = detector(<br>    <span class="hljs-string">&quot;./data/cat.jpg&quot;</span>,<br>    candidate_labels=[<span class="hljs-string">&quot;cat&quot;</span>, <span class="hljs-string">&quot;dog&quot;</span>, <span class="hljs-string">&quot;truck&quot;</span>, <span class="hljs-string">&quot;couch&quot;</span>, <span class="hljs-string">&quot;remote&quot;</span>],<br>)<br><br><span class="hljs-built_in">print</span>(detected)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">[&#123;<span class="hljs-string">&#x27;score&#x27;</span>: <span class="hljs-number">0.2868116796016693</span>, <span class="hljs-string">&#x27;label&#x27;</span>: <span class="hljs-string">&#x27;cat&#x27;</span>, <span class="hljs-string">&#x27;box&#x27;</span>: &#123;<span class="hljs-string">&#x27;xmin&#x27;</span>: <span class="hljs-number">324</span>, <span class="hljs-string">&#x27;ymin&#x27;</span>: <span class="hljs-number">20</span>, <span class="hljs-string">&#x27;xmax&#x27;</span>: <span class="hljs-number">640</span>, <span class="hljs-string">&#x27;ymax&#x27;</span>: <span class="hljs-number">373</span>&#125;&#125;, &#123;<span class="hljs-string">&#x27;score&#x27;</span>: <span class="hljs-number">0.2770090401172638</span>, <span class="hljs-string">&#x27;label&#x27;</span>: <span class="hljs-string">&#x27;remote&#x27;</span>, <span class="hljs-string">&#x27;box&#x27;</span>: &#123;<span class="hljs-string">&#x27;xmin&#x27;</span>: <span class="hljs-number">40</span>, <span class="hljs-string">&#x27;ymin&#x27;</span>: <span class="hljs-number">72</span>, <span class="hljs-string">&#x27;xmax&#x27;</span>: <span class="hljs-number">177</span>, <span class="hljs-string">&#x27;ymax&#x27;</span>: <span class="hljs-number">115</span>&#125;&#125;, &#123;<span class="hljs-string">&#x27;score&#x27;</span>: <span class="hljs-number">0.2537277638912201</span>, <span class="hljs-string">&#x27;label&#x27;</span>: <span class="hljs-string">&#x27;cat&#x27;</span>, <span class="hljs-string">&#x27;box&#x27;</span>: &#123;<span class="hljs-string">&#x27;xmin&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;ymin&#x27;</span>: <span class="hljs-number">55</span>, <span class="hljs-string">&#x27;xmax&#x27;</span>: <span class="hljs-number">315</span>, <span class="hljs-string">&#x27;ymax&#x27;</span>: <span class="hljs-number">472</span>&#125;&#125;, &#123;<span class="hljs-string">&#x27;score&#x27;</span>: <span class="hljs-number">0.14742951095104218</span>, <span class="hljs-string">&#x27;label&#x27;</span>: <span class="hljs-string">&#x27;remote&#x27;</span>, <span class="hljs-string">&#x27;box&#x27;</span>: &#123;<span class="hljs-string">&#x27;xmin&#x27;</span>: <span class="hljs-number">335</span>, <span class="hljs-string">&#x27;ymin&#x27;</span>: <span class="hljs-number">74</span>, <span class="hljs-string">&#x27;xmax&#x27;</span>: <span class="hljs-number">371</span>, <span class="hljs-string">&#x27;ymax&#x27;</span>: <span class="hljs-number">187</span>&#125;&#125;, &#123;<span class="hljs-string">&#x27;score&#x27;</span>: <span class="hljs-number">0.12083035707473755</span>, <span class="hljs-string">&#x27;label&#x27;</span>: <span class="hljs-string">&#x27;couch&#x27;</span>, <span class="hljs-string">&#x27;box&#x27;</span>: &#123;<span class="hljs-string">&#x27;xmin&#x27;</span>: <span class="hljs-number">4</span>, <span class="hljs-string">&#x27;ymin&#x27;</span>: <span class="hljs-number">0</span>, <span class="hljs-string">&#x27;xmax&#x27;</span>: <span class="hljs-number">642</span>, <span class="hljs-string">&#x27;ymax&#x27;</span>: <span class="hljs-number">476</span>&#125;&#125;]<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到一旦用上Pipeline，代码就变得特别简单了。我们先定义了一下model和task，然后输入了我们用来检测的图片，以及提供的类别就完事了。从打印出来的结果中可以看到，里面包含了模型检测出来的所有物品的边框位置。这一次，我们还特地增加了一个remote，也就是遥控器的类别，看看这样的小物体模型是不是也能识别出来。</p>
+<p>接下来，我们就把边框标注到图片上，看看检测的结果是否准确。</p>
+<p>首先，我们需要安装一下OpenCV。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">pip install opencv-python<br><br></code></pre></td></tr></table></figure>
+
+<p>后面的代码也很简单，就是遍历一下上面检测拿到的结果，然后通过OpenCV把边框绘制到图片上就好了。</p>
+<p>输出目标检测结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> cv2<br><span class="hljs-keyword">from</span> matplotlib <span class="hljs-keyword">import</span> pyplot <span class="hljs-keyword">as</span> plt<br><br><span class="hljs-comment"># Read the image</span><br>image_path = <span class="hljs-string">&quot;./data/cat.jpg&quot;</span><br>image = cv2.imread(image_path)<br><br><span class="hljs-comment"># Convert the image from BGR to RGB format</span><br>image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)<br><br><span class="hljs-comment"># Draw the bounding box and label for each detected object</span><br><span class="hljs-keyword">for</span> detection <span class="hljs-keyword">in</span> detected:<br>    box = detection[<span class="hljs-string">&#x27;box&#x27;</span>]<br>    label = detection[<span class="hljs-string">&#x27;label&#x27;</span>]<br>    score = detection[<span class="hljs-string">&#x27;score&#x27;</span>]<br><br>    <span class="hljs-comment"># Draw the bounding box and label on the image</span><br>    xmin, ymin, xmax, ymax = box[<span class="hljs-string">&#x27;xmin&#x27;</span>], box[<span class="hljs-string">&#x27;ymin&#x27;</span>], box[<span class="hljs-string">&#x27;xmax&#x27;</span>], box[<span class="hljs-string">&#x27;ymax&#x27;</span>]<br>    cv2.rectangle(image, (xmin, ymin), (xmax, ymax), (<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>), <span class="hljs-number">2</span>)<br>    cv2.putText(image, <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;label&#125;</span>: <span class="hljs-subst">&#123;score:<span class="hljs-number">.2</span>f&#125;</span>&quot;</span>, (xmin, ymin - <span class="hljs-number">10</span>), cv2.FONT_HERSHEY_SIMPLEX, <span class="hljs-number">0.5</span>, (<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>), <span class="hljs-number">2</span>)<br><br><span class="hljs-comment"># Display the image in Jupyter Notebook</span><br>plt.imshow(image)<br>plt.axis(<span class="hljs-string">&#x27;off&#x27;</span>)<br>plt.show()<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/R8quJok1fDS2Ozx.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>从最后的输出结果来看，无论是猫咪、遥控器还是沙发，都被准确地框选出来了。</p>
+<h2 id="商品搜索与以图搜图"><a href="#商品搜索与以图搜图" class="headerlink" title="商品搜索与以图搜图"></a>商品搜索与以图搜图</h2><p>CLIP模型能把文本和图片都变成同一个空间里面的向量。而且，文本和图片之间还有关联，我们是不是可以利用这个向量来进行语义检索，实现搜索图片的功能？答案当然是可以的，其实这也是CLIP的一个常用功能。我们接下来就要通过代码来演示这个搜索的用法。</p>
+<p>要演示商品搜索功能，我们要先找到一个数据集。这一次，我们需要的数据是图片，这我们就没办法直接通过ChatGPT来造了。不过，正好我们可以学习HuggingFace提供的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/datasets">Dataset模块</a>。</p>
+<p>所有的机器学习问题都需要有一套数据，我们需要通过数据来训练、验证和测试模型。所以作为最大的开源机器学习社区，HuggingFace就提供了这样一个模块，让开发人员可以把他们的数据集分享出来。并且这些数据集，都可以通过 datasets 库的 load_dataset 方法加载到内存里面来。</p>
+<p><img src="https://s2.loli.net/2023/11/23/2KwZNtIUpVOaozS.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们想要找一些商品图片，那么就可以在HuggingFace的搜索栏里输入 product image。然后点击Datasets下找到的数据集，进入数据集的详情页。可以看到，这个叫做 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/datasets/rajuptvs/ecommerce_products_clip">ecommece_products_clip 的数据集里</a>，的确每一条记录都有商品图片，那拿来做我们的图片搜索演示再合适不过了。</p>
+<p><img src="https://s2.loli.net/2023/11/23/5ugHzw9JkOlW1Di.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>加载数据集非常简单，我们只需要调用一下 load_dataset 方法，并且把数据集的名字作为参数就可以了。对于拿到的数据集，你可以看到里面一共有1913条数据，并且列出了所有feature的名字。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> datasets <span class="hljs-keyword">import</span> load_dataset<br><br>dataset = load_dataset(<span class="hljs-string">&quot;rajuptvs/ecommerce_products_clip&quot;</span>)<br>dataset<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">DatasetDict(&#123;<br>    train: Dataset(&#123;<br>        features: [<span class="hljs-string">&#x27;image&#x27;</span>, <span class="hljs-string">&#x27;Product_name&#x27;</span>, <span class="hljs-string">&#x27;Price&#x27;</span>, <span class="hljs-string">&#x27;colors&#x27;</span>, <span class="hljs-string">&#x27;Pattern&#x27;</span>, <span class="hljs-string">&#x27;Description&#x27;</span>, <span class="hljs-string">&#x27;Other Details&#x27;</span>, <span class="hljs-string">&#x27;Clipinfo&#x27;</span>],<br>        num_rows: <span class="hljs-number">1913</span><br>    &#125;)<br>&#125;)<br><br></code></pre></td></tr></table></figure>
+
+<p>数据集一般都会预先分片，分成 <strong>训练集（train）、验证集（validation）和测试集（test）</strong> 三种。我们这里不是做机器学习训练，而是演示一下通过CLIP模型做搜索，所以我们选用了数据最多的train这个数据分片。我们通过Matplotlib这个库，显示了一下前10个商品的图片，确认数据和我们想的是一样的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br>training_split = dataset[<span class="hljs-string">&quot;train&quot;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">display_images</span>(<span class="hljs-params">images</span>):<br>    fig, axes = plt.subplots(<span class="hljs-number">2</span>, <span class="hljs-number">5</span>, figsize=(<span class="hljs-number">15</span>, <span class="hljs-number">6</span>))<br>    axes = axes.ravel()<br><br>    <span class="hljs-keyword">for</span> idx, img <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(images):<br>        axes[idx].imshow(img)<br>        axes[idx].axis(<span class="hljs-string">&#x27;off&#x27;</span>)<br><br>    plt.subplots_adjust(wspace=<span class="hljs-number">0.2</span>, hspace=<span class="hljs-number">0.2</span>)<br>    plt.show()<br><br>images = [example[<span class="hljs-string">&quot;image&quot;</span>] <span class="hljs-keyword">for</span> example <span class="hljs-keyword">in</span> training_split.select(<span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>))]<br>display_images(images)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/ujgAk94spO2Dhvr.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>有了数据集，我们要做的第一件事情，就是通过CLIP模型把所有的图片都转换成向量并且记录下来。获取图片向量的方法和我们上面做零样本分类类似，我们加载了CLIPModel和CLIPProcessor，通过get_image_features函数拿到向量，再通过add_image_feature函数把这些向量加入到features特征里面。</p>
+<p>我们一条记录一条记录地来处理训练集里面的图片特征，并且把处理完成的特征也加入到数据集的features属性里面去。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> torchvision.transforms <span class="hljs-keyword">as</span> transforms<br><span class="hljs-keyword">from</span> PIL <span class="hljs-keyword">import</span> Image<br><span class="hljs-keyword">from</span> datasets <span class="hljs-keyword">import</span> load_dataset<br><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> CLIPProcessor, CLIPModel<br><br>device = <span class="hljs-string">&quot;cuda&quot;</span> <span class="hljs-keyword">if</span> torch.cuda.is_available() <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;cpu&quot;</span><br>model = CLIPModel.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>).to(device)<br>processor = CLIPProcessor.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-base-patch32&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_image_features</span>(<span class="hljs-params">image</span>):<br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        inputs = processor(images=[image], return_tensors=<span class="hljs-string">&quot;pt&quot;</span>, padding=<span class="hljs-literal">True</span>)<br>        inputs.to(device)<br>        features = model.get_image_features(**inputs)<br>    <span class="hljs-keyword">return</span> features.cpu().numpy()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">add_image_features</span>(<span class="hljs-params">example</span>):<br>    example[<span class="hljs-string">&quot;features&quot;</span>] = get_image_features(example[<span class="hljs-string">&quot;image&quot;</span>])<br>    <span class="hljs-keyword">return</span> example<br><br><span class="hljs-comment"># Apply the function to the training_split</span><br>training_split = training_split.<span class="hljs-built_in">map</span>(add_image_features)<br><br></code></pre></td></tr></table></figure>
+
+<p>有了处理好的向量，问题就好办了。把这些向量都放到Faiss的索引里面去。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">import</span> faiss<br><br>features = [example[<span class="hljs-string">&quot;features&quot;</span>] <span class="hljs-keyword">for</span> example <span class="hljs-keyword">in</span> training_split]<br>features_matrix = np.vstack(features)<br><br>dimension = features_matrix.shape[<span class="hljs-number">1</span>]<br><br>index = faiss.IndexFlatL2(dimension)<br>index.add(features_matrix.astype(<span class="hljs-string">&#x27;float32&#x27;</span>))<br><br></code></pre></td></tr></table></figure>
+
+<p>有了这个索引，我们就可以通过余弦相似度来搜索图片了。我们通过下面四个步骤来完成这个用文字搜索图片的功能。</p>
+<ol>
+<li>首先 get_text_features 这个函数会通过CLIPModel和CLIPProcessor拿到一段文本输入的向量。</li>
+<li>其次是 search 函数。它接收一段搜索文本，然后将文本通过 get_text_features 转换成向量，去Faiss里面搜索对应的向量索引。然后通过这个索引重新从training_split里面找到对应的图片，加入到返回结果里面去。</li>
+<li>然后我们就以A red dress作为搜索词，调用search函数拿到搜索结果。</li>
+<li>最后，我们通过 display_search_results 这个函数，将搜索到的图片以及在Faiss索引中的距离展示出来。</li>
+</ol>
+<p>我们通过这些方法的组合，就实现了一个通过关键词搜索商品图片的功能。而从搜索结果中可以看到，排名靠前的的确都是红色的裙子。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_text_features</span>(<span class="hljs-params">text</span>):<br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        inputs = processor(text=[text], return_tensors=<span class="hljs-string">&quot;pt&quot;</span>, padding=<span class="hljs-literal">True</span>)<br>        inputs.to(device)<br>        features = model.get_text_features(**inputs)<br>    <span class="hljs-keyword">return</span> features.cpu().numpy()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">search</span>(<span class="hljs-params">query_text, top_k=<span class="hljs-number">5</span></span>):<br>    <span class="hljs-comment"># Get the text feature vector for the input query</span><br>    text_features = get_text_features(query_text)<br><br>    <span class="hljs-comment"># Perform a search using the FAISS index</span><br>    distances, indices = index.search(text_features.astype(<span class="hljs-string">&quot;float32&quot;</span>), top_k)<br><br>    <span class="hljs-comment"># Get the corresponding images and distances</span><br>    results = [<br>        &#123;<span class="hljs-string">&quot;image&quot;</span>: training_split[i][<span class="hljs-string">&quot;image&quot;</span>], <span class="hljs-string">&quot;distance&quot;</span>: distances[<span class="hljs-number">0</span>][j]&#125;<br>        <span class="hljs-keyword">for</span> j, i <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(indices[<span class="hljs-number">0</span>])<br>    ]<br><br>    <span class="hljs-keyword">return</span> results<br><br>query_text = <span class="hljs-string">&quot;A red dress&quot;</span><br>results = search(query_text)<br><br><span class="hljs-comment"># Display the search results</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">display_search_results</span>(<span class="hljs-params">results</span>):<br>    fig, axes = plt.subplots(<span class="hljs-number">1</span>, <span class="hljs-built_in">len</span>(results), figsize=(<span class="hljs-number">15</span>, <span class="hljs-number">5</span>))<br>    axes = axes.ravel()<br><br>    <span class="hljs-keyword">for</span> idx, result <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(results):<br>        axes[idx].imshow(result[<span class="hljs-string">&quot;image&quot;</span>])<br>        axes[idx].set_title(<span class="hljs-string">f&quot;Distance: <span class="hljs-subst">&#123;result[<span class="hljs-string">&#x27;distance&#x27;</span>]:<span class="hljs-number">.2</span>f&#125;</span>&quot;</span>)<br>        axes[idx].axis(<span class="hljs-string">&#x27;off&#x27;</span>)<br><br>    plt.subplots_adjust(wspace=<span class="hljs-number">0.2</span>, hspace=<span class="hljs-number">0.2</span>)<br>    plt.show()<br><br>display_search_results(results)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/zvnbYWX6D1B8SgA.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>有了通过文本搜索商品，相信你也知道如何以图搜图了。我们只需要把 get_text_features 换成一个 get_image_features 就能做到这一点。我也把对应的代码放在下面。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_image_features</span>(<span class="hljs-params">image_path</span>):<br>    <span class="hljs-comment"># Load the image from the file</span><br>    image = Image.<span class="hljs-built_in">open</span>(image_path).convert(<span class="hljs-string">&quot;RGB&quot;</span>)<br><br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        inputs = processor(images=[image], return_tensors=<span class="hljs-string">&quot;pt&quot;</span>, padding=<span class="hljs-literal">True</span>)<br>        inputs.to(device)<br>        features = model.get_image_features(**inputs)<br>    <span class="hljs-keyword">return</span> features.cpu().numpy()<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">search</span>(<span class="hljs-params">image_path, top_k=<span class="hljs-number">5</span></span>):<br>    <span class="hljs-comment"># Get the image feature vector for the input image</span><br>    image_features = get_image_features(image_path)<br><br>    <span class="hljs-comment"># Perform a search using the FAISS index</span><br>    distances, indices = index.search(image_features.astype(<span class="hljs-string">&quot;float32&quot;</span>), top_k)<br><br>    <span class="hljs-comment"># Get the corresponding images and distances</span><br>    results = [<br>        &#123;<span class="hljs-string">&quot;image&quot;</span>: training_split[i.item()][<span class="hljs-string">&quot;image&quot;</span>], <span class="hljs-string">&quot;distance&quot;</span>: distances[<span class="hljs-number">0</span>][j]&#125;<br>        <span class="hljs-keyword">for</span> j, i <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(indices[<span class="hljs-number">0</span>])<br>    ]<br><br>    <span class="hljs-keyword">return</span> results<br><br>image_path = <span class="hljs-string">&quot;./data/shirt.png&quot;</span><br>results = search(image_path)<br><br>display(IPyImage(filename=image_path, width=<span class="hljs-number">300</span>, height=<span class="hljs-number">200</span>))<br>display_search_results(results)<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/R7evIJlwV68dBPW.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/jmvBIY5Ox9l41ob.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>从搜索结果可以看到，尽管用来搜索的衬衫图片的视角和风格与商品库里面的图片完全不同，但是搜索到的图片也都是有蓝色元素的衬衫，由此可见，CLIP模型对于语义的捕捉还是非常准确的。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这一讲，介绍了OpenAI开源的CLIP模型。这个模型是通过互联网上的海量图片数据，以及图片对应的img标签里面的alt和title字段信息训练出来的。这个模型无需额外的标注，就能将图片和文本映射到同一个向量空间，让我们能把文本和图片关联起来。</p>
+<p>通过CLIP模型，我们可以对任意物品名称进行零样本分类。进一步地，我们还能进行零样本的目标检测。而文本和图片在同一个向量空间的这个特性，也能够让我们直接利用这个模型进一步优化我们的商品搜索功能。我们可以拿文本的向量，通过找到余弦距离最近的商品图片来优化搜索的召回过程。我们也能直接拿图片向量，实现以图搜图这样的功能。</p>
+<p>CLIP这样的多模态模型，进一步拓展了我们AI的能力。我们现在写几个提示语，就能让AI拥有绘画的能力，这一点也可以认为是发端于此的。而在接下来的几讲里面，我们就要看看应该怎么使用AI来画画了。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>如果你想要对计算机视觉的深度学习有一个快速地了解，那么Pinecone提供的这份 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.pinecone.io/learn/image-search/">Embedding Methods for Image Search</a> 是一份很好的教程。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>18.CLIP模型：大模型结合图像的应用</div>
+      <div>https://blog.longpi1.com/2023/11/27/18-CLIP模型：大模型结合图像的应用/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/27/17-%E9%80%9A%E8%BF%87DID%E5%92%8CPaddleGAN%E5%AE%9E%E7%8E%B0%E8%A1%A8%E6%83%85%E7%94%9F%E5%8A%A8%E7%9A%84AI%E6%92%AD%E6%8A%A5%E5%91%98/" title="17.通过DID和PaddleGAN实现表情生动的AI播报员">
+                        <span class="hidden-mobile">17.通过DID和PaddleGAN实现表情生动的AI播报员</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
