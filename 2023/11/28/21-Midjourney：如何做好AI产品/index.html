@@ -1,0 +1,711 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="21.Midjourney：如何做好AI产品">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/28/21-Midjourney%EF%BC%9A%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BDAI%E4%BA%A7%E5%93%81/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/dXcDoN6TebpuQC9.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/1TijeLXDpuvRUdH.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/4dTEmW1xw6YG5it.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/TU2FNpCvAhcjEZz.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/lGa4di1kTfIXAjV.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/DFfAQghca3m25rC.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/W4PcpQZnVGsuKwm.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/NUyq3GeJ8LdKaVR.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/RM7SsYgIB1y4zpZ.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/mvSR4HNtuwiGVso.png">
+<meta property="article:published_time" content="2023-11-28T09:04:06.000Z">
+<meta property="article:modified_time" content="2023-11-28T09:05:33.684Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/23/dXcDoN6TebpuQC9.png">
+  
+  
+  
+  <title>21.Midjourney：如何做好AI产品 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="21.Midjourney：如何做好AI产品"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-28 17:04" pubdate>
+          2023年11月28日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">21.Midjourney：如何做好AI产品</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="21-Midjourney：如何做好AI产品"><a href="#21-Midjourney：如何做好AI产品" class="headerlink" title="21.Midjourney：如何做好AI产品"></a>21.Midjourney：如何做好AI产品</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>前面我们围绕着文本、语音、视频、图像体验了大量的AI应用场景。不过在这些场景里，我们还只是通过撰写代码体验了AI的能力。那么，如果我们想通过学习到的这些知识，开发一个真正的AI应用，需要注意些什么呢？我们是只需要简单地给我们的Python代码封装一个对话框一样的用户界面就可以了吗？</p>
+<p>如果你有这样的疑惑，那请一定要坚持学完这最后一讲。我们一起来看看Midjourney这个AI画画的应用是怎么做的。它在整个应用的体验里考虑了哪些设计原则？毕竟，Midjourney在过去一年里可谓是创造了一个AI产品的奇迹。它没有独立的App，完全依赖Discord这个语音社区聊天工具和用户交互。团队只有十几个人，但是出图的质量始终领先于有整个开源社区支持的Stable Diffusion。没有外部融资，却完全靠用户订阅获取了1亿美元的年收入。</p>
+<p>无论从哪个角度来看，Midjourney都是一个值得研究的AI产品。在它所有的产品设计里，我认为有三个要点是今天所有的AI应用都应该借鉴的，那就是 <strong>以用户社区作为入门教程、给用户即时反馈以及搭建数据飞轮以迭代模型</strong>。下面我们一个一个来看。</p>
+<h2 id="善用用户社区，降低上手门槛"><a href="#善用用户社区，降低上手门槛" class="headerlink" title="善用用户社区，降低上手门槛"></a>善用用户社区，降低上手门槛</h2><p>Midjourney这样的AI内容生成类型的产品，常常会遇到一个挑战，就是用户其实不知道该怎么玩这个产品。这个“不知道怎么玩儿”，不是说不知道怎么生成一张图片，而是说不知道什么样的提示语值得一试，可以画出什么样的场景。</p>
+<p>因为大部分人和你我一样，不太懂得绘画，也缺少一些想象力。这样，很容易随便画了两三张图片之后，就放弃使用产品了。所以，Midjourney就做了一个很巧妙的设计。就是你一旦注册成功，进入Midjourney的Discord频道之后，并不是让你对着Midjourney的机器人自己发挥想象去画画，而是会直接进入某一个新用户的聊天室里，无论是自己通过提示语去画画，还是其他在聊天室里的用户去画画，都会在聊天室里不停地刷新。</p>
+<p><img src="https://s2.loli.net/2023/11/23/dXcDoN6TebpuQC9.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>因为用户的背景以及想要画的内容各不相同，所以你在这个聊天室里，可以看到各种不同风格的画作。而如果你想要自己尝试相同的风格，这些画作的提示语也在那里。你只需要简单地复制粘贴提示语，然后修改几个单词，就可以尝试复刻其他人相同风格的画作了。</p>
+<p>而且，这样的聊天室并不仅仅局限于新用户。Midjourney同样也为老用户设置了general频道，你在里面一样可以看到老玩家们绘制的优秀画作。</p>
+<p><img src="https://s2.loli.net/2023/11/23/1TijeLXDpuvRUdH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>此外，整个Midjourney的Discord里，还有 show-case、daily-theme 等一系列从用户生成的图片里面挑选出来的优秀案例。</p>
+<p>通过“共享”用户创建的内容这样的方式，Midjourney很容易地让整个社区成为了教会新用户使用产品的通道。而不需要自己费劲费力地去写教程，或者提供大量的新手引导功能。</p>
+<p>事实上，ChatGPT就缺少这样的功能。这也给很多外部开发者提供了机会，于是就有了ShareGPT、FlowGPT 这样分享ChatGPT对话内容以及特定、有趣的提示语网站了。</p>
+<h2 id="AI应用面临的技术限制"><a href="#AI应用面临的技术限制" class="headerlink" title="AI应用面临的技术限制"></a>AI应用面临的技术限制</h2><p>在通过这样的引导学会了使用Midjourney各种好用的提示语之后，相信用户都会愿意多试试不同的提示语，画出漂亮的图画来。而作为一个AI内容生成的应用，Midjourney在产品设计里的第一个挑战，就是 <strong>响应时间问题</strong>。</p>
+<p>我们之前用Stable Diffusion画画的时候，即使已经用UniPCMultistepScheduler来加快生成速度了，也还是要花上个10秒钟，而且那还是我们独占一块显卡的时候。如果你要像Midjourney一样，直接面向消费者提供服务，你还会面临一个问题，就是所有的用户请求需要排队。并且，最好能够按照一个批次（Batch）进行处理。</p>
+<p>这是由我们通过GPU来生成内容的原理决定的，GPU不像CPU那样可以通过多线程或者时分复用的方式来处理请求，而只适合顺序地处理请求。而为了让显卡的利用率最大化，最好的办法是一个批次能够同时处理多张图片。</p>
+<h2 id="通过及时反馈，提升用户体验"><a href="#通过及时反馈，提升用户体验" class="headerlink" title="通过及时反馈，提升用户体验"></a>通过及时反馈，提升用户体验</h2><p>这里猜测是，你发给Midjourney的请求在它服务器端的集群里一样会先去排队。等到其他人的请求和你的请求一起凑满了一个批次，才会去生成图片。这也会使得从我们向Midjourney发送提示语，到拿到最终的图片需要更长的时间。而这也会进一步消耗用户的耐心，让用户可能连第一次尝试都等不到完成的时候就走了。</p>
+<p>Midjourney解决问题的办法，则是尽可能让用户能在等待过程中看到这个任务是有进展的。</p>
+<p>首先，在你的提示语提交之后，Discord里面的Bot会告诉你，目前的任务是处于 <strong>Waiting to start</strong> 的阶段的。</p>
+<p><img src="https://s2.loli.net/2023/11/23/4dTEmW1xw6YG5it.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>而一旦整个图片生成的任务启动，Midjourney就会不断更新图片生成的中间过程，整个图像会逐渐从模糊变清晰。你不需要等到整个图片生成完成之后，才能看到最后的完整图片。而是每隔一两秒钟就能看到一点点进展，这样整个图片的生成过程感觉一晃就过去了。而如果你想用StableDiffusion来做一个图片生成的应用的话，之前关于StableDiffusion的文章也演示了如何将生成过程里的中间结果输出出来。完全可以仿照着实现和Midjourney相同的效果。</p>
+<p><img src="https://s2.loli.net/2023/11/23/TU2FNpCvAhcjEZz.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>此外，针对每次你输入的提示语，Midjourney并不是为你直接生成一张高清晰度的大图，而是生成了4张不同的图片。这其实也是为了弥补Diffusion类型算法的一个缺陷，就是生成的图像可控性比较差，一次性就能拿到我们满意的图片的概率比较低。比如，我们这里输入的“Michael Jordan playing soccer”是想要生成迈克尔乔丹踢足球的照片。但是里面右下角的第四张图里，显然还是一个打篮球的姿势，只是把手上拿着的篮球换成了足球而已。而一次性提供四张图片，让用户可以从四张里面挑一张，显然成功率就高多了。</p>
+<p><img src="https://s2.loli.net/2023/11/23/lGa4di1kTfIXAjV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>而且生成小尺寸的图片，GPU需要的计算时间也比较少。等到我们确定大致图片没有问题了，再通过Diffusion的生成算法，把图片放大变成高清大图，需要的总时间也短得多。在上面的4张图里，显然第2张更像是一张靠谱的踢足球的图片。我们选择它之后，只要1~2秒钟，就能拿到自己想要的高清大图。</p>
+<p><img src="https://s2.loli.net/2023/11/23/DFfAQghca3m25rC.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>事实上，尽可能地让用户在内容生成的过程中就获取到反馈，是现在很多AI应用一个比较常见的产品设计策略。比如用来做文本生成的ChatGPT，在你输入问题之后，并不是等到整个答案生成完毕之后一股脑儿地返回给你。而是在生成的过程中就一个词一个词地输出，让你能够看到整个答题过程。</p>
+<p><img src="https://s2.loli.net/2023/11/23/W4PcpQZnVGsuKwm.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="搭建数据飞轮，快速迭代模型"><a href="#搭建数据飞轮，快速迭代模型" class="headerlink" title="搭建数据飞轮，快速迭代模型"></a>搭建数据飞轮，快速迭代模型</h2><p>如果你用过Midjourney的话，应该知道它出的图质量很好，很多人都觉得要比开源的Stable Diffusion好上不少。在我看来，这背后有一个很重要的因素，就是 <strong>它拥有更多高质量的标注数据</strong>。你可能要问了，Midjourney只有不到20个人的团队，哪里来的资源去标注数据呢？答案就在Midjourney的产品设计流程里。</p>
+<p>最直接的一个数据标注，就是在每次生成的高清大图下面，都有一个 Favourite的按钮。用户可以点击这个按钮表示喜欢并且收藏这个图片。而每次当用户按下这个按钮的时候，Midjourney的团队其实就获得了一个由用户标注好的优质图片数据，也就是用户输入的提示词和对应图片的配对组合。</p>
+<p>但是只要做过一些产品，你也会发现真的会主动点击Favorite的用户还是太少了。不过，Midjourney其实还有更多“隐形”的操作，也帮助他们标注了图片质量的好坏。</p>
+<p>我们上面刚刚介绍过Midjourney对于任何一个提示语，都会生成四张图片。除了直接从四张图片里面选一张放大之外，你还可以有另外两个选择。</p>
+<ul>
+<li>第一个是你可能对四张图片都不满意，那么你可以直接点击图片下面的“刷新”按钮，重新生成四张图片。</li>
+</ul>
+<p><img src="https://s2.loli.net/2023/11/23/NUyq3GeJ8LdKaVR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ul>
+<li>或者，你对其中一张图片的整体观感还是不错的，但是还不够满意。你同样可以点击四格图下方的V1-V4按钮中的一个，以四格图里面的一张为基础，再生成4张相似的图片。而对于已经放大了的高清大图，用户同样可以点击 <strong>Make Variation</strong> 的按钮，来重新生成4张图片，再让用户选择。</li>
+</ul>
+<p><img src="https://s2.loli.net/2023/11/23/RM7SsYgIB1y4zpZ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>这两个动作里，用户尽管没有标记说哪一张图片是好的。但是其实已经告诉了我们，哪些图片他并不喜欢，以及4张图片里哪一张更接近他心目中理想的图片。而Midjourney就可以根据用户前后的一系列操作日志，来筛选出那些用户最终选择的图片。如果用户做了大量刷新重新生成或者生成变体的操作，并且最后选定了一张图片放大，那么这张图片大概率是一张用户满意的高清大图，我们不需要依赖用户点击 <strong>Favorite</strong> 按钮这一动作。</p>
+<p>其实，这样“隐式”的反馈，在搜索、推荐等应用场景下早就被广泛应用了。在搜索的应用场景下，如果用户输入了搜索词之后，没有点击任何链接又重新输入了新的搜索词，那么自然表示用户对搜索结果不满意。在短视频的推荐里面，尽管用户没有点赞或者收藏，但是用户看完了整个视频，大概率表示用户对视频是感兴趣的。</p>
+<p>对于AIGC应用，这样“隐式”反馈信息的使用也是非常重要的。能够尽早让产品上线，并且收集到的真实用户反馈往往能带来意想不到的产品优势。因为用户反馈越多，数据的质量也就越高。高质量的数据，则能让我们训练出更好的模型。而更好的模型，就意味着产品能够生成更高质量的内容，吸引更多的用户。这样， <strong>好的产品-&gt;更多的用户数据-&gt;更好的模型质量-&gt;更好的产品就进入了一个正向循环。</strong> 一旦我们搭建起了这样的数据飞轮，就能在竞争中和对手拉开距离。</p>
+<p><img src="https://s2.loli.net/2023/11/23/mvSR4HNtuwiGVso.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>就比如Midjourney，尽管没有开源社区里自带干粮的开发者们添砖加瓦，但是大量的用户反馈数据给了他们一个高质量的数据集。而开源的Stable Diffusion，相对来说就缺少这样的数据反馈。因为大部分人部署模型之后，生成的图片都是自己使用，并没有把什么样的图片质量高、什么样的图片没法用反馈给Stability AI这个公司。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这一篇文章针对Midjourney这个现象级的AI应用，总结了AI产品设计的一些核心原则。</p>
+<p>很多用户面对AI内容生成类的应用，其实是不知道应该如何入手的。因为生成内容的挑战不在于如何操作，而是如何发挥想象。而通过Discord的新手房间，任何一个新用户都可以看到其他人的提示语和对应的图片效果。很快就能学会更多的提示语。</p>
+<p>而通过AI来生成内容需要的时间往往比较长，所以我们需要在内容生成的过程中，就要给到用户反馈。即使只是一个模糊的轮廓图，也能抚慰用户焦躁的情绪。此外，因为文生图本身的可控性比较差，Midjourney采取了一次性生成4张小图的方式，让用户有更多挑选的余地。只有当用户确定真的满意其中的某一张图，再通过一次生成过程将其变成高清大图。</p>
+<p>最后，通过生成4张小图供用户进行选择的这个过程，Midjourney本质上是让用户为自己标注大量的数据。每一次用户选择进行“变形”的图片，都是一个正面反馈的标注。而每一张用户选择放大的图片，也都是一个更强力的“正面”信号。在不经意间，Midjourney就有了海量的用户在背后为他们标注数据。</p>
+<p>当然，Midjourney以及其他优秀的AI产品的亮点并不只有这三个。但是一般来说， <strong>用户社区、及时反馈以及建立数据飞轮是AIGC类应用必不可少的组成部分。</strong> 如果你接下来决定开发一个这样的应用，一定不能在产品中漏掉这三个元素。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>21.Midjourney：如何做好AI产品</div>
+      <div>https://blog.longpi1.com/2023/11/28/21-Midjourney：如何做好AI产品/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/28/20-%E9%80%9A%E8%BF%87ControlNet%E6%9B%B4%E5%8A%A0%E7%B2%BE%E7%A1%AE%E5%9C%B0%E6%8E%A7%E5%88%B6%E7%94%9F%E6%88%90%E5%9B%BE%E7%89%87%E7%9A%84%E8%BD%AE%E5%BB%93%E3%80%81%E5%A7%BF%E6%80%81/" title="20.通过ControlNet更加精确地控制生成图片的轮廓、姿态">
+                        <span class="hidden-mobile">20.通过ControlNet更加精确地控制生成图片的轮廓、姿态</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

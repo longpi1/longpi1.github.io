@@ -1,0 +1,811 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="19.Stable Diffusion：最热门的开源AI画图工具">
+<meta property="og:url" content="https://blog.longpi1.com/2023/11/28/19.Stable%20Diffusion%EF%BC%9A%E6%9C%80%E7%83%AD%E9%97%A8%E7%9A%84%E5%BC%80%E6%BA%90AI%E7%94%BB%E5%9B%BE%E5%B7%A5%E5%85%B7/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="极客时间徐文浩-AI大模型之美课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/N1hyUV64eFabQHX.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/QNuKsV6t5oLM3Bw.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/5UvHRa6fnCQg24q.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/5Kym8EtIgXNqwrD.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/eH1Db3TuxcFJvgI.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/1Th9ybnLm4stHeK.png">
+<meta property="og:image" content="https://blog.longpi1.com/2023/11/28/19.Stable%20Diffusion%EF%BC%9A%E6%9C%80%E7%83%AD%E9%97%A8%E7%9A%84%E5%BC%80%E6%BA%90AI%E7%94%BB%E5%9B%BE%E5%B7%A5%E5%85%B7/桌面/学习资料/280-100541001-专栏课-徐文浩-AI大模型之美（完结）/images/654414/fd262baafbb52271b0d906d00a167c06.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/BPGsuwxQCNa2JRI.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/Z8CXBwzpvNj6Gdn.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/GRlfzAXi1HtgdWO.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/gzT68qcLAuU4RmC.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/GRlfzAXi1HtgdWO.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/MVYhFBsl1eKrPz9.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/uNGlrjAHhXi5M6B.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/9I1WRvoisB5EADb.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/QpmyHgjbVuitshx.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/hzPIs6DnQX8u3tA.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/KhVUxDdw1aCX46N.png">
+<meta property="og:image" content="https://s2.loli.net/2023/11/23/Io4weylXjZ5vUfG.png">
+<meta property="article:published_time" content="2023-11-28T09:03:29.000Z">
+<meta property="article:modified_time" content="2023-11-28T09:05:20.014Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="大模型">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/23/N1hyUV64eFabQHX.png">
+  
+  
+  
+  <title>19.Stable Diffusion：最热门的开源AI画图工具 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="19.Stable Diffusion：最热门的开源AI画图工具"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-28 17:03" pubdate>
+          2023年11月28日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">19.Stable Diffusion：最热门的开源AI画图工具</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="19-Stable-Diffusion：最热门的开源AI画图工具"><a href="#19-Stable-Diffusion：最热门的开源AI画图工具" class="headerlink" title="19.Stable Diffusion：最热门的开源AI画图工具"></a>19.Stable Diffusion：最热门的开源AI画图工具</h1><blockquote>
+<p>大部分内容来自于极客时间<a target="_blank" rel="external nofollow noopener noreferrer" href="https://time.geekbang.org/column/intro/100541001">徐文浩-AI大模型之美</a></p>
+</blockquote>
+<p>前面体验了CLIP这个多模态的模型。在这个模型里，已经能够把一段文本和对应的图片关联起来了。看到文本和图片的关联，想必你也能联想到过去半年非常火热的“文生图”（Text-To-Image）的应用浪潮了。相比于在大语言模型里OpenAI的一枝独秀。文生图领域就属于百花齐放了，OpenAI陆续发表了DALL-E和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://labs.openai.com/">DALL-E 2</a>，Google也不甘示弱地发表了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://imagen.research.google/">Imagen</a>，而市场上实际被用得最多、反馈最好的用户端产品是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://midjourney.com/home/">Midjourney</a>。</p>
+<p>不过，在整个技术社区里，最流行的产品则是Stable Diffusion。因为它是一个完全开源的产品，我们不仅可以调用Stable Diffusion内置的模型来生成图片，还能够下载社区里其他人训练好的模型来生成图片。我们不仅可以通过文本来生成图片，还能通过图片来生成图片，通过文本来编辑图片。</p>
+<p>那么今天这一篇文章，我们就来看看如何使用Stable Diffusion，做到上面这些事情。</p>
+<h2 id="使用Stable-Diffusion生成图片"><a href="#使用Stable-Diffusion生成图片" class="headerlink" title="使用Stable Diffusion生成图片"></a>使用Stable Diffusion生成图片</h2><h3 id="文生图"><a href="#文生图" class="headerlink" title="文生图"></a>文生图</h3><p>可能你还没怎么体验过文生图的应用，那我们先用几行最简单的代码体验一下。在这一讲里，我建议一定要用Colab或者其他的GPU环境，因为用CPU来执行的话，速度会慢到让人无法接受。</p>
+<p>安装依赖包：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">%pip install diffusers accelerate transformers<br><br></code></pre></td></tr></table></figure>
+
+<p>代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> diffusers <span class="hljs-keyword">import</span> DiffusionPipeline<br>pipeline = DiffusionPipeline.from_pretrained(<span class="hljs-string">&quot;runwayml/stable-diffusion-v1-5&quot;</span>)<br>pipeline.to(<span class="hljs-string">&quot;cuda&quot;</span>)<br>image = pipeline(<span class="hljs-string">&quot;a photograph of an astronaut riding a horse&quot;</span>).images[<span class="hljs-number">0</span>]<br>image<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/N1hyUV64eFabQHX.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>代码非常简单，只有寥寥几行。这里，我们使用了Huggingface的Diffusers库，通过DiffusionPipeline加载了RunwayML的stable-diffusion-v1-5的模型。然后，指定了这个Pipeline使用CUDA也就是利用GPU来进行计算。最后向这个Pipeline输入了一段文本，通过这段文本我们就生成了一张图片。</p>
+<p>这里，我们画的是在Stable Diffusion里非常经典的一张“宇航员在太空骑马”的图片。之所以画这么一张图片，是为了证明我们并不是通过“搜索”的方式找到一张已经存在的图片。比如，上一讲里我们介绍过CLIP模型，其实就可以完成从文本到图片的搜索功能。而Stable Diffusion，是真的让AI“画”出来一张新的图片。毕竟，以前宇航员也从来没有在太空骑过马，也不可能有人拍下过这样的照片。</p>
+<h3 id="Stable-Diffusion的基本原理"><a href="#Stable-Diffusion的基本原理" class="headerlink" title="Stable Diffusion的基本原理"></a>Stable Diffusion的基本原理</h3><p>Stable Diffusion生成的图片效果的确不错，相信你也很好奇这个事情的原理是什么。其实，Stable Diffusion背后不是单独的一个模型，而是由多个模型组合而成的。整个Stable Diffusion文生图的过程是由这样三个核心模块组成的。</p>
+<ul>
+<li>第一个模块是一个Text-Encoder，把我们输入的文本变成一个向量。实际使用的就是前面介绍的CLIP模型。因为CLIP模型学习的是文本和图像之间的关系，所以得到的这个向量既理解了文本的含义，又能和图片的信息关联起来。</li>
+<li>第二个是Generation模块，顾名思义是一个图片信息生成模块。这里也有一个机器学习模型，叫做UNet，还有一个调度器（Scheduler），用来一步步地去除噪声。这个模块的工作流程是先往前面的用CLIP模型推理出来的向量里添加很多噪声，再通过UNet+Scheduler逐渐去除噪声，最后拿到了一个新的张量。这个张量可以认为是一个尺寸上缩小了的图片信息向量，里面隐含了我们要生成的图片信息。</li>
+<li>最后一个模块，则是Decoder或者叫做解码器。背后也是一个机器学习的模型，叫做VAE。它会根据第二步的返回结果把这个图像信息还原成最终的图片。</li>
+</ul>
+<p>这个过程，你可以结合Stable Diffusion相关论文里的一张模型架构图来看。</p>
+<p><img src="https://s2.loli.net/2023/11/23/QNuKsV6t5oLM3Bw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>这样听起来可能有点太理论了，那我们还是看看具体的代码和图片生成的过程吧，这样就比较容易理解图片是怎么生成的了。</p>
+<p>我们先把DiffusionPipeline打印出来，看看它内部是由哪些部分组成的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">pipeline<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python">StableDiffusionPipeline &#123;<br>  <span class="hljs-string">&quot;_class_name&quot;</span>: <span class="hljs-string">&quot;StableDiffusionPipeline&quot;</span>,<br>  <span class="hljs-string">&quot;_diffusers_version&quot;</span>: <span class="hljs-string">&quot;0.15.1&quot;</span>,<br>  <span class="hljs-string">&quot;feature_extractor&quot;</span>: [<br>    <span class="hljs-string">&quot;transformers&quot;</span>,<br>    <span class="hljs-string">&quot;CLIPFeatureExtractor&quot;</span><br>  ],<br>  <span class="hljs-string">&quot;requires_safety_checker&quot;</span>: true,<br>  <span class="hljs-string">&quot;safety_checker&quot;</span>: [<br>    <span class="hljs-string">&quot;stable_diffusion&quot;</span>,<br>    <span class="hljs-string">&quot;StableDiffusionSafetyChecker&quot;</span><br>  ],<br>  <span class="hljs-string">&quot;scheduler&quot;</span>: [<br>    <span class="hljs-string">&quot;diffusers&quot;</span>,<br>    <span class="hljs-string">&quot;PNDMScheduler&quot;</span><br>  ],<br>  <span class="hljs-string">&quot;text_encoder&quot;</span>: [<br>    <span class="hljs-string">&quot;transformers&quot;</span>,<br>    <span class="hljs-string">&quot;CLIPTextModel&quot;</span><br>  ],<br>  <span class="hljs-string">&quot;tokenizer&quot;</span>: [<br>    <span class="hljs-string">&quot;transformers&quot;</span>,<br>    <span class="hljs-string">&quot;CLIPTokenizer&quot;</span><br>  ],<br>  <span class="hljs-string">&quot;unet&quot;</span>: [<br>    <span class="hljs-string">&quot;diffusers&quot;</span>,<br>    <span class="hljs-string">&quot;UNet2DConditionModel&quot;</span><br>  ],<br>  <span class="hljs-string">&quot;vae&quot;</span>: [<br>    <span class="hljs-string">&quot;diffusers&quot;</span>,<br>    <span class="hljs-string">&quot;AutoencoderKL&quot;</span><br>  ]<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>这个对象里面有3部分。</p>
+<ol>
+<li>Tokenizer和Text_Encoder，就是我们上面说的把文本变成向量的Text Encoder。可以看到我们这里用的模型就是上一讲的CLIP模型。</li>
+<li>UNet和Scheduler，就是对文本向量以及输入的噪声进行噪声去除的组件，也就是Generation模块。这里用的是UNet2DConditionModel模型，还把PNDMScheduler用作了去除噪声的调度器。</li>
+<li>VAE，也就是解码器（Decoder），这里用的是AutoencoderKL，它会根据上面生成的图片信息最后还原出一张高分辨率的图片。</li>
+</ol>
+<p>剩下的feature_extractor，可以用来提取图像特征，如果我们不想文生图，想要图生图，它就会被用来把我们输入的图片的特征提取成为向量。而safety_checker则是用来检查生成内容，避免生成具有冒犯性的图片。</p>
+<p>接下来，我们就自己来组合一下这些模型，来把整个图片生成的过程给演示出来。首先，我们把上面Stable Diffusion 1.5需要的模型组件都加载出来。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> transformers <span class="hljs-keyword">import</span> CLIPTextModel, CLIPTokenizer<br><span class="hljs-keyword">from</span> diffusers <span class="hljs-keyword">import</span> AutoencoderKL, UNet2DConditionModel, PNDMScheduler<br><br>vae = AutoencoderKL.from_pretrained(<span class="hljs-string">&quot;runwayml/stable-diffusion-v1-5&quot;</span>, subfolder=<span class="hljs-string">&quot;vae&quot;</span>)<br>tokenizer = CLIPTokenizer.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-large-patch14&quot;</span>)<br>text_encoder = CLIPTextModel.from_pretrained(<span class="hljs-string">&quot;openai/clip-vit-large-patch14&quot;</span>)<br>unet = UNet2DConditionModel.from_pretrained(<span class="hljs-string">&quot;runwayml/stable-diffusion-v1-5&quot;</span>, subfolder=<span class="hljs-string">&quot;unet&quot;</span>)<br>scheduler = PNDMScheduler.from_pretrained(<span class="hljs-string">&quot;runwayml/stable-diffusion-v1-5&quot;</span>, subfolder=<span class="hljs-string">&quot;scheduler&quot;</span>)<br><br>torch_device = <span class="hljs-string">&quot;cuda&quot;</span><br>vae.to(torch_device)<br>text_encoder.to(torch_device)<br>unet.to(torch_device)<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>注意，对应的CLIPTokenizer和CLIPTextModel的名字并不是stable-diffusion-v1-5，如果使用Diffusers库的Pipeline的话，可以从模型里面对应模块的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/runwayml/stable-diffusion-v1-5/blob/main/text_encoder/config.json">config.json</a> 读取到它们。</strong></p>
+<p>然后，我们把接下来生成图片的参数初始化一下，包括文本、对应的图片分辨率，以及一系列模型中需要使用的超参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><br>prompt = [<span class="hljs-string">&quot;a photograph of an astronaut riding a horse&quot;</span>]<br>height = <span class="hljs-number">512</span>  <span class="hljs-comment"># default height of Stable Diffusion</span><br>width = <span class="hljs-number">512</span>  <span class="hljs-comment"># default width of Stable Diffusion</span><br>num_inference_steps = <span class="hljs-number">25</span>  <span class="hljs-comment"># Number of denoising steps</span><br>guidance_scale = <span class="hljs-number">7.5</span>  <span class="hljs-comment"># Scale for classifier-free guidance</span><br>generator = torch.manual_seed(<span class="hljs-number">42</span>)  <span class="hljs-comment"># Seed generator to create the inital latent noise</span><br>batch_size = <span class="hljs-built_in">len</span>(prompt)<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们把对应的输入文本变成一个向量，然后再根据一个空字符串生成一个“无条件”的向量，最后把两个向量拼接在一起。我们实际生成图片的过程，就是逐渐从这个无条件的向量向输入文本表示的向量靠拢的过程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">text_input = tokenizer(<br>    prompt, padding=<span class="hljs-string">&quot;max_length&quot;</span>, max_length=tokenizer.model_max_length, truncation=<span class="hljs-literal">True</span>, return_tensors=<span class="hljs-string">&quot;pt&quot;</span><br>)<br><br><span class="hljs-keyword">with</span> torch.no_grad():<br>    text_embeddings = text_encoder(text_input.input_ids.to(torch_device))[<span class="hljs-number">0</span>]<br><br>max_length = text_input.input_ids.shape[-<span class="hljs-number">1</span>]<br>uncond_input = tokenizer([<span class="hljs-string">&quot;&quot;</span>] * batch_size, padding=<span class="hljs-string">&quot;max_length&quot;</span>, max_length=max_length, return_tensors=<span class="hljs-string">&quot;pt&quot;</span>)<br>uncond_embeddings = text_encoder(uncond_input.input_ids.to(torch_device))[<span class="hljs-number">0</span>]<br><br>text_embeddings = torch.cat([uncond_embeddings, text_embeddings])<br><br></code></pre></td></tr></table></figure>
+
+<p>然后，我们可以先生成一系列随机噪声。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">latents = torch.randn(<br>    (batch_size, unet.in_channels, height // <span class="hljs-number">8</span>, width // <span class="hljs-number">8</span>),<br>    generator=generator,<br>)<br>latents = latents.to(torch_device)<br><br>latents = latents * scheduler.init_noise_sigma<br><br></code></pre></td></tr></table></figure>
+
+<p>接下来就是生成图片的代码了，我们先定义两个函数，它们会分别显示Generation模块生成出来的图片信息，以及Decoder模块还原出来的最终图片。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> PIL<br><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> PIL <span class="hljs-keyword">import</span> Image<br><span class="hljs-keyword">from</span> IPython.display <span class="hljs-keyword">import</span> display<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">display_denoised_sample</span>(<span class="hljs-params">sample, i</span>):<br>    image_processed = sample.cpu().permute(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>)<br>    image_processed = (image_processed + <span class="hljs-number">1.0</span>) * <span class="hljs-number">127.5</span><br>    image_processed = image_processed.numpy().astype(np.uint8)<br><br>    image_pil = PIL.Image.fromarray(image_processed[<span class="hljs-number">0</span>])<br>    display(<span class="hljs-string">f&quot;Denoised Sample @ Step <span class="hljs-subst">&#123;i&#125;</span>&quot;</span>)<br>    display(image_pil)<br>    <span class="hljs-keyword">return</span> image_pil<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">display_decoded_image</span>(<span class="hljs-params">latents, i</span>):<br>  <span class="hljs-comment"># scale and decode the image latents with vae</span><br>  latents = <span class="hljs-number">1</span> / <span class="hljs-number">0.18215</span> * latents<br>  <span class="hljs-keyword">with</span> torch.no_grad():<br>    image = vae.decode(latents).sample<br>    image = (image / <span class="hljs-number">2</span> + <span class="hljs-number">0.5</span>).clamp(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>)<br>    image = image.detach().cpu().permute(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>).numpy()<br>    images = (image * <span class="hljs-number">255</span>).<span class="hljs-built_in">round</span>().astype(<span class="hljs-string">&quot;uint8&quot;</span>)<br>    pil_images = [Image.fromarray(image) <span class="hljs-keyword">for</span> image <span class="hljs-keyword">in</span> images]<br>    display(<span class="hljs-string">f&quot;Decoded Image @ step <span class="hljs-subst">&#123;i&#125;</span>&quot;</span>)<br>    display(pil_images[<span class="hljs-number">0</span>])<br>    <span class="hljs-keyword">return</span> pil_images[<span class="hljs-number">0</span>]<br><br></code></pre></td></tr></table></figure>
+
+<p>最后，我们通过Diffusion算法一步一步来生成图片就好了。我们根据前面指定的参数，循环了25步，每一步都通过Scheduler和UNet来进行图片去噪声的操作。并且每5步都把对应去噪后的图片信息，以及解码后还原的图片显示出来。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> tqdm.auto <span class="hljs-keyword">import</span> tqdm<br><br>scheduler.set_timesteps(num_inference_steps)<br><br>denoised_images = []<br>decoded_images = []<br><span class="hljs-keyword">for</span> i, t <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(tqdm(scheduler.timesteps)):<br>    <span class="hljs-comment"># expand the latents if we are doing classifier-free guidance to avoid doing two forward passes.</span><br>    latent_model_input = torch.cat([latents] * <span class="hljs-number">2</span>)<br><br>    latent_model_input = scheduler.scale_model_input(latent_model_input, timestep=t)<br><br>    <span class="hljs-comment"># predict the noise residual</span><br>    <span class="hljs-keyword">with</span> torch.no_grad():<br>        noise_pred = unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample<br><br>    <span class="hljs-comment"># perform guidance</span><br>    noise_pred_uncond, noise_pred_text = noise_pred.chunk(<span class="hljs-number">2</span>)<br>    noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)<br><br>    <span class="hljs-comment"># compute the previous noisy sample x_t -&gt; x_t-1</span><br>    latents = scheduler.step(noise_pred, t, latents).prev_sample<br>    <span class="hljs-keyword">if</span> i % <span class="hljs-number">5</span> == <span class="hljs-number">0</span>:<br>      denoised_image = display_denoised_sample(latents, i)<br>      decoded_image = display_decoded_image(latents, i)<br>      denoised_images.append(denoised_image)<br>      decoded_images.append(decoded_image)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Denoised Sample @ Step 0<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/5UvHRa6fnCQg24q.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Decoded Image @ step 0<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/5Kym8EtIgXNqwrD.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Denoised Sample @ Step 5<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/eH1Db3TuxcFJvgI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Decoded Image @ step 5<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/1Th9ybnLm4stHeK.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Denoised Sample @ Step 10<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="/2023/11/28/19.Stable%20Diffusion%EF%BC%9A%E6%9C%80%E7%83%AD%E9%97%A8%E7%9A%84%E5%BC%80%E6%BA%90AI%E7%94%BB%E5%9B%BE%E5%B7%A5%E5%85%B7/桌面\学习资料\280-100541001-专栏课-徐文浩-AI大模型之美（完结）\images\654414\fd262baafbb52271b0d906d00a167c06.png" srcset="/img/loading.gif" lazyload alt="图片"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Decoded Image @ step 10<br><br></code></pre></td></tr></table></figure>
+
+<p>…..省略step15-20</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Denoised Sample @ Step 25<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/BPGsuwxQCNa2JRI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">Decoded Image @ step 25<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/11/23/Z8CXBwzpvNj6Gdn.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>运行完程序，你就可以看到我们的图片是如何一步步从完全的噪点还原成一张图片的了。而且你仔细观察，还可以看到Generation生成的图像信息，类似于Decoder还原出来的图像信息的轮廓。这是因为U-Net其实是一个图片语义分割的模型。</p>
+<p>而如果我们打印一下生成的图片的维度，你也可以看到，Generation生成的图像信息分辨率只有64x64，而我们还原出来的图片分辨率是512x512。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs plain">print(latents.shape)<br>latents = 1 / 0.18215 * latents<br>with torch.no_grad():<br>    image = vae.decode(latents).sample<br>    print(image.shape)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs plain">torch.Size([1, 4, 64, 64])<br>torch.Size([1, 3, 512, 512])<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="图生图"><a href="#图生图" class="headerlink" title="图生图"></a>图生图</h3><p>相信你已经理解了这个Stable Diffusion生成图片的过程，以及过程里每个模块的工作了。那你应该比较容易理解如何通过Stable Diffusion实现图生图了，我们下面就来具体看一看。</p>
+<p>当然，这一次我们就不用自己一步步调用各个模块来实现图生图了。我们可以直接使用Diffusers库里自带的Pipeline。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs plain">import torch<br>from PIL import Image<br>from io import BytesIO<br><br>from diffusers import StableDiffusionImg2ImgPipeline<br><br>device = &quot;cuda&quot;<br>model_id_or_path = &quot;runwayml/stable-diffusion-v1-5&quot;<br>pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)<br>pipe = pipe.to(device)<br><br>image_file = &quot;./data/sketch-mountains-input.jpg&quot;<br><br>init_image = Image.open(image_file).convert(&quot;RGB&quot;)<br>init_image = init_image.resize((768, 512))<br><br>prompt = &quot;A fantasy landscape, trending on artstation&quot;<br><br>images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images<br><br>display(init_image)<br>display(images[0])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/GRlfzAXi1HtgdWO.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2023/11/23/gzT68qcLAuU4RmC.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>对应的代码也非常简单，我们把Pipeline换成了StableDiffusionImg2ImgPipeline，此外除了输入一段文本之外，我们还提供了一张草稿图。然后，你可以看到对应生成的图片的轮廓，就类似于我们提供的草稿图。而图片的内容风格，则是按照我们文本提示语的内容生成的。</p>
+<p>StableDiffusionImg2ImgPipeline的生成过程，其实和我们之前拆解的一步步生成图片的过程是相同的。 <strong>唯一的一个区别是，我们其实不是从一个完全随机的噪声开始的，而是把对应的草稿图，通过VAE的编码器，变成图像生成信息，又在上面加了随机的噪声。</strong> 所以，去除噪音的过程中，对应的草稿图的轮廓就会逐步出现了。而在一步步生成图片的过程中，内容又会向我们给出的提示语的内容来学习。</p>
+<p>而如果我们换一下提示语，就能更改生成的具体内容。比如我们想换成宫崎骏的风格，并且希望后面高耸的不是山，而是城堡，出现的图片还是相同的轮廓，但是用不同的内容。我在下面给出了一个代码示例，你可以自己看一看。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs plain">prompt = &quot;ghibli style, a fantasy landscape with castles&quot;<br>images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images<br><br>display(init_image)<br>display(images[0])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/GRlfzAXi1HtgdWO.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2023/11/23/MVYhFBsl1eKrPz9.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="更多使用方法"><a href="#更多使用方法" class="headerlink" title="更多使用方法"></a>更多使用方法</h3><p>理解了Stable Diffusion的基本框架，你可以试一试更多相关的Pipeline的用法。比如，除了引导内容生成的提示语，我们还可以设置一个负面的提示语（negative prompt），也就是排除一些内容。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs plain">prompt = &quot;ghibli style, a fantasy landscape with castles&quot;<br>negative_prompt = &quot;river&quot;<br>images = pipe(prompt=prompt, negative_prompt=negative_prompt, image=init_image, strength=0.75, guidance_scale=7.5).images<br><br>display(images[0])<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/uNGlrjAHhXi5M6B.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>可以看到，我们希望在图片里面尽量排除“River”。而新生成的图片，右边就没有了任何类似于河流的内容，而中间蓝色的部分也更像一个排水渠而不是自然的河流。负面提示语并不会改变模型的结构。它其实就是把原先的“无条件”向量，替换成了负面提示语的向量。这样，模型就尽可能从负面的提示语文本内容中向我们正面的提示语文本内容学习，也就是尽量远离负面提示语的内容。</p>
+<p>同样，我们还可以通过Stable Diffusion来提升图片的分辨率，只不过需要一个单独的模型。这个模型就是专门在一个高低分辨率的图片组合上训练出来的。对应的UNet和VAE的模型是和原始的Stable Diffusion不一样的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs plain">from diffusers import StableDiffusionUpscalePipeline<br><br># load model and scheduler<br>model_id = &quot;stabilityai/stable-diffusion-x4-upscaler&quot;<br>pipeline = StableDiffusionUpscalePipeline.from_pretrained(<br>    model_id, revision=&quot;fp16&quot;, torch_dtype=torch.float16<br>)<br>pipeline = pipeline.to(&quot;cuda&quot;)<br><br># let&#x27;s download an  image<br>low_res_img_file = &quot;./data/low_res_cat.png&quot;<br>low_res_img = Image.open(low_res_img_file).convert(&quot;RGB&quot;)<br>low_res_img = low_res_img.resize((128, 128))<br><br>prompt = &quot;a white cat&quot;<br><br>upscaled_image = pipeline(prompt=prompt, image=low_res_img).images[0]<br><br>low_res_img_resized = low_res_img.resize((512, 512))<br><br>display(low_res_img_resized)<br>display(upscaled_image)<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/9I1WRvoisB5EADb.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2023/11/23/QpmyHgjbVuitshx.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>如果我们打印一下pipeline，对应的模型的组件还是相同的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs plain">pipeline<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs plain">StableDiffusionUpscalePipeline &#123;<br>  &quot;_class_name&quot;: &quot;StableDiffusionUpscalePipeline&quot;,<br>  &quot;_diffusers_version&quot;: &quot;0.15.1&quot;,<br>  &quot;low_res_scheduler&quot;: [<br>    &quot;diffusers&quot;,<br>    &quot;DDPMScheduler&quot;<br>  ],<br>  &quot;max_noise_level&quot;: 350,<br>  &quot;scheduler&quot;: [<br>    &quot;diffusers&quot;,<br>    &quot;DDIMScheduler&quot;<br>  ],<br>  &quot;text_encoder&quot;: [<br>    &quot;transformers&quot;,<br>    &quot;CLIPTextModel&quot;<br>  ],<br>  &quot;tokenizer&quot;: [<br>    &quot;transformers&quot;,<br>    &quot;CLIPTokenizer&quot;<br>  ],<br>  &quot;unet&quot;: [<br>    &quot;diffusers&quot;,<br>    &quot;UNet2DConditionModel&quot;<br>  ],<br>  &quot;vae&quot;: [<br>    &quot;diffusers&quot;,<br>    &quot;AutoencoderKL&quot;<br>  ]<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>但是如果你去看对应模型的配置文件，可以看到 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/stabilityai/stable-diffusion-x4-upscaler/blob/main/vae/config.json">VAE</a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://huggingface.co/stabilityai/stable-diffusion-x4-upscaler/blob/main/unet/config.json">UNet</a> 里使用的模型都是不一样的。</p>
+<h2 id="使用社区里的其他模型"><a href="#使用社区里的其他模型" class="headerlink" title="使用社区里的其他模型"></a>使用社区里的其他模型</h2><p>在这个过程中，你可以看到Stable Diffusion并不是指某一个特定的模型，而是指一类模型结构。因为Stable Diffusion是完全开源的，所以你大可以利用自己的数据去训练一个属于自己的模型。事实上，市面上开源训练出来的Stable Diffusion的模型非常多，也已经有了像 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://civitai.com/">CIVITAI</a> 这样的分享Stable Diffusion模型的平台。</p>
+<p>我们可以去CIVITAI的网站，找到我们喜欢的模型。比如我们专门找一个二次元的模型 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://civitai.com/models/4468/counterfeit-v25">counterfeit-V2.5</a>。在对应的模型页面，我们可以看到它直接就包含了Huggingface里面的模型。</p>
+<p><img src="https://s2.loli.net/2023/11/23/hzPIs6DnQX8u3tA.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>所以我们就可以直接通过Diffuers库来调用这个模型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs plain">pipeline.to(&quot;cuda&quot;)<br><br>prompt = &quot;((masterpiece,best quality)),1girl, solo, animal ears, rabbit, barefoot, knees up, dress, sitting, rabbit ears, short sleeves, looking at viewer, grass, short hair, smile, white hair, puffy sleeves, outdoors, puffy short sleeves, bangs, on ground, full body, animal, white dress, sunlight, brown eyes, dappled sunlight, day, depth of field&quot;<br>negative_prompt = &quot;EasyNegative, extra fingers,fewer fingers,&quot;<br>image = pipeline(prompt=prompt, negative_prompt=negative_prompt).images[0]<br>image<br><br></code></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="https://s2.loli.net/2023/11/23/KhVUxDdw1aCX46N.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>当然，不是所有CIVITAI里的模型都在Huggingface上提供了自己的模型版本。默认CIVITAI的模型，往往只是提供了一个模型权重文件。你可以使用现在最流行的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">Stable-Diffusion-Web-UI 应用</a> 来使用这个模型权重文件。你可以把Web-UI在本地部署起来，它会提供一个图形界面让你不用写代码就可以直接调整各种参数来生成图片。</p>
+<p><img src="https://s2.loli.net/2023/11/23/Io4weylXjZ5vUfG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/civitai/civitai/wiki">CIVITAI 的 Wiki</a> 里面也详细提供了在Stable-Diffusion-Web-UI里面使用模型的步骤，你可以照着这个步骤多拿几个模型试试看。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这一讲，体验了Stable Diffusion这个图片生成的开源模型。不仅通过Diffusers这个封装好的Python库，体验了文生图、图生图、提升图片分辨率等一系列应用，也深入到Stable Diffusion的模型内部，理解了整个模型的结构，还看到我们是如何一步步从一张全是噪点的图片，逐渐去除噪声变成一张可用的图片的。</p>
+<h2 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h2><p>这一讲里，只是简单介绍了一下Stable Diffusion的模型结构。其实，无论是DALL-E 2还是Imagen，采用的图片生成方式都是和Stable Diffusion类似的。如果你想要深入了解一下这些模型的结构，可以去看一下B站里面“跟李沐学AI”里面对于 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.bilibili.com/video/BV17r4y1u77B/?spm_id_from=333.999.0.0">DALL-E 2 论文的讲解</a>。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" class="category-chain-item">大模型</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+      
+        <a href="/tags/AI/">#AI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>19.Stable Diffusion：最热门的开源AI画图工具</div>
+      <div>https://blog.longpi1.com/2023/11/28/19.Stable Diffusion：最热门的开源AI画图工具/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/28/20-%E9%80%9A%E8%BF%87ControlNet%E6%9B%B4%E5%8A%A0%E7%B2%BE%E7%A1%AE%E5%9C%B0%E6%8E%A7%E5%88%B6%E7%94%9F%E6%88%90%E5%9B%BE%E7%89%87%E7%9A%84%E8%BD%AE%E5%BB%93%E3%80%81%E5%A7%BF%E6%80%81/" title="20.通过ControlNet更加精确地控制生成图片的轮廓、姿态">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">20.通过ControlNet更加精确地控制生成图片的轮廓、姿态</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/27/18-CLIP%E6%A8%A1%E5%9E%8B%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%BB%93%E5%90%88%E5%9B%BE%E5%83%8F%E7%9A%84%E5%BA%94%E7%94%A8/" title="18.CLIP模型：大模型结合图像的应用">
+                        <span class="hidden-mobile">18.CLIP模型：大模型结合图像的应用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
