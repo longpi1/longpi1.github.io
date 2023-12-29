@@ -18,29 +18,25 @@
   
     <meta name="description" content="neuvector容器防护平台相关介绍">
 <meta property="og:type" content="article">
-<meta property="og:title" content="02.neuvector之Enforcer容器功能介绍">
-<meta property="og:url" content="https://blog.longpi1.com/2023/12/23/02-neuvector%E4%B9%8BEnforcer%E5%AE%B9%E5%99%A8%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:title" content="04.neuvector进程策略生成与管控实现">
+<meta property="og:url" content="https://blog.longpi1.com/2023/12/29/04-neuvector%E8%BF%9B%E7%A8%8B%E7%AD%96%E7%95%A5%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E6%8E%A7%E5%AE%9E%E7%8E%B0/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="neuvector容器防护平台相关介绍">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/W2EkpgcwnzJAl7o.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/M9qGLV3Qsjmxtog.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/wL4WtCygqEFZ5d2.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/m8XRYCEdpWiaSzV.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/38ZY6ctQGjoHrPR.png">
-<meta property="article:published_time" content="2023-12-23T11:21:02.000Z">
-<meta property="article:modified_time" content="2023-12-23T11:22:57.311Z">
+<meta property="og:image" content="https://s2.loli.net/2023/12/26/bNjquyCJv4c1lE3.png">
+<meta property="article:published_time" content="2023-12-29T15:24:41.000Z">
+<meta property="article:modified_time" content="2023-12-29T15:25:05.699Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="云安全">
 <meta property="article:tag" content="neuvector">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s2.loli.net/2023/12/23/W2EkpgcwnzJAl7o.png">
+<meta name="twitter:image" content="https://s2.loli.net/2023/12/26/bNjquyCJv4c1lE3.png">
   
   
   
-  <title>02.neuvector之Enforcer容器功能介绍 - lp&#39;s blog</title>
+  <title>04.neuvector进程策略生成与管控实现 - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -218,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="02.neuvector之Enforcer容器功能介绍"></span>
+            <span id="subtitle" data-typed-text="04.neuvector进程策略生成与管控实现"></span>
           
         </div>
 
@@ -229,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-23 19:21" pubdate>
-          2023年12月23日 晚上
+        <time datetime="2023-12-29 23:24" pubdate>
+          2023年12月29日 晚上
         </time>
       </span>
     
@@ -241,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          754 字
         
       </span>
     
@@ -289,29 +285,40 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">02.neuvector之Enforcer容器功能介绍</h1>
+            <h1 style="display: none">04.neuvector进程策略生成与管控实现</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="Enforcer容器功能介绍"><a href="#Enforcer容器功能介绍" class="headerlink" title="Enforcer容器功能介绍"></a>Enforcer容器功能介绍</h1><h2 id="一、功能介绍"><a href="#一、功能介绍" class="headerlink" title="一、功能介绍"></a>一、功能介绍</h2><p>Enforcer容器在neuvector中主要负责网络与DLP&#x2F;WAF的规则策略的实现以及网络数据的采集上报；</p>
-<p>以DaemonSet的方式运行，主要有三个进程monitor、agent、dp；进程分别主要职责如下：</p>
-<ol>
-<li>monitor：负责监控其他进程是否正常运行以及资源消耗等；</li>
-<li>agent：负责与controller容器进行交互，通过grpc与consul实现数据上报与策略下发，其中进程与文件的策略学习与防护由agent做，网络相关具体实现由dp进程实现；</li>
-<li>dp：负责网络的数据采集上报，网络拦截告警等相关功能；</li>
-</ol>
-<h2 id="二、进程间通信"><a href="#二、进程间通信" class="headerlink" title="二、进程间通信"></a>二、进程间通信</h2><p>dp&#x2F;ctrl.c中的dp_ctrl_loop方法与agent&#x2F;dp&#x2F;dp.go中的listenDP和connectDP方法监（”&#x2F;tmp&#x2F;dp_listen.sock”和”&#x2F;tmp&#x2F;ctrl_listen.sock”）两个socket以实现agent与dp侧数据通信。</p>
-<h4 id="相关的通信图如下："><a href="#相关的通信图如下：" class="headerlink" title="相关的通信图如下："></a>相关的通信图如下：</h4><p><img src="https://s2.loli.net/2023/12/23/W2EkpgcwnzJAl7o.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="具体代码如下："><a href="#具体代码如下：" class="headerlink" title="具体代码如下："></a>具体代码如下：</h4><h5 id="1-agent侧"><a href="#1-agent侧" class="headerlink" title="1.agent侧"></a>1.agent侧</h5><p>1.1通过listenDP方法监听socket &#x3D; “&#x2F;tmp&#x2F;ctrl_listen.sock” 从ctrl.c:dp_ctrl_loop获取对应的信息,然后更新威胁日志、域名转换ip、网络连<br>接、应用的mac地址更新  </p>
-<p><img src="https://s2.loli.net/2023/12/23/M9qGLV3Qsjmxtog.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>1.2 通过monitorDP方法监听 DPServer string &#x3D; “&#x2F;tmp&#x2F;dp_listen.sock”， agent侧在service.go中可以通过dp侧获取到相关数据转化成<br>CLUSDatapathCounter、CLUSMetry、CLUSSessionCounter、CLUSSession、CLUSMeter等数据， Controller侧通过grpc的方法调用<br>service的方法获取到上述数据信息。  </p>
-<p><img src="https://s2.loli.net/2023/12/23/wL4WtCygqEFZ5d2.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="2-dp侧"><a href="#2-dp侧" class="headerlink" title="2.dp侧"></a>2.dp侧</h5><p>2.1.dp&#x2F;ctrl.c中的dp_ctrl_loop方法通过与agent监听socket（&#x2F;tmp&#x2F;dp_listen.soc）实现从agent侧获取对应的数据。（agent侧最终会将对应key的数据通过dpSendMsgExSilent等方法传输给socket）。  </p>
-<p><img src="https://s2.loli.net/2023/12/23/m8XRYCEdpWiaSzV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>2.2 dp_ctrl_loop方法收到socket侧的数据后调用dp_ctrl_handler(g_ctrl_fd)函数进行遍历处理，通过识别对应的key采取对应的措施。  </p>
-<p><img src="https://s2.loli.net/2023/12/23/38ZY6ctQGjoHrPR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+                <h1 id="neuvector进程策略生成与管控实现"><a href="#neuvector进程策略生成与管控实现" class="headerlink" title="neuvector进程策略生成与管控实现"></a>neuvector进程策略生成与管控实现</h1><h2 id="一、进程学习管控的实现方式"><a href="#一、进程学习管控的实现方式" class="headerlink" title="一、进程学习管控的实现方式"></a>一、进程学习管控的实现方式</h2><p><strong>策略学习实现：</strong></p>
+<p>进程的学习与告警主要依据通过netlink socket实时获取进程启动和退出的事件:<br>1.创建netLink socket；<br>2.通过创建netlink的fd对进程的事件进行捕获与更新，主要是4种类型（exec，fork，exit，uidChange）；<br>3.学习模式下则对捕获的进程信息进行上报，形成对应的进程白名单，监视模式则对比当前白名单规则选择是否告警；</p>
+<p><strong>策略管控实现：</strong></p>
+<p>关于neuvector对进程的管控，虽然都是通过对比白名单策略，但是实际上可分为两条路径， <strong>一种是基于fanotify实现的通过阻塞进程进行判断是否放行</strong>，<strong>另一种是基于syscall的形式（syscall.Kill(pid, syscall.SIGKILL)）直接杀死进程，但不会阻塞；</strong><br>两者之间的选择主要由capBlock属性决定；  </p>
+<h2 id="二、主要执行流程"><a href="#二、主要执行流程" class="headerlink" title="二、主要执行流程"></a>二、主要执行流程</h2><p>保护模式下进程管控的主要流程如下图：</p>
+<p><img src="https://s2.loli.net/2023/12/26/bNjquyCJv4c1lE3.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="三、两种管控方式的使用场景以及优缺点（个人观点）："><a href="#三、两种管控方式的使用场景以及优缺点（个人观点）：" class="headerlink" title="三、两种管控方式的使用场景以及优缺点（个人观点）："></a>三、两种管控方式的使用场景以及优缺点（个人观点）：</h2><table>
+<thead>
+<tr>
+<th>实现方式</th>
+<th>使用场景</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fanotify实现</td>
+<td>业务容器、除去syscall.Kill场景下的 其他容器pod</td>
+<td>基于阻塞的方式管控进程，可以有 效防止黑名单进程执行</td>
+<td>当容器或者pod中存在大量进程运行 时，阻塞的方式可能会导致容器中 进程运行速度变低， 所以不适用主 机节点以及进程较多的系统容器；</td>
+</tr>
+<tr>
+<td>syscall.Kill(pid, syscall.SIGKILL)</td>
+<td>更多操作syscall.Kill(pid, syscall.SIGKILL)</td>
+<td>基于非阻塞的方式管控进程，不会 影响被管控容器或者pod的进程执行 速度；</td>
+<td>1.当进程执行速度很快或者Enforcer 通道通信过慢时，可能会来不及杀 死对应的黑名单进程； 2.当超过通道容量2048时，后续的 进程处理将被忽略</td>
+</tr>
+</tbody></table>
 
                 
               </div>
@@ -363,8 +370,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>02.neuvector之Enforcer容器功能介绍</div>
-      <div>https://blog.longpi1.com/2023/12/23/02-neuvector之Enforcer容器功能介绍/</div>
+      <div>04.neuvector进程策略生成与管控实现</div>
+      <div>https://blog.longpi1.com/2023/12/29/04-neuvector进程策略生成与管控实现/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -377,18 +384,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/12/29/03-neuvector%E4%B9%8B%E7%BB%84%E7%9A%84%E5%88%92%E5%88%86%E9%80%BB%E8%BE%91/" title="03.neuvector之组的划分逻辑">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">03.neuvector之组的划分逻辑</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/23/01-neuvector%E9%98%B2%E6%8A%A4%E5%B9%B3%E5%8F%B0%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0%E8%AE%BE%E8%AE%A1/" title="01.neuvector防护平台功能实现设计">
-                        <span class="hidden-mobile">01.neuvector防护平台功能实现设计</span>
+                      <a href="/2023/12/29/03-neuvector%E4%B9%8B%E7%BB%84%E7%9A%84%E5%88%92%E5%88%86%E9%80%BB%E8%BE%91/" title="03.neuvector之组的划分逻辑">
+                        <span class="hidden-mobile">03.neuvector之组的划分逻辑</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

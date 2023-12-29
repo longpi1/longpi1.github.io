@@ -18,29 +18,26 @@
   
     <meta name="description" content="neuvector容器防护平台相关介绍">
 <meta property="og:type" content="article">
-<meta property="og:title" content="02.neuvector之Enforcer容器功能介绍">
-<meta property="og:url" content="https://blog.longpi1.com/2023/12/23/02-neuvector%E4%B9%8BEnforcer%E5%AE%B9%E5%99%A8%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:title" content="03.neuvector之组的划分逻辑">
+<meta property="og:url" content="https://blog.longpi1.com/2023/12/29/03-neuvector%E4%B9%8B%E7%BB%84%E7%9A%84%E5%88%92%E5%88%86%E9%80%BB%E8%BE%91/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="neuvector容器防护平台相关介绍">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/W2EkpgcwnzJAl7o.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/M9qGLV3Qsjmxtog.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/wL4WtCygqEFZ5d2.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/m8XRYCEdpWiaSzV.png">
-<meta property="og:image" content="https://s2.loli.net/2023/12/23/38ZY6ctQGjoHrPR.png">
-<meta property="article:published_time" content="2023-12-23T11:21:02.000Z">
-<meta property="article:modified_time" content="2023-12-23T11:22:57.311Z">
+<meta property="og:image" content="https://s2.loli.net/2023/12/24/C8uSUr3dmxFTa2l.png">
+<meta property="og:image" content="https://s2.loli.net/2023/12/24/mAHEsKrQvkXbTFY.png">
+<meta property="article:published_time" content="2023-12-29T15:10:33.000Z">
+<meta property="article:modified_time" content="2023-12-29T15:23:07.883Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="云安全">
 <meta property="article:tag" content="neuvector">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s2.loli.net/2023/12/23/W2EkpgcwnzJAl7o.png">
+<meta name="twitter:image" content="https://s2.loli.net/2023/12/24/C8uSUr3dmxFTa2l.png">
   
   
   
-  <title>02.neuvector之Enforcer容器功能介绍 - lp&#39;s blog</title>
+  <title>03.neuvector之组的划分逻辑 - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -218,7 +215,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="02.neuvector之Enforcer容器功能介绍"></span>
+            <span id="subtitle" data-typed-text="03.neuvector之组的划分逻辑"></span>
           
         </div>
 
@@ -229,8 +226,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-23 19:21" pubdate>
-          2023年12月23日 晚上
+        <time datetime="2023-12-29 23:10" pubdate>
+          2023年12月29日 晚上
         </time>
       </span>
     
@@ -241,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          2.3k 字
         
       </span>
     
@@ -289,29 +286,36 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">02.neuvector之Enforcer容器功能介绍</h1>
+            <h1 style="display: none">03.neuvector之组的划分逻辑</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="Enforcer容器功能介绍"><a href="#Enforcer容器功能介绍" class="headerlink" title="Enforcer容器功能介绍"></a>Enforcer容器功能介绍</h1><h2 id="一、功能介绍"><a href="#一、功能介绍" class="headerlink" title="一、功能介绍"></a>一、功能介绍</h2><p>Enforcer容器在neuvector中主要负责网络与DLP&#x2F;WAF的规则策略的实现以及网络数据的采集上报；</p>
-<p>以DaemonSet的方式运行，主要有三个进程monitor、agent、dp；进程分别主要职责如下：</p>
+                <h1 id="neuvector之组的划分逻辑"><a href="#neuvector之组的划分逻辑" class="headerlink" title="neuvector之组的划分逻辑"></a>neuvector之组的划分逻辑</h1><h2 id="一、组的定义"><a href="#一、组的定义" class="headerlink" title="一、组的定义"></a>一、组的定义</h2><p>NeuVector 会自动从正在运行的应用程序中创建组。这些组以前缀‘nv‘开头。您也可以使用 CRD 或 REST API 手动添加它们，并且可以在任何模式下创建、发现、监视或保护。网络和响应规则需要这些组定义。对于自动创建的组(以“nv”开头的“学习”组) ，NeuVector 将学习网络和处理规则，并在发现模式下添加它们。自定义组不会自动学习和填充规则。注意:  nv组开始时默认为进程&#x2F;文件保护启用零漂移。</p>
+<h2 id="二、组的类型"><a href="#二、组的类型" class="headerlink" title="二、组的类型"></a>二、组的类型</h2><p>neuvector组的类型分为三种：</p>
+<ul>
+<li>自定义组： 用户根据自定义的条件创建对应的组，自定义组不支持模式策略等；（支持相应规则、DLP\WAF检测、当NeuVector 无法识别内部网络，将其归类为“外部”网络时，可以为其指定内部服务的 DNS 名称、IP 地址或地址范围作为新的组，以避免被外部攻<br>击。 ）</li>
+<li>crd生成的组：根据yaml文件内容生成对应的组；</li>
+<li>系统生成的组：neuvector自己学习生成的组</li>
+</ul>
+<p>其中系统生成的组的类型可分为以下四种：</p>
 <ol>
-<li>monitor：负责监控其他进程是否正常运行以及资源消耗等；</li>
-<li>agent：负责与controller容器进行交互，通过grpc与consul实现数据上报与策略下发，其中进程与文件的策略学习与防护由agent做，网络相关具体实现由dp进程实现；</li>
-<li>dp：负责网络的数据采集上报，网络拦截告警等相关功能；</li>
+<li>nodes：根据集群节点集合生成的组</li>
+<li>external：外部组，主要用于查看与外部通信的网络规则</li>
+<li>service组：其中还有k8s的service也会生成相关组，命名规则为nv+.+ip.+service的名称+.+domain，但是这种类型的组不具备策略<br>切换等操作，界面显示组时也会对传入并且属于内部(没有选择器的)的service类型组进行隐藏；</li>
+<li>容器与pod组：根据组名分组，容器的组名生成逻辑为groupName&#x3D;nv+.+serviceName+.+domain; 其中domain为命名空间，无命名空间则为空（例如docker、containerd容器）；serviceName通过global.ORCH.GetService(&amp;info.ContainerMeta)方法获取对应的serviceName；</li>
 </ol>
-<h2 id="二、进程间通信"><a href="#二、进程间通信" class="headerlink" title="二、进程间通信"></a>二、进程间通信</h2><p>dp&#x2F;ctrl.c中的dp_ctrl_loop方法与agent&#x2F;dp&#x2F;dp.go中的listenDP和connectDP方法监（”&#x2F;tmp&#x2F;dp_listen.sock”和”&#x2F;tmp&#x2F;ctrl_listen.sock”）两个socket以实现agent与dp侧数据通信。</p>
-<h4 id="相关的通信图如下："><a href="#相关的通信图如下：" class="headerlink" title="相关的通信图如下："></a>相关的通信图如下：</h4><p><img src="https://s2.loli.net/2023/12/23/W2EkpgcwnzJAl7o.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="具体代码如下："><a href="#具体代码如下：" class="headerlink" title="具体代码如下："></a>具体代码如下：</h4><h5 id="1-agent侧"><a href="#1-agent侧" class="headerlink" title="1.agent侧"></a>1.agent侧</h5><p>1.1通过listenDP方法监听socket &#x3D; “&#x2F;tmp&#x2F;ctrl_listen.sock” 从ctrl.c:dp_ctrl_loop获取对应的信息,然后更新威胁日志、域名转换ip、网络连<br>接、应用的mac地址更新  </p>
-<p><img src="https://s2.loli.net/2023/12/23/M9qGLV3Qsjmxtog.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>1.2 通过monitorDP方法监听 DPServer string &#x3D; “&#x2F;tmp&#x2F;dp_listen.sock”， agent侧在service.go中可以通过dp侧获取到相关数据转化成<br>CLUSDatapathCounter、CLUSMetry、CLUSSessionCounter、CLUSSession、CLUSMeter等数据， Controller侧通过grpc的方法调用<br>service的方法获取到上述数据信息。  </p>
-<p><img src="https://s2.loli.net/2023/12/23/wL4WtCygqEFZ5d2.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="2-dp侧"><a href="#2-dp侧" class="headerlink" title="2.dp侧"></a>2.dp侧</h5><p>2.1.dp&#x2F;ctrl.c中的dp_ctrl_loop方法通过与agent监听socket（&#x2F;tmp&#x2F;dp_listen.soc）实现从agent侧获取对应的数据。（agent侧最终会将对应key的数据通过dpSendMsgExSilent等方法传输给socket）。  </p>
-<p><img src="https://s2.loli.net/2023/12/23/m8XRYCEdpWiaSzV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>2.2 dp_ctrl_loop方法收到socket侧的数据后调用dp_ctrl_handler(g_ctrl_fd)函数进行遍历处理，通过识别对应的key采取对应的措施。  </p>
-<p><img src="https://s2.loli.net/2023/12/23/38ZY6ctQGjoHrPR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="三、代码中执行流程"><a href="#三、代码中执行流程" class="headerlink" title="三、代码中执行流程"></a>三、代码中执行流程</h2><p>neuvector组的生成流程图如下：</p>
+<p><img src="https://s2.loli.net/2023/12/24/C8uSUr3dmxFTa2l.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="四、关键函数解析"><a href="#四、关键函数解析" class="headerlink" title="四、关键函数解析"></a>四、关键函数解析</h2><p><strong>GetService方法执行流程如下图 ：</strong></p>
+<p><img src="https://s2.loli.net/2023/12/24/mAHEsKrQvkXbTFY.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>GetService根据不同的平台调用不同的方法：<br><strong>当为k8s平台时：</strong></p>
+<ol>
+<li>首先查找容器有没有为deploymentconfig的标签，有则直接以deploymentconfig标签的值作为serviceName进行返回；</li>
+<li>无则继续查看容器有没有为io.kubernetes.pod.name的标签，有的情况下分以下五种情况：<br>2.1 如果k8s的flavor为rancher，并且这个容器的pod命名空间为”cattle-system”,则判断这个pod的前缀和rancher相关的pod名称前缀<br>(“rancher-agent-“,”core-services-dns-“,”core-services-metadata-“,”core-services-healthcheck-“,”core-services-network-manager-“)<br>匹配，如果前缀匹配的话，将前缀作为serviceName进行返回；<br>2.2 当2.1不满足时,查看容器是否有”pod-template-hash”的标签， 有则去掉pod名称的hash值然后作为serviceName进行返回；（ pod.<br>name比如采用如下格式: calico-node-m308t，其中-hash值是m308t，如果存在哈希标签，则删除它。serviceName为calico-node）<br>2.3主要路径： 当2.1、2.2不满足时，判断pod名称是否满足正则表达式”^.<em>-[a-f0-9]{6,10}-[a-z0-9]{5}$”或者”^.</em>-[0-9]{1,5}-[a-z0-9]{5}$”的<br>pod名称，满足则以最后一个“-“作为分割线，将”-“之前的字符串作为serviceName进行返回；<br>2.4 以上都不满足时，判断pod名称是否存在”-“字符，则以最后一个“-“作为分割线，将”-“之前的字符串作为serviceName进行返回；<br>2.5 以上都不满足时，直接将pod名称作为serviceName进行返回；</li>
+<li>当上述1、2都不满足时，直接调用baseDriver.GetService(meta)方法;<br>3.1查看容器是否带有”com.docker.compose.project”、”com.docker.compose.service”标签也就是是否为docker compose方式部署 ,是则将（project + “.” + service）作为serviceName进行返回，其中service为”com.docker.compose.service”标签的值，project值为”Docker.Trusted.Registry”或者”Docker.UCP”<br>3.2 无则查看容器是否带有”com.docker.swarm.service.name”也就是docker swarm方式部署，是则直接以标签的值作为serviceName进行返回；<br>3.3 以上都不满足时，直接调用container.TrimContainerImageRepo(container.TrimContainerImageVersion(meta.Image)方法的返回值作为serviceName进行返回， 方法大概逻辑为去掉镜像的仓库前缀以及版本标签（以docker&#x2F;controller:latest为例， serviceName为docker:controller）;</li>
+</ol>
 
                 
               </div>
@@ -363,8 +367,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>02.neuvector之Enforcer容器功能介绍</div>
-      <div>https://blog.longpi1.com/2023/12/23/02-neuvector之Enforcer容器功能介绍/</div>
+      <div>03.neuvector之组的划分逻辑</div>
+      <div>https://blog.longpi1.com/2023/12/29/03-neuvector之组的划分逻辑/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -377,9 +381,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/12/29/03-neuvector%E4%B9%8B%E7%BB%84%E7%9A%84%E5%88%92%E5%88%86%E9%80%BB%E8%BE%91/" title="03.neuvector之组的划分逻辑">
+                      <a href="/2023/12/29/04-neuvector%E8%BF%9B%E7%A8%8B%E7%AD%96%E7%95%A5%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E6%8E%A7%E5%AE%9E%E7%8E%B0/" title="04.neuvector进程策略生成与管控实现">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">03.neuvector之组的划分逻辑</span>
+                        <span class="hidden-mobile">04.neuvector进程策略生成与管控实现</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -387,8 +391,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/23/01-neuvector%E9%98%B2%E6%8A%A4%E5%B9%B3%E5%8F%B0%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0%E8%AE%BE%E8%AE%A1/" title="01.neuvector防护平台功能实现设计">
-                        <span class="hidden-mobile">01.neuvector防护平台功能实现设计</span>
+                      <a href="/2023/12/23/02-neuvector%E4%B9%8BEnforcer%E5%AE%B9%E5%99%A8%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/" title="02.neuvector之Enforcer容器功能介绍">
+                        <span class="hidden-mobile">02.neuvector之Enforcer容器功能介绍</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
