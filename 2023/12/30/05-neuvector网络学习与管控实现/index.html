@@ -18,25 +18,28 @@
   
     <meta name="description" content="neuvector容器防护平台相关介绍">
 <meta property="og:type" content="article">
-<meta property="og:title" content="04.neuvector进程策略生成与管控实现">
-<meta property="og:url" content="https://blog.longpi1.com/2023/12/29/04-neuvector%E8%BF%9B%E7%A8%8B%E7%AD%96%E7%95%A5%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E6%8E%A7%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:title" content="05.neuvector网络学习与管控实现">
+<meta property="og:url" content="https://blog.longpi1.com/2023/12/30/05-neuvector%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%AE%A1%E6%8E%A7%E5%AE%9E%E7%8E%B0/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="neuvector容器防护平台相关介绍">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2023/12/26/bNjquyCJv4c1lE3.png">
-<meta property="article:published_time" content="2023-12-29T15:24:41.000Z">
-<meta property="article:modified_time" content="2023-12-29T15:25:05.699Z">
+<meta property="og:image" content="https://s2.loli.net/2023/12/28/PpFjUI794AEkiTs.png">
+<meta property="og:image" content="https://s2.loli.net/2023/12/28/1RUVS25bd7cqhMQ.png">
+<meta property="og:image" content="https://s2.loli.net/2023/12/28/jMAWNsuLGBgUvYC.png">
+<meta property="og:image" content="https://s2.loli.net/2023/12/28/UA6edRzKZuO74yg.png">
+<meta property="article:published_time" content="2023-12-30T03:25:49.000Z">
+<meta property="article:modified_time" content="2023-12-29T15:26:23.863Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="云安全">
 <meta property="article:tag" content="neuvector">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s2.loli.net/2023/12/26/bNjquyCJv4c1lE3.png">
+<meta name="twitter:image" content="https://s2.loli.net/2023/12/28/PpFjUI794AEkiTs.png">
   
   
   
-  <title>04.neuvector进程策略生成与管控实现 - lp&#39;s blog</title>
+  <title>05.neuvector网络学习与管控实现 - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -214,7 +217,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="04.neuvector进程策略生成与管控实现"></span>
+            <span id="subtitle" data-typed-text="05.neuvector网络学习与管控实现"></span>
           
         </div>
 
@@ -225,8 +228,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-29 23:24" pubdate>
-          2023年12月29日 晚上
+        <time datetime="2023-12-30 11:25" pubdate>
+          2023年12月30日 上午
         </time>
       </span>
     
@@ -237,7 +240,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          754 字
+          4.3k 字
         
       </span>
     
@@ -285,40 +288,49 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">04.neuvector进程策略生成与管控实现</h1>
+            <h1 style="display: none">05.neuvector网络学习与管控实现</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="neuvector进程策略生成与管控实现"><a href="#neuvector进程策略生成与管控实现" class="headerlink" title="neuvector进程策略生成与管控实现"></a>neuvector进程策略生成与管控实现</h1><h2 id="一、进程学习管控的实现方式"><a href="#一、进程学习管控的实现方式" class="headerlink" title="一、进程学习管控的实现方式"></a>一、进程学习管控的实现方式</h2><p><strong>策略学习实现：</strong></p>
-<p>进程的学习与告警主要依据通过netlink socket实时获取进程启动和退出的事件:<br>1.创建netLink socket；<br>2.通过创建netlink的fd对进程的事件进行捕获与更新，主要是4种类型（exec，fork，exit，uidChange）；<br>3.学习模式下则对捕获的进程信息进行上报，形成对应的进程白名单，监视模式则对比当前白名单规则选择是否告警；</p>
-<p><strong>策略管控实现：</strong></p>
-<p>关于neuvector对进程的管控，虽然都是通过对比白名单策略，但是实际上可分为两条路径， <strong>一种是基于fanotify实现的通过阻塞进程进行判断是否放行</strong>，<strong>另一种是基于syscall的形式（syscall.Kill(pid, syscall.SIGKILL)）直接杀死进程，但不会阻塞；</strong><br>两者之间的选择主要由capBlock属性决定；  </p>
-<h2 id="二、主要执行流程"><a href="#二、主要执行流程" class="headerlink" title="二、主要执行流程"></a>二、主要执行流程</h2><p>保护模式下进程管控的主要流程如下图：</p>
-<p><img src="https://s2.loli.net/2023/12/26/bNjquyCJv4c1lE3.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="三、两种管控方式的使用场景以及优缺点（个人观点）："><a href="#三、两种管控方式的使用场景以及优缺点（个人观点）：" class="headerlink" title="三、两种管控方式的使用场景以及优缺点（个人观点）："></a>三、两种管控方式的使用场景以及优缺点（个人观点）：</h2><table>
-<thead>
-<tr>
-<th>实现方式</th>
-<th>使用场景</th>
-<th>优点</th>
-<th>缺点</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>fanotify实现</td>
-<td>业务容器、除去syscall.Kill场景下的 其他容器pod</td>
-<td>基于阻塞的方式管控进程，可以有 效防止黑名单进程执行</td>
-<td>当容器或者pod中存在大量进程运行 时，阻塞的方式可能会导致容器中 进程运行速度变低， 所以不适用主 机节点以及进程较多的系统容器；</td>
-</tr>
-<tr>
-<td>syscall.Kill(pid, syscall.SIGKILL)</td>
-<td>更多操作syscall.Kill(pid, syscall.SIGKILL)</td>
-<td>基于非阻塞的方式管控进程，不会 影响被管控容器或者pod的进程执行 速度；</td>
-<td>1.当进程执行速度很快或者Enforcer 通道通信过慢时，可能会来不及杀 死对应的黑名单进程； 2.当超过通道容量2048时，后续的 进程处理将被忽略</td>
-</tr>
-</tbody></table>
+                <h1 id="neuvector网络学习与管控实现"><a href="#neuvector网络学习与管控实现" class="headerlink" title="neuvector网络学习与管控实现"></a>neuvector网络学习与管控实现</h1><h2 id="一、网络的策略学习"><a href="#一、网络的策略学习" class="headerlink" title="一、网络的策略学习"></a>一、网络的策略学习</h2><h3 id="1-1-非主机模式的网络连接学习"><a href="#1-1-非主机模式的网络连接学习" class="headerlink" title="1.1.非主机模式的网络连接学习"></a>1.1.非主机模式的网络连接学习</h3><h4 id="agent进程侧："><a href="#agent进程侧：" class="headerlink" title="agent进程侧："></a><strong>agent进程侧：</strong></h4><p>调用taskAddContainer-&gt;taskInterceptContainer-&gt;programDP-&gt;DPCtrlAddTapPort为所有非host模式的容器向dp传送<br>DPAddTapPortReq对象数据.（当切换成保护模式后，都会调用DPCtrlDelTapPort），dp侧收到ctrl_add_tap_port信息后创建对应的<br>packet mmap对该容器的网络连接进行收集学习，<br>dp侧调用dp_ctrl_update_connects方法向agent传送网络连接， <strong>agent侧</strong>通过grpc的方式调用sendConnections方法将网络连接给<br>controller，controller侧存储在consul中 ；</p>
+<p>相关日志如下 ：</p>
+<p><img src="https://s2.loli.net/2023/12/28/PpFjUI794AEkiTs.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h5 id="dp侧"><a href="#dp侧" class="headerlink" title="dp侧"></a><strong>dp侧</strong></h5><h5 id="写在前面："><a href="#写在前面：" class="headerlink" title="写在前面："></a>写在前面：</h5><p>dp侧收到ctrl_add_tap_port数据后，执行路径如下dp_ctrl_handler-&gt;dp_ctrl_add_tap_port-&gt;dp_data_add_tap-&gt;dp_alloc_context-<br>&gt;dp_open_socket（创建AF_PACKET的socket并绑定容器的网络接口eth0）-&gt;dp_ring_v1（通过setsockopt创建的接收的环形缓冲区-）<br>&gt;dp_rx_v1（ 对于缓冲区中的数据，循环调用dpi_recv_packet处理）→dpi_recv_packet（核心函数）</p>
+<h5 id="dp侧重要函数："><a href="#dp侧重要函数：" class="headerlink" title="dp侧重要函数："></a>dp侧重要函数：</h5><p>1.dp_open_socket主要调用逻辑如下：</p>
+<ul>
+<li>创建AF_PACKET的socket：对应代码fd &#x3D; socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL)); 作用： AF_PACKET是socket的一<br>种，用于在链路层（也就是OSI的二层）接收和发送数据包；</li>
+<li>调用dp_ring_v1函数通过setsockopt创建接收的环形缓冲区 （ 通过PACKET_RX_RING套接字选项创建接受的环形缓冲区）， 并调用<br>dp_rx_v1方法，在dp_rx_v1中调用dpi_recv_packet循环处理缓冲区中的数据；</li>
+<li>调用dp_ring_bind将套接字绑定到对应的网络接口；</li>
+</ul>
+<p>2.dpi_recv_packet中实现网络数据包的收集上报与管控， 对数据包进行解析后，形成相应的网络连接，主要调用函数如下：</p>
+<ul>
+<li>通过dpi_parse_ethernet 弄清楚第三层第四层网络协议方向后进行解析，以便如果数据包中存在任何威胁，可以正确记录日志；<br>dpi_policy_cfg</li>
+<li>调用dpi_inspect_ethernet方法；</li>
+</ul>
+<p>3.dpi_inspect_etherne主要调用函数如下：</p>
+<ul>
+<li>dpi_session_lookup查找对应的session；</li>
+<li>dpi_pkt_proto_tracker：设置tcp、udp、icmp等的跟踪器、记录相关行为并且判断部分内置威胁检测 ；</li>
+<li>dpi_pkt_proto_parser：解析应用层协议；对于基于tcp的应用层协议,会在三次握手之后开始应用层协议解析,解析之后会将数据包对<br>应的appid赋到session中，提供给后面进行规则匹配；</li>
+<li>dpi_pkt_policy_reeval：通过dpi_policy_reeval检查是否符合对应的策略，将agent侧网络规则\dlp\waf的动作转换 ；</li>
+<li>dpi_pkt_log: 最终调用回调函数connect_report（也就是dp_ctrl_connect_report）对网络连接进行更新；</li>
+</ul>
+<p>4.dp_ctrl_loop：实现轮询更新威胁日志、域名转换ip、网络连接、应用的mac地址信息<br>5.dp_ctrl_update_connects： 在dp_ctrl_loop方法中被调用，通过send_connects方法实现向agent侧发送解析后的网络连接；<br>6.dp_ctrl_notify_ctrl: 通过sendto方法实现向agent侧发送相关信息（网络连接、威胁日志、域名转换等）</p>
+<h5 id="dp侧主要流程如下："><a href="#dp侧主要流程如下：" class="headerlink" title="dp侧主要流程如下："></a>dp侧主要流程如下：</h5><h5 id="下图为dp侧网络连接上报到agent实现流程图"><a href="#下图为dp侧网络连接上报到agent实现流程图" class="headerlink" title="下图为dp侧网络连接上报到agent实现流程图"></a>下图为dp侧网络连接上报到agent实现流程图</h5><p><img src="https://s2.loli.net/2023/12/28/1RUVS25bd7cqhMQ.png" srcset="/img/loading.gif" lazyload alt="image-20231219225721479.png"></p>
+<h3 id="1-2-主机模式的网络连接收集"><a href="#1-2-主机模式的网络连接收集" class="headerlink" title="1.2.主机模式的网络连接收集"></a>1.2.主机模式的网络连接收集</h3><p>通过agent&#x2F;probe&#x2F;socket.go&#x2F;下的getNewConnections方法获取host模式的网络连接， agent侧通过grpc的方式调用sendConnections方法将网络连接给controller，controller侧存储在consul中。  </p>
+<h2 id="二、网络的管控实现-不对host模式的容器进行管控"><a href="#二、网络的管控实现-不对host模式的容器进行管控" class="headerlink" title="二、网络的管控实现(不对host模式的容器进行管控)"></a>二、网络的管控实现(不对host模式的容器进行管控)</h2><h3 id="写在前面：-1"><a href="#写在前面：-1" class="headerlink" title="写在前面："></a>写在前面：</h3><p>1.当enforce容器与dp连接时agent侧会调用taskDPConnect方法用于网络规则相关信息的的初始化以及调用DPCtrlAddSrvcPort方法实现配置连接vth-neuv网络接口的packet_mmap用于后续网络管控。<br>2.当切换成保护模式后，都会在programDP中调用DPCtrlDelTapPort 和DPCtrlAddMAC实现对原有的context进行释放以及mac地址的更<br>新。</p>
+<h3 id="2-1非网格代理容器的管控路径"><a href="#2-1非网格代理容器的管控路径" class="headerlink" title="2.1非网格代理容器的管控路径"></a>2.1非网格代理容器的管控路径</h3><h4 id="agent侧："><a href="#agent侧：" class="headerlink" title="agent侧："></a>agent侧：</h4><p>学习模式→保护模式后 ，agent监听到consul中网络的策略改变，主要路径networkDerivedProc-&gt;systemConfigPolicy→updateContainerPolicyMode→changeContainerWire（ 调用programUpdatePairs方法为被保护的容器在<br>Enforcer中创建进出的Veth pair ）-&gt;programBridge-&gt;FwdPortPair（ 创建新的tc规则。 过滤单播数据包到vth-neuv网络接口上进行管控）</p>
+<h4 id="dp侧："><a href="#dp侧：" class="headerlink" title="dp侧："></a>dp侧：</h4><p>写在前面：<br>1.agent侧连接dp时会在taskDPConnect方法中调用DPCtrlAddSrvcPort方法实现配置连接vth-neuv网络接口的packet_mmap；<br>2.保护模式会调用DPCtrlDelTapPort方法 ，流量数据包会经过vth-neuv网络接口，dp侧通过vth-neuv网络接口的packet mmap用于对数据<br>包进行管控,该packet mmap会设置用于传输的的环形缓冲区（PACKET_TX_RING）实现发包的功能；<br><strong>dp侧主要流程如下：</strong>  </p>
+<p><img src="https://s2.loli.net/2023/12/28/jMAWNsuLGBgUvYC.png" srcset="/img/loading.gif" lazyload alt="image-20231219225721479.png"></p>
+<h5 id="主要函数"><a href="#主要函数" class="headerlink" title="主要函数"></a>主要函数</h5><p><strong>dpi_policy_reeval函数详细逻辑：</strong><br>通过session中的policy同数据包进行规则匹配确定数据包action执行相应操作。<br>核心在于packet中的网络规则通过g_ep_map传入(即(dpi_policy_hdl_t *)p-&gt;ep→policy_hdl),通过解析packet得到(sip,dip,dport,proto,<br>app)组成key(dpi_rule_key_t)。<br>将key同hdl中的policy_map和range_policy_map进行匹配,如果匹配到得到相应的action,如果匹配不到使用hdl中默认的action。<br>拿到action后针对不同类型的action进行拒绝和通过,udp拒绝直接丢包,tcp拒绝需要发送双向重置包到tx缓冲区,通过的请求会转发到tx缓冲区。  </p>
+<p>1 对于Tcp协议的主要管控路径：dpi_recv_packet-》dpi_parse_ethernet（ 弄清第三层第四层网络协议方向后进行解析， 以便如果数据包中<br>存在任何威胁，可以正确记录日志）-》dpi_inspect_ethernet-》dpi_session_lookup（查找对应的session）-》dpi_pkt_proto_tracker（关<br>于tcp、udp、icmp等的跟踪器、记录相关行为并且判断部分内置威胁检测）-》dpi_pkt_proto_parser（协议解析）-》<br>dpi_pkt_policy_reeval-》存在不匹配的规则或者不知名的IP地址并且动作为deny以及tcp传输协议则调用dpi_inject_reset-》 dpi_inject_rese<br>t_by_session（ 将tcp的标志设置为RST tcph-&gt;th_flags &#x3D; TH_RST,通过双向fake tcp rst包重置目标连接双方的网络连接 ） –》send_packet<br>&#x3D;&#x3D;dp_send_packet -》 ctx-&gt;ring.tx(ctx, pkt, len, context-&gt;large_frame)：发送数据包到传输的环形的缓冲区 -》传输的缓冲区将数据包<br>通过tc发送给容器或者主机  </p>
+<p>2 对于Udp、Icmp协议的主要管控路径： dpi_recv_packet-》 dpi_parse_ethernet（ 弄清第三层第四层网络协议方向后进行解析， 以便如果数<br>据包中存在任何威胁，可以正确记录日志）-》 dpi_inspect_ethernet-》dpi_session_lookup（查找对应的session）-》<br>dpi_pkt_proto_tracker（关于tcp、udp、icmp等的跟踪器、记录相关行为并且判断部分内置威胁检测）-》dpi_pkt_proto_parser（协议解<br>析）-》dpi_pkt_policy_reeval-》动作设置DPI_ACTION_BLOCK-》动作为DROP、BLOCK、RESET时不会调用send_packet则默认阻塞  </p>
+<h3 id="2-2通过服务网格代理的容器的管控路径（-pod与外部通信的网络管控与非网格代理的容器一样，下面介绍的是代理容器与应用容器之间的网络管控）"><a href="#2-2通过服务网格代理的容器的管控路径（-pod与外部通信的网络管控与非网格代理的容器一样，下面介绍的是代理容器与应用容器之间的网络管控）" class="headerlink" title="2.2通过服务网格代理的容器的管控路径（ pod与外部通信的网络管控与非网格代理的容器一样，下面介绍的是代理容器与应用容器之间的网络管控）"></a>2.2通过服务网格代理的容器的管控路径（ pod与外部通信的网络管控与非网格代理的容器一样，下面介绍的是代理容器与应用容器之间的网络管控）</h3><h4 id="agent侧：-1"><a href="#agent侧：-1" class="headerlink" title="agent侧："></a>agent侧：</h4><p>学习模式→保护模式后 ，agent监听到consul中网络的策略改变，调用networkDerivedProc-&gt;systemConfigPolicy-<br>&gt;updateContainerPolicyMode→changeContainerWire-&gt;programProxyMeshDP(网格代理的容器tapProxymesh为true)<br>与非服务网格代理的容器相同，都会通过Enforceer做代理创建对应veth pair以及tc规则，这里不重复介绍。<br>在programProxyMeshDP方法中实现在容器的命名空间中使用NFQUEUE设置iptable规则，dp侧创建nfq句柄(nfq_open)  </p>
+<p><strong>流程实现图如下：</strong></p>
+<p><img src="https://s2.loli.net/2023/12/28/UA6edRzKZuO74yg.png" srcset="/img/loading.gif" lazyload alt="image-20231226230358047"></p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p>网络这一部分涉及到的知识比较多，这里主要说一下主要流程和主要函数，如果大家感兴趣欢迎私聊；</p>
 
                 
               </div>
@@ -370,8 +382,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>04.neuvector进程策略生成与管控实现</div>
-      <div>https://blog.longpi1.com/2023/12/29/04-neuvector进程策略生成与管控实现/</div>
+      <div>05.neuvector网络学习与管控实现</div>
+      <div>https://blog.longpi1.com/2023/12/30/05-neuvector网络学习与管控实现/</div>
     </div>
     </div>
     <div class="license-icon iconfont"></div>
@@ -384,18 +396,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/12/30/05-neuvector%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%AE%A1%E6%8E%A7%E5%AE%9E%E7%8E%B0/" title="05.neuvector网络学习与管控实现">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">05.neuvector网络学习与管控实现</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/29/03-neuvector%E4%B9%8B%E7%BB%84%E7%9A%84%E5%88%92%E5%88%86%E9%80%BB%E8%BE%91/" title="03.neuvector之组的划分逻辑">
-                        <span class="hidden-mobile">03.neuvector之组的划分逻辑</span>
+                      <a href="/2023/12/29/04-neuvector%E8%BF%9B%E7%A8%8B%E7%AD%96%E7%95%A5%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E6%8E%A7%E5%AE%9E%E7%8E%B0/" title="04.neuvector进程策略生成与管控实现">
+                        <span class="hidden-mobile">04.neuvector进程策略生成与管控实现</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
