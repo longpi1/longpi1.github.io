@@ -1,0 +1,1134 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="02：数据模型与查询语言">
+<meta property="og:url" content="https://blog.longpi1.com/2024/07/03/02%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-1.png">
+<meta property="og:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-2.png">
+<meta property="og:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-4.png">
+<meta property="og:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-5.png">
+<meta property="og:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-6.png">
+<meta property="article:published_time" content="2024-07-03T12:17:13.000Z">
+<meta property="article:modified_time" content="2024-07-03T12:18:20.847Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="设计数据密集型应用">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-1.png">
+  
+  
+  
+  <title>02：数据模型与查询语言 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="02：数据模型与查询语言"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-03 20:17" pubdate>
+          2024年7月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          38k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">02：数据模型与查询语言</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="第二章：-数据模型与查询语言"><a href="#第二章：-数据模型与查询语言" class="headerlink" title="第二章： 数据模型与查询语言"></a>第二章： 数据模型与查询语言</h1><blockquote>
+<p>文章主要内容来自于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/">设计数据密集型应用</a></p>
+<p>文章探讨了数据模型在软件开发中的重要性，特别是它们对软件编写方式和问题解决方法的深远影响。文章通过层次化的视角，从应用开发到底层硬件，解释了数据模型的表示和抽象的重要性，并强调了不同人群之间协作的便利性。重点讨论了关系模型和文档模型之间的对比。</p>
+<p>关系模型，基于1970年Edgar Codd提出的理念，通过表格的形式组织数据，已经成为存储和查询结构化数据的主流工具。</p>
+<p>文档模型，另一方面，使用如JSON或XML这样的格式来存储和查询数据，提供了更好的灵活性和与现代编程语言更紧密的集成。</p>
+<p>NoSQL的兴起，这是对关系数据库模型的挑战，旨在提供更好的可扩展性、特殊查询操作的支持以及对动态和表现力强的数据模型的需求。NoSQL被视为“不仅仅是SQL”，意味着它并不是要完全取代关系模型，而是提供一个补充，以满足不同应用程序的不同需求。</p>
+<p>最后，文章讨论了对象关系不匹配问题，即在面向对象的编程语言和基于表的SQL数据模型之间存在的差异。这导致了需要在应用程序代码和数据库模型之间进行笨拙的转换。文档模型，如JSON，因其更好的局部性和减少阻抗不匹配而受到开发者的青睐。总的来说，文章强调了选择合适的数据模型对于构建高效、可维护和可扩展的软件应用的重要性，并探讨了关系模型和文档模型各自的优势和应用场景。</p>
+</blockquote>
+<hr>
+<p>[TOC]</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>数据模型可能是软件开发中最重要的部分了，因为它们的影响如此深远：不仅仅影响着软件的编写方式，而且影响着我们的<strong>解题思路</strong>。</p>
+<p>多数应用使用层层叠加的数据模型构建。对于每层数据模型的关键问题是：它是如何用低一层数据模型来<strong>表示</strong>的？例如：</p>
+<ol>
+<li>作为一名应用开发人员，你观察现实世界（里面有人员，组织，货物，行为，资金流向，传感器等），并采用对象或数据结构，以及操控那些数据结构的API来进行建模。那些结构通常是特定于应用程序的。</li>
+<li>当要存储那些数据结构时，你可以利用通用数据模型来表示它们，如JSON或XML文档，关系数据库中的表、或图模型。</li>
+<li>数据库软件的工程师选定如何以内存、磁盘或网络上的字节来表示JSON&#x2F;XML&#x2F;关系&#x2F;图数据。这类表示形式使数据有可能以各种方式来查询，搜索，操纵和处理。</li>
+<li>在更低的层次上，硬件工程师已经想出了使用电流，光脉冲，磁场或者其他东西来表示字节的方法。</li>
+</ol>
+<p>一个复杂的应用程序可能会有更多的中间层次，比如基于API的API，不过基本思想仍然是一样的：每个层都通过提供一个明确的数据模型来隐藏更低层次中的复杂性。这些抽象允许不同的人群有效地协作（例如数据库厂商的工程师和使用数据库的应用程序开发人员）。</p>
+<p>数据模型种类繁多，每个数据模型都带有如何使用的设想。有些用法很容易，有些则不支持如此；有些操作运行很快，有些则表现很差；有些数据转换非常自然，有些则很麻烦。</p>
+<p>掌握一个数据模型需要花费很多精力（想想关系数据建模有多少本书）。即便只使用一个数据模型，不用操心其内部工作机制，构建软件也是非常困难的。然而，因为数据模型对上层软件的功能（能做什么，不能做什么）有着至深的影响，所以选择一个适合的数据模型是非常重要的。</p>
+<p>这篇文章，主要研究一系列用于数据存储和查询的通用数据模型。特别地，也会比较关系模型，文档模型和少量基于图形的数据模型。我们还将查看各种查询语言并比较它们的用例。下一篇文章，将讨论存储引擎是如何工作的。</p>
+<h2 id="关系模型与文档模型"><a href="#关系模型与文档模型" class="headerlink" title="关系模型与文档模型"></a>关系模型与文档模型</h2><p>现在最著名的数据模型可能是SQL。它基于Edgar Codd在1970年提出的关系模型【1】：数据被组织成<strong>关系</strong>（SQL中称作<strong>表</strong>），其中每个关系是<strong>元组</strong>（SQL中称作<strong>行</strong>)的无序集合。</p>
+<p>关系模型曾是一个理论性的提议，当时很多人都怀疑是否能够有效实现它。然而到了20世纪80年代中期，关系数据库管理系统（RDBMSes）和SQL已成为大多数人们存储和查询某些常规结构的数据的首选工具。关系数据库已经持续称霸了大约25~30年——这对计算机史来说是极其漫长的时间。</p>
+<p>关系数据库起源于商业数据处理，在20世纪60年代和70年代用大型计算机来执行。从今天的角度来看，那些用例显得很平常：典型的<strong>事务处理</strong>（将销售或银行交易，航空公司预订，库存管理信息记录在库）和<strong>批处理</strong>（客户发票，工资单，报告）。</p>
+<p>当时的其他数据库迫使应用程序开发人员必须考虑数据库内部的数据表示形式。关系模型致力于将上述实现细节隐藏在更简洁的接口之后。</p>
+<p>多年来，在数据存储和查询方面存在着许多相互竞争的方法。在20世纪70年代和80年代初，网络模型和分层模型曾是主要的选择，但关系模型随后占据了主导地位。对象数据库在20世纪80年代末和90年代初来了又去。XML数据库在二十一世纪初出现，但只有小众采用过。关系模型的每个竞争者都在其时代产生了大量的炒作，但从来没有持续【2】。</p>
+<p>随着电脑越来越强大和互联，它们开始用于日益多样化的目的。关系数据库非常成功地被推广到业务数据处理的原始范围之外更为广泛的用例上。你今天在网上看到的大部分内容依旧是由关系数据库来提供支持，无论是在线发布，讨论，社交网络，电子商务，游戏，软件即服务生产力应用程序等等内容。</p>
+<h3 id="NoSQL的诞生"><a href="#NoSQL的诞生" class="headerlink" title="NoSQL的诞生"></a>NoSQL的诞生</h3><p>现在 - 2010年代，NoSQL开始了最新一轮尝试，试图推翻关系模型的统治地位。“NoSQL”这个名字让人遗憾，因为实际上它并没有涉及到任何特定的技术。最初它只是作为一个醒目的Twitter标签，用在2009年一个关于分布式，非关系数据库上的开源聚会上。无论如何，这个术语触动了某些神经，并迅速在网络创业社区内外传播开来。好些有趣的数据库系统现在都与*#NoSQL#<em>标签相关联，并且NoSQL被追溯性地重新解释为*<em>不仅是SQL（Not Only SQL）</em></em> 【4】。</p>
+<p>采用NoSQL数据库的背后有几个驱动因素，其中包括：</p>
+<ul>
+<li>需要比关系数据库更好的可扩展性，包括非常大的数据集或非常高的写入吞吐量</li>
+<li>关系模型不能很好地支持一些特殊的查询操作</li>
+<li>受挫于关系模型的限制性，渴望一种更具多动态性与表现力的数据模型【5】</li>
+</ul>
+<p>不同的应用程序有不同的需求，一个用例的最佳技术选择可能不同于另一个用例的最佳技术选择。因此，在可预见的未来，关系数据库似乎可能会继续与各种非关系数据库一起使用 - 这种想法有时也被称为<strong>混合持久化（polyglot persistence）</strong></p>
+<h3 id="对象关系不匹配"><a href="#对象关系不匹配" class="headerlink" title="对象关系不匹配"></a>对象关系不匹配</h3><p>目前大多数应用程序开发都使用面向对象的编程语言来开发，这导致了对SQL数据模型的普遍批评：如果数据存储在关系表中，那么需要一个笨拙的转换层，处于应用程序代码中的对象和表，行，列的数据库模型之间。模型之间的不连贯有时被称为<strong>阻抗不匹配（impedance mismatch）</strong>。</p>
+<p>像ActiveRecord和Hibernate这样的 <strong>对象关系映射（ORM object-relational mapping）</strong> 框架可以减少这个转换层所需的样板代码的数量，但是它们不能完全隐藏这两个模型之间的差异。</p>
+<p><img src="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-1.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>图2-1 使用关系型模式来表示领英简介</strong></p>
+<p>例如，图2-1展示了如何在关系模式中表示简历（一个LinkedIn简介）。整个简介可以通过一个唯一的标识符<code>user_id</code>来标识。像<code>first_name</code>和<code>last_name</code>这样的字段每个用户只出现一次，所以可以在User表上将其建模为列。但是，大多数人在职业生涯中拥有多于一份的工作，人们可能有不同样的教育阶段和任意数量的联系信息。从用户到这些项目之间存在一对多的关系，可以用多种方式来表示：</p>
+<ul>
+<li>传统SQL模型（SQL：1999之前）中，最常见的规范化表示形式是将职位，教育和联系信息放在单独的表中，对User表提供外键引用，如图2-1所示。</li>
+<li>后续的SQL标准增加了对结构化数据类型和XML数据的支持;这允许将多值数据存储在单行内，并支持在这些文档内查询和索引。这些功能在Oracle，IBM DB2，MS SQL Server和PostgreSQL中都有不同程度的支持【6,7】。JSON数据类型也得到多个数据库的支持，包括IBM DB2，MySQL和PostgreSQL 【8】。</li>
+<li>第三种选择是将职业，教育和联系信息编码为JSON或XML文档，将其存储在数据库的文本列中，并让应用程序解析其结构和内容。这种配置下，通常不能使用数据库来查询该编码列中的值。</li>
+</ul>
+<p>对于一个像简历这样自包含文档的数据结构而言，JSON表示是非常合适的：参见例2-1。JSON比XML更简单。面向文档的数据库（如MongoDB 【9】，RethinkDB 【10】，CouchDB 【11】和Espresso【12】）都支持这种数据模型。 <strong>例2-1. 用JSON文档表示一个LinkedIn简介</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs json">Explain<span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;user_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">251</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;first_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Bill&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;last_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Gates&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;summary&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Co-chair of the Bill &amp; Melinda Gates... Active blogger.&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;region_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;us:91&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;industry_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">131</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;photo_url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/p/7/000/253/05b/308dd6e.jpg&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;positions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;job_title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Co-chair&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;organization&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Bill &amp; Melinda Gates Foundation&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;job_title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Co-founder, Chairman&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;organization&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Microsoft&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;education&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;school_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Harvard University&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;start&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1973</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;end&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1975</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;school_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Lakeside School, Seattle&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;start&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;end&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;contact_info&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;blog&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://thegatesnotes.com&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;twitter&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://twitter.com/BillGates&quot;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>有一些开发人员认为JSON模型减少了应用程序代码和存储层之间的阻抗不匹配。</p>
+<p>JSON表示比图2-1中的多表模式具有更好的<strong>局部性（locality）</strong>。如果在前面的关系型示例中获取简介，那需要执行多个查询（通过<code>user_id</code>查询每个表），或者在User表与其下属表之间混乱地执行多路连接。而在JSON表示中，所有相关信息都在同一个地方，一个查询就足够了。</p>
+<p>从用户简介文件到用户职位，教育历史和联系信息，这种一对多关系隐含了数据中的一个树状结构，而JSON表示使得这个树状结构变得明确（见图2-2）。</p>
+<p><img src="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-2.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>图2-2 一对多关系构建了一个树结构</strong></p>
+<h3 id="多对一和多对多的关系"><a href="#多对一和多对多的关系" class="headerlink" title="多对一和多对多的关系"></a>多对一和多对多的关系</h3><p>在前面的示例中，<code>region_id</code>和<code>industry_id</code>是以ID，而不是纯字符串“Greater Seattle Area”和“Philanthropy”的形式给出的。为什么？</p>
+<p>如果用户界面用一个自由文本字段来输入区域和行业，那么将他们存储为纯文本字符串是合理的。另一方式是给出地理区域和行业的标准化的列表，并让用户从下拉列表或自动填充器中进行选择，其优势如下：</p>
+<ul>
+<li>各个简介之间样式和拼写统一</li>
+<li>避免歧义（例如，如果有几个同名的城市）</li>
+<li>易于更新——名称只存储在一个地方，如果需要更改（例如，由于政治事件而改变城市名称），很容易进行全面更新。</li>
+<li>本地化支持——当网站翻译成其他语言时，标准化的列表可以被本地化，使得地区和行业可以使用用户的语言来显示</li>
+<li>更好的搜索——例如，搜索华盛顿州的慈善家就会匹配这份简介，因为地区列表可以编码记录西雅图在华盛顿这一事实（从“Greater Seattle Area”这个字符串中看不出来）</li>
+</ul>
+<p>存储ID还是文本字符串，这是个 <strong>副本（duplication）</strong> 问题。当使用ID时，对人类有意义的信息（比如单词：Philanthropy）只存储在一处，所有引用它的地方使用ID（ID只在数据库中有意义）。当直接存储文本时，对人类有意义的信息会复制在每处使用记录中。</p>
+<p>使用ID的好处是，ID对人类没有任何意义，因而永远不需要改变：ID可以保持不变，即使它标识的信息发生变化。任何对人类有意义的东西都可能需要在将来某个时候改变——如果这些信息被复制，所有的冗余副本都需要更新。这会导致写入开销，也存在不一致的风险（一些副本被更新了，还有些副本没有被更新）。去除此类重复是数据库 <strong>规范化（normalization）</strong> 的关键思想。</p>
+<blockquote>
+<p>ii. 关于关系模型的文献区分了几种不同的规范形式，但这些区别几乎没有实际意义。一个经验法则是，如果重复存储了可以存储在一个地方的值，则模式就不是<strong>规范化（normalized）</strong>的。</p>
+</blockquote>
+<p>不幸的是，对这些数据进行规范化需要多对一的关系（许多人生活在一个特定的地区，许多人在一个特定的行业工作），这与文档模型不太吻合。在关系数据库中，通过ID来引用其他表中的行是正常的，因为连接很容易。在文档数据库中，一对多树结构没有必要用连接，对连接的支持通常很弱。</p>
+<blockquote>
+<p>iii. 在撰写本文时，RethinkDB支持连接，MongoDB不支持连接，而CouchDB只支持预先声明的视图。</p>
+</blockquote>
+<p>如果数据库本身不支持连接，则必须在应用程序代码中通过对数据库进行多个查询来模拟连接。（在这种情况中，地区和行业的列表可能很小，改动很少，应用程序可以简单地将其保存在内存中。不过，执行连接的工作从数据库被转移到应用程序代码上。</p>
+<p>此外，即便应用程序的最初版本适合无连接的文档模型，随着功能添加到应用程序中，数据会变得更加互联。例如，考虑一下对简历例子进行的一些修改：</p>
+<p><strong>组织和学校作为实体</strong></p>
+<p>在前面的描述中，<code>organization</code>（用户工作的公司）和<code>school_name</code>（他们学习的地方）只是字符串。也许他们应该是对实体的引用呢？然后，每个组织，学校或大学都可以拥有自己的网页（标识，新闻提要等）。</p>
+<p>图2-3阐明了这些新功能需要如何使用多对多关系。每个虚线矩形内的数据可以分组成一个文档，但是对单位，学校和其他用户的引用需要表示成引用，并且在查询时需要连接。</p>
+<p><img src="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-4.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>图2-4 使用多对多关系扩展简历</strong></p>
+<h3 id="文档数据库是否在重蹈覆辙？"><a href="#文档数据库是否在重蹈覆辙？" class="headerlink" title="文档数据库是否在重蹈覆辙？"></a>文档数据库是否在重蹈覆辙？</h3><p>在多对多的关系和连接已常规用在关系数据库时，文档数据库和NoSQL重启了辩论：如何最好地在数据库中表示多对多关系。那场辩论可比NoSQL古老得多，事实上，最早可以追溯到计算机化数据库系统。</p>
+<p>20世纪70年代最受欢迎的业务数据处理数据库是IBM的信息管理系统（IMS），最初是为了阿波罗太空计划的库存管理而开发的，并于1968年有了首次商业发布【13】。目前它仍在使用和维护，运行在IBM大型机的OS&#x2F;390上【14】。</p>
+<p>IMS的设计中使用了一个相当简单的数据模型，称为<strong>层次模型（hierarchical model）</strong>，它与文档数据库使用的JSON模型有一些惊人的相似之处【2】。它将所有数据表示为嵌套在记录中的记录树，这很像图2-2的JSON结构。</p>
+<p>同文档数据库一样，IMS能良好处理一对多的关系，但是很难应对多对多的关系，并且不支持连接。开发人员必须决定是否复制（非规范化）数据或手动解决从一个记录到另一个记录的引用。这些二十世纪六七十年代的问题与现在开发人员遇到的文档数据库问题非常相似【15】。</p>
+<p>那时人们提出了各种不同的解决方案来解决层次模型的局限性。其中最突出的两个是<strong>关系模型（relational model）</strong>（它变成了SQL，统治了世界）和<strong>网络模型（network model）</strong>（最初很受关注，但最终变得冷门）。这两个阵营之间的“大辩论”在70年代持续了很久时间【2】。</p>
+<p>那两个模式解决的问题与当前的问题相关，因此值得简要回顾一下那场辩论。</p>
+<h4 id="网络模型"><a href="#网络模型" class="headerlink" title="网络模型"></a>网络模型</h4><p>网络模型由一个称为数据系统语言会议（CODASYL）的委员会进行了标准化，并被数个不同的数据库商实现;它也被称为CODASYL模型【16】。</p>
+<p>CODASYL模型是层次模型的推广。在层次模型的树结构中，每条记录只有一个父节点；在网络模式中，每条记录可能有多个父节点。例如，“Greater Seattle Area”地区可能是一条记录，每个居住在该地区的用户都可以与之相关联。这允许对多对一和多对多的关系进行建模。</p>
+<p>网络模型中记录之间的链接不是外键，而更像编程语言中的指针（同时仍然存储在磁盘上）。访问记录的唯一方法是跟随从根记录起沿这些链路所形成的路径。这被称为<strong>访问路径（access path）</strong>。</p>
+<p>最简单的情况下，访问路径类似遍历链表：从列表头开始，每次查看一条记录，直到找到所需的记录。但在多对多关系的情况中，数条不同的路径可以到达相同的记录，网络模型的程序员必须跟踪这些不同的访问路径。</p>
+<p>CODASYL中的查询是通过利用遍历记录列和跟随访问路径表在数据库中移动游标来执行的。如果记录有多个父结点（即多个来自其他记录的传入指针），则应用程序代码必须跟踪所有的各种关系。甚至CODASYL委员会成员也承认，这就像在n维数据空间中进行导航【17】。</p>
+<p>尽管手动选择访问路径够能最有效地利用20世纪70年代非常有限的硬件功能（如磁带驱动器，其搜索速度非常慢），但这使得查询和更新数据库的代码变得复杂不灵活。无论是分层还是网络模型，如果你没有所需数据的路径，就会陷入困境。你可以改变访问路径，但是必须浏览大量手写数据库查询代码，并重写来处理新的访问路径。更改应用程序的数据模型是很难的。</p>
+<h4 id="关系模型"><a href="#关系模型" class="headerlink" title="关系模型"></a>关系模型</h4><p>相比之下，关系模型做的就是将所有的数据放在光天化日之下：一个 <strong>关系（表）</strong> 只是一个 <strong>元组（行）</strong> 的集合，仅此而已。如果你想读取数据，它没有迷宫似的嵌套结构，也没有复杂的访问路径。你可以选中符合任意条件的行，读取表中的任何或所有行。你可以通过指定某些列作为匹配关键字来读取特定行。你可以在任何表中插入一个新的行，而不必担心与其他表的外键关系<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html#fn_iv">iv</a>。</p>
+<blockquote>
+<p>iv. 外键约束允许对修改约束，但对于关系模型这并不是必选项。即使有约束，外键连接在查询时执行，而在CODASYL中，连接在插入时高效完成。</p>
+</blockquote>
+<p>在关系数据库中，查询优化器自动决定查询的哪些部分以哪个顺序执行，以及使用哪些索引。这些选择实际上是“访问路径”，但最大的区别在于它们是由查询优化器自动生成的，而不是由程序员生成，所以我们很少需要考虑它们。</p>
+<p>如果想按新的方式查询数据，你可以声明一个新的索引，查询会自动使用最合适的那些索引。无需更改查询来利用新的索引。（请参阅“用于数据的查询语言”。）关系模型因此使添加应用程序新功能变得更加容易。</p>
+<p>关系数据库的查询优化器是复杂的，已耗费了多年的研究和开发精力【18】。关系模型的一个关键洞察是：只需构建一次查询优化器，随后使用该数据库的所有应用程序都可以从中受益。如果你没有查询优化器的话，那么为特定查询手动编写访问路径比编写通用优化器更容易——不过从长期看通用解决方案更好。</p>
+<h4 id="与文档数据库相比"><a href="#与文档数据库相比" class="headerlink" title="与文档数据库相比"></a>与文档数据库相比</h4><p>在一个方面，文档数据库还原为层次模型：在其父记录中存储嵌套记录（图2-1)中的一对多关系，如<code>positions</code>，<code>education</code>和<code>contact_info</code>），而不是在单独的表中。</p>
+<p>但是，在表示多对一和多对多的关系时，关系数据库和文档数据库并没有根本的不同：在这两种情况下，相关项目都被一个唯一的标识符引用，这个标识符在关系模型中被称为<strong>外键</strong>，在文档模型中称为<strong>文档引用</strong>【9】。该标识符在读取时通过连接或后续查询来解析。迄今为止，文档数据库没有走CODASYL的老路。</p>
+<h3 id="关系型数据库与文档数据库在今日的对比"><a href="#关系型数据库与文档数据库在今日的对比" class="headerlink" title="关系型数据库与文档数据库在今日的对比"></a>关系型数据库与文档数据库在今日的对比</h3><p>将关系数据库与文档数据库进行比较时，可以考虑许多方面的差异，包括它们的容错属性和处理并发性。</p>
+<p>支持文档数据模型的主要论据是架构灵活性，因局部性而拥有更好的性能，以及对于某些应用程序而言更接近于应用程序使用的数据结构。关系模型通过为连接提供更好的支持以及支持多对一和多对多的关系来反击。</p>
+<h4 id="哪个数据模型更方便写代码？"><a href="#哪个数据模型更方便写代码？" class="headerlink" title="哪个数据模型更方便写代码？"></a>哪个数据模型更方便写代码？</h4><p>如果应用程序中的数据具有类似文档的结构（即，一对多关系树，通常一次性加载整个树），那么使用文档模型可能是一个好主意。将类似文档的结构分解成多个表（如图2-1中的<code>positions</code>，<code>education</code>和<code>contact_info</code>）的关系技术可能导致繁琐的模式和不必要的复杂的应用程序代码。</p>
+<p>文档模型有一定的局限性：例如，不能直接引用文档中的嵌套的项目，而是需要说“用户251的位置列表中的第二项”（很像分层模型中的访问路径）。但是，只要文件嵌套不太深，这通常不是问题。</p>
+<p>文档数据库对连接的糟糕支持也许或也许不是一个问题，这取决于应用程序。例如，分析应用程可能永远不需要多对多的关系，如果它使用文档数据库来记录何事发生于何时【19】。</p>
+<p>但是，如果你的应用程序确实使用多对多关系，那么文档模型就没有那么吸引人了。通过反规范化可以减少对连接的需求，但是应用程序代码需要做额外的工作来保持数据的一致性。通过向数据库发出多个请求，可以在应用程序代码中模拟连接，但是这也将复杂性转移到应用程序中，并且通常比由数据库内的专用代码执行的连接慢。在这种情况下，使用文档模型会导致更复杂的应用程序代码和更差的性能【15】。</p>
+<p>很难说在一般情况下哪个数据模型让应用程序代码更简单；它取决于数据项之间存在的关系种类。对于高度相联的数据，选用文档模型是糟糕的，选用关系模型是可接受的，而选用图形模型是最自然的。</p>
+<h4 id="文档模型中的架构灵活性"><a href="#文档模型中的架构灵活性" class="headerlink" title="文档模型中的架构灵活性"></a>文档模型中的架构灵活性</h4><p>大多数文档数据库以及关系数据库中的JSON支持都不会强制文档中的数据采用何种模式。关系数据库的XML支持通常带有可选的模式验证。没有模式意味着可以将任意的键和值添加到文档中，并且当读取时，客户端对无法保证文档可能包含的字段。</p>
+<p>文档数据库有时称为<strong>无模式（schemaless）</strong>，但这具有误导性，因为读取数据的代码通常假定某种结构——即存在隐式模式，但不由数据库强制执行【20】。一个更精确的术语是<strong>读时模式（schema-on-read）</strong>（数据的结构是隐含的，只有在数据被读取时才被解释），相应的是<strong>写时模式（schema-on-write）</strong>（传统的关系数据库方法中，模式明确，且数据库确保所有的数据都符合其模式）【21】。</p>
+<p>读时模式类似于编程语言中的动态（运行时）类型检查，而写时模式类似于静态（编译时）类型检查。就像静态和动态类型检查的相对优点具有很大的争议性一样【22】，数据库中模式的强制性是一个具有争议的话题，一般来说没有正确或错误的答案。</p>
+<p>在应用程序想要改变其数据格式的情况下，这些方法之间的区别尤其明显。例如，假设你把每个用户的全名存储在一个字段中，而现在想分别存储名字和姓氏【23】。在文档数据库中，只需开始写入具有新字段的新文档，并在应用程序中使用代码来处理读取旧文档的情况。例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> (user &amp;&amp; user.name &amp;&amp; !user.first_name) &#123;<br>    <span class="hljs-comment">// Documents written before Dec 8, 2013 don&#x27;t have first_name</span><br>    user.first_name = user.name.split(<span class="hljs-string">&quot; &quot;</span>)[<span class="hljs-number">0</span>];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>另一方面，在“静态类型”数据库模式中，通常会执行以下 <strong>迁移（migration）</strong> 操作：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> users <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">COLUMN</span> first_name text;<br><span class="hljs-keyword">UPDATE</span> users <span class="hljs-keyword">SET</span> first_name <span class="hljs-operator">=</span> split_part(name, <span class="hljs-string">&#x27; &#x27;</span>, <span class="hljs-number">1</span>);         <span class="hljs-comment">-- PostgreSQL</span><br><span class="hljs-keyword">UPDATE</span> users <span class="hljs-keyword">SET</span> first_name <span class="hljs-operator">=</span> substring_index(name, <span class="hljs-string">&#x27; &#x27;</span>, <span class="hljs-number">1</span>);     <span class="hljs-comment">-- MySQL</span><br></code></pre></td></tr></table></figure>
+
+<p>模式变更的速度很慢，而且要求停运。它的这种坏名誉并不是完全应得的：大多数关系数据库系统可在几毫秒内执行<code>ALTER TABLE</code>语句。MySQL是一个值得注意的例外，它执行<code>ALTER TABLE</code>时会复制整个表，这可能意味着在更改一个大型表时会花费几分钟甚至几个小时的停机时间，尽管存在各种工具来解决这个限制【24,25,26】。</p>
+<p>大型表上运行<code>UPDATE</code>语句在任何数据库上都可能会很慢，因为每一行都需要重写。要是不可接受的话，应用程序可以将<code>first_name</code>设置为默认值<code>NULL</code>，并在读取时再填充，就像使用文档数据库一样。</p>
+<p>当由于某种原因（例如，数据是异构的）集合中的项目并不都具有相同的结构时,读时模式更具优势。例如，如果：</p>
+<ul>
+<li>存在许多不同类型的对象，将每种类型的对象放在自己的表中是不现实的。</li>
+<li>数据的结构由外部系统决定。你无法控制外部系统且它随时可能变化。</li>
+</ul>
+<p>在上述情况下，模式的坏处远大于它的帮助，无模式文档可能是一个更加自然的数据模型。但是，要是所有记录都具有相同的结构，那么模式是记录并强制这种结构的有效机制。</p>
+<h4 id="查询的数据局部性"><a href="#查询的数据局部性" class="headerlink" title="查询的数据局部性"></a>查询的数据局部性</h4><p>文档通常以单个连续字符串形式进行存储，编码为JSON，XML或其二进制变体（如MongoDB的BSON）。如果应用程序经常需要访问整个文档（例如，将其渲染至网页），那么存储局部性会带来性能优势。如果将数据分割到多个表中（如图2-1所示），则需要进行多次索引查找才能将其全部检索出来，这可能需要更多的磁盘查找并花费更多的时间。</p>
+<p>局部性仅仅适用于同时需要文档绝大部分内容的情况。数据库通常需要加载整个文档，即使只访问其中的一小部分，这对于大型文档来说是很浪费的。更新文档时，通常需要整个重写。只有不改变文档大小的修改才可以容易地原地执行。因此，通常建议保持相对小的文档，并避免增加文档大小的写入【9】。这些性能限制大大减少了文档数据库的实用场景。</p>
+<p>值得指出的是，为了局部性而分组集合相关数据的想法并不局限于文档模型。例如，Google的Spanner数据库在关系数据模型中提供了同样的局部性属性，允许模式声明一个表的行应该交错（嵌套）在父表内【27】。Oracle类似地允许使用一个称为 <strong>多表索引集群表（multi-table index cluster tables）</strong> 的类似特性【28】。Bigtable数据模型（用于Cassandra和HBase）中的 <strong>列族（column-family）</strong> 概念与管理局部性的目的类似【29】。</p>
+<h4 id="文档和关系数据库的融合"><a href="#文档和关系数据库的融合" class="headerlink" title="文档和关系数据库的融合"></a>文档和关系数据库的融合</h4><p>自2000年代中期以来，大多数关系数据库系统（MySQL除外）都已支持XML。这包括对XML文档进行本地修改的功能，以及在XML文档中进行索引和查询的功能。这允许应用程序使用那种与文档数据库应当使用的非常类似的数据模型。</p>
+<p>从9.3版本开始的PostgreSQL 【8】，从5.7版本开始的MySQL以及从版本10.5开始的IBM DB2 [30]也对JSON文档提供了类似的支持级别。鉴于用在Web APIs的JSON流行趋势，其他关系数据库很可能会跟随他们的脚步并添加JSON支持。</p>
+<p>在文档数据库中，RethinkDB在其查询语言中支持类似关系的连接，一些MongoDB驱动程序可以自动解析数据库引用（有效地执行客户端连接，尽管这可能比在数据库中执行的连接慢，需要额外的网络往返，并且优化更少）。</p>
+<p>随着时间的推移，关系数据库和文档数据库似乎变得越来越相似，这是一件好事：数据模型相互补充<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html#fn_v">v</a>，如果一个数据库能够处理类似文档的数据，并能够对其执行关系查询，那么应用程序就可以使用最符合其需求的功能组合。</p>
+<p>关系模型和文档模型的混合是未来数据库一条很好的路线。</p>
+<blockquote>
+<p>v. Codd对关系模型【1】的原始描述实际上允许在关系模式中与JSON文档非常相似。他称之为<strong>非简单域（nonsimple domains）</strong>。这个想法是，一行中的值不一定是一个像数字或字符串一样的原始数据类型，也可以是一个嵌套的关系（表），因此可以把一个任意嵌套的树结构作为一个值，这很像30年后添加到SQL中的JSON或XML支持。</p>
+</blockquote>
+<h2 id="数据查询语言"><a href="#数据查询语言" class="headerlink" title="数据查询语言"></a>数据查询语言</h2><p>当引入关系模型时，关系模型包含了一种查询数据的新方法：SQL是一种 <strong>声明式</strong> 查询语言，而IMS和CODASYL使用 <strong>命令式</strong> 代码来查询数据库。那是什么意思？</p>
+<p>许多常用的编程语言是命令式的。例如，给定一个动物物种的列表，返回列表中的鲨鱼可以这样写：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Explainfunction</span> <span class="hljs-title function_">getSharks</span>(<span class="hljs-params"></span>) &#123;<br>    <span class="hljs-keyword">var</span> sharks = [];<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; animals.<span class="hljs-property">length</span>; i++) &#123;<br>        <span class="hljs-keyword">if</span> (animals[i].<span class="hljs-property">family</span> === <span class="hljs-string">&quot;Sharks&quot;</span>) &#123;<br>            sharks.<span class="hljs-title function_">push</span>(animals[i]);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> sharks;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在关系代数中：</p>
+<p>$$ sharks &#x3D; σ_{family &#x3D; “sharks”}(animals)</p>
+<p>$$ σ（希腊字母西格玛）是选择操作符，只返回符合条件的动物，<code>family=&quot;shark&quot;</code>。</p>
+<p>定义SQL时，它紧密地遵循关系代数的结构：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> animals <span class="hljs-keyword">WHERE</span> family <span class="hljs-operator">=</span><span class="hljs-string">&#x27;Sharks&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>命令式语言告诉计算机以特定顺序执行某些操作。可以想象一下，逐行地遍历代码，评估条件，更新变量，并决定是否再循环一遍。</p>
+<p>在声明式查询语言（如SQL或关系代数）中，你只需指定所需数据的模式 - 结果必须符合哪些条件，以及如何将数据转换（例如，排序，分组和集合） - 但不是如何实现这一目标。数据库系统的查询优化器决定使用哪些索引和哪些连接方法，以及以何种顺序执行查询的各个部分。</p>
+<p>声明式查询语言是迷人的，因为它通常比命令式API更加简洁和容易。但更重要的是，它还隐藏了数据库引擎的实现细节，这使得数据库系统可以在无需对查询做任何更改的情况下进行性能提升。</p>
+<p>例如，在本节开头所示的命令代码中，动物列表以特定顺序出现。如果数据库想要在后台回收未使用的磁盘空间，则可能需要移动记录，这会改变动物出现的顺序。数据库能否安全地执行，而不会中断查询？</p>
+<p>SQL示例不确保任何特定的顺序，因此不在意顺序是否改变。但是如果查询用命令式的代码来写的话，那么数据库就永远不可能确定代码是否依赖于排序。SQL相当有限的功能性为数据库提供了更多自动优化的空间。</p>
+<p>最后，声明式语言往往适合并行执行。现在，CPU的速度通过内核的增加变得更快，而不是以比以前更高的时钟速度运行【31】。命令代码很难在多个内核和多个机器之间并行化，因为它指定了指令必须以特定顺序执行。声明式语言更具有并行执行的潜力，因为它们仅指定结果的模式，而不指定用于确定结果的算法。在适当情况下，数据库可以自由使用查询语言的并行实现【32】。</p>
+<h3 id="Web上的声明式查询"><a href="#Web上的声明式查询" class="headerlink" title="Web上的声明式查询"></a>Web上的声明式查询</h3><p>声明式查询语言的优势不仅限于数据库。为了说明这一点，让我们在一个完全不同的环境中比较声明式和命令式方法：一个Web浏览器。</p>
+<p>假设你有一个关于海洋动物的网站。用户当前正在查看鲨鱼页面，因此你将当前所选的导航项目“鲨鱼”标记为当前选中项目。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs html">Explain<span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;selected&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Sharks<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Great White Shark<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Tiger Shark<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Hammerhead Shark<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Whales<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Blue Whale<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Humpback Whale<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Fin Whale<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>现在想让当前所选页面的标题具有一个蓝色的背景，以便在视觉上突出显示。使用CSS实现起来非常简单：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-tag">li</span><span class="hljs-selector-class">.selected</span> &gt; <span class="hljs-selector-tag">p</span> &#123;<br>    <span class="hljs-attribute">background-color</span>: blue;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里的CSS选择器<code>li.selected&gt; p</code>声明了我们想要应用蓝色样式的元素的模式：即其直接父元素是具有<code>selected</code>CSS类的<code>&lt;li&gt;</code>元素的所有<code>&lt;p&gt;</code>元素。示例中的元素<code>&lt;p&gt; Sharks &lt;/p&gt;</code>匹配此模式，但<code>&lt;p&gt; Whales &lt;/p&gt;</code>不匹配，因为其<code>&lt;li&gt;</code>父元素缺少<code>class =“selected”</code>。</p>
+<p>如果使用XSL而不是CSS，你可以做类似的事情：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml">Explain<span class="hljs-tag">&lt;<span class="hljs-name">xsl:template</span> <span class="hljs-attr">match</span>=<span class="hljs-string">&quot;li[@class=&#x27;selected&#x27;]/p&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">fo:block</span> <span class="hljs-attr">background-color</span>=<span class="hljs-string">&quot;blue&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">xsl:apply-templates</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">fo:block</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">xsl:template</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这里的XPath表达式<code>li[@class=&#39;selected&#39;]/p</code>相当于上例中的CSS选择器<code>li.selected&gt; p</code>。CSS和XSL的共同之处在于，它们都是用于指定文档样式的声明式语言。</p>
+<p>想象一下，必须使用命令式方法的情况会是如何。在Javascript中，使用 <strong>文档对象模型（DOM）</strong> API，其结果可能如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Explainvar</span> liElements = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementsByTagName</span>(<span class="hljs-string">&quot;li&quot;</span>);<br><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; liElements.<span class="hljs-property">length</span>; i++) &#123;<br>    <span class="hljs-keyword">if</span> (liElements[i].<span class="hljs-property">className</span> === <span class="hljs-string">&quot;selected&quot;</span>) &#123;<br>        <span class="hljs-keyword">var</span> children = liElements[i].<span class="hljs-property">childNodes</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>; j &lt; children.<span class="hljs-property">length</span>; j++) &#123;<br>            <span class="hljs-keyword">var</span> child = children[j];<br>            <span class="hljs-keyword">if</span> (child.<span class="hljs-property">nodeType</span> === <span class="hljs-title class_">Node</span>.<span class="hljs-property">ELEMENT_NODE</span> &amp;&amp; child.<span class="hljs-property">tagName</span> === <span class="hljs-string">&quot;P&quot;</span>) &#123;<br>                child.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;style&quot;</span>, <span class="hljs-string">&quot;background-color: blue&quot;</span>);<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这段JavaScript代码命令式地将元素设置为蓝色背景，但是代码看起来很糟糕。不仅比CSS和XSL等价物更长，更难理解，而且还有一些严重的问题：</p>
+<ul>
+<li>如果选定的类被移除（例如，因为用户点击了不同的页面），即使代码重新运行，蓝色背景也不会被移除 - 因此该项目将保持突出显示，直到整个页面被重新加载。使用CSS，浏览器会自动检测<code>li.selected&gt; p</code>规则何时不再适用，并在选定的类被移除后立即移除蓝色背景。</li>
+<li>如果你想要利用新的API（例如<code>document.getElementsBy ClassName（“selected”</code>）甚至<code>document.evaluate()</code>）来提高性能，则必须重写代码。另一方面，浏览器供应商可以在不破坏兼容性的情况下提高CSS和XPath的性能。</li>
+</ul>
+<p>在Web浏览器中，使用声明式CSS样式比使用JavaScript命令式地操作样式要好得多。类似地，在数据库中，使用像SQL这样的声明式查询语言比使用命令式查询API要好得多<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html#fn_vi">vi</a>。</p>
+<blockquote>
+<p>vi. vi IMS和CODASYL都使用命令式API。应用程序通常使用COBOL代码遍历数据库中的记录，一次一条记录【2,16】。</p>
+</blockquote>
+<blockquote>
+<p>在计算机编程中，声明式查询与命令式查询是两种不同的编程范式，它们在数据库操作和数据检索方面有着根本的区别。</p>
+<p>声明式查询（Declarative Query）:</p>
+<ul>
+<li><strong>目标导向</strong>: 声明式查询关注于“做什么”（What）而不是“怎么做”（How）。用户只需指定想要检索的数据的条件，而不需要指定如何完成这一任务。</li>
+<li><strong>抽象层次高</strong>: 用户不需要了解底层的数据结构和存取方法，只需要通过一种抽象的方式描述自己的数据需求。</li>
+<li><strong>例子</strong>: SQL（Structured Query Language）就是声明式查询的一个典型例子。例如，当你执行一个SQL查询来获取年龄大于30岁的用户时，你不需要告诉数据库如何去遍历表，如何比较年龄字段，数据库管理系统会自动优化并执行查询。</li>
+</ul>
+<p>命令式查询（Imperative Query）:</p>
+<ul>
+<li><strong>过程导向</strong>: 命令式查询关注于“怎么做”（How），通常需要用户按照特定的步骤和算法来检索数据。</li>
+<li><strong>抽象层次低</strong>: 用户通常需要具体操作底层的数据结构，例如数组、列表或者其他数据集合，并且需要编写具体的循环、条件判断、变量赋值等操作。</li>
+<li><strong>例子</strong>: 使用像Python, Java等编程语言中的循环结构和条件判断来过滤数据集合，就是一种命令式查询。例如，你可能需要编写一个循环来遍历所有用户，然后使用一个if语句来检查每个用户的年龄是否大于30。</li>
+</ul>
+<p>总结：<br>声明式查询的优点在于简单、直观和容易优化，因为数据库系统能够理解用户的意图并自动选择最佳的执行策略。而命令式查询则给予用户更多的控制，但同时也需要用户对数据的存储和检索过程有更深入的了解。在实际的应用中，这两种查询方法可以根据具体需求和场景来选择使用。</p>
+</blockquote>
+<h3 id="MapReduce查询"><a href="#MapReduce查询" class="headerlink" title="MapReduce查询"></a>MapReduce查询</h3><p>MapReduce是一个由Google推广的编程模型，用于在多台机器上批量处理大规模的数据【33】。一些NoSQL数据存储（包括MongoDB和CouchDB）支持有限形式的MapReduce，作为在多个文档中执行只读查询的机制。</p>
+<p>现在简要讨论一下MongoDB使用的模型。</p>
+<p>MapReduce既不是一个声明式的查询语言，也不是一个完全命令式的查询API，而是处于两者之间：查询的逻辑用代码片断来表示，这些代码片段会被处理框架重复性调用。它基于<code>map</code>（也称为<code>collect</code>）和<code>reduce</code>（也称为<code>fold</code>或<code>inject</code>）函数，两个函数存在于许多函数式编程语言中。</p>
+<p>最好举例来解释MapReduce模型。假设你是一名海洋生物学家，每当你看到海洋中的动物时，你都会在数据库中添加一条观察记录。现在你想生成一个报告，说明你每月看到多少鲨鱼。</p>
+<p>在PostgreSQL中，你可以像这样表述这个查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql">ExplainSELECT<br>    date_trunc(<span class="hljs-string">&#x27;month&#x27;</span>, observation_timestamp) <span class="hljs-keyword">AS</span> observation_month,<br>    <span class="hljs-built_in">sum</span>(num_animals)                           <span class="hljs-keyword">AS</span> total_animals<br><span class="hljs-keyword">FROM</span> observations<br><span class="hljs-keyword">WHERE</span> family <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Sharks&#x27;</span><br><span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> observation_month;<br></code></pre></td></tr></table></figure>
+
+<p><code>date_trunc(&#39;month&#39;，timestamp)</code>函数用于确定包含<code>timestamp</code>的日历月份，并返回代表该月份开始的另一个时间戳。换句话说，它将时间戳舍入成最近的月份。</p>
+<p>这个查询首先过滤观察记录，以只显示鲨鱼家族的物种，然后根据它们发生的日历月份对观察记录果进行分组，最后将在该月的所有观察记录中看到的动物数目加起来。</p>
+<p>同样的查询用MongoDB的MapReduce功能可以按如下来表述：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Explaindb</span>.<span class="hljs-property">observations</span>.<span class="hljs-title function_">mapReduce</span>(<span class="hljs-keyword">function</span> <span class="hljs-title function_">map</span>(<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-keyword">var</span> year = <span class="hljs-variable language_">this</span>.<span class="hljs-property">observationTimestamp</span>.<span class="hljs-title function_">getFullYear</span>();<br>        <span class="hljs-keyword">var</span> month = <span class="hljs-variable language_">this</span>.<span class="hljs-property">observationTimestamp</span>.<span class="hljs-title function_">getMonth</span>() + <span class="hljs-number">1</span>;<br>        <span class="hljs-title function_">emit</span>(year + <span class="hljs-string">&quot;-&quot;</span> + month, <span class="hljs-variable language_">this</span>.<span class="hljs-property">numAnimals</span>);<br>    &#125;,<br>    <span class="hljs-keyword">function</span> <span class="hljs-title function_">reduce</span>(<span class="hljs-params">key, values</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-title class_">Array</span>.<span class="hljs-title function_">sum</span>(values);<br>    &#125;,<br>    &#123;<br>        <span class="hljs-attr">query</span>: &#123;<br>          <span class="hljs-attr">family</span>: <span class="hljs-string">&quot;Sharks&quot;</span><br>        &#125;,<br>        <span class="hljs-attr">out</span>: <span class="hljs-string">&quot;monthlySharkReport&quot;</span><br>    &#125;);<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>可以声明式地指定只考虑鲨鱼种类的过滤器（这是一个针对MapReduce的特定于MongoDB的扩展）。</li>
+<li>每个匹配查询的文档都会调用一次JavaScript函数<code>map</code>，将<code>this</code>设置为文档对象。</li>
+<li><code>map</code>函数发出一个键（包括年份和月份的字符串，如<code>&quot;2013-12&quot;</code>或<code>&quot;2014-1&quot;</code>）和一个值（该观察记录中的动物数量）。</li>
+<li><code>map</code>发出的键值对按键来分组。对于具有相同键（即，相同的月份和年份）的所有键值对，调用一次<code>reduce</code>函数。</li>
+<li><code>reduce</code>函数将特定月份内所有观测记录中的动物数量相加。</li>
+<li>将最终的输出写入到<code>monthlySharkReport</code>集合中。</li>
+</ul>
+<p>例如，假设<code>observations</code>集合包含这两个文档：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs json">Explain<span class="hljs-punctuation">&#123;</span><br>  observationTimestamp<span class="hljs-punctuation">:</span> Date.parse(  <span class="hljs-string">&quot;Mon, 25 Dec 1995 12:34:56 GMT&quot;</span>)<span class="hljs-punctuation">,</span><br>  family<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Sharks&quot;</span><span class="hljs-punctuation">,</span><br>  species<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Carcharodon carcharias&quot;</span><span class="hljs-punctuation">,</span><br>  numAnimals<span class="hljs-punctuation">:</span> <span class="hljs-number">3</span><br><span class="hljs-punctuation">&#123;</span><br><span class="hljs-punctuation">&#125;</span><br>  observationTimestamp<span class="hljs-punctuation">:</span> Date.parse(<span class="hljs-string">&quot;Tue, 12 Dec 1995 16:17:18 GMT&quot;</span>)<span class="hljs-punctuation">,</span><br>  family<span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Sharks&quot;</span><span class="hljs-punctuation">,</span><br>  species<span class="hljs-punctuation">:</span>    <span class="hljs-string">&quot;Carcharias taurus&quot;</span><span class="hljs-punctuation">,</span><br>  numAnimals<span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>对每个文档都会调用一次<code>map</code>函数，结果将是<code>emit(&quot;1995-12&quot;,3)</code>和<code>emit(&quot;1995-12&quot;,4)</code>。随后，以<code>reduce(&quot;1995-12&quot;,[3,4])</code>调用<code>reduce</code>函数，将返回<code>7</code>。</p>
+<p>map和reduce函数在功能上有所限制：它们必须是<strong>纯</strong>函数，这意味着它们只使用传递给它们的数据作为输入，它们不能执行额外的数据库查询，也不能有任何副作用。这些限制允许数据库以任何顺序运行任何功能，并在失败时重新运行它们。然而，map和reduce函数仍然是强大的：它们可以解析字符串，调用库函数，执行计算等等。</p>
+<p>MapReduce是一个相当底层的编程模型，用于计算机集群上的分布式执行。像SQL这样的更高级的查询语言可以用一系列的MapReduce操作来实现，但是也有很多不使用MapReduce的分布式SQL实现。请注意，SQL中没有任何内容限制它在单个机器上运行，而MapReduce在分布式查询执行上没有垄断权。</p>
+<p>能够在查询中使用JavaScript代码是高级查询的一个重要特性，但这不限于MapReduce，一些SQL数据库也可以用JavaScript函数进行扩展【34】。</p>
+<p>MapReduce的一个可用性问题是，必须编写两个密切合作的JavaScript函数，这通常比编写单个查询更困难。此外，声明式查询语言为查询优化器提供了更多机会来提高查询的性能。基于这些原因，MongoDB 2.2添加了一种叫做<strong>聚合管道</strong>的声明式查询语言的支持【9】。用这种语言表述鲨鱼计数查询如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Explaindb</span>.<span class="hljs-property">observations</span>.<span class="hljs-title function_">aggregate</span>([<br>  &#123; <span class="hljs-attr">$match</span>: &#123; <span class="hljs-attr">family</span>: <span class="hljs-string">&quot;Sharks&quot;</span> &#125; &#125;,<br>  &#123; <span class="hljs-attr">$group</span>: &#123;<br>    <span class="hljs-attr">_id</span>: &#123;<br>      <span class="hljs-attr">year</span>:  &#123; <span class="hljs-attr">$year</span>:  <span class="hljs-string">&quot;$observationTimestamp&quot;</span> &#125;,<br>      <span class="hljs-attr">month</span>: &#123; <span class="hljs-attr">$month</span>: <span class="hljs-string">&quot;$observationTimestamp&quot;</span> &#125;<br>    &#125;,<br>    <span class="hljs-attr">totalAnimals</span>: &#123; <span class="hljs-attr">$sum</span>: <span class="hljs-string">&quot;$numAnimals&quot;</span> &#125; &#125;&#125;<br>]);<br></code></pre></td></tr></table></figure>
+
+<p>聚合管道语言与SQL的子集具有类似表现力，但是它使用基于JSON的语法而不是SQL的英语句子式语法; 这种差异也许是口味问题。这个故事的寓意是NoSQL系统可能会发现自己意外地重新发明了SQL，尽管带着伪装。</p>
+<h2 id="图数据模型"><a href="#图数据模型" class="headerlink" title="图数据模型"></a>图数据模型</h2><p>如我们之前所见，多对多关系是不同数据模型之间具有区别性的重要特征。如果你的应用程序大多数的关系是一对多关系（树状结构化数据），或者大多数记录之间不存在关系，那么使用文档模型是合适的。</p>
+<p>但是，要是多对多关系在你的数据中很常见呢？关系模型可以处理多对多关系的简单情况，但是随着数据之间的连接变得更加复杂，将数据建模为图形显得更加自然。</p>
+<p>一个图由两种对象组成：<strong>顶点（vertices）</strong>（也称为<strong>节点（nodes）</strong> 或<strong>实体（entities）</strong>），和<strong>边（edges）</strong>（ 也称为<strong>关系（relationships）</strong>或<strong>弧 （arcs）</strong> ）。多种数据可以被建模为一个图形。典型的例子包括：</p>
+<p><em><strong>社交图谱</strong></em></p>
+<p>顶点是人，边指示哪些人彼此认识。</p>
+<p><em><strong>网络图谱</strong></em></p>
+<p>顶点是网页，边缘表示指向其他页面的HTML链接。</p>
+<p><em><strong>公路或铁路网络</strong></em></p>
+<p>顶点是交叉路口，边线代表它们之间的道路或铁路线。</p>
+<p>可以将那些众所周知的算法运用到这些图上：例如，汽车导航系统搜索道路网络中两点之间的最短路径，PageRank可以用在网络图上来确定网页的流行程度，从而确定该网页在搜索结果中的排名。</p>
+<p>在刚刚给出的例子中，图中的所有顶点代表了相同类型的事物（人，网页或交叉路口）。不过，图并不局限于这样的同类数据：同样强大地是，图提供了一种一致的方式，用来在单个数据存储中存储完全不同类型的对象。例如，Facebook维护一个包含许多不同类型的顶点和边的单个图：顶点表示人，地点，事件，签到和用户的评论;边缘表示哪些人是彼此的朋友，哪个签到发生在何处，谁评论了哪条消息，谁参与了哪个事件，等等【35】。</p>
+<p>在本节中，我们将使用图2-5所示的示例。它可以从社交网络或系谱数据库中获得：它显示了两个人，来自爱达荷州的Lucy和来自法国Beaune的Alain。他们已婚，住在伦敦。</p>
+<p><img src="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-5.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>图2-5 图数据结构示例（框代表顶点，箭头代表边）</strong></p>
+<p>有几种不同但相关的方法用来构建和查询图表中的数据。在本节中，我们将讨论属性图模型（由Neo4j，Titan和InfiniteGraph实现）和三元组存储（triple-store）模型（由Datomic，AllegroGraph等实现）。我们将查看图的三种声明式查询语言：Cypher，SPARQL和Datalog。除此之外，还有像Gremlin 【36】这样的图形查询语言和像Pregel这样的图形处理框架（见<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch10.html">第10章</a>）。</p>
+<h3 id="属性图"><a href="#属性图" class="headerlink" title="属性图"></a>属性图</h3><p>在属性图模型中，每个<strong>顶点（vertex）</strong>包括：</p>
+<ul>
+<li>唯一的标识符</li>
+<li>一组 <strong>出边（outgoing edges）</strong></li>
+<li>一组 <strong>入边（ingoing edges）</strong></li>
+<li>一组属性（键值对）</li>
+</ul>
+<p>每条 <strong>边（edge）</strong> 包括：</p>
+<ul>
+<li>唯一标识符</li>
+<li><strong>边的起点&#x2F;尾部顶点（tail vertex）</strong></li>
+<li><strong>边的终点&#x2F;头部顶点（head vertex）</strong></li>
+<li>描述两个顶点之间关系类型的标签</li>
+<li>一组属性（键值对）</li>
+</ul>
+<p>可以将图存储看作由两个关系表组成：一个存储顶点，另一个存储边，如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html">例2-2</a>所示（该模式使用PostgreSQL json数据类型来存储每个顶点或每条边的属性）。头部和尾部顶点用来存储每条边；如果你想要一组顶点的输入或输出边，你可以分别通过<code>head_vertex</code>或<code>tail_vertex</code>来查询<code>edges</code>表。</p>
+<p><strong>例2-2 使用关系模式来表示属性图</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs sql">Explain<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> vertices (<br>  vertex_id  <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">PRIMARY</span> KEY,<br>  properties JSON<br>);<br><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> edges (<br>  edge_id     <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">PRIMARY</span> KEY,<br>  tail_vertex <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">REFERENCES</span> vertices (vertex_id),<br>  head_vertex <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">REFERENCES</span> vertices (vertex_id),<br>  label       TEXT,<br>  properties  JSON<br>);<br><br><span class="hljs-keyword">CREATE</span> INDEX edges_tails <span class="hljs-keyword">ON</span> edges (tail_vertex);<br><span class="hljs-keyword">CREATE</span> INDEX edges_heads <span class="hljs-keyword">ON</span> edges (head_vertex);<br></code></pre></td></tr></table></figure>
+
+<p>关于这个模型的一些重要方面是：</p>
+<ol>
+<li>任何顶点都可以有一条边连接到任何其他顶点。没有模式限制哪种事物可不可以关联。</li>
+<li>给定任何顶点，可以高效地找到它的入边和出边，从而遍历图，即沿着一系列顶点的路径前后移动。（这就是为什么<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html">例2-2</a>在<code>tail_vertex</code>和<code>head_vertex</code>列上都有索引的原因。）</li>
+<li>通过对不同类型的关系使用不同的标签，可以在一个图中存储几种不同的信息，同时仍然保持一个清晰的数据模型。</li>
+</ol>
+<p>这些特性为数据建模提供了很大的灵活性，如图2-5所示。图中显示了一些传统关系模式难以表达的事情，例如不同国家的不同地区结构（法国有省和州，美国有不同的州和州），国中国的怪事（先忽略主权国家和国家错综复杂的烂摊子），不同的数据粒度（Lucy现在的住所被指定为一个城市，而她的出生地点只是在一个州的级别）。</p>
+<p>你可以想象延伸图还能包括许多关于Lucy和Alain，或其他人的其他更多的事实。例如，你可以用它来表示食物过敏（为每个过敏源增加一个顶点，并增加人与过敏源之间的一条边来指示一种过敏情况），并链接到过敏源，每个过敏源具有一组顶点用来显示哪些食物含有哪些物质。然后，你可以写一个查询，找出每个人吃什么是安全的。图表在可演化性是富有优势的：当向应用程序添加功能时，可以轻松扩展图以适应应用程序数据结构的变化。</p>
+<h3 id="Cypher查询语言"><a href="#Cypher查询语言" class="headerlink" title="Cypher查询语言"></a>Cypher查询语言</h3><p>Cypher是属性图的声明式查询语言，为Neo4j图形数据库而发明【37】。（它是以电影“黑客帝国”中的一个角色来命名的，而与密码术中的密码无关【38】。）</p>
+<p>下述例子显示了将图2-5的左边部分插入图形数据库的Cypher查询。可以类似地添加图的其余部分，为了便于阅读而省略。每个顶点都有一个像<code>USA</code>或<code>Idaho</code>这样的符号名称，查询的其他部分可以使用这些名称在顶点之间创建边，使用箭头符号：<code>（Idaho） - [：WITHIN] -&gt;（USA）</code>创建一条标记为<code>WITHIN</code>的边，<code>Idaho</code>为尾节点，<code>USA</code>为头节点。</p>
+<p><strong>例2-3 将图2-5中的数据子集表示为Cypher查询</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cypher">ExplainCREATE<br>    (NAmerica:Location &#123;name:&#x27;North America&#x27;, type:&#x27;continent&#x27;&#125;),<br>    (USA:Location      &#123;name:&#x27;United States&#x27;, type:&#x27;country&#x27;  &#125;),<br>    (Idaho:Location    &#123;name:&#x27;Idaho&#x27;,         type:&#x27;state&#x27;    &#125;),<br>    (Lucy:Person       &#123;name:&#x27;Lucy&#x27; &#125;),<br>    (Idaho) -[:WITHIN]-&gt;  (USA)  -[:WITHIN]-&gt; (NAmerica),<br>    (Lucy)  -[:BORN_IN]-&gt; (Idaho)<br></code></pre></td></tr></table></figure>
+
+<p>当图2-5的所有顶点和边被添加到数据库后，让我们提些有趣的问题：例如，找到所有从美国移民到欧洲的人的名字。更确切地说，这里我们想要找到符合下面条件的所有顶点，并且返回这些顶点的<code>name</code>属性：该顶点拥有一条连到美国任一位置的<code>BORN_IN</code>边，和一条连到欧洲的任一位置的<code>LIVING_IN</code>边。</p>
+<p>下述例子展示了如何在Cypher中表达这个查询。在MATCH子句中使用相同的箭头符号来查找图中的模式：<code>(person) -[:BORN_IN]-&gt; ()</code> 可以匹配<code>BORN_IN</code>边的任意两个顶点。该边的尾节点被绑定了变量<code>person</code>，头节点则未被绑定。</p>
+<p><strong>例2-4 查找所有从美国移民到欧洲的人的Cypher查询：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cypher">MATCH<br>    (person) -[:BORN_IN]-&gt;  () -[:WITHIN*0..]-&gt; (us:Location &#123;name:&#x27;United States&#x27;&#125;),<br>    (person) -[:LIVES_IN]-&gt; () -[:WITHIN*0..]-&gt; (eu:Location &#123;name:&#x27;Europe&#x27;&#125;)<br>RETURN person.name<br></code></pre></td></tr></table></figure>
+
+<p>查询按如下来解读：</p>
+<blockquote>
+<p>找到满足以下两个条件的所有顶点（称之为person顶点）：</p>
+<ol>
+<li><code>person</code>顶点拥有一条到某个顶点的<code>BORN_IN</code>出边。从那个顶点开始，沿着一系列<code>WITHIN</code>出边最终到达一个类型为<code>Location</code>，<code>name</code>属性为<code>United States</code>的顶点。</li>
+<li><code>person</code>顶点还拥有一条<code>LIVES_IN</code>出边。沿着这条边，可以通过一系列<code>WITHIN</code>出边最终到达一个类型为<code>Location</code>，<code>name</code>属性为<code>Europe</code>的顶点。</li>
+</ol>
+<p>对于这样的<code>Person</code>顶点，返回其<code>name</code>属性。</p>
+</blockquote>
+<p>执行这条查询可能会有几种可行的查询路径。这里给出的描述建议首先扫描数据库中的所有人，检查每个人的出生地和居住地，然后只返回符合条件的那些人。</p>
+<p>等价地，也可以从两个<code>Location</code>顶点开始反向地查找。假如<code>name</code>属性上有索引，则可以高效地找到代表美国和欧洲的两个顶点。然后，沿着所有<code>WITHIN</code>入边，可以继续查找出所有在美国和欧洲的位置（州，地区，城市等）。最后，查找出那些可以由<code>BORN_IN</code>或<code>LIVES_IN</code>入边到那些位置顶点的人。</p>
+<p>通常对于声明式查询语言来说，在编写查询语句时，不需要指定执行细节：查询优化程序会自动选择预测效率最高的策略，因此你可以继续编写应用程序的其他部分。</p>
+<h3 id="SQL中的图查询"><a href="#SQL中的图查询" class="headerlink" title="SQL中的图查询"></a>SQL中的图查询</h3><p>例2-2建议在关系数据库中表示图数据。但是，如果把图数据放入关系结构中，我们是否也可以使用SQL查询它？</p>
+<p>答案是肯定的，但有些困难。在关系数据库中，你通常会事先知道在查询中需要哪些连接。在图查询中，你可能需要在找到待查找的顶点之前，遍历可变数量的边。也就是说，连接的数量事先并不确定。</p>
+<p>在我们的例子中，这发生在Cypher查询中的<code>() -[:WITHIN*0..]-&gt; ()</code>规则中。一个人的<code>LIVES_IN</code>边可以指向任何类型的位置：街道，城市，地区，地区，国家等。城市可以在一个地区，在一个州内的一个地区，在一个国家内的一个州等等。<code>LIVES_IN</code>边可以直接指向正在查找的位置，或者一个在位置层次结构中隔了数层的位置。</p>
+<p>在Cypher中，用<code>WITHIN * 0</code>非常简洁地表述了上述事实：“沿着<code>WITHIN</code>边，零次或多次”。它很像正则表达式中的<code>*</code>运算符。</p>
+<p>自SQL:1999，查询可变长度遍历路径的思想可以使用称为<strong>递归公用表表达式</strong>（<code>WITH RECURSIVE</code>语法）的东西来表示。例2-5显示了同样的查询 - 查找从美国移民到欧洲的人的姓名 - 在SQL使用这种技术（PostgreSQL，IBM DB2，Oracle和SQL Server均支持）来表述。但是，与Cypher相比，其语法非常笨拙。</p>
+<p><strong>例2-5 与示例2-4同样的查询，在SQL中使用递归公用表表达式表示</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs sql">ExplainWITH <span class="hljs-keyword">RECURSIVE</span><br>  <span class="hljs-comment">-- in_usa 包含所有的美国境内的位置ID</span><br>    in_usa(vertex_id) <span class="hljs-keyword">AS</span> (<br>    <span class="hljs-keyword">SELECT</span> vertex_id <span class="hljs-keyword">FROM</span> vertices <span class="hljs-keyword">WHERE</span> properties <span class="hljs-operator">-</span><span class="hljs-operator">&gt;&gt;</span> <span class="hljs-string">&#x27;name&#x27;</span> <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;United States&#x27;</span><br>    <span class="hljs-keyword">UNION</span><br>    <span class="hljs-keyword">SELECT</span> edges.tail_vertex <span class="hljs-keyword">FROM</span> edges<br>      <span class="hljs-keyword">JOIN</span> in_usa <span class="hljs-keyword">ON</span> edges.head_vertex <span class="hljs-operator">=</span> in_usa.vertex_id<br>      <span class="hljs-keyword">WHERE</span> edges.label <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;within&#x27;</span>),<br>  <span class="hljs-comment">-- in_europe 包含所有的欧洲境内的位置ID</span><br>    in_europe(vertex_id) <span class="hljs-keyword">AS</span> (<br>    <span class="hljs-keyword">SELECT</span> vertex_id <span class="hljs-keyword">FROM</span> vertices <span class="hljs-keyword">WHERE</span> properties <span class="hljs-operator">-</span><span class="hljs-operator">&gt;&gt;</span> <span class="hljs-string">&#x27;name&#x27;</span> <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;Europe&#x27;</span><br>    <span class="hljs-keyword">UNION</span><br>    <span class="hljs-keyword">SELECT</span> edges.tail_vertex <span class="hljs-keyword">FROM</span> edges<br>      <span class="hljs-keyword">JOIN</span> in_europe <span class="hljs-keyword">ON</span> edges.head_vertex <span class="hljs-operator">=</span> in_europe.vertex_id<br>      <span class="hljs-keyword">WHERE</span> edges.label <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;within&#x27;</span> ),<br><br>  <span class="hljs-comment">-- born_in_usa 包含了所有类型为Person，且出生在美国的顶点</span><br>    born_in_usa(vertex_id) <span class="hljs-keyword">AS</span> (<br>      <span class="hljs-keyword">SELECT</span> edges.tail_vertex <span class="hljs-keyword">FROM</span> edges<br>        <span class="hljs-keyword">JOIN</span> in_usa <span class="hljs-keyword">ON</span> edges.head_vertex <span class="hljs-operator">=</span> in_usa.vertex_id<br>        <span class="hljs-keyword">WHERE</span> edges.label <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;born_in&#x27;</span> ),<br><br>  <span class="hljs-comment">-- lives_in_europe 包含了所有类型为Person，且居住在欧洲的顶点。</span><br>    lives_in_europe(vertex_id) <span class="hljs-keyword">AS</span> (<br>      <span class="hljs-keyword">SELECT</span> edges.tail_vertex <span class="hljs-keyword">FROM</span> edges<br>        <span class="hljs-keyword">JOIN</span> in_europe <span class="hljs-keyword">ON</span> edges.head_vertex <span class="hljs-operator">=</span> in_europe.vertex_id<br>        <span class="hljs-keyword">WHERE</span> edges.label <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;lives_in&#x27;</span>)<br><br>  <span class="hljs-keyword">SELECT</span> vertices.properties <span class="hljs-operator">-</span><span class="hljs-operator">&gt;&gt;</span> <span class="hljs-string">&#x27;name&#x27;</span><br>  <span class="hljs-keyword">FROM</span> vertices<br>    <span class="hljs-keyword">JOIN</span> born_in_usa <span class="hljs-keyword">ON</span> vertices.vertex_id <span class="hljs-operator">=</span> born_in_usa.vertex_id<br>    <span class="hljs-keyword">JOIN</span> lives_in_europe <span class="hljs-keyword">ON</span> vertices.vertex_id <span class="hljs-operator">=</span> lives_in_europe.vertex_id;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>首先，查找<code>name</code>属性为<code>United States</code>的顶点，将其作为<code>in_usa</code>顶点的集合的第一个元素。</li>
+<li>从<code>in_usa</code>集合的顶点出发，沿着所有的<code>with_in</code>入边，将其尾顶点加入同一集合，不断递归直到所有<code>with_in</code>入边都被访问完毕。</li>
+<li>同理，从<code>name</code>属性为<code>Europe</code>的顶点出发，建立<code>in_europe</code>顶点的集合。</li>
+<li>对于<code>in_usa</code>集合中的每个顶点，根据<code>born_in</code>入边来查找出生在美国某个地方的人。</li>
+<li>同样，对于<code>in_europe</code>集合中的每个顶点，根据<code>lives_in</code>入边来查找居住在欧洲的人。</li>
+<li>最后，把在美国出生的人的集合与在欧洲居住的人的集合相交。</li>
+</ul>
+<p>同一个查询，用某一个查询语言可以写成4行，而用另一个查询语言需要29行，这恰恰说明了不同的数据模型是为不同的应用场景而设计的。选择适合应用程序的数据模型非常重要。</p>
+<h3 id="三元组存储和SPARQL"><a href="#三元组存储和SPARQL" class="headerlink" title="三元组存储和SPARQL"></a>三元组存储和SPARQL</h3><p>三元组存储模式大体上与属性图模型相同，用不同的词来描述相同的想法。不过仍然值得讨论，因为三元组存储有很多现成的工具和语言，这些工具和语言对于构建应用程序的工具箱可能是宝贵的补充。</p>
+<p>在三元组存储中，所有信息都以非常简单的三部分表示形式存储（<strong>主语</strong>，<strong>谓语</strong>，<strong>宾语</strong>）。例如，三元组 <strong>(吉姆, 喜欢 ,香蕉)</strong> 中，<strong>吉姆</strong> 是主语，<strong>喜欢</strong> 是谓语（动词），<strong>香蕉</strong> 是对象。</p>
+<p>三元组的主语相当于图中的一个顶点。而宾语是下面两者之一：</p>
+<ol>
+<li>原始数据类型中的值，例如字符串或数字。在这种情况下，三元组的谓语和宾语相当于主语顶点上的属性的键和值。例如，<code>(lucy, age, 33)</code>就像属性<code>&#123;“age”：33&#125;</code>的顶点lucy。</li>
+<li>图中的另一个顶点。在这种情况下，谓语是图中的一条边，主语是其尾部顶点，而宾语是其头部顶点。例如，在<code>(lucy, marriedTo, alain)</code>中主语和宾语<code>lucy</code>和<code>alain</code>都是顶点，并且谓语<code>marriedTo</code>是连接他们的边的标签。</li>
+</ol>
+<p>例2-6显示了与例2-3相同的数据，以称为Turtle的格式（Notation3（N3）【39】）的一个子集形式写成三元组。</p>
+<p><strong>例2-6 图2-5中的数据子集，表示为Turtle三元组</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs reStructuredText">Explain@prefix : &lt;urn:example:&gt;.<br>_:lucy     a       :Person.<br>_:lucy     :name   &quot;Lucy&quot;.<br>_:lucy     :bornIn _:idaho.<br>_:idaho    a       :Location.<br>_:idaho    :name   &quot;Idaho&quot;.<br>_:idaho    :type   &quot;state&quot;.<br>_:idaho    :within _:usa.<br>_:usa      a       :Location<br>_:usa      :name   &quot;United States&quot;<br>_:usa      :type   &quot;country&quot;.<br>_:usa      :within _:namerica.<br>_:namerica a       :Location<br>_:namerica :name   &quot;North America&quot;<br>_:namerica :type   :&quot;continent&quot;<br></code></pre></td></tr></table></figure>
+
+<p>在这个例子中，图的顶点被写为：<code>_：someName</code>。这个名字并不意味着这个文件以外的任何东西。它的存在只是帮助我们明确哪些三元组引用了同一顶点。当谓语表示边时，该宾语是一个顶点，如<code>_:idaho :within _:usa.</code>。当谓语是一个属性时，该宾语是一个字符串，如<code>_:usa :name &quot;United States&quot;</code></p>
+<p>一遍又一遍地重复相同的主语看起来相当重复，但幸运的是，可以使用分号来说明关于同一主语的多个事情。这使得Turtle格式相当不错，可读性强：参见例2-7。</p>
+<p><strong>例2-7 一种相对例2-6写入数据的更为简洁的方法。</strong></p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs elixir"><span class="hljs-title class_">Explain</span><span class="hljs-variable">@prefix</span> : &lt;<span class="hljs-symbol">urn:</span><span class="hljs-symbol">example:</span>&gt;.<br><span class="hljs-symbol">_:</span>lucy      a <span class="hljs-symbol">:Person</span>;   <span class="hljs-symbol">:name</span> <span class="hljs-string">&quot;Lucy&quot;</span>;          <span class="hljs-symbol">:bornIn</span> <span class="hljs-symbol">_:</span>idaho.<br><span class="hljs-symbol">_:</span>idaho     a <span class="hljs-symbol">:Location</span>; <span class="hljs-symbol">:name</span> <span class="hljs-string">&quot;Idaho&quot;</span>;         <span class="hljs-symbol">:type</span> <span class="hljs-string">&quot;state&quot;</span>;   <span class="hljs-symbol">:within</span> <span class="hljs-symbol">_:</span>usa<br><span class="hljs-symbol">_:</span>usa       a <span class="hljs-symbol">:Loaction</span>; <span class="hljs-symbol">:name</span> <span class="hljs-string">&quot;United States&quot;</span>; <span class="hljs-symbol">:type</span> <span class="hljs-string">&quot;country&quot;</span>; <span class="hljs-symbol">:within</span> <span class="hljs-symbol">_:</span>namerica.<br><span class="hljs-symbol">_:</span>namerica  a <span class="hljs-symbol">:Location</span>; <span class="hljs-symbol">:name</span> <span class="hljs-string">&quot;North America&quot;</span>; <span class="hljs-symbol">:type</span> <span class="hljs-string">&quot;continent&quot;</span>.<br></code></pre></td></tr></table></figure>
+
+<h4 id="语义网络"><a href="#语义网络" class="headerlink" title="语义网络"></a>语义网络</h4><p>如果你阅读更多关于三元组存储的信息，你可能会被卷入关于语义网络的文章漩涡中。三元组存储数据模型完全独立于语义网络，例如，Datomic【40】是三元组存储<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html#fn_vii">vii</a>，并没有声称与它有任何关系。但是，由于在很多人眼中这两者紧密相连，我们应该简要地讨论一下。</p>
+<blockquote>
+<p>vii. 从技术上讲，Datomic使用的是五元组而不是三元组，两个额外的字段是用于版本控制的元数据</p>
+</blockquote>
+<p>从本质上讲语义网是一个简单且合理的想法：网站已经将信息发布为文字和图片供人类阅读，为什么不将信息作为机器可读的数据也发布给计算机呢？<strong>资源描述框架</strong>（RDF）【41】的目的是作为不同网站以一致的格式发布数据的一种机制，允许来自不同网站的数据自动合并成<strong>一个数据网络</strong> - 一种互联网范围内的“关于一切的数据库“。</p>
+<p>不幸的是，这个语义网在二十一世纪初被过度使用，但到目前为止没有任何迹象表明已在实践中实现，这使得许多人呲之以鼻。它还遭受了过多的令人眼花缭乱的缩略词，过于复杂的标准提议和狂妄自大的苦果。</p>
+<p>然而，如果仔细观察这些失败，语义Web项目还是拥有很多优秀的工作成果。即使你没有兴趣在语义网上发布RDF数据，三元组也可以成为应用程序的良好内部数据模型。</p>
+<h4 id="RDF数据模型"><a href="#RDF数据模型" class="headerlink" title="RDF数据模型"></a>RDF数据模型</h4><p>例2-7中使用的Turtle语言是一种用于RDF数据的人可读格式。有时候，RDF也可以以XML格式编写，不过完成同样的事情会相对啰嗦，参见例2-8。Turtle&#x2F;N3是更可取的，因为它更容易阅读，像Apache Jena 【42】这样的工具可以根据需要在不同的RDF格式之间进行自动转换。</p>
+<p><strong>例2-8 用RDF&#x2F;XML语法表示例2-7的数据</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs xml">Explain<span class="hljs-tag">&lt;<span class="hljs-name">rdf:RDF</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;urn:example:&quot;</span></span><br><span class="hljs-tag">         <span class="hljs-attr">xmlns:rdf</span>=<span class="hljs-string">&quot;http://www.w3.org/1999/02/22-rdf-syntax-ns#&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Location</span> <span class="hljs-attr">rdf:nodeID</span>=<span class="hljs-string">&quot;idaho&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>Idaho<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>state<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">within</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">Location</span> <span class="hljs-attr">rdf:nodeID</span>=<span class="hljs-string">&quot;usa&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>United States<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>country<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">within</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">Location</span> <span class="hljs-attr">rdf:nodeID</span>=<span class="hljs-string">&quot;namerica&quot;</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>North America<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>                        <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>continent<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span><br>                    <span class="hljs-tag">&lt;/<span class="hljs-name">Location</span>&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">within</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">Location</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">within</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">Location</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">Person</span> <span class="hljs-attr">rdf:nodeID</span>=<span class="hljs-string">&quot;lucy&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>Lucy<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">bornIn</span> <span class="hljs-attr">rdf:nodeID</span>=<span class="hljs-string">&quot;idaho&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">Person</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">rdf:RDF</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>RDF有一些奇怪之处，因为它是为了在互联网上交换数据而设计的。三元组的主语，谓语和宾语通常是URI。例如，谓语可能是一个URI，如 <code>&lt;http://my-company.com/namespace#within&gt;</code>或<code>&lt;http://my-company.com/namespace#lives_in&gt;</code>，而不仅仅是<code>WITHIN</code>或<code>LIVES_IN</code>。这个设计背后的原因为了让你能够把你的数据和其他人的数据结合起来，如果他们赋予单词<code>within</code>或者<code>lives_in</code>不同的含义，两者也不会冲突，因为它们的谓语实际上是<code>&lt;http://other.org/foo#within&gt;</code>和<code>&lt;http://other.org/foo#lives_in&gt;</code>。</p>
+<p>从RDF的角度来看，URL <code>&lt;http://my-company.com/namespace&gt;</code> 不一定需要能解析成什么东西，它只是一个命名空间。为避免与<code>http://URL</code>混淆，本节中的示例使用不可解析的URI，如<code>urn：example：within</code>。幸运的是，你只需在文件顶部指定一个前缀，然后就不用再管了。</p>
+<h3 id="SPARQL查询语言"><a href="#SPARQL查询语言" class="headerlink" title="SPARQL查询语言"></a>SPARQL查询语言</h3><p><strong>SPARQL</strong>是一种用于三元组存储的面向RDF数据模型的查询语言，【43】。（它是SPARQL协议和RDF查询语言的缩写，发音为“sparkle”。）SPARQL早于Cypher，并且由于Cypher的模式匹配借鉴于SPARQL，这使得它们看起来非常相似【37】。</p>
+<p>与之前相同的查询 - 查找从美国转移到欧洲的人 - 使用SPARQL比使用Cypher甚至更为简洁（参见[例2-9）。</p>
+<p><strong>例2-9 与示例2-4相同的查询，用SPARQL表示</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sparql">ExplainPREFIX : &lt;urn:example:&gt;<br>SELECT ?personName WHERE &#123;<br>  ?person :name ?personName.<br>  ?person :bornIn  / :within* / :name &quot;United States&quot;.<br>  ?person :livesIn / :within* / :name &quot;Europe&quot;.<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>结构非常相似。以下两个表达式是等价的（SPARQL中的变量以问号开头）：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ruby">(person) -[<span class="hljs-symbol">:BORN_IN</span>]-&gt; () -[<span class="hljs-symbol">:WITHIN*</span><span class="hljs-number">0</span>..]-&gt; (location)   <span class="hljs-comment"># Cypher</span><br><span class="hljs-string">?p</span>erson <span class="hljs-symbol">:bornIn</span> / <span class="hljs-symbol">:within*</span> <span class="hljs-string">?l</span>ocation.                   <span class="hljs-comment"># SPARQL</span><br></code></pre></td></tr></table></figure>
+
+<p>因为RDF不区分属性和边，而只是将它们作为谓语，所以可以使用相同的语法来匹配属性。在下面的表达式中，变量<code>usa</code>被绑定到任意具有值为字符串<code>&quot;United States&quot;</code>的<code>name</code>属性的顶点：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ruby">(usa &#123;<span class="hljs-symbol">name:</span><span class="hljs-string">&#x27;United States&#x27;</span>&#125;)   <span class="hljs-comment"># Cypher</span><br><span class="hljs-string">?u</span>sa <span class="hljs-symbol">:name</span> <span class="hljs-string">&quot;United States&quot;</span>.    <span class="hljs-comment"># SPARQL</span><br></code></pre></td></tr></table></figure>
+
+<p>SPARQL是一种很好的查询语言——哪怕语义网从未实现，它仍然可以成为一种应用程序内部使用的强大工具。</p>
+<h3 id="基础：Datalog"><a href="#基础：Datalog" class="headerlink" title="基础：Datalog"></a>基础：Datalog</h3><p><strong>Datalog</strong>是比SPARQL或Cypher更古老的语言，在20世纪80年代被学者广泛研究【44,45,46】。它在软件工程师中不太知名，但是它是重要的，因为它为以后的查询语言提供了基础。</p>
+<p>在实践中，Datalog被用于少数的数据系统中：例如，它是Datomic 【40】的查询语言，Cascalog 【47】是一种用于查询Hadoop大数据集的Datalog实现<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html#fn_viii">viii</a>。</p>
+<blockquote>
+<p>viii. Datomic和Cascalog使用Datalog的Clojure S表达式语法。在下面的例子中使用了一个更容易阅读的Prolog语法，但两者没有任何功能差异。</p>
+</blockquote>
+<p>Datalog的数据模型类似于三元组模式，但进行了一点泛化。把三元组写成<strong>谓语</strong>（<strong>主语，宾语</strong>），而不是写三元语（<strong>主语，谓语，宾语</strong>）。例2-10显示了如何用Datalog写入我们的例子中的数据。</p>
+<p><strong>例2-10 用Datalog来表示图2-5中的数据子集</strong></p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs prolog"><span class="hljs-symbol">Explainname</span>(namerica, <span class="hljs-string">&#x27;North America&#x27;</span>).<br>type(namerica, continent).<br><br>name(usa, <span class="hljs-string">&#x27;United States&#x27;</span>).<br>type(usa, country).<br>within(usa, namerica).<br><br>name(idaho, <span class="hljs-string">&#x27;Idaho&#x27;</span>).<br>type(idaho, state).<br>within(idaho, usa).<br><br>name(lucy, <span class="hljs-string">&#x27;Lucy&#x27;</span>).<br>born_in(lucy, idaho).<br></code></pre></td></tr></table></figure>
+
+<p>既然已经定义了数据，我们可以像之前一样编写相同的查询，如<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch2.html">例2-11</a>所示。它看起来有点不同于Cypher或SPARQL的等价物，但是请不要放弃它。Datalog是Prolog的一个子集，如果你学过计算机科学，你可能已经见过。</p>
+<p><strong>例2-11 与示例2-4相同的查询，用Datalog表示</strong></p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">Explainwithin_recursive(<span class="hljs-keyword">Location</span>, <span class="hljs-type">Name</span>) :- <span class="hljs-type">name</span>(<span class="hljs-keyword">Location</span>, <span class="hljs-type">Name</span>). <span class="hljs-comment">/* Rule 1 */</span><br><br>within_recursive(<span class="hljs-keyword">Location</span>, <span class="hljs-type">Name</span>) :- <span class="hljs-keyword">within</span>(<span class="hljs-keyword">Location</span>, Via), <span class="hljs-comment">/* Rule 2 */</span><br>                                    within_recursive(Via, <span class="hljs-type">Name</span>).<br><br>migrated(<span class="hljs-type">Name</span>, BornIn, LivingIn) :- <span class="hljs-type">name</span>(Person, <span class="hljs-type">Name</span>), <span class="hljs-comment">/* Rule 3 */</span><br>                                    born_in(Person, BornLoc),<br>                                    within_recursive(BornLoc, BornIn),<br>                                    lives_in(Person, LivingLoc),<br>                                    within_recursive(LivingLoc, LivingIn).<br><br>?- migrated(Who, <span class="hljs-string">&#x27;United States&#x27;</span>, <span class="hljs-string">&#x27;Europe&#x27;</span>). <span class="hljs-comment">/* Who = &#x27;Lucy&#x27;. */</span><br></code></pre></td></tr></table></figure>
+
+<p>Cypher和SPARQL使用SELECT立即跳转，但是Datalog一次只进行一小步。我们定义<strong>规则</strong>，以将新谓语告诉数据库：在这里，我们定义了两个新的谓语，<code>within_recursive</code>和<code>migrated</code>。这些谓语不是存储在数据库中的三元组中，而是它们是从数据或其他规则派生而来的。规则可以引用其他规则，就像函数可以调用其他函数或者递归地调用自己一样。像这样，复杂的查询可以一次构建其中的一小块。</p>
+<p>在规则中，以大写字母开头的单词是变量，谓语则用Cypher和SPARQL的方式一样来匹配。例如，<code>name(Location, Name)</code>通过变量绑定<code>Location = namerica</code>和<code>Name =&#39;North America&#39;</code>可以匹配三元组<code>name(namerica, &#39;North America&#39;)</code>。</p>
+<p>要是系统可以在<code>:-</code> 操作符的右侧找到与所有谓语的一个匹配，就运用该规则。当规则运用时，就好像通过<code>:-</code>的左侧将其添加到数据库（将变量替换成它们匹配的值）。</p>
+<p>因此，一种可能的应用规则的方式是：</p>
+<ol>
+<li>数据库存在<code>name(namerica, &#39;North America&#39;)</code>，故运用规则1。它生成<code>within_recursive(namerica, &#39;North America&#39;)</code>。</li>
+<li>数据库存在<code>within(usa, namerica)</code>，在上一步骤中生成<code>within_recursive(namerica, &#39;North America&#39;)</code>，故运用规则2。它会产生<code>within_recursive(usa, &#39;North America&#39;)</code>。</li>
+<li>数据库存在<code>within(idaho, usa)</code>，在上一步生成<code>within_recursive(usa, &#39;North America&#39;)</code>，故运用规则2。它产生<code>within_recursive(idaho, &#39;North America&#39;)</code>。</li>
+</ol>
+<p>通过重复应用规则1和2，<code>within_recursive</code>谓语可以告诉我们在数据库中包含北美（或任何其他位置名称）的所有位置。这个过程如图2-6所示。</p>
+<p><img src="https://vonng.gitbooks.io/ddia-cn/content/img/fig2-6.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p><strong>图2-6 使用示例2-11中的Datalog规则来确定爱达荷州在北美。</strong></p>
+<p>现在规则3可以找到出生在某个地方<code>BornIn</code>的人，并住在某个地方<code>LivingIn</code>。通过查询<code>BornIn =&#39;United States&#39;</code>和<code>LivingIn =&#39;Europe&#39;</code>，并将此人作为变量<code>Who</code>，让Datalog系统找出变量<code>Who</code>会出现哪些值。因此，最后得到了与早先的Cypher和SPARQL查询相同的答案。</p>
+<p>相对于本章讨论的其他查询语言，我们需要采取不同的思维方式来思考Datalog方法，但这是一种非常强大的方法，因为规则可以在不同的查询中进行组合和重用。虽然对于简单的一次性查询，显得不太方便，但是它可以更好地处理数据很复杂的情况。</p>
+<h2 id="本章小结"><a href="#本章小结" class="headerlink" title="本章小结"></a>本章小结</h2><p>数据模型是一个巨大的课题，在本章中，我们快速浏览了各种不同的模型。我们没有足够的空间来详细介绍每个模型的细节，但是希望这个概述足以激起你的兴趣，以更多地了解最适合你的应用需求的模型。</p>
+<p>在历史上，数据最开始被表示为一棵大树（层次数据模型），但是这不利于表示多对多的关系，所以发明了关系模型来解决这个问题。最近，开发人员发现一些应用程序也不适合采用关系模型。新的非关系型“NoSQL”数据存储在两个主要方向上存在分歧：</p>
+<ol>
+<li><strong>文档数据库</strong>的应用场景是：数据通常是自我包含的，而且文档之间的关系非常稀少。</li>
+<li><strong>图形数据库</strong>用于相反的场景：任意事物都可能与任何事物相关联。</li>
+</ol>
+<p>这三种模型（文档，关系和图形）在今天都被广泛使用，并且在各自的领域都发挥很好。一个模型可以用另一个模型来模拟 — 例如，图数据可以在关系数据库中表示 — 但结果往往是糟糕的。这就是为什么我们有着针对不同目的的不同系统，而不是一个单一的万能解决方案。</p>
+<p>文档数据库和图数据库有一个共同点，那就是它们通常不会为存储的数据强制一个模式，这可以使应用程序更容易适应不断变化的需求。但是应用程序很可能仍会假定数据具有一定的结构；这只是模式是明确的（写入时强制）还是隐含的（读取时处理）的问题。</p>
+<p>每个数据模型都具有各自的查询语言或框架，我们讨论了几个例子：SQL，MapReduce，MongoDB的聚合管道，Cypher，SPARQL和Datalog。我们也谈到了CSS和XSL&#x2F;XPath，它们不是数据库查询语言，而包含有趣的相似之处。</p>
+<p>虽然我们已经覆盖了很多层面，但仍然有许多数据模型没有提到。举几个简单的例子：</p>
+<ul>
+<li>使用基因组数据的研究人员通常需要执行<strong>序列相似性搜索</strong>，这意味着需要一个很长的字符串（代表一个DNA分子），并在一个拥有类似但不完全相同的字符串的大型数据库中寻找匹配。这里所描述的数据库都不能处理这种用法，这就是为什么研究人员编写了像GenBank这样的专门的基因组数据库软件的原因【48】。</li>
+<li>粒子物理学家数十年来一直在进行大数据类型的大规模数据分析，像大型强子对撞机（LHC）这样的项目现在可以工作在数百亿兆字节的范围内！在这样的规模下，需要定制解决方案来阻住硬件成本的失控【49】。</li>
+<li><strong>全文搜索</strong>可以说是一种经常与数据库一起使用的数据模型。信息检索是一个很大的专业课题，我们不会在本书中详细介绍，但是我们将在第三章和第三章中介绍搜索索引。</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><p>Edgar F. Codd: “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.seas.upenn.edu/~zives/03f/cis550/codd.pdf">A Relational Model of Data for Large Shared Data Banks</a>,” <em>Communications of the ACM</em>, volume 13, number 6, pages 377–387, June 1970. <a target="_blank" rel="external nofollow noopener noreferrer" href="http://dx.doi.org/10.1145/362384.362685">doi:10.1145&#x2F;362384.362685</a></p>
+</li>
+<li><p>Michael Stonebraker and Joseph M. Hellerstein: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://mitpress2.mit.edu/books/chapters/0262693143chapm1.pdf">What Goes Around Comes Around</a>,” in <em>Readings in Database Systems</em>, 4th edition, MIT Press, pages 2–41, 2005. ISBN: 978-0-262-69314-1</p>
+</li>
+<li><p>Pramod J. Sadalage and Martin Fowler: <em>NoSQL Distilled</em>. Addison-Wesley, August 2012. ISBN: 978-0-321-82662-6</p>
+</li>
+<li><p>Eric Evans: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.sym-link.com/2009/10/30/nosql_whats_in_a_name.html">NoSQL: What’s in a Name?</a>,” <em>blog.sym-link.com</em>, October 30, 2009.</p>
+</li>
+<li><p>James Phillips: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.couchbase.com/nosql-adoption-survey-surprises">Surprises in Our NoSQL Adoption Survey</a>,” <em>blog.couchbase.com</em>, February 8, 2012.</p>
+</li>
+<li><p>Michael Wagner: <em>SQL&#x2F;XML:2006 – Evaluierung der Standardkonformität ausgewählter Datenbanksysteme</em>. Diplomica Verlag, Hamburg, 2010. ISBN: 978-3-836-64609-3</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://technet.microsoft.com/en-us/library/bb522446.aspx">XML Data in SQL Server</a>,” SQL Server 2012 documentation, <em>technet.microsoft.com</em>, 2013.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.postgresql.org/docs/9.3/static/index.html">PostgreSQL 9.3.1 Documentation</a>,” The PostgreSQL Global Development Group, 2013.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://docs.mongodb.org/manual/">The MongoDB 2.4 Manual</a>,” MongoDB, Inc., 2013.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.rethinkdb.com/docs/">RethinkDB 1.11 Documentation</a>,” <em>rethinkdb.com</em>, 2013.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://docs.couchdb.org/en/latest/">Apache CouchDB 1.6 Documentation</a>,” <em>docs.couchdb.org</em>, 2014.</p>
+</li>
+<li><p>Lin Qiao, Kapil Surlaker, Shirshanka Das, et al.: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.slideshare.net/amywtang/espresso-20952131">On Brewing Fresh Espresso: LinkedIn’s Distributed Data Serving Platform</a>,” at <em>ACM International Conference on Management of Data</em> (SIGMOD), June 2013.</p>
+</li>
+<li><p>Rick Long, Mark Harrington, Robert Hain, and Geoff Nicholls: <a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.redbooks.ibm.com/redbooks/pdfs/sg245352.pdf"><em>IMS Primer</em></a>. IBM Redbook SG24-5352-00, IBM International Technical Support Organization, January 2000.</p>
+</li>
+<li><p>Stephen D. Bartlett: “<a href="ftp://public.dhe.ibm.com/software/data/ims/pdf/TCG2013015LI.pdf" rel="external nofollow noopener noreferrer" target="_blank">IBM’s IMS—Myths, Realities, and Opportunities</a>,” The Clipper Group Navigator, TCG2013015LI, July 2013.</p>
+</li>
+<li><p>Sarah Mei: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/">Why You Should Never Use MongoDB</a>,” <em>sarahmei.com</em>, November 11, 2013.</p>
+</li>
+<li><p>J. S. Knowles and D. M. R. Bell: “The CODASYL Model,” in <em>Databases—Role and Structure: An Advanced Course</em>, edited by P. M. Stocker, P. M. D. Gray, and M. P. Atkinson, pages 19–56, Cambridge University Press, 1984. ISBN: 978-0-521-25430-4</p>
+</li>
+<li><p>Charles W. Bachman: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://dl.acm.org/citation.cfm?id=362534">The Programmer as Navigator</a>,” <em>Communications of the ACM</em>, volume 16, number 11, pages 653–658, November 1973. <a target="_blank" rel="external nofollow noopener noreferrer" href="http://dx.doi.org/10.1145/355611.362534">doi:10.1145&#x2F;355611.362534</a></p>
+</li>
+<li><p>Joseph M. Hellerstein, Michael Stonebraker, and James Hamilton: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://db.cs.berkeley.edu/papers/fntdb07-architecture.pdf">Architecture of a Database System</a>,” <em>Foundations and Trends in Databases</em>, volume 1, number 2, pages 141–259, November 2007. <a target="_blank" rel="external nofollow noopener noreferrer" href="http://dx.doi.org/10.1561/1900000002">doi:10.1561&#x2F;1900000002</a></p>
+</li>
+<li><p>Sandeep Parikh and Kelly Stirman: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blog.mongodb.org/post/65517193370/schema-design-for-time-series-data-in-mongodb">Schema Design for Time Series Data in MongoDB</a>,” <em>blog.mongodb.org</em>, October 30, 2013.</p>
+</li>
+<li><p>Martin Fowler: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://martinfowler.com/articles/schemaless/">Schemaless Data Structures</a>,” <em>martinfowler.com</em>, January 7, 2013.</p>
+</li>
+<li><p>Amr Awadallah: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.slideshare.net/awadallah/schemaonread-vs-schemaonwrite">Schema-on-Read vs. Schema-on-Write</a>,” at <em>Berkeley EECS RAD Lab Retreat</em>, Santa Cruz, CA, May 2009.</p>
+</li>
+<li><p>Martin Odersky: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.infoq.com/presentations/data-types-issues">The Trouble with Types</a>,” at <em>Strange Loop</em>, September 2013.</p>
+</li>
+<li><p>Conrad Irwin: “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://speakerdeck.com/conradirwin/mongodb-confessions-of-a-postgresql-lover">MongoDB—Confessions of a PostgreSQL Lover</a>,” at <em>HTML5DevConf</em>, October 2013.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.percona.com/doc/percona-toolkit/2.2/pt-online-schema-change.html">Percona Toolkit Documentation: pt-online-schema-change</a>,” Percona Ireland Ltd., 2013.</p>
+</li>
+<li><p>Rany Keddo, Tobias Bielohlawek, and Tobias Schmidt: “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/soundcloud/lhm">Large Hadron Migrator</a>,” SoundCloud, 2013. Shlomi Noach:</p>
+<p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://githubengineering.com/gh-ost-github-s-online-migration-tool-for-mysql/">gh-ost: GitHub’s Online Schema Migration Tool for MySQL</a>,” <em>githubengineering.com</em>, August 1, 2016.</p>
+</li>
+<li><p>James C. Corbett, Jeffrey Dean, Michael Epstein, et al.: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://research.google.com/archive/spanner.html">Spanner: Google’s Globally-Distributed Database</a>,” at <em>10th USENIX Symposium on Operating System Design and Implementation</em> (OSDI), October 2012.</p>
+</li>
+<li><p>Donald K. Burleson: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.dba-oracle.com/oracle_tip_hash_index_cluster_table.htm">Reduce I&#x2F;O with Oracle Cluster Tables</a>,” <em>dba-oracle.com</em>.</p>
+</li>
+<li><p>Fay Chang, Jeffrey Dean, Sanjay Ghemawat, et al.: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://research.google.com/archive/bigtable.html">Bigtable: A Distributed Storage System for Structured Data</a>,” at <em>7th USENIX Symposium on Operating System Design and Implementation</em> (OSDI), November 2006.</p>
+</li>
+<li><p>Bobbie J. Cochrane and Kathy A. McKnight: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.ibm.com/developerworks/data/library/techarticle/dm-1306nosqlforjson1/">DB2 JSON Capabilities, Part 1: Introduction to DB2 JSON</a>,” IBM developerWorks, June 20, 2013.</p>
+</li>
+<li><p>Herb Sutter: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.gotw.ca/publications/concurrency-ddj.htm">The Free Lunch Is Over: A Fundamental Turn Toward Concurrency in Software</a>,” <em>Dr. Dobb’s Journal</em>, volume 30, number 3, pages 202-210, March 2005.</p>
+</li>
+<li><p>Joseph M. Hellerstein: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-90.pdf">The Declarative Imperative: Experiences and Conjectures in Distributed Logic</a>,” Electrical Engineering and Computer Sciences, University of California at Berkeley, Tech report UCB&#x2F;EECS-2010-90, June 2010.</p>
+</li>
+<li><p>Jeffrey Dean and Sanjay Ghemawat: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://research.google.com/archive/mapreduce.html">MapReduce: Simplified Data Processing on Large Clusters</a>,” at <em>6th USENIX Symposium on Operating System Design and Implementation</em> (OSDI), December 2004.</p>
+</li>
+<li><p>Craig Kerstiens: “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://blog.heroku.com/javascript_in_your_postgres">JavaScript in Your Postgres</a>,” <em>blog.heroku.com</em>, June 5, 2013.</p>
+</li>
+<li><p>Nathan Bronson, Zach Amsden, George Cabrera, et al.: “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.usenix.org/conference/atc13/technical-sessions/presentation/bronson">TAO: Facebook’s Distributed Data Store for the Social Graph</a>,” at <em>USENIX Annual Technical Conference</em> (USENIX ATC), June 2013.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://tinkerpop.apache.org/docs/3.2.3/reference/">Apache TinkerPop3.2.3 Documentation</a>,” <em>tinkerpop.apache.org</em>, October 2016.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://docs.neo4j.org/chunked/2.0.0/index.html">The Neo4j Manual v2.0.0</a>,” Neo Technology, 2013. Emil Eifrem: <a target="_blank" rel="external nofollow noopener noreferrer" href="https://twitter.com/emileifrem/status/419107961512804352">Twitter correspondence</a>, January 3, 2014.</p>
+</li>
+<li><p>David Beckett and Tim Berners-Lee: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.w3.org/TeamSubmission/turtle/">Turtle – Terse RDF Triple Language</a>,” W3C Team Submission, March 28, 2011.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://docs.datomic.com/">Datomic Development Resources</a>,” Metadata Partners, LLC, 2013. W3C RDF Working Group: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.w3.org/RDF/">Resource Description Framework (RDF)</a>,” <em>w3.org</em>, 10 February 2004.</p>
+</li>
+<li><p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://jena.apache.org/">Apache Jena</a>,” Apache Software Foundation.</p>
+</li>
+<li><p>Steve Harris, Andy Seaborne, and Eric Prud’hommeaux: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://www.w3.org/TR/sparql11-query/">SPARQL 1.1 Query Language</a>,” W3C Recommendation, March 2013.</p>
+</li>
+<li><p>Todd J. Green, Shan Shan Huang, Boon Thau Loo, and Wenchao Zhou: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://blogs.evergreen.edu/sosw/files/2014/04/Green-Vol5-DBS-017.pdf">Datalog and Recursive Query Processing</a>,” <em>Foundations and Trends in Databases</em>, volume 5, number 2, pages 105–195, November 2013. <a target="_blank" rel="external nofollow noopener noreferrer" href="http://dx.doi.org/10.1561/1900000017">doi:10.1561&#x2F;1900000017</a></p>
+</li>
+<li><p>Stefano Ceri, Georg Gottlob, and Letizia Tanca: “<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.researchgate.net/profile/Letizia_Tanca/publication/3296132_What_you_always_wanted_to_know_about_Datalog_and_never_dared_to_ask/links/0fcfd50ca2d20473ca000000.pdf">What You Always Wanted to Know About Datalog (And Never Dared to Ask)</a>,” <em>IEEE Transactions on Knowledge and Data Engineering</em>, volume 1, number 1, pages 146–166, March 1989. <a target="_blank" rel="external nofollow noopener noreferrer" href="http://dx.doi.org/10.1109/69.43410">doi:10.1109&#x2F;69.43410</a></p>
+</li>
+<li><p>Serge Abiteboul, Richard Hull, and Victor Vianu: <a target="_blank" rel="external nofollow noopener noreferrer" href="http://webdam.inria.fr/Alice/"><em>Foundations of Databases</em></a>. Addison-Wesley, 1995. ISBN: 978-0-201-53771-0, available online at <em>webdam.inria.fr&#x2F;Alice</em></p>
+</li>
+<li><p>Nathan Marz: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://cascalog.org/">Cascalog</a>,” <em>cascalog.org</em>. Dennis A. Benson, Ilene Karsch-Mizrachi, David J. Lipman, et al.:</p>
+<p>“<a target="_blank" rel="external nofollow noopener noreferrer" href="http://nar.oxfordjournals.org/content/36/suppl_1/D25.full-text-lowres.pdf">GenBank</a>,” <em>Nucleic Acids Research</em>, volume 36, Database issue, pages D25–D30, December 2007. <a target="_blank" rel="external nofollow noopener noreferrer" href="http://dx.doi.org/10.1093/nar/gkm929">doi:10.1093&#x2F;nar&#x2F;gkm929</a></p>
+</li>
+<li><p>Fons Rademakers: “<a target="_blank" rel="external nofollow noopener noreferrer" href="http://indico.cern.ch/getFile.py/access?contribId=13&resId=0&materialId=slides&confId=246453">ROOT for Big Data Analysis</a>,” at <em>Workshop on the Future of Big Data Management</em>, London, UK, June 2013.</p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" class="category-chain-item">系统架构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84/">#架构</a>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8/">#设计数据密集型应用</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>02：数据模型与查询语言</div>
+      <div>https://blog.longpi1.com/2024/07/03/02：数据模型与查询语言/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/03/01%EF%BC%9A%E5%8F%AF%E9%9D%A0%E6%80%A7%EF%BC%8C%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%EF%BC%8C%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7/" title="01：可靠性，可扩展性，可维护性">
+                        <span class="hidden-mobile">01：可靠性，可扩展性，可维护性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
