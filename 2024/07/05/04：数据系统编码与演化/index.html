@@ -1,0 +1,1012 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="04：数据系统编码与演化">
+<meta property="og:url" content="https://blog.longpi1.com/2024/07/05/04%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A0%81%E4%B8%8E%E6%BC%94%E5%8C%96/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632801011597-49f06a44-2195-4e80-a553-6df45cc56595.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632883956568-7daf5a24-3687-47cf-ba93-777ebbcd843a.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632884216683-2e14ff02-a4cf-4128-a19e-15f5a01b9438.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632884552029-9a9d3116-1fa3-4710-bd36-0df7a0f44d9b.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632886831122-aaed33a8-e623-4dc1-9891-62a07e6547ef.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632887145105-0da3eac4-c1f8-49d9-bc31-a92238f92625.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1633665482803-0f0f81b1-9abc-4171-b532-577637eecfe6.png">
+<meta property="article:published_time" content="2024-07-05T11:44:02.000Z">
+<meta property="article:modified_time" content="2024-07-06T07:34:22.801Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="设计数据密集型应用">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://picture-bed-1251805293.file.myqcloud.com/1632801011597-49f06a44-2195-4e80-a553-6df45cc56595.png">
+  
+  
+  
+  <title>04：数据系统编码与演化 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="04：数据系统编码与演化"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-05 19:44" pubdate>
+          2024年7月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">04：数据系统编码与演化</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="第四章：-数据系统——编码与演化"><a href="#第四章：-数据系统——编码与演化" class="headerlink" title="第四章： 数据系统——编码与演化"></a>第四章： 数据系统——编码与演化</h1><blockquote>
+<p>文章主要内容来自于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/">设计数据密集型应用</a></p>
+<p>本章主要介绍了数据系统中的编码与演化。在数据系统中，数据的编码方式对系统的可靠性和可扩展性有着重要的影响。本章主要讨论了以下几个方面：</p>
+<ol>
+<li>编码数据的格式：程序通常使用两种形式的数据：内存中的数据和编码为字节序列的数据。为了在两种表示之间进行翻译，需要进行编码和解码操作。常见的编码格式包括语言特定的格式（如Java的java.io.Serializable、Ruby的Marshal、Python的pickle等）、JSON、XML和二进制变体（如MessagePack、BSON、BJSON、UBJSON、BISON和Smile等）。</li>
+<li>Thrift与Protocol Buffers：这两种编码格式都需要一个模式来描述数据。接口定义语言（IDL）用于描述模式。Thrift和Protocol Buffers都有代码生成工具，可以用于编码和解码。它们的优点是可以在不同的编程语言之间传递数据，而且可以进行版本控制。</li>
+<li>Avro：Apache Avro是另一种二进制编码格式，它支持动态生成的模式。与Thrift和Protocol Buffers不同，Avro不需要字段标记，因此更加灵活。Avro还支持动态生成模式，使得在不同的编程语言之间传递数据更加方便。</li>
+<li>数据流的类型：数据在系统中以不同的方式流动，包括通过数据库、服务调用和异步消息传递。在这些场景中，数据的编码方式对系统的可靠性和可扩展性有着重要的影响。例如，在数据库中，需要确保向前和向后兼容性，以便支持滚动升级。在RPC和REST API中，需要在请求和响应中进行编码和解码，以便支持跨语言通信。在异步消息传递中，需要使用消息代理或参与者进行编码和解码，以便在不同的节点之间传递数据。</li>
+<li>本章小结：本章主要介绍了数据系统中的编码与演化，探讨了编码数据结构的方式，以及数据流的几种模式。在实际应用中，需要根据具体场景选择合适的编码格式和数据流方式，以确保系统的可靠性和可扩展性。</li>
+</ol>
+</blockquote>
+<ul>
+<li>关系数据库通常假定数据库中的所有数据都遵循一个模式：尽管可以更改该模式（通过模式迁移，即ALTER语句），但是在任何时间点都有且仅有一个正确的模式。</li>
+<li><strong>读时模式（schema-on-read）</strong>（或 <strong>无模式（schemaless）</strong>）数据库不会强制一个模式，因此数据库可以包含在不同时间写入的新老数据格式的混合。</li>
+</ul>
+<p>当数据格式发生改变时，需要代码更改：</p>
+<ul>
+<li>服务端应用程序，会灰度发布；</li>
+<li>客户端应用程序，看用户心情。</li>
+</ul>
+<p>新旧版本的代码和数据，可能同时共处。<br>系统需要双向兼容：</p>
+<ul>
+<li>向后兼容：新代码可以读旧数据。容易。</li>
+<li>向前兼容：旧代码可以读新数据。难。</li>
+</ul>
+<h2 id="编码数据的格式"><a href="#编码数据的格式" class="headerlink" title="编码数据的格式"></a>编码数据的格式</h2><p>程序通常（至少）使用两种形式的数据：</p>
+<ol>
+<li>在内存中，数据保存在对象，结构体，列表，数组，哈希表，树等中。 这些数据结构针对CPU的高效访问和操作进行了优化（通常使用指针）。</li>
+<li>如果要将数据写入文件，或通过网络发送，则必须将其 <strong>编码（encode）</strong> 为某种自包含的字节序列（例如，JSON文档）。 由于每个进程都有自己独立的地址空间，一个进程中的指针对任何其他进程都没有意义，所以这个字节序列表示会与通常在内存中使用的数据结构完全不同。</li>
+</ol>
+<p>所以，需要在两种表示之间进行某种类型的翻译。</p>
+<ul>
+<li>从内存中表示到字节序列的转换称为 <strong>编码（Encoding）</strong> （也称为<strong>序列化（serialization）</strong> 或<strong>编组（marshalling）</strong>）；</li>
+<li>反过来称为<strong>解码（Decoding）</strong>ii（<strong>解析（Parsing）</strong>，<strong>反序列化（deserialization）</strong>，<strong>反编组( unmarshalling）</strong>）译i。</li>
+</ul>
+<h3 id="语言特定的格式"><a href="#语言特定的格式" class="headerlink" title="语言特定的格式"></a>语言特定的格式</h3><p>许多编程语言都内建了将内存对象编码为字节序列的支持。例如，Java有java.io.Serializable ，Ruby有Marshal，Python有pickle .</p>
+<p>这些库很方便，但是有深层次问题：</p>
+<ul>
+<li>与特定的编程语言绑定。</li>
+<li>为了恢复相同对象类型的数据，解码过程需要<strong>实例化任意类</strong>的能力，这是安全问题的来源。</li>
+<li>数据版本控制不方便。</li>
+<li>效率也不高。</li>
+</ul>
+<p>只适合临时使用。</p>
+<h3 id="JSON，XML和二进制变体"><a href="#JSON，XML和二进制变体" class="headerlink" title="JSON，XML和二进制变体"></a>JSON，XML和二进制变体</h3><p>跨语言的编码：JSON，XML和CSV，属于文本格式，因此具有人类可读性。<br>除了语法问题外，还有问题：</p>
+<ul>
+<li>数值编码有歧义：XML 和 CSV 不能区分数字和字符串。JSON 不能区分整数和浮点数。</li>
+<li>处理大数值困难。</li>
+<li>JSON 和 XML 对 unicode（人类可读的文本）有很好的支持，但是不支持二进制。通过 base64 绕过这个限制。</li>
+<li>XML 和 JSON 都有可选的模式支持。</li>
+<li>CSV 没有模式，行列的含义完全由应用程序指定。格式模糊。</li>
+</ul>
+<p>虽然问题多，但是大家对这些达成了意见一致。</p>
+<h4 id="二进制编码"><a href="#二进制编码" class="headerlink" title="二进制编码"></a>二进制编码</h4><p>当数据很多的时候，数据格式的选择会有很大影响。<br>JSON比XML简洁，但与二进制格式相比还是太占空间。现在有很多二进制格式的 JSON（MessagePack，BSON，BJSON，UBJSON，BISON和Smile等）。<br>JSON 字符串是：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">&#123;<br>    &quot;userName&quot;: &quot;Martin&quot;,<br>    &quot;favoriteNumber&quot;: 1337,<br>    &quot;interests&quot;: [&quot;daydreaming&quot;, &quot;hacking&quot;]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>MessagePack 编码的 Json 举例：<br><img src="https://picture-bed-1251805293.file.myqcloud.com/1632801011597-49f06a44-2195-4e80-a553-6df45cc56595.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>二进制编码长度为66个字节，仅略小于文本JSON编码所取的81个字节（删除了空白)。</p>
+<h3 id="Thrift与Protocol-Buffers"><a href="#Thrift与Protocol-Buffers" class="headerlink" title="Thrift与Protocol Buffers"></a>Thrift与Protocol Buffers</h3><ul>
+<li>Protocol Buffers最初是在Google开发的，Thrift最初是在Facebook开发的，并且在2007~2008年都是开源的，都是二进制编码库。</li>
+<li>Thrift和Protocol Buffers都需要一个模式来编码任何数据。</li>
+</ul>
+<p><strong>接口定义语言（IDL）</strong> 来描述模式。</p>
+<ul>
+<li>Thrift 比如：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Person</span> &#123;</span><br>    <span class="hljs-number">1</span>: required <span class="hljs-built_in">string</span>       userName,<br>    <span class="hljs-number">2</span>: optional i64          favoriteNumber,<br>    <span class="hljs-number">3</span>: optional <span class="hljs-built_in">list</span>&lt;<span class="hljs-built_in">string</span>&gt; interests<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Protocol Buffers的等效模式定义看起来非常相似：</li>
+</ul>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs protobuf"><span class="hljs-keyword">message </span><span class="hljs-title class_">Person</span> &#123;<br>    <span class="hljs-keyword">required</span> <span class="hljs-type">string</span> user_name       = <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">optional</span> <span class="hljs-type">int64</span>  favorite_number = <span class="hljs-number">2</span>;<br>    <span class="hljs-keyword">repeated</span> <span class="hljs-type">string</span> interests       = <span class="hljs-number">3</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Thrift和Protocol Buffers每一个都带有一个代码生成工具，可以调用此代码对模式进行编码和解码。</li>
+</ul>
+<p>Thrift 编码格式</p>
+<ul>
+<li>Thrift 有两种不同的二进制编码格式，分别称为 BinaryProtocol 和 CompactProtocol</li>
+</ul>
+<p>BinaryProtocol</p>
+<ul>
+<li><p>对上面的信息编码只需要59个字节<br><img src="https://picture-bed-1251805293.file.myqcloud.com/1632883956568-7daf5a24-3687-47cf-ba93-777ebbcd843a.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+</li>
+<li><p>每个字段都有一个类型注释（用于指示它是一个字符串，整数，列表等），还可以根据需要指定长度（字符串的长度，列表中的项目数） 。</p>
+</li>
+<li><p>最大的区别是没有字段名，而只有字段标签，即数字 1，2，3，就像别名。</p>
+</li>
+</ul>
+<p>CompactProtocol</p>
+<ul>
+<li>语义上等同于BinaryProtocol</li>
+<li>将字段类型和标签号打包到单个字节中，并使用可变长度整数来实现</li>
+<li>相同的信息打包成只有 34 个字节</li>
+<li>将数字 1337 编码成为 2 个字节，每个字节的最高位标识是否还有更多的字节。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1632884216683-2e14ff02-a4cf-4128-a19e-15f5a01b9438.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>Protocol Buffers</p>
+<ul>
+<li>只有一种二进制编码格式，与Thrift的CompactProtocol非常相似。</li>
+<li>同样的记录塞进了33个字节中。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1632884552029-9a9d3116-1fa3-4710-bd36-0df7a0f44d9b.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>字段是否为必须？</p>
+<ul>
+<li>如果字段没有设置值，则从编码记录中省略。</li>
+<li>模式中每个字段标记为是否为必须，但对编码无影响。</li>
+<li>区别在于，如果字段设置为必须，但是未设置，那么运行时检查会失败。</li>
+</ul>
+<h4 id="字段标签和模式演变"><a href="#字段标签和模式演变" class="headerlink" title="字段标签和模式演变"></a>字段标签和模式演变</h4><ul>
+<li><strong>字段标记很重要！可以改字段的名字，但是不能改字段标记。</strong></li>
+<li>向前兼容：可以添加新字段，只要有一个新的标记号码。</li>
+<li>向后兼容：在模式初始部署之后，<strong>添加的每个字段必须是可选的或具有默认值</strong>。否则之前的代码会检查失败。</li>
+<li>删除字段：只能删除<strong>可选字段</strong>；不能再次使用相同的标签号码。</li>
+</ul>
+<h4 id="数据类型和模式演变"><a href="#数据类型和模式演变" class="headerlink" title="数据类型和模式演变"></a>数据类型和模式演变</h4><ul>
+<li>数据类型可以被改变：int32 升级 int64，新代码可以读取旧代码写入的数据（补0）；但是旧代码不能解析新数据（int32 读取 int64 会被截断）</li>
+<li>Protobuf 一个细节：没有列表类型，只有 <code>repeated</code>，因此可以把可选字段改为重复字段。</li>
+<li>Thrift 不能把更改为列表参数，但优点是可以嵌套列表。</li>
+</ul>
+<h3 id="Avro"><a href="#Avro" class="headerlink" title="Avro"></a>Avro</h3><ul>
+<li>Apache Avro 是另一种二进制编码格式。</li>
+<li>Avro 有两种模式语言：一种（Avro IDL）用于人工编辑，一种（基于JSON）更易于机器读取。</li>
+</ul>
+<p>举例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">record Person &#123;<br>    <span class="hljs-built_in">string</span>                userName;<br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span> null, <span class="hljs-type">long</span> &#125;  favoriteNumber = null;<br>    <span class="hljs-built_in">array</span>&lt;<span class="hljs-built_in">string</span>&gt;         interests;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>等价的JSON表示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;record&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Person&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;fields&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;userName&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;string&quot;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;favoriteNumber&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;null&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;long&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;default&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;interests&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;array&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;items&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;string&quot;</span><span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">]</span> <br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>注意：没有标签号码。</li>
+<li>Avro二进制编码只有32个字节长，最紧凑的。</li>
+<li>编码知识连在一起的值，不能识别字段和数据类型。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1632886831122-aaed33a8-e623-4dc1-9891-62a07e6547ef.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ul>
+<li>必须按照顺序遍历字段才能解码。</li>
+<li>编码和解码必须使用完全相同的模式。</li>
+</ul>
+<h4 id="Writer模式与Reader模式"><a href="#Writer模式与Reader模式" class="headerlink" title="Writer模式与Reader模式"></a>Writer模式与Reader模式</h4><ul>
+<li>Avro的关键思想是Writer模式和Reader模式不必是相同的 - 他们只需要兼容。</li>
+<li>当数据解码（读取）时，Avro库通过并排查看Writer模式和Reader模式并将数据从Writer模式转换到Reader模式来解决差异。（即数据读取的时候，会对比 Writer模式 和 Reader模式 的字段，然后就知道怎么读了）</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1632887145105-0da3eac4-c1f8-49d9-bc31-a92238f92625.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="模式演变规则"><a href="#模式演变规则" class="headerlink" title="模式演变规则"></a>模式演变规则</h4><ul>
+<li>为了保持兼容性，您只能添加或删除具有默认值的字段。</li>
+</ul>
+<h4 id="但Writer模式到底是什么？"><a href="#但Writer模式到底是什么？" class="headerlink" title="但Writer模式到底是什么？"></a>但Writer模式到底是什么？</h4><p>对于一段特定的编码数据，Reader如何知道其Writer模式？<br>答案取决于Avro使用的上下文。举几个例子：</p>
+<ul>
+<li>有很多记录的大文件<ul>
+<li>Avro的一个常见用途 - 尤其是在Hadoop环境中 - 用于存储包含数百万条记录的大文件，所有记录都使用相同的模式进行编码。可以在文件的开头只包含一次Writer模式。</li>
+</ul>
+</li>
+<li>支持独立写入的记录的数据库<ul>
+<li>最简单的解决方案是在每个编码记录的开始处包含一个版本号，并在数据库中保留一个模式版本列表。</li>
+</ul>
+</li>
+<li>通过网络连接发送记录<ul>
+<li>他们可以在连接设置上协商模式版本，然后在连接的生命周期中使用该模式。</li>
+</ul>
+</li>
+</ul>
+<h4 id="动态生成的模式"><a href="#动态生成的模式" class="headerlink" title="动态生成的模式"></a>动态生成的模式</h4><ul>
+<li>Avro方法的一个优点是架构不包含任何标签号码。</li>
+</ul>
+<p>但为什么这很重要？在模式中保留一些数字有什么问题？</p>
+<ul>
+<li>不同之处在于Avro对动态生成的模式更友善。<ul>
+<li>方便从数据库生成 Avro 模式，导出数据</li>
+<li>当数据库模式发生变化，直接生成新的 Avro 模式，导出数据。自动兼容。</li>
+<li>而用 Thrift 或者 PB，需要手动写字段标签。</li>
+</ul>
+</li>
+</ul>
+<h4 id="代码生成和动态类型的语言"><a href="#代码生成和动态类型的语言" class="headerlink" title="代码生成和动态类型的语言"></a>代码生成和动态类型的语言</h4><ul>
+<li>Thrift 和 Protobuf 依赖于代码生成<ul>
+<li>在定义了模式之后，可以使用您选择的编程语言生成实现此模式的代码。</li>
+<li>这在Java，C ++或C＃等静态类型语言中很有用，因为它允许将高效的内存中结构用于解码的数据，并且在编写访问数据结构的程序时允许在IDE中进行类型检查和自动完成。</li>
+<li>在动态类型编程语言（如JavaScript，Ruby或Python）中，生成代码没有太多意义，因为没有编译时类型检查器来满足。</li>
+<li>Avro为静态类型编程语言提供了可选的代码生成功能，但是它也可以在不生成任何代码的情况下使用。</li>
+</ul>
+</li>
+</ul>
+<h3 id="模式的优点"><a href="#模式的优点" class="headerlink" title="模式的优点"></a>模式的优点</h3><ul>
+<li>Protocol Buffers，Thrift和Avro都使用模式来描述二进制编码格式。<ul>
+<li>他们的模式语言比XML模式或者JSON模式简单得多，也支持更详细的验证规则。</li>
+</ul>
+</li>
+<li>许多数据系统（如关系型数据库）也为其数据实现了某种专有的二进制编码。</li>
+<li>基于模式的二进制编码相对于JSON，XML和CSV等文本数据格式的优点：<ul>
+<li>它们可以比各种“二进制JSON”变体更紧凑，因为它们可以省略编码数据中的字段名称。</li>
+<li>模式是一种有价值的文档形式，因为模式是解码所必需的，所以可以确定它是最新的（而手动维护的文档可能很容易偏离现实）。</li>
+<li>维护一个模式的数据库允许您在部署任何内容之前检查模式更改的向前和向后兼容性。</li>
+<li>对于静态类型编程语言的用户来说，从模式生成代码的能力是有用的，因为它可以在编译时进行类型检查。</li>
+</ul>
+</li>
+</ul>
+<h2 id="数据流的类型"><a href="#数据流的类型" class="headerlink" title="数据流的类型"></a>数据流的类型</h2><p>数据在流程之间流动的一些常见的方式：</p>
+<ul>
+<li>通过数据库</li>
+<li>通过服务调用</li>
+<li>通过异步消息传递</li>
+</ul>
+<h3 id="数据库中的数据流"><a href="#数据库中的数据流" class="headerlink" title="数据库中的数据流"></a>数据库中的数据流</h3><ul>
+<li>如果只有一个进程访问数据库，向后兼容性显然是必要的。</li>
+<li>一般来说，会有多个进程访问数据库，可能会有某些进程运行较新代码、某些运行较旧的代码。因此数据库也经常需要向前兼容。</li>
+<li>假设增加字段，那么较新的代码会写入把该值吸入数据库。而旧版本的代码将读取记录，理想的行为是旧代码保持领域完整。</li>
+<li>用旧代码读取并重新写入数据库时，有可能会导致数据丢失。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1633665482803-0f0f81b1-9abc-4171-b532-577637eecfe6.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="在不同的时间写入不同的值"><a href="#在不同的时间写入不同的值" class="headerlink" title="在不同的时间写入不同的值"></a>在不同的时间写入不同的值</h4><ul>
+<li>单一的数据库中，可能有一些值是五毫秒前写的，而一些值是五年前写的。</li>
+<li>架构演变允许整个数据库看起来好像是用单个模式编码的，即使底层存储可能包含用模式的各种历史版本编码的记录。</li>
+</ul>
+<h4 id="归档存储"><a href="#归档存储" class="headerlink" title="归档存储"></a>归档存储</h4><ul>
+<li>建立数据库快照，比如备份或者加载到数据仓库：即使有不同时代的模式版本的混合，但通常使用最新模式进行编码。</li>
+<li>由于数据转储是一次写入的，以后不变，所以 Avro 对象容器文件等格式非常适合。</li>
+<li>也是很好的机会，把数据编码成面向分析的列式格式。</li>
+</ul>
+<h3 id="服务中的数据流：REST与RPC"><a href="#服务中的数据流：REST与RPC" class="headerlink" title="服务中的数据流：REST与RPC"></a>服务中的数据流：REST与RPC</h3><ul>
+<li>网络通信方式：常见安排是客户端+服务器</li>
+<li>Web 服务：通过 GET 和 POST 请求</li>
+<li>服务端可以是另一个服务的客户端：微服务架构。</li>
+<li>微服务架构允许某个团队能够经常发布新版本服务，期望服务的新旧版本同时运行。</li>
+</ul>
+<h4 id="Web服务"><a href="#Web服务" class="headerlink" title="Web服务"></a>Web服务</h4><ul>
+<li><strong>当服务使用HTTP作为底层通信协议时，可称之为Web服务</strong>。</li>
+<li>有两种流行的Web服务方法：REST和SOAP。</li>
+</ul>
+<p>REST</p>
+<ul>
+<li>REST不是一个协议，而是一个基于HTTP原则的设计哲学。</li>
+<li>它强调简单的数据格式，使用URL来标识资源，并使用HTTP功能进行缓存控制，身份验证和内容类型协商。</li>
+<li>与SOAP相比，REST已经越来越受欢迎，至少在跨组织服务集成的背景下，并经常与微服务相关。</li>
+<li>根据REST原则设计的API称为RESTful。</li>
+</ul>
+<p>SOAP</p>
+<ul>
+<li>SOAP是用于制作网络API请求的基于XML的协议。</li>
+<li>它最常用于HTTP，但其目的是独立于HTTP，并避免使用大多数HTTP功能。</li>
+<li>SOAP Web服务的API使用称为Web服务描述语言（WSDL）的基于XML的语言来描述。 WSDL支持代码生成，客户端可以使用本地类和方法调用（编码为XML消息并由框架再次解码）访问远程服务。</li>
+<li>尽管SOAP及其各种扩展表面上是标准化的，但是不同厂商的实现之间的互操作性往往会造成问题。</li>
+<li>尽管许多大型企业仍然使用SOAP，但在大多数小公司中已经不再受到青睐。</li>
+</ul>
+<h4 id="远程过程调用（RPC）的问题"><a href="#远程过程调用（RPC）的问题" class="headerlink" title="远程过程调用（RPC）的问题"></a>远程过程调用（RPC）的问题</h4><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E6%8A%80%E6%9C%AF%E6%A1%86%E6%9E%B6/RPC%E6%A1%86%E6%9E%B6/RPC%E6%80%BB%E7%BB%93.md">RPC相关介绍</a>：</p>
+<p>RPC模型试图向远程网络服务发出请求，看起来与在同一进程中调用编程语言中的函数或方法相同（这种抽象称为位置透明）。</p>
+<p>RPC 的缺陷：</p>
+<ul>
+<li>本地函数调用是可预测的，并且成功或失败仅取决于受您控制的参数。而网络请求是不可预知的。</li>
+<li>本地函数调用要么返回结果，要么抛出异常，或者永远不返回（因为进入无限循环或进程崩溃）。网络请求有另一个可能的结果：由于超时，它可能会返回没有结果。无法得知远程服务的响应发生了什么。</li>
+<li>如果您重试失败的网络请求，可能会发生请求实际上正在通过，只有响应丢失。在这种情况下，重试将导致该操作被执行多次，除非您在协议中引入除重（ <strong>幂等（idempotence）</strong>）机制。本地函数调用没有这个问题。</li>
+<li>每次调用本地功能时，通常需要大致相同的时间来执行。网络请求慢得多，不可预知。</li>
+<li>调用本地函数时，可以高效地将引用（指针）传递给本地内存中的对象。当你发出一个网络请求时，所有这些参数都需要被编码成可以通过网络发送的一系列字节。如果参数是像数字或字符串这样的基本类型倒是没关系，但是对于较大的对象很快就会变成问题。</li>
+<li>客户端和服务端可以用不同的编程语言实现，RPC 框架必须把数据类型做翻译，可能会出问题。</li>
+</ul>
+<h4 id="RPC的当前方向"><a href="#RPC的当前方向" class="headerlink" title="RPC的当前方向"></a>RPC的当前方向</h4><p>RPC 不会消失。</p>
+<ul>
+<li>Thrift和Avro带有RPC支持</li>
+<li>gRPC是使用Protocol Buffers的RPC实现</li>
+<li>Finagle也使用Thrift</li>
+<li>Rest.li使用JSON over HTTP。</li>
+</ul>
+<p>当前方向：</p>
+<ul>
+<li>这种新一代的RPC框架更加明确的是，远程请求与本地函数调用不同。</li>
+<li>其中一些框架还提供服务发现，即允许客户端找出在哪个IP地址和端口号上可以找到特定的服务。</li>
+<li>REST似乎是公共API的主要风格。<ul>
+<li>REST 使用二进制编码性能更好</li>
+<li>方便实验和调试</li>
+<li>能被所有主流的编程语言和平台支持</li>
+<li>大量可用的工具的生态系统</li>
+</ul>
+</li>
+</ul>
+<h4 id="数据编码与RPC的演化"><a href="#数据编码与RPC的演化" class="headerlink" title="数据编码与RPC的演化"></a>数据编码与RPC的演化</h4><ul>
+<li>可演化性，重要的是可以独立更改和部署RPC客户端和服务器。</li>
+<li>我们可以做个假定：<strong>假定所有的服务器都会先更新，其次是所有的客户端。</strong></li>
+<li>您只需要在请求上具有向后兼容性，并且对响应具有前向兼容性。</li>
+</ul>
+<p>RPC方案的前后向兼容性属性从它使用的编码方式中继承：</p>
+<ul>
+<li>Thrift，gRPC（Protobuf）和Avro RPC可以根据相应编码格式的兼容性规则进行演变。</li>
+<li>在SOAP中，请求和响应是使用XML模式指定的。</li>
+<li>RESTful API 通常使用 JSON（没有正式指定的模式）用于响应，以及用于请求的JSON或URI编码&#x2F;表单编码的请求参数。</li>
+</ul>
+<p>服务的提供者无法控制其客户，所以可能无限期保持兼容性。<br>对于 RESTful API，常用方法是在 URL 或者 HTTP Accept 头部使用版本号。</p>
+<h3 id="消息传递中的数据流"><a href="#消息传递中的数据流" class="headerlink" title="消息传递中的数据流"></a>消息传递中的数据流</h3><p>与直接RPC相比，使用消息代理（消息队列）有几个优点：</p>
+<ul>
+<li>如果收件人不可用或过载，可以充当缓冲区，从而提高系统的可靠性。</li>
+<li>它可以自动将消息重新发送到已经崩溃的进程，从而防止消息丢失。</li>
+<li>避免发件人需要知道收件人的IP地址和端口号（这在虚拟机经常出入的云部署中特别有用）。</li>
+<li>它允许将一条消息发送给多个收件人。</li>
+<li>将发件人与收件人逻辑分离（发件人只是发布邮件，不关心使用者）。</li>
+</ul>
+<p>与 PRC 相比，差异在于</p>
+<ul>
+<li>消息传递通常是单向的：发送者通常不期望收到其消息的回复。</li>
+<li>通信模式是异步的：发送者不会等待消息被传递，而只是发送它，然后忘记它。</li>
+</ul>
+<h4 id="消息代理"><a href="#消息代理" class="headerlink" title="消息代理"></a>消息代理</h4><ul>
+<li>RabbitMQ，ActiveMQ，HornetQ，NATS和Apache Kafka这样的开源实现已经流行起来。</li>
+<li>通常情况下，消息代理的使用方式如下：<ul>
+<li>一个进程将消息发送到指定的队列或主题；</li>
+<li>代理确保将消息传递给那个队列或主题的一个或多个消费者或订阅者。</li>
+<li>在同一主题上可以有许多生产者和许多消费者。</li>
+</ul>
+</li>
+<li>一个主题只提供单向数据流。但是，消费者本身可能会将消息发布到另一个主题上，或者发送给原始消息的发送者使用的回复队列（允许请求&#x2F;响应数据流，类似于RPC）。</li>
+<li>消息代理通常不会执行任何特定的数据模型，消息知识包含一些元数据的字节序列，可以用任何编码格式。</li>
+<li>如果消费者重新发布消息到另一个主题，则消息保留未知字段，防止前面数据库环境中描述的问题。</li>
+</ul>
+<h4 id="分布式的Actor框架"><a href="#分布式的Actor框架" class="headerlink" title="分布式的Actor框架"></a>分布式的Actor框架</h4><ul>
+<li>Actor模型是单个进程中并发的编程模型。</li>
+<li>逻辑被封装在actor中，而不是直接处理线程（以及竞争条件，锁定和死锁的相关问题）。</li>
+<li>每个actor通常代表一个客户或实体，它可能有一些本地状态（不与其他任何角色共享），它通过发送和接收异步消息与其他角色通信。</li>
+<li>不保证消息传送：在某些错误情况下，消息将丢失。</li>
+<li>由于每个角色一次只能处理一条消息，因此不需要担心线程，每个角色可以由框架独立调度。</li>
+</ul>
+<p>分布式 Actor 框架</p>
+<ul>
+<li>在分布式Actor框架中，此编程模型用于跨多个节点伸缩应用程序。</li>
+<li>不管发送方和接收方是在同一个节点上还是在不同的节点上，都使用相同的消息传递机制。</li>
+<li>如果它们在不同的节点上，则该消息被透明地编码成字节序列，通过网络发送，并在另一侧解码。</li>
+</ul>
+<p>位置透明</p>
+<ul>
+<li>位置透明在actor模型中比在RPC中效果更好，因为actor模型已经假定消息可能会丢失，即使在单个进程中也是如此。</li>
+<li>尽管网络上的延迟可能比同一个进程中的延迟更高，但是在使用actor模型时，本地和远程通信之间的基本不匹配是较少的。</li>
+</ul>
+<p>升级</p>
+<ul>
+<li>分布式的Actor框架实质上是将消息代理和actor编程模型集成到一个框架中。</li>
+<li>升级仍然要担心向前和向后兼容问题。</li>
+</ul>
+<p>三个流行的分布式actor框架处理消息编码如下：</p>
+<ul>
+<li>默认情况下，Akka使用Java的内置序列化，不提供前向或后向兼容性。 但是，你可以用类似Prototol Buffers的东西替代它，从而获得滚动升级的能力。</li>
+<li>Orleans 默认使用不支持滚动升级部署的自定义数据编码格式; 要部署新版本的应用程序，您需要设置一个新的集群，将流量从旧集群迁移到新集群，然后关闭旧集群。 像Akka一样，可以使用自定义序列化插件。</li>
+<li>在Erlang OTP中，对记录模式进行更改是非常困难的（尽管系统具有许多为高可用性设计的功能）。 滚动升级是可能的，但需要仔细计划。</li>
+</ul>
+<h2 id="本章小结"><a href="#本章小结" class="headerlink" title="本章小结"></a>本章小结</h2><ul>
+<li>本章探讨了编码数据结构的方式。</li>
+<li>许多服务需要支持滚动升级：向前、向后兼容性。</li>
+</ul>
+<p>我们讨论了几种数据编码格式及其兼容性属性：</p>
+<ul>
+<li>编程语言特定的编码仅限于单一编程语言，并且往往无法提供前向和后向兼容性。</li>
+<li>JSON，XML和CSV等文本格式非常普遍，其兼容性取决于您如何使用它们。他们有可选的模式语言，这有时是有用的，有时是一个障碍。这些格式对于数据类型有些模糊，所以你必须小心数字和二进制字符串。</li>
+<li>像Thrift，Protocol Buffers和Avro这样的二进制模式驱动格式允许使用清晰定义的前向和后向兼容性语义进行紧凑，高效的编码。这些模式可以用于静态类型语言的文档和代码生成。但是，他们有一个缺点，就是在数据可读之前需要对数据进行解码。</li>
+</ul>
+<p>我们还讨论了数据流的几种模式，说明了数据编码重要性的不同场景：</p>
+<ul>
+<li>数据库，写入数据库的进程对数据进行编码，并从数据库读取进程对其进行解码</li>
+<li>RPC和REST API，客户端对请求进行编码，服务器对请求进行解码并对响应进行编码，客户端最终对响应进行解码</li>
+<li>异步消息传递（使用消息代理或参与者），其中节点之间通过发送消息进行通信，消息由发送者编码并由接收者解码</li>
+</ul>
+<p>结论：前向兼容性和滚动升级在某种程度上是可以实现的。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" class="category-chain-item">系统架构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84/">#架构</a>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8/">#设计数据密集型应用</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>04：数据系统编码与演化</div>
+      <div>https://blog.longpi1.com/2024/07/05/04：数据系统编码与演化/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/04/03%EF%BC%9A%E5%AD%98%E5%82%A8%E4%B8%8E%E6%A3%80%E7%B4%A2/" title="03：存储与检索">
+                        <span class="hidden-mobile">03：存储与检索</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
