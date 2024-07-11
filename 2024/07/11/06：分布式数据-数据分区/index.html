@@ -1,0 +1,1047 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="06：分布式数据-数据分区">
+<meta property="og:url" content="https://blog.longpi1.com/2024/07/11/06%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE-%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634613965833-5b147f85-6260-4483-ab61-76916fdc7369.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634614402944-1042d5f2-e693-4726-b552-50defb88f7e7.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634614700780-7fd3aad6-801a-4d09-8606-ef6e14fd76bb.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634615692301-0b189f32-fdb3-445f-bbb5-328206df105f.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634617232975-a8b10ef9-e255-487b-b364-425664c97be1.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634706796816-6e251058-c8a4-451f-9e80-e3c32330f50c.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634784240515-b46b26c7-5561-4681-8ca9-8dc4a004cc50.png">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634784395663-b048214c-4bb4-471d-bf58-5ff54015ae53.png">
+<meta property="article:published_time" content="2024-07-11T13:39:57.000Z">
+<meta property="article:modified_time" content="2024-07-11T13:40:24.446Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="设计数据密集型应用">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://picture-bed-1251805293.file.myqcloud.com/1634613965833-5b147f85-6260-4483-ab61-76916fdc7369.png">
+  
+  
+  
+  <title>06：分布式数据-数据分区 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="06：分布式数据-数据分区"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-11 21:39" pubdate>
+          2024年7月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">06：分布式数据-数据分区</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="第六章-分布式数据-数据分区"><a href="#第六章-分布式数据-数据分区" class="headerlink" title="第六章-分布式数据-数据分区"></a>第六章-分布式数据-数据分区</h1><blockquote>
+<p>文章主要内容来自于<a href="%5B%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%5D(https://vonng.gitbooks.io/ddia-cn/content/">设计数据密集型应用</a></p>
+<p>这篇文章主要讨论了分布式数据库中的分区(partitioning)相关问题,主要内容包括:</p>
+<ol>
+<li>分区的目的是将大数据集分散到多个节点上,以提高可扩展性。</li>
+<li>分区的主要方法:<ul>
+<li>基于关键字范围的分区</li>
+<li>基于关键字哈希的分区</li>
+</ul>
+</li>
+<li>次级索引的分区策略:<ul>
+<li>基于文档的分区</li>
+<li>基于关键词的分区</li>
+</ul>
+</li>
+<li>分区再平衡的策略:<ul>
+<li>固定数量的分区</li>
+<li>动态分区</li>
+<li>按节点比例分区</li>
+</ul>
+</li>
+<li>分区再平衡的自动化程度:全自动 vs 手动干预</li>
+<li>请求路由的方法:<ul>
+<li>允许客户端连接任何节点</li>
+<li>使用独立的路由层</li>
+<li>客户端直接连接正确的节点</li>
+</ul>
+</li>
+<li>使用ZooKeeper等协调服务来跟踪集群元数据和分区分配。</li>
+<li>不同数据库系统采用的具体策略。</li>
+</ol>
+<p>​	总的来说,分区是分布式数据库拓展性的关键,需要在可用性、一致性和性能间仔细权衡。分区方案需要结合数据特点和业务需求灵活选择。</p>
+</blockquote>
+<p>什么是分区？</p>
+<ul>
+<li>对于非常大的数据集，或非常高的吞吐量，仅仅进行复制是不够的：我们需要将数据进行<strong>分区（partitions）</strong>，也称为<strong>分片（sharding）</strong>。</li>
+<li>通常情况下，每条数据（每条记录，每行或每个文档）属于且仅属于一个分区。</li>
+<li>每个分区都是自己的小型数据库，尽管数据库可能支持同时进行多个分区的操作。</li>
+</ul>
+<p>分区的优点？</p>
+<ul>
+<li>分区主要是为了<strong>可伸缩性</strong>。</li>
+<li>大数据集可以分布在多个磁盘上，并且查询负载可以分布在多个处理器上。</li>
+<li>单个分区上运行的查询，每个节点可以独立执行对自己的查询，因此可以通过添加更多的节点来扩大查询吞吐量。</li>
+<li>大型、复杂的查询可能会跨越多个节点并行处理，尽管这也带来了新的困难。</li>
+</ul>
+<p>本章内容</p>
+<ul>
+<li>分割大型数据集的不同方法</li>
+<li>索引如何与分区配合</li>
+<li>分区再平衡</li>
+<li>数据库如何路由到正确的分区</li>
+</ul>
+<h2 id="分区与复制"><a href="#分区与复制" class="headerlink" title="分区与复制"></a>分区与复制</h2><ul>
+<li>分区通常与复制结合使用，使得每个分区的副本存储在多个节点上。</li>
+<li>即使每条记录属于同一个分区，但是这个分区仍有多个不同的节点，提高容错。</li>
+<li>一个节点有多个分区，如果使用主从复制模型，每个分区领导者被分配给一个节点，追随者被分配个其他节点。<ul>
+<li>每个节点可能是某些分区的领导者，同时是其他分区的追随者。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1634613965833-5b147f85-6260-4483-ab61-76916fdc7369.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="键值数据的分区"><a href="#键值数据的分区" class="headerlink" title="键值数据的分区"></a>键值数据的分区</h2><ul>
+<li>分区目标是将数据和查询负载均匀分布在各个节点上。</li>
+<li>如果每个节点公平分享数据和负载，那么理论上10个节点应该能够处理10倍的数据量和10倍的单个节点的读写吞吐量（暂时忽略复制）。</li>
+<li>如果分区不公平，被称为<strong>偏斜（skew）</strong><ul>
+<li>数据偏斜的存在使分区效率下降很多。</li>
+<li>在极端的情况下，所有的负载可能压在一个分区上，其余9个节点空闲的，瓶颈落在这一个繁忙的节点上。</li>
+<li>不均衡导致的高负载的分区被称为<strong>热点（hot spot）</strong>。</li>
+</ul>
+</li>
+</ul>
+<p>怎么避免热点？</p>
+<ul>
+<li>避免热点最简单的方法是将记录随机分配给节点。</li>
+<li>缺点：<ul>
+<li>读特定的值时，不知道在哪个节点上，必须并行查所有的节点。</li>
+</ul>
+</li>
+</ul>
+<h3 id="根据键的范围分区"><a href="#根据键的范围分区" class="headerlink" title="根据键的范围分区"></a>根据键的范围分区</h3><ul>
+<li>一种分区的方法是为每个分区指定一块连续的键范围（从最小值到最大值），类似纸质的百科全书。</li>
+<li><img src="https://picture-bed-1251805293.file.myqcloud.com/1634614402944-1042d5f2-e693-4726-b552-50defb88f7e7.png" srcset="/img/loading.gif" lazyload alt="image.png"></li>
+<li>可能分布不均匀。</li>
+<li>分区边界可以由管理员手动选择，也可以由数据库自动选择</li>
+<li>使用该策略的有：Bigtable， HBase，RethinkDB和2.4版本之前的MongoDB</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>在每个分区中，我们可以按照一定的顺序保存键。</li>
+<li>范围扫描非常简单</li>
+<li>可以将键作为联合索引来处理，以便在一次查询中获取多个相关记录</li>
+<li>比如获取一段时间内的记录。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>Key Range分区的缺点是某些特定的访问模式会导致热点。</li>
+<li>可一个修改主键：比如传感器名称+时间，避免数据打到同一分区。</li>
+</ul>
+<h3 id="根据键的散列分区"><a href="#根据键的散列分区" class="headerlink" title="根据键的散列分区"></a>根据键的散列分区</h3><ul>
+<li>很多分布式数据存储使用散列函数来分区。</li>
+<li>一个好的散列函数可以将偏斜的数据均匀分布。</li>
+<li>注意保证同一个键在不同的进程中有相同的哈希值。</li>
+<li><img src="https://picture-bed-1251805293.file.myqcloud.com/1634614700780-7fd3aad6-801a-4d09-8606-ef6e14fd76bb.png" srcset="/img/loading.gif" lazyload alt="image.png"></li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>这种技术擅长在分区之间公平地分配键。</li>
+<li>分区边界可以是均匀间隔的，也可以是伪随机选择的（在这种情况下，该技术有时也被称为<strong>一致性哈希（consistent hashing）</strong>）。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>失去了 高效执行范围查询的能力。</li>
+<li>范围查询要么不支持，要么需要查询所有分区。</li>
+</ul>
+<p>组合索引：</p>
+<ul>
+<li>组合索引方法为一对多关系提供了一个优雅的数据模型。</li>
+<li>社交网络的一条更新主键被选择为 (user_id, update_timestamp)，那么可以有效地检索特定用户在某个时间间隔内按时间戳排序的所有更新。</li>
+</ul>
+<h3 id="负载偏斜与热点消除"><a href="#负载偏斜与热点消除" class="headerlink" title="负载偏斜与热点消除"></a>负载偏斜与热点消除</h3><ul>
+<li>哈希分区可以帮助减少热点。但是，它不能完全避免它们：在极端情况下，所有的读写操作都是针对同一个键的，所有的请求都会被路由到同一个分区。</li>
+<li>比如社交网络的大 V 的评论区。</li>
+<li>只能靠应用程序解决：<ul>
+<li>比如，一个主键如果被认为非常火爆，一个简单的方法是在主键的开始或结尾添加一个随机数。</li>
+<li>只要一个两位数的十进制随机数就可以将主键分散为100种不同的主键,从而存储在不同的分区中。</li>
+<li>缺点：<ul>
+<li>任何读取都要读取 100 个主键，读取数据并合并。</li>
+<li>还要记录哪些键需要被分割</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="分区与次级索引"><a href="#分区与次级索引" class="headerlink" title="分区与次级索引"></a>分区与次级索引</h2><ul>
+<li>之前讨论的都是键值数据模型。</li>
+<li>次级索引使情况变复杂：<ul>
+<li>次级索引通常并不能唯一地标识记录，而是一种搜索记录中出现特定值的方式</li>
+</ul>
+</li>
+<li>次级索引是关系型数据库的基础，并且在文档数据库中也很普遍。</li>
+<li>许多键值存储（如HBase和Volde-mort）为了减少实现的复杂度而放弃了次级索引；</li>
+<li>但是一些（如Riak）已经开始添加它们，因为它们对于数据模型实在是太有用了。</li>
+<li>并且次级索引也是Solr和Elasticsearch等搜索服务器的基石。</li>
+</ul>
+<p>存在的问题：</p>
+<ul>
+<li>次级索引的问题是它们不能整齐地映射到分区。</li>
+<li>有两种用二级索引对数据库进行分区的方法：<strong>基于文档的分区（document-based）</strong> 和<strong>基于关键词（term-based）的分区</strong>。</li>
+</ul>
+<h3 id="基于文档的二级索引进行分区"><a href="#基于文档的二级索引进行分区" class="headerlink" title="基于文档的二级索引进行分区"></a>基于文档的二级索引进行分区</h3><ul>
+<li>假如一个销售二手车的网站， 每个列表都有一个唯一的ID——称之为文档ID——并且用文档ID对数据库进行分区</li>
+<li>用户搜索汽车，允许他们通过颜色和厂商过滤，所以需要一个在颜色和厂商上的次级索引（文档数据库中这些是<strong>字段（field）</strong>，关系数据库中这些是<strong>列（column）</strong> ）。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1634615692301-0b189f32-fdb3-445f-bbb5-328206df105f.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>特点：</p>
+<ul>
+<li>分区完全独立：每个分区维护自己的二级索引</li>
+<li>只需处理包含您正在编写的文档ID的分区即可</li>
+<li><strong>文档分区索引</strong>也被称为<strong>本地索引（local index）</strong></li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>没有理由把特定颜色或者品牌的汽车放到同一个分区。</li>
+<li>查询时需要查询所有的分区，合并所有的结果返回。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>查询分区数据库的方法有时被称为<strong>分散&#x2F;聚集（scatter&#x2F;gather）</strong>；</li>
+<li>可能使二级索引的查询代价高。</li>
+<li>即使并行查询分区，分散&#x2F;聚集也容易导致尾部延迟放大。</li>
+</ul>
+<p>然而被广泛使用：MongoDB，Riak ，Cassandra ，Elasticsearch ，SolrCloud 和VoltDB 【19】都使用文档分区二级索引。</p>
+<h3 id="基于关键词-Term-的二级索引进行分区"><a href="#基于关键词-Term-的二级索引进行分区" class="headerlink" title="基于关键词(Term)的二级索引进行分区"></a>基于关键词(Term)的二级索引进行分区</h3><ul>
+<li>可以构建一个覆盖所有分区数据的<strong>全局索引</strong>，而不是给每个分区创建自己的次级索引（本地索引）。</li>
+<li>但是，我们不能只把这个索引存储在一个节点上，因为它可能会成为瓶颈，违背了分区的目的。</li>
+<li>全局索引也必须进行分区，但可以采用与主键不同的分区方式。</li>
+<li>下图是对二级索引按照首字母是否在 “[a, r]” 之间分区。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1634617232975-a8b10ef9-e255-487b-b364-425664c97be1.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ul>
+<li>这种分区叫做<strong>关键词分区。</strong></li>
+<li>以通过<strong>关键词</strong>本身或者它的散列进行索引分区。<ul>
+<li>根据关键词本身来分区对于范围扫描非常有用：比如数值类的属性。</li>
+<li>对关键词的哈希分区提供了负载均衡的能力。</li>
+</ul>
+</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>读取更有效率：不需要<strong>分散&#x2F;收集</strong>所有分区，客户端只需要向包含关键词的分区发出请求。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>写入速度较慢且较为复杂，因为写入单个文档现在可能会影响索引的多个分区（文档中的每个关键词可能位于不同的分区或者不同的节点上） 。</li>
+<li>需要跨分区的分布式事务，并不是所有数据库都支持。</li>
+<li>在实践中，对全局二级索引的更新通常是<strong>异步</strong>的。</li>
+</ul>
+<h2 id="分区再平衡"><a href="#分区再平衡" class="headerlink" title="分区再平衡"></a>分区再平衡</h2><p>随着时间的推移，数据库会有各种变化：</p>
+<ul>
+<li>查询吞吐量增加，所以您想要添加更多的CPU来处理负载。</li>
+<li>数据集大小增加，所以您想添加更多的磁盘和RAM来存储它。</li>
+<li>机器出现故障，其他机器需要接管故障机器的责任。</li>
+</ul>
+<p>所有这些更改都需要数据和请求从一个节点移动到另一个节点。 将负载从集群中的一个节点向另一个节点移动的过程称为<strong>再平衡（rebalancing）</strong>。</p>
+<p>无论使用哪种分区方案，再平衡通常都要满足一些最低要求：</p>
+<ul>
+<li>再平衡之后，负载（数据存储，读取和写入请求）应该在集群中的节点之间公平地共享。</li>
+<li>再平衡发生时，数据库应该继续接受读取和写入。</li>
+<li>节点之间只移动必须的数据，以便快速再平衡，并减少网络和磁盘I&#x2F;O负载。</li>
+</ul>
+<h3 id="再平衡策略"><a href="#再平衡策略" class="headerlink" title="再平衡策略"></a>再平衡策略</h3><h4 id="反面教材：hash-mod-N"><a href="#反面教材：hash-mod-N" class="headerlink" title="反面教材：hash mod N"></a>反面教材：hash mod N</h4><ul>
+<li>前面已经讲了，最好将可能的散列分成不同的范围，给每个范围分配一个分区。</li>
+<li>取模 mod 运算可以给每个键分配一个节点</li>
+</ul>
+<p>问题</p>
+<ul>
+<li>当节点数目变化时，使得再平衡过于昂贵。</li>
+</ul>
+<h4 id="固定数量的分区"><a href="#固定数量的分区" class="headerlink" title="固定数量的分区"></a>固定数量的分区</h4><ul>
+<li>简单的解决方案：创建比节点更多的分区，并为每个节点分配多个分区。</li>
+<li>仍然是取模，但是新增节点之后，总节点数变成了 5 个，只需要把取模 &#x3D; 4 的部分放到 node 4。</li>
+<li><img src="https://picture-bed-1251805293.file.myqcloud.com/1634706796816-6e251058-c8a4-451f-9e80-e3c32330f50c.png" srcset="/img/loading.gif" lazyload alt="image.png"></li>
+</ul>
+<p>优点</p>
+<ul>
+<li>只有分区在节点中移动。</li>
+<li>分区总数不变</li>
+<li>键所在的分区也不会改变</li>
+<li>唯一改变的是分区所在的节点</li>
+<li>变更不是及时的：在传输过程中，原有分区仍然接受读写操作。</li>
+<li>甚至可以解决硬件不匹配问题：更强大的节点分配更多的分区。</li>
+<li>Riak ，Elasticsearch ，Couchbase 和Voldemort 中使用了这种再平衡的方法。</li>
+</ul>
+<p>特点</p>
+<ul>
+<li>分区的数量通常在数据库第一次建立时确定，之后不会改变。</li>
+<li>一开始配置的分区数就是您可以拥有的最大节点数量，所以您需要选择足够多的分区以适应未来的增长。</li>
+<li>但是，每个分区也有管理开销，所以选择太大的数字会适得其反。</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>当数据集的总大小难以预估，选择正确的分区数很难。</li>
+</ul>
+<h4 id="动态分区"><a href="#动态分区" class="headerlink" title="动态分区"></a>动态分区</h4><p>采用关键字区间分区的数据库，如果边界设置有问题，可能导致数据倾斜到一个分区中。</p>
+<ul>
+<li>按键的范围进行分区的数据库（如HBase和RethinkDB）会动态创建分区。</li>
+<li>当分区增长到超过配置的大小时（在HBase上，默认值是10GB），会被分成两个分区，每个分区约占一半的数据。</li>
+<li>与之相反，如果大量数据被删除并且分区缩小到某个阈值以下，则可以将其与相邻分区合并。此过程与B树顶层发生的过程类似。</li>
+</ul>
+<p>特点：</p>
+<ul>
+<li>每个分区分配给一个节点，每个节点可以处理多个分区，就像固定数量的分区一样。</li>
+<li>大型分区拆分后，可以将其中的一半转移到另一个节点，以平衡负载。</li>
+<li>在HBase中，分区文件的传输通过HDFS（底层使用的分布式文件系统）来实现。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>分区数量适应总数据量。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>空数据库从一个分区开始，导致所有写入都必须单个节点处理，其他节点空闲。</li>
+</ul>
+<p>解决方法：</p>
+<ul>
+<li>HBase和MongoDB允许在一个空的数据库上配置一组初始分区（这被称为<strong>预分割（pre-splitting）</strong>）。</li>
+<li>在键范围分区的情况中，预分割需要提前知道键是如何进行分配的。</li>
+</ul>
+<p>适用情况：</p>
+<ul>
+<li>动态分区不仅适用于数据的范围分区，而且也适用于散列分区。</li>
+</ul>
+<h4 id="按节点比例分区"><a href="#按节点比例分区" class="headerlink" title="按节点比例分区"></a>按节点比例分区</h4><ul>
+<li>动态分区和固定数量的分区，分区数量都与节点数量无关。</li>
+<li>Cassandra和Ketama使用的第三种方法是使分区数与节点数成正比：每个节点有固定数量的分区。<ul>
+<li>当节点数不变，分区大小与数据集大小成比例增长；</li>
+<li>当节点数改变，分区大小将变小。</li>
+</ul>
+</li>
+</ul>
+<p>操作方式：</p>
+<ul>
+<li>当一个新节点加入集群时，它随机选择固定数量的现有分区进行拆分，然后占有这些拆分分区中每个分区的一半，同时将每个分区的另一半留在原地。</li>
+<li>随机化可能会产生不公平的分割，但是平均在更大数量的分区上时，新节点最终从现有节点获得公平的负载份额。</li>
+<li>随机选择分区边界要求使用基于散列的分区（可以从散列函数产生的数字范围中挑选边界）。实际上，这种方法最符合一致性哈希的原始定义。</li>
+</ul>
+<h3 id="运维：手动还是自动再平衡"><a href="#运维：手动还是自动再平衡" class="headerlink" title="运维：手动还是自动再平衡"></a>运维：手动还是自动再平衡</h3><p>重要问题：自动还是手动进行？</p>
+<ul>
+<li>完全自动重新平衡和完全手动之间有一个过渡阶段：自动生成建议的分区分配，需要管理员提交才能生效。</li>
+</ul>
+<p>完全自动重新平衡的缺点：</p>
+<ul>
+<li>虽然很方便，但是结果不可预测。</li>
+<li>再平衡的代价昂贵，因为它需要重新路由请求并将大量数据从一个节点移动到另一个节点。</li>
+<li>如果没有做好，这个过程可能会使网络或节点负载过重，降低其他请求的性能。<ul>
+<li>如果全自动重新平衡遇到了自动故障检测：系统判断一个节点过载，然后重新自动平衡，导致情况更糟。</li>
+</ul>
+</li>
+</ul>
+<h2 id="请求路由"><a href="#请求路由" class="headerlink" title="请求路由"></a>请求路由</h2><p><strong>服务发现(service discovery)</strong></p>
+<ul>
+<li>确定客户发出请求时，知道要连接哪个节点进行读取</li>
+</ul>
+<p>概括来说，这个问题有几种不同的方案（如图6-7所示）:</p>
+<ol>
+<li>允许客户联系任何节点（例如，通过<strong>循环策略的负载均衡（Round-Robin Load Balancer）</strong>）。如果该节点恰巧拥有请求的分区，则它可以直接处理该请求；否则，它将请求转发到适当的节点，接收回复并传递给客户端。</li>
+<li>首先将所有来自客户端的请求发送到路由层，它决定了应该处理请求的节点，并相应地转发。此路由层本身不处理任何请求；它仅负责分区的负载均衡。</li>
+<li>要求客户端知道分区和节点的分配。在这种情况下，客户端可以直接连接到适当的节点，而不需要任何中介。</li>
+</ol>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1634784240515-b46b26c7-5561-4681-8ca9-8dc4a004cc50.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>关键问题：</p>
+<ul>
+<li>如何了解分区-节点之间的分配关系变化？</li>
+<li>解决方法：所有参与者达成共识。<ul>
+<li>分布式系统中有达成共识的协议，但很难被正确实现。</li>
+</ul>
+</li>
+</ul>
+<p>常见实现 ZooKeeper：</p>
+<ul>
+<li>依赖于一个独立的协调服务，比如ZooKeeper来跟踪集群元数据</li>
+<li>每个节点在ZooKeeper中注册自己，ZooKeeper维护分区到节点的可靠映射。</li>
+<li>其他参与者（如路由层或分区感知客户端）可以在ZooKeeper中订阅此信息。</li>
+<li>只要分区分配发生了改变，或者集群中添加或删除了一个节点，ZooKeeper就会通知路由层使路由信息保持最新状态。</li>
+</ul>
+<p><img src="https://picture-bed-1251805293.file.myqcloud.com/1634784395663-b048214c-4bb4-471d-bf58-5ff54015ae53.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>应用：</p>
+<ol>
+<li>使用 ZooKeeper<ul>
+<li>LinkedIn的Espresso使用Helix 【31】进行集群管理（依靠ZooKeeper）</li>
+<li>HBase，SolrCloud和Kafka也使用ZooKeeper来跟踪分区分配。</li>
+<li>MongoDB具有类似的体系结构，但它依赖于自己的<strong>配置服务器（config server）</strong> 实现和mongos守护进程作为路由层。</li>
+</ul>
+</li>
+<li>使用<strong>流言协议（gossip protocol）</strong><ul>
+<li>Cassandra和Riak使用<strong>流言协议</strong>来传播集群状态的变化</li>
+<li>请求可以发送到任意节点，该节点会转发到包含所请求的分区的适当节点</li>
+<li>增加了更多的复杂性，但是避免了对像ZooKeeper这样的外部协调服务的依赖。</li>
+</ul>
+</li>
+<li>不自动重新平衡<ul>
+<li>Couchbase，简化了设计</li>
+<li>它配置了一个名为moxi的路由层，它会从集群节点了解路由变化</li>
+</ul>
+</li>
+</ol>
+<h3 id="执行并行查询"><a href="#执行并行查询" class="headerlink" title="执行并行查询"></a>执行并行查询</h3><ul>
+<li>目前，我们只关注读取或写入单个键的非常简单的查询（加上基于文档分区的二级索引场景下的分散&#x2F;聚集查询）。也是大多数 NoSQL 分布式数据存储所支持的访问层级。</li>
+<li>通常用于分析的<strong>大规模并行处理（MPP, Massively parallel processing）</strong> 关系型数据库产品在其支持的查询类型方面要复杂得多。</li>
+<li>把多个连接，过滤，分组和聚合操作分解成多个执行阶段和分区，分布式并行执行。</li>
+<li>见第十章。</li>
+</ul>
+<h2 id="本章小结"><a href="#本章小结" class="headerlink" title="本章小结"></a>本章小结</h2><ul>
+<li>数据量非常大的时候，在单台机器上存储和处理不再可行，而分区则十分必要。</li>
+<li>分区的目标是在多台机器上均匀分布数据和查询负载，避免出现热点（负载不成比例的节点）。</li>
+<li>这需要选择适合于您的数据的分区方案，并在将节点添加到集群或从集群删除时进行分区再平衡。</li>
+</ul>
+<p>两种主要的分区方法：</p>
+<ol>
+<li><em><strong>键范围分区</strong></em><ul>
+<li>其中键是有序的，并且分区拥有从某个最小值到某个最大值的所有键。</li>
+<li>排序的优势在于可以进行有效的范围查询，但是如果应用程序经常访问相邻的键，则存在热点的风险。</li>
+<li>在这种方法中，当分区变得太大时，通常将分区分成两个子分区，动态地再平衡分区。</li>
+</ul>
+</li>
+<li><em><strong>散列分区</strong></em><ul>
+<li>散列函数应用于每个键，分区拥有一定范围的散列。</li>
+<li>这种方法破坏了键的排序，使得范围查询效率低下，但可以更均匀地分配负载。</li>
+<li>通过散列进行分区时，通常先提前创建固定数量的分区，为每个节点分配多个分区，并在添加或删除节点时将整个分区从一个节点移动到另一个节点。也可以使用动态分区。</li>
+</ul>
+</li>
+</ol>
+<p>两种方法搭配使用也是可行的，例如使用复合主键：</p>
+<ul>
+<li>使用键的一部分来标识分区，而使用另一部分作为排序顺序。</li>
+</ul>
+<p>我们还讨论了分区和二级索引之间的相互作用。<br>次级索引也需要分区，有两种方法：</p>
+<ul>
+<li>基于文档分区（本地索引），其中二级索引存储在与主键和值相同的分区中。<ul>
+<li>这意味着只有一个分区需要在写入时更新</li>
+<li>但是读取二级索引需要在所有分区之间进行分散&#x2F;收集。</li>
+</ul>
+</li>
+<li>基于关键词分区（全局索引），其中二级索引存在不同的分区中。<ul>
+<li>辅助索引中的条目可以包括来自主键的所有分区的记录。</li>
+<li>当文档写入时，需要更新多个分区中的二级索引；</li>
+<li>但是可以从单个分区中进行读取。</li>
+</ul>
+</li>
+</ul>
+<p>最后，讨论了将查询路由到适当的分区的技术，从简单的分区负载平衡到复杂的并行查询执行引擎。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" class="category-chain-item">系统架构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84/">#架构</a>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8/">#设计数据密集型应用</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>06：分布式数据-数据分区</div>
+      <div>https://blog.longpi1.com/2024/07/11/06：分布式数据-数据分区/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/07/05%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE-%E5%A6%82%E4%BD%95%E5%A4%8D%E5%88%B6%E6%95%B0%E6%8D%AE/" title="05：分布式数据-如何复制数据">
+                        <span class="hidden-mobile">05：分布式数据-如何复制数据</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
