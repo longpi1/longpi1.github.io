@@ -23,22 +23,22 @@
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1640573354336-3ea9e64d-64d0-4e99-8709-6af381c595d2.png">
 <meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1641350917592-675520cd-6fca-4c90-bf8a-272685179c1f.png">
 <meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1641351518284-33f9918c-0b9e-43cf-8b74-7ae497d71b40.png">
 <meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1641523602797-621d8924-81b2-4ce3-af89-e391d9fbc720.png">
 <meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1641869080862-da02b3d1-51f4-4ff4-9172-4ac0e7050bba.png">
 <meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1641869890414-ec2d86e0-e43a-4cf9-aade-d196ea1cf0fe.png">
+<meta property="og:image" content="https://vonng.gitbooks.io/ddia-cn/content/img/fig11-6.png">
 <meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1642472159562-6c846a8c-7127-4f48-9db5-cec33fd95954.png">
 <meta property="article:published_time" content="2024-08-02T12:26:56.000Z">
-<meta property="article:modified_time" content="2024-08-02T12:27:29.294Z">
+<meta property="article:modified_time" content="2024-08-02T12:57:40.925Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="架构">
 <meta property="article:tag" content="设计数据密集型应用">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://picture-bed-1251805293.file.myqcloud.com/1640573354336-3ea9e64d-64d0-4e99-8709-6af381c595d2.png">
+<meta name="twitter:image" content="https://picture-bed-1251805293.file.myqcloud.com/1641350917592-675520cd-6fca-4c90-bf8a-272685179c1f.png">
   
   
   
@@ -297,7 +297,10 @@
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <p>作者：负雪明烛<br>时间：2021 年 12 月 27 日<br><img src="https://picture-bed-1251805293.file.myqcloud.com/1640573354336-3ea9e64d-64d0-4e99-8709-6af381c595d2.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>上一章的批处理技术讨论了什么？</p>
+                <h1 id="第十一章-衍生数据-流处理"><a href="#第十一章-衍生数据-流处理" class="headerlink" title="第十一章-衍生数据-流处理"></a>第十一章-衍生数据-流处理</h1><blockquote>
+<p>文章主要内容来自于<a href="%5B%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%5D(https://vonng.gitbooks.io/ddia-cn/content/ch7.html)">设计数据密集型应用</a></p>
+</blockquote>
+<p>上一章的批处理技术讨论了什么？</p>
 <ul>
 <li>读取读取一组文件作为输入，并生成一组新的文件作为输出。</li>
 <li>输出是<strong>衍生数据（derived data）</strong> 的一种形式：如果需要，可以通过<strong>再次运行批处理过程</strong>来重新创建数据集。</li>
@@ -576,6 +579,7 @@
 <li>搜索索引和其他衍生数据是变更流的消费者。</li>
 </ul>
 <p><img src="https://picture-bed-1251805293.file.myqcloud.com/1641869890414-ec2d86e0-e43a-4cf9-aade-d196ea1cf0fe.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><strong>图11-5 将数据按顺序写入一个数据库，然后按照相同的顺序将这些更改应用到其他系统</strong></p>
 <h4 id="变更数据捕获的实现"><a href="#变更数据捕获的实现" class="headerlink" title="变更数据捕获的实现"></a>变更数据捕获的实现</h4><p>我们将日志消费者叫做衍生数据系统。衍生数据就是原始数据的准确副本。</p>
 <p>变更数据捕获的原理？</p>
 <ul>
@@ -668,26 +672,13 @@
 <li>用于记录更新的CDC事件通常包含记录的<strong>完整新版本</strong>，因此可以丢弃相同主键的先前事件。</li>
 <li>事件溯源在更高层次进行建模：事件通常表示用户操作的意图，而不是因为操作而发生的状态更新机制。这种情况下，需要用完整的历史事件重构最新状态。</li>
 </ul>
-<h4 id="命令和事件"><a href="#命令和事件" class="headerlink" title="命令和事件"></a>命令和事件</h4><p>什么是事件和命令？</p>
-<ul>
-<li>事件溯源的哲学是仔细区分<strong>事件（event）</strong> 和<strong>命令（command）</strong></li>
-<li>当来自用户的请求刚到达时，它一开始是一个命令：在这个时间点上它仍然可能可能失败，比如，因为违反了一些完整性条件。</li>
-<li>当检查成功时，应用可以生成一个事件。</li>
-<li>在事件生成的时刻，它就成为了<strong>事实（fact）</strong></li>
-</ul>
-<p>对事件怎么操作？</p>
-<ul>
-<li>事件流的消费者不允许拒绝事件：<ul>
-<li>消费者看到事件时，它已经成为日志中不可变更的一部分。</li>
-<li>因此，任何对命令的验证，都需要在它成为事件之前同步完成。</li>
-<li>或者拆成两个事件：<ul>
-<li>第一个是暂时预约</li>
-<li>第二个是验证预约后的肚子的确认事件</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<h4 id="命令和事件"><a href="#命令和事件" class="headerlink" title="命令和事件"></a>命令和事件</h4><p>事件溯源的哲学是仔细区分<strong>事件（event）</strong>和<strong>命令（command）</strong>。</p>
+<p>什么是事件和命令？</p>
+<p>当来自用户的请求刚到达时，它一开始是一个命令：在这个时间点上它仍然可能可能失败，比如，因为违反了一些完整性条件。应用必须首先验证它是否可以执行该命令。如果验证成功并且命令被接受，则它变为一个持久化且不可变的事件。</p>
+<p>例如，如果用户试图注册特定用户名，或预定飞机或剧院的座位，则应用需要检查用户名或座位是否已被占用。当检查成功时，应用可以生成一个事件，指示特定的用户名是由特定的用户ID注册的，座位已经预留给特定的顾客。</p>
+<p>在事件生成的时刻，它就成为了<strong>事实（fact）</strong>。即使客户稍后决定更改或取消预订，他们之前曾预定了某个特定座位的事实仍然成立，而更改或取消是之后添加的单独的事件。</p>
+<p>事件流的消费者不允许拒绝事件：当消费者看到事件时，它已经成为日志中不可变的一部分，并且可能已经被其他消费者看到了。因此任何对命令的验证，都需要在它成为事件之前同步完成。例如，通过使用一个可自动验证命令的可序列化事务来发布事件。</p>
+<p>或者，预订座位的用户请求可以拆分为两个事件：第一个是暂时预约，第二个是验证预约后的独立的确认事件（如“<a target="_blank" rel="external nofollow noopener noreferrer" href="https://vonng.gitbooks.io/ddia-cn/content/ch9.html#%E4%BD%BF%E7%94%A8%E5%85%A8%E5%BA%8F%E5%B9%BF%E6%92%AD%E5%AE%9E%E7%8E%B0%E7%BA%BF%E6%80%A7%E4%B8%80%E8%87%B4%E5%AD%98%E5%82%A8">使用全序广播实现线性一致存储</a>”中所述） 。这种分割方式允许验证发生在一个异步的过程中。</p>
 <h3 id="状态、流和不变性"><a href="#状态、流和不变性" class="headerlink" title="状态、流和不变性"></a>状态、流和不变性</h3><p>状态和数据库？</p>
 <ul>
 <li>数据库视为应用程序<strong>当前状态</strong>的存储</li>
@@ -703,7 +694,7 @@
 <li>应用状态是事件流对时间求积分得到的结果</li>
 <li>而变更流是状态对时间求微分的结果</li>
 </ul>
-<p>$state(now) &#x3D; \int_{t&#x3D;0}^{now}{stream(t) \ dt} \<br>stream(t) &#x3D; \frac{d\ state(t)}{dt}$</p>
+<p>$state(now) &#x3D; \int_{t&#x3D;0}^{now}{stream(t) \ dt} \stream(t) &#x3D; \frac{d\ state(t)}{dt}$<img src="https://vonng.gitbooks.io/ddia-cn/content/img/fig11-6.png" srcset="/img/loading.gif" lazyload alt="img"></p>
 <p>日志和数据库的关系？</p>
 <ul>
 <li>事务日志记录了数据库的所有变更。</li>
@@ -751,7 +742,7 @@
 <ul>
 <li>一种解决方案是将事件追加到日志时<strong>同步执行</strong>读取视图的更新。而将这些写入操作合并为一个原子单元需要<strong>事务</strong>，所以要么将事件日志和读取视图保存在同一个存储系统中，要么就需要跨不同系统进行分布式事务。</li>
 <li>另外，从事件日志导出当前状态也简化了并发控制的某些部分。因为用户操作只需要在一个地方进行单词写入——把事件附加到日志中——这很容易原子化。</li>
-<li>如果事件日志与应用状态以相同的方式分区，那么直接使用单线程日志消费者就不需要写入并发控制了。日志通过在分区中定义事件的序列顺序，消除了并发性的不确定性。</li>
+<li>如果事件日志与应用状态以相同的方式分区，那么直接使用单线程日志消费者就不需要写入并发控制了。日志通过在分区中定义事件的序列顺序，消除了并发性的不确定性。日志通过在分区中定义事件的序列顺序，消除了并发性的不确定性。如果一个事件触及多个状态分区，那么需要做更多的工作，我们将在第12章讨论。</li>
 </ul>
 <h4 id="不变性的局限性"><a href="#不变性的局限性" class="headerlink" title="不变性的局限性"></a>不变性的局限性</h4><p>不使用事件溯源模型的系统可以依赖不变性吗？</p>
 <ul>
@@ -785,14 +776,14 @@
 </ul>
 <p>流能做什么？</p>
 <ol>
-<li>你可以将事件中的数据写入数据库、缓存、搜索索引或类似的存储系统，然后能被其他客户端查询。如<a href="img/fig11-5.png">图11-5</a>所示，这是数据库与系统其他部分所发生的变更保持同步的好方法 —— 特别是当流消费者是写入数据库的唯一客户端时。如“<a href="ch10.md#%E6%89%B9%E5%A4%84%E7%90%86%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%9A%84%E8%BE%93%E5%87%BA">批处理工作流的输出</a>”中所讨论的，它是写入存储系统的流等价物。</li>
+<li>你可以将事件中的数据写入数据库、缓存、搜索索引或类似的存储系统，然后能被其他客户端查询。如前面图11-5所示，这是数据库与系统其他部分所发生的变更保持同步的好方法 —— 特别是当流消费者是写入数据库的唯一客户端时。如“第十章中批处理工作流的输出”中所讨论的，它是写入存储系统的流等价物。</li>
 <li>你能以某种方式将事件推送给用户，例如发送报警邮件或推送通知，或将事件流式传输到可实时显示的仪表板上。在这种情况下，人是流的最终消费者。</li>
 <li>你可以处理一个或多个输入流，并产生一个或多个输出流。流可能会经过由几个这样的处理阶段组成的流水线，最后再输出（选项1或2）。</li>
 </ol>
 <p>流处理与批处理的关系？</p>
 <ul>
 <li>本章的剩余部分讨论：处理流以产生其他衍生流。处理这样的流的代码片段，被称为<strong>算子（operator）</strong> 或<strong>作业（job）</strong>。</li>
-<li>它与我们在<a href="ch10.md">第十章</a>中讨论过的Unix进程和MapReduce作业密切相关，数据流的模式是相似的：一个流处理器以只读的方式使用输入流，并将其输出以仅追加的方式写入一个不同的位置。</li>
+<li>它与我们在第十章中讨论过的Unix进程和MapReduce作业密切相关，数据流的模式是相似的：一个流处理器以只读的方式使用输入流，并将其输出以仅追加的方式写入一个不同的位置。</li>
 <li>流处理中的分区和并行化模式也非常类似于<strong>第十章</strong>中介绍的MapReduce和数据流引擎，因此我们不再重复这些主题。基本的Map操作（如转换和过滤记录）也是一样的。</li>
 <li>与批量作业相比的一个关键区别是，流不会结束。因此无法使用排序合并连接。容错也也需要改变。</li>
 </ul>
@@ -830,7 +821,7 @@
 <p>这种统计值聚合的时间间隔称为<strong>窗口（window）</strong></p>
 <p>流分析系统为什么使用概率算法？</p>
 <ul>
-<li>流分析系统有时会使用概率算法，例如Bloom filter（我们在“<a href="ch3.md#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96">性能优化</a>”中遇到过）来管理成员资格，HyperLogLog 用于基数估计以及各种百分比估计算法（请参阅“<a href="ch1.md#%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E7%99%BE%E5%88%86%E4%BD%8D%E7%82%B9">实践中的百分位点</a>“）。</li>
+<li>流分析系统有时会使用概率算法，例如Bloom filter（我们在“第三章的性能优化”中遇到过）来管理成员资格，HyperLogLog 用于基数估计以及各种百分比估计算法（请参阅“第一章实践中的百分位点“）。</li>
 <li>概率算法产出近似的结果，但比起精确算法的优点是内存使用要少得多。</li>
 </ul>
 <p>许多开源分布式流处理框架的设计都是针对分析设计的：</p>
