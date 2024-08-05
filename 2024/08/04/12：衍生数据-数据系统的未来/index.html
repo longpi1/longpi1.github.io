@@ -1,0 +1,1142 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="12：衍生数据-数据系统的未来">
+<meta property="og:url" content="https://blog.longpi1.com/2024/08/04/12%EF%BC%9A%E8%A1%8D%E7%94%9F%E6%95%B0%E6%8D%AE-%E6%95%B0%E6%8D%AE%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9C%AA%E6%9D%A5/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="文章主要内容来自于[设计数据密集型应用](https:&#x2F;&#x2F;vonng.gitbooks.io&#x2F;ddia-cn&#x2F;content&#x2F;)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://picture-bed-1251805293.file.myqcloud.com/1643081611751-1bd2619f-ec8c-4833-8dee-556959e08a26.png">
+<meta property="article:published_time" content="2024-08-04T15:07:28.000Z">
+<meta property="article:modified_time" content="2024-08-04T15:08:29.153Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="设计数据密集型应用">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://picture-bed-1251805293.file.myqcloud.com/1643081611751-1bd2619f-ec8c-4833-8dee-556959e08a26.png">
+  
+  
+  
+  <title>12：衍生数据-数据系统的未来 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="12：衍生数据-数据系统的未来"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-04 23:07" pubdate>
+          2024年8月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">12：衍生数据-数据系统的未来</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="第十二章-衍生数据-数据系统的未来"><a href="#第十二章-衍生数据-数据系统的未来" class="headerlink" title="第十二章-衍生数据-数据系统的未来"></a>第十二章-衍生数据-数据系统的未来</h1><blockquote>
+<p>文章主要内容来自于<a href="%5B%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8%5D(https://vonng.gitbooks.io/ddia-cn/content/ch7.html)">设计数据密集型应用</a></p>
+<p>之前的章节在讨论现状；<br>本章讨论未来。<br>我们的目标是，发现如何设计出比现有应用更好的应用 —— 健壮，正确，可演化，且最终对人类有益。</p>
+</blockquote>
+<h2 id="数据集成"><a href="#数据集成" class="headerlink" title="数据集成"></a>数据集成</h2><ol>
+<li>每个工具都有适用场景</li>
+<li>在复杂的应用中，数据的用法通常花样百出。不太可能存在适用于<strong>所有</strong>不同数据应用场景的软件，因此您不可避免地需要拼凑几个不同的软件来以提供应用所需的功能。</li>
+</ol>
+<h3 id="组合使用衍生数据的工具"><a href="#组合使用衍生数据的工具" class="headerlink" title="组合使用衍生数据的工具"></a>组合使用衍生数据的工具</h3><p>随着数据不同表示形式的增加，集成问题变得越来越困难。</p>
+<ul>
+<li>除了数据库和搜索索引之外，也许你需要在分析系统（数据仓库，或批处理和流处理系统）中维护数据副本；</li>
+<li>维护从原始数据中衍生的缓存，或反规范化的数据版本；</li>
+<li>将数据灌入机器学习，分类，排名，或推荐系统中；</li>
+<li>或者基于数据变更发送通知。</li>
+</ul>
+<p>某人认为鸡肋而毫无意义的功能可能是别人的核心需求。当你拉高视角，并考虑跨越整个组织范围的数据流时，数据集成的需求往往就会变得明显起来。</p>
+<h4 id="理解数据流"><a href="#理解数据流" class="headerlink" title="理解数据流"></a>理解数据流</h4><p>当需要在多个存储系统中维护相同数据的副本以满足不同的访问模式时，你要对输入和输出了如指掌：</p>
+<ul>
+<li>哪些数据先写入，哪些数据表示衍生自哪些来源？</li>
+<li>如何以正确的格式，将所有数据导入正确的地方？</li>
+</ul>
+<p>几种写入方式：</p>
+<ul>
+<li>如果变更数据捕获（CDC）是更新索引的唯一方式，则可以确定该索引完全派生自记录系统，因此与其保持一致（除软件错误外）。</li>
+<li>允许应用程序直接写入搜索索引和数据库引入了如<strong>图11-4</strong>所示的问题。</li>
+<li>基于事件日志来更新衍生数据的系统，通常可以做到<strong>确定性</strong>与<strong>幂等性</strong>（请参阅<strong>幂等性</strong>”），使得从故障中恢复相当容易。</li>
+</ul>
+<h4 id="衍生数据与分布式事务"><a href="#衍生数据与分布式事务" class="headerlink" title="衍生数据与分布式事务"></a>衍生数据与分布式事务</h4><p>与分布式事务相比，使用衍生数据系统的方法如何？</p>
+<ul>
+<li>在抽象层面，它们通过不同的方式达到类似的目标。<ul>
+<li>分布式事务通过<strong>锁</strong>进行互斥来决定写入的顺序，而CDC和事件溯源使用日志进行排序。</li>
+<li>分布式事务使用原子提交来确保变更只生效一次，而基于日志的系统通常基于<strong>确定性重试</strong>和<strong>幂等性</strong>。</li>
+</ul>
+</li>
+<li>最大的不同之处在于事务系统通常提供<strong>线性一致性</strong>，这包含着有用的保证，例如<strong>读己之写</strong>。另一方面，衍生数据系统通常是异步更新的，因此它们默认不会提供相同的时序保证。</li>
+</ul>
+<h4 id="全序的限制"><a href="#全序的限制" class="headerlink" title="全序的限制"></a>全序的限制</h4><p>对于足够小的系统，构建一个完全有序的事件日志是完全可行的（如单主数据库）。但是大系统会出现麻烦：</p>
+<ul>
+<li>在大多数情况下，构建完全有序的日志，需要所有事件汇集于决定顺序的<strong>单个领导者节点</strong>。<ul>
+<li>如果事件吞吐量大于单台计算机的处理能力，则需要将其分区到多台计算机上（请参阅“<strong>分区日志</strong>”）。然后两个不同分区中的事件顺序关系就不明确了。</li>
+</ul>
+</li>
+<li>如果服务器分布在多个<strong>地理位置分散</strong>的数据中心上，例如为了容忍整个数据中心掉线，您通常在每个数据中心都有单独的主库，因为网络延迟会导致同步的跨数据中心协调效率低下。<ul>
+<li>这意味着源自两个不同数据中心的事件顺序未定义。</li>
+</ul>
+</li>
+<li>将应用程序部署为微服务时，常见的设计选择是将每个服务及其持久状态作为独立单元进行部署，服务之间不共享持久状态。<ul>
+<li>当两个事件来自不同的服务时，这些事件间的顺序未定义。</li>
+</ul>
+</li>
+<li>某些应用程序在客户端保存状态，该状态在用户输入时立即更新（无需等待服务器确认），甚至可以继续脱机工作。<ul>
+<li>对于这样的应用程序，客户端和服务器很可能以不同的顺序看到事件。</li>
+</ul>
+</li>
+</ul>
+<p>共识算法存在的问题？</p>
+<ul>
+<li>在形式上，决定事件的全局顺序称为<strong>全序广播</strong>，相当于<strong>共识。</strong></li>
+<li>大多数共识算法都是针对单个节点的吞吐量足以处理整个事件流的情况而设计的，并且这些算法不提供多个节点共享事件排序工作的机制。设计可以伸缩至单个节点的吞吐量之上，<strong>且在地理位置分散的环境中仍然工作良好的的共识算法仍然是一个开放的研究问题。</strong></li>
+</ul>
+<h4 id="排序事件以捕获因果关系"><a href="#排序事件以捕获因果关系" class="headerlink" title="排序事件以捕获因果关系"></a>排序事件以捕获因果关系</h4><ul>
+<li>在事件之间不存在因果关系的情况下，全序的缺乏并不是一个大问题，因为并发事件可以任意排序。</li>
+<li>但是能够有效地捕获<strong>因果依赖</strong>关系，并且保持正确的衍生状态，仍是个难题。（文中举了先解除好友关系，然后发送信息的例子）</li>
+</ul>
+<h3 id="批处理与流处理"><a href="#批处理与流处理" class="headerlink" title="批处理与流处理"></a>批处理与流处理</h3><p>数据集成的目标是，确保数据最终能在所有正确的地方表现出正确的形式。<br>这样做需要消费输入，转换，连接，过滤，聚合，训练模型，评估，以及最终写出适当的输出。<br>批处理和流处理是实现这一目标的工具。</p>
+<h4 id="维护衍生状态"><a href="#维护衍生状态" class="headerlink" title="维护衍生状态"></a>维护衍生状态</h4><ul>
+<li>批处理有着很强的函数式风格（即使其代码不是用函数式语言编写的）；</li>
+<li>为了提高速度，可以使用写入数据和更新索引可以使用异步；出现问题时，再报错。</li>
+</ul>
+<h4 id="应用演化后重新处理数据"><a href="#应用演化后重新处理数据" class="headerlink" title="应用演化后重新处理数据"></a>应用演化后重新处理数据</h4><p>如何迁移系统？</p>
+<ul>
+<li>衍生视图允许<strong>渐进演化（gradual evolution）</strong>。</li>
+<li>如果你想重新构建数据集，不需要执行突然切换式的迁移。</li>
+<li>取而代之的是，你可以将旧架构和新架构并排维护为相同基础数据上的两个独立衍生视图。</li>
+<li>然后可以开始将少量用户转移到新视图，以测试其性能并发现任何错误，而大多数用户仍然会被路由到旧视图。</li>
+<li>你可以逐渐地增加访问新视图的用户比例，最终可以删除旧视图。</li>
+</ul>
+<h4 id="Lambda架构"><a href="#Lambda架构" class="headerlink" title="Lambda架构"></a>Lambda架构</h4><p>什么是 Lambda 架构？</p>
+<ul>
+<li>融合了批处理和流处理。</li>
+<li>Lambda架构的核心思想是通过将不可变事件附加到不断增长的数据集来记录传入数据，这类似于事件溯源。</li>
+<li>为了从这些事件中衍生出读取优化的视图， Lambda架构建议并行运行两个不同的系统：批处理系统（如Hadoop MapReduce）和独立的流处理系统（如Storm）。</li>
+<li>在Lambda方法中，流处理器消耗事件并快速生成对视图的近似更新；批处理器稍后将使用同一组事件并生成衍生视图的更正版本。</li>
+<li>这个设计背后的原因是批处理更简单，因此不易出错，而流处理器被认为是不太可靠和难以容错的。而且，流处理可以使用快速近似算法，而批处理使用较慢的精确算法。</li>
+</ul>
+<p>缺点？</p>
+<ul>
+<li>批处理和流处理框架中维护相同的逻辑是很显著的额外工作。</li>
+<li>批流两个独立的输出，合并可能会困难。</li>
+<li>批处理开销巨大。</li>
+</ul>
+<h4 id="统一批处理和流处理"><a href="#统一批处理和流处理" class="headerlink" title="统一批处理和流处理"></a>统一批处理和流处理</h4><p>最近的工作使得 Lambda 架构摒弃缺点。<br>在一个系统中统一批处理和流处理需要以下功能，这些功能也正在越来越广泛地被提供：</p>
+<ul>
+<li>通过处理最近事件流的相同处理引擎来重播历史事件的能力。例如，基于日志的消息代理可以重播消息，某些流处理器可以从HDFS等分布式文件系统读取输入。</li>
+<li>对于流处理器来说，恰好一次语义 —— 即确保输出与未发生故障的输出相同，即使事实上发生故障。与批处理一样，这需要丢弃任何失败任务的部分输出。</li>
+<li>按事件时间进行窗口化的工具，而不是按处理时间进行窗口化，因为处理历史事件时，处理时间毫无意义。例如，Apache Beam提供了用于表达这种计算的API，可以在Apache Flink或Google Cloud Dataflow使用。</li>
+</ul>
+<h2 id="分拆数据库"><a href="#分拆数据库" class="headerlink" title="分拆数据库"></a>分拆数据库</h2><p>Unix发展出的管道和文件只是字节序列，而数据库则发展出了SQL和事务。<br>这两种哲学的矛盾，希望能各取其美。</p>
+<h3 id="组合使用数据存储技术"><a href="#组合使用数据存储技术" class="headerlink" title="组合使用数据存储技术"></a>组合使用数据存储技术</h3><p>在本书的过程中，我们讨论了<strong>数据库</strong>提供的各种功能及其工作原理，其中包括：</p>
+<ul>
+<li><strong>次级索引，使您可以根据字段的值有效地搜索记录</strong></li>
+<li><strong>物化视图，这是一种预计算的查询结果缓存</strong></li>
+<li><strong>复制日志，保持其他节点上数据的副本最新</strong></li>
+<li><strong>全文搜索索引，允许在文本中进行关键字搜索，也内置于某些关系数据库</strong></li>
+</ul>
+<h4 id="创建索引"><a href="#创建索引" class="headerlink" title="创建索引"></a>创建索引</h4><ul>
+<li>无论何时运行CREATE INDEX，数据库都会重新处理现有数据集（如“<strong>应用演化后重新处理数据</strong>”中所述），并将该索引作为新视图导出到现有数据上。</li>
+<li>现有数据可能是状态的快照，而不是所有发生变化的日志，但两者密切相关（请参阅“<strong>状态、流和不变性</strong>”）。</li>
+</ul>
+<h4 id="一切的元数据库"><a href="#一切的元数据库" class="headerlink" title="一切的元数据库"></a>一切的元数据库</h4><p>各种数据库产品发展在未来将会把我们带到哪里？如果我们从没有适合所有访问模式的单一数据模型或存储格式的前提出发，我推测有两种途径可以将不同的存储和处理工具组合成一个有凝聚力的系统：<br><strong>联合数据库：统一读取</strong></p>
+<ul>
+<li>可以为各种各样的底层存储引擎和处理方法提供一个统一的查询接口 —— 一种称为<strong>联合数据库（federated database）</strong> 或<strong>多态存储（polystore）</strong> 的方法。</li>
+<li>例如，PostgreSQL的<strong>外部数据包装器（foreign data wrapper）</strong> 功能符合这种模式。</li>
+<li>需要专用数据模型或查询接口的应用程序仍然可以直接访问底层存储引擎，而想要组合来自不同位置的数据的用户可以通过联合接口轻松完成操作。</li>
+</ul>
+<p><strong>分拆数据库：统一写入</strong></p>
+<ul>
+<li>虽然联合能解决跨多个不同系统的只读查询问题，但它并没有很好的解决跨系统<strong>同步</strong>写入的问题。</li>
+<li>我们说过，在单个数据库中，创建一致的索引是一项内置功能。</li>
+<li>当我们构建多个存储系统时，我们同样需要确保所有数据变更都会在所有正确的位置结束，即使在出现故障时也是如此。</li>
+<li>想要更容易地将存储系统可靠地插接在一起（例如，通过变更数据捕获和事件日志），就像将数据库的索引维护功能以可以跨不同技术同步写入的方式分开。</li>
+</ul>
+<h4 id="开展分拆工作"><a href="#开展分拆工作" class="headerlink" title="开展分拆工作"></a>开展分拆工作</h4><p>怎么写入到几个存储系统中？</p>
+<ul>
+<li>传统的同步写入方法需要跨异构存储系统的分布式事务，我认为这是错误的解决方案</li>
+<li>单个存储或流处理系统内的事务是可行的，但是当数据跨越不同技术之间的边界时，我认为具有幂等写入的异步事件日志是一种更加健壮和实用的方法</li>
+</ul>
+<p>基于日志的集成的一大优势是各个组件之间的<strong>松散耦合（loose coupling）</strong>，这体现在两个方面：</p>
+<ol>
+<li>在系统级别，异步事件流使整个系统在个别组件的中断或性能下降时更加稳健。</li>
+<li>在人力方面，分拆数据系统允许不同的团队独立开发，改进和维护不同的软件组件和服务。</li>
+</ol>
+<h4 id="分拆系统vs集成系统"><a href="#分拆系统vs集成系统" class="headerlink" title="分拆系统vs集成系统"></a>分拆系统vs集成系统</h4><p>什么时候拆分系统，什么时候集成系统？</p>
+<ul>
+<li>分拆的目标不是要针对个别数据库与特定工作负载的性能进行竞争；我们的目标是允许您结合多个不同的数据库，以便在比单个软件可能实现的更广泛的工作负载范围内实现更好的性能。</li>
+<li>因此，如果有一项技术可以满足您的所有需求，那么最好使用该产品，而不是试图用更低层级的组件重新实现它。只有当没有单一软件满足您的所有需求时，才会出现拆分和联合的优势。</li>
+</ul>
+<h4 id="少了什么？"><a href="#少了什么？" class="headerlink" title="少了什么？"></a>少了什么？</h4><p>用于组成数据系统的工具正在变得越来越好，但我认为还缺少一个主要的东西：<strong>我们还没有与Unix shell类似的分拆数据库等价物</strong>（即，一种声明式的、简单的、用于组装存储和处理系统的高级语言）。</p>
+<ul>
+<li>如果我们可以简单地声明mysql | elasticsearch，类似于Unix管道，成为CREATE INDEX的分拆等价，那就爽了！</li>
+</ul>
+<h3 id="围绕数据流设计应用"><a href="#围绕数据流设计应用" class="headerlink" title="围绕数据流设计应用"></a>围绕数据流设计应用</h3><p>即使是<strong>电子表格</strong>也在数据流编程能力上甩开大多数主流编程语言几条街：某一个单元格可以使用公式对其他列求和。</p>
+<h4 id="应用代码作为衍生函数"><a href="#应用代码作为衍生函数" class="headerlink" title="应用代码作为衍生函数"></a>应用代码作为衍生函数</h4><p>当一个数据集衍生自另一个数据集时，它会经历某种转换函数。如：</p>
+<ul>
+<li>次级索引是由一种直白的转换函数生成的衍生数据集：对某列或者字段的值排序建索引。</li>
+<li>全文搜索索引是通过应用各种自然语言处理函数而创建的</li>
+<li>在机器学习系统中，我们可以将模型视作从训练数据通过应用各种特征提取、统计分析函数衍生的数据</li>
+<li>缓存通常包含将以用户界面（UI）显示的形式的数据聚合。</li>
+</ul>
+<p>但是，当创建衍生数据集的函数不是像创建二级索引那样的标准函数时，<strong>需要自定义代码</strong>来处理特定于应用的东西，数据库就做不好了！！</p>
+<h4 id="应用代码和状态的分离"><a href="#应用代码和状态的分离" class="headerlink" title="应用代码和状态的分离"></a>应用代码和状态的分离</h4><p>为什么要让计算和存储分离？</p>
+<ul>
+<li>让系统的某些部分<strong>专门用于持久数据存储</strong>并让<strong>其他部分专门运行应用程序代码</strong>是有意义的。这两者可以在保持独立的同时互动。</li>
+<li>比如大多数Web应用程序都是作为无状态服务部署的，数据库存储数据。</li>
+<li>这样可以独立扩缩容，互不影响。</li>
+</ul>
+<h4 id="数据流：应用代码与状态变化的交互"><a href="#数据流：应用代码与状态变化的交互" class="headerlink" title="数据流：应用代码与状态变化的交互"></a>数据流：应用代码与状态变化的交互</h4><p>应用代码和状态怎么联系？</p>
+<ul>
+<li>从数据流的角度思考应用程序，意味着重新协调应用代码和状态管理之间的关系。</li>
+<li>我们不再将数据库视作被应用操纵的被动变量，取而代之的是更多地考虑<strong>状态，状态变更和处理它们的代码之间的相互作用与协同关系</strong>。</li>
+<li>应用代码通过在另一个地方触发状态变更来响应状态变更。</li>
+</ul>
+<p>维护衍生数据不同于执行异步任务：</p>
+<ul>
+<li>传统的消息传递系统通常是为执行异步任务设计的<ul>
+<li>状态变更的顺序</li>
+<li>容错</li>
+</ul>
+</li>
+<li>稳定的消息排序和容错消息处理是相当严格的要求，但与分布式事务相比，它们开销更小，运行更稳定。</li>
+<li>现代流处理组件可以提供这些排序和可靠性保证，并允许应用代码以流算子的形式运行。</li>
+</ul>
+<h4 id="流处理器和服务"><a href="#流处理器和服务" class="headerlink" title="流处理器和服务"></a>流处理器和服务</h4><p>服务的优点？</p>
+<ul>
+<li>当今流行的应用开发风格涉及将功能分解为一组通过同步网络请求（如REST API）进行通信的<strong>服务（service）</strong></li>
+<li>优点：<ul>
+<li>通过松散耦合来提供组织上的可伸缩性：不同的团队可以专职于不同的服务上，从而减少团队之间的协调工作（因为服务可以独立部署和更新）。</li>
+</ul>
+</li>
+</ul>
+<p>数据流中组装流算子与微服务方法的区别：</p>
+<ul>
+<li>数据流采用单向异步消息流，而不是同步的请求&#x2F;响应式交互。</li>
+</ul>
+<p>数据流系统的优点：</p>
+<ul>
+<li>除了在“<strong>消息传递中的数据流</strong>”中列出的优点（如更好的容错性），数据流系统还能实现更好的性能。<ul>
+<li>如：把远程服务器的变更同步到本地</li>
+</ul>
+</li>
+<li>订阅变更流，而不是在需要时查询当前状态，是一个非常有希望的方向</li>
+</ul>
+<h3 id="观察衍生数据状态"><a href="#观察衍生数据状态" class="headerlink" title="观察衍生数据状态"></a>观察衍生数据状态</h3><p>什么是写路径？</p>
+<ul>
+<li>上一节讨论的数据流系统提供了创建衍生数据集（例如搜索索引、物化视图和预测模型）并使其保持更新的过程。</li>
+<li>我们将这个过程称为<strong>写路径（write path）</strong>：只要某些信息被写入系统，它可能会经历批处理与流处理的多个阶段，而最终每个衍生数据集都会被更新，以适配写入的数据。</li>
+</ul>
+<p>更新搜索索引的例子：<br><img src="https://picture-bed-1251805293.file.myqcloud.com/1643081611751-1bd2619f-ec8c-4833-8dee-556959e08a26.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>什么是读路径？</p>
+<ul>
+<li><strong>读路径（read path）</strong>：当服务用户请求时，你需要从衍生数据集中读取，也许还要对结果进行一些额外处理，然后构建给用户的响应。</li>
+</ul>
+<p>写路径和读路径的区别于联系：</p>
+<ul>
+<li>如果你熟悉函数式编程语言，则可能会注意到写路径类似于立即求值，读路径类似于惰性求值。</li>
+</ul>
+<h4 id="物化视图和缓存"><a href="#物化视图和缓存" class="headerlink" title="物化视图和缓存"></a>物化视图和缓存</h4><p>如何加速查询？</p>
+<ul>
+<li>选择一：构建索引。读路径在索引中搜索关键字。</li>
+<li>选择二：缓存。只为一组固定的最常见的查询预先计算搜索结果，以便它们可以快速地服务而不必去走索引。<ul>
+<li>不常见的查询仍然可以通过索引来提供服务。这通常被称为常见查询的<strong>缓存（cache）</strong>，尽管我们也可以称之为<strong>物化视图（materialized view）</strong>，因为当新文档出现，且需要被包含在这些常见查询的搜索结果之中时，这些索引就需要更新。</li>
+</ul>
+</li>
+</ul>
+<p>这些操作起到了什么作用？</p>
+<ul>
+<li>缓存，索引和物化视图的作用很简单：它们改变了读路径与写路径之间的边界。通过预先计算结果，从而允许我们在写路径上做更多的工作，以节省读路径上的工作量。</li>
+</ul>
+<h4 id="有状态、可离线的客户端"><a href="#有状态、可离线的客户端" class="headerlink" title="有状态、可离线的客户端"></a>有状态、可离线的客户端</h4><p>为什么客户端有状态？</p>
+<ul>
+<li>以前的 web 时代，采用客户端&#x2F;服务器模型 —— 客户端大多是无状态的，而服务器拥有数据的权威 —— 已经普遍到我们几乎忘掉了还有其他任何模型的存在。</li>
+<li>但是技术在不断地发展，我认为不时地质疑现状非常重要。</li>
+<li>现在客户端、web 浏览器都可以持久化本地存储，大多数交互不需要和服务端往返交互。</li>
+</ul>
+<p>怎么做到客户端有状态？</p>
+<ul>
+<li><strong>离线优先（offline-first）</strong> 应用：尽可能地在同一设备上使用本地数据库，无需连接互联网，并在后台网络连接可用时与远程服务器同步。<ul>
+<li>优点：不用网络，速度快</li>
+</ul>
+</li>
+<li>我们可以将设备上的状态视为<strong>服务器状态的缓存</strong>，屏幕上的像素是客户端应用中模型对象的物化视图；模型对象是远程数据中心的本地状态副本。</li>
+</ul>
+<h4 id="将状态变更推送给客户端"><a href="#将状态变更推送给客户端" class="headerlink" title="将状态变更推送给客户端"></a>将状态变更推送给客户端</h4><p>怎么做到服务器推送给客户端？</p>
+<ul>
+<li>以前的网页中，如果页面不刷新重新请求，就不知道服务器的更新。</li>
+<li>最新的协议支持服务端发送的事件（EventSource API）和WebSockets提供了通信信道，通过这些信道，Web浏览器可以与服务器保持打开的TCP连接，只要链接不断，服务器就可以给浏览器推送信息。</li>
+</ul>
+<p>什么含义？</p>
+<ul>
+<li>主动将状态变更推至到客户端设备，意味着将<strong>写路径</strong>一直延伸到终端用户。</li>
+<li>当客户端首次初始化时，它仍然需要使用读路径来获取其初始状态，但此后它就能够依赖服务器发送的状态变更流了。</li>
+<li>有些设备会离线，但是基于日志的消息代理的消费者能在失败或断开连接后重连，并确保它不会错过掉线期间任何到达的消息。</li>
+<li>每个设备都是一个小事件流的小小订阅者。</li>
+</ul>
+<h4 id="端到端的事件流"><a href="#端到端的事件流" class="headerlink" title="端到端的事件流"></a>端到端的事件流</h4><p>编程语言支持了端到端的写路径：</p>
+<ul>
+<li>最近用于开发有状态的客户端与用户界面的工具，例如如Elm语言和Facebook的React，Flux和Redux工具链，已经通过订阅表示用户输入或服务器响应的事件流来管理客户端的内部状态，其结构与事件溯源相似。</li>
+<li>因此可以实现<strong>端到端（end-to-end）：</strong>从一个设备的交互触发，经由事件日志，并穿过几个衍生数据系统与流处理器，一直到另一台设备上的用户界面，而有人正在观察用户界面上的状态变化。</li>
+</ul>
+<p>为何不使用端到端？</p>
+<ul>
+<li>为了将写路径延伸至终端用户，我们需要从根本上重新思考我们构建这些老系统的方式：从请求&#x2F;响应交互转向发布&#x2F;订阅数据流。</li>
+<li>老系统的改动成本大</li>
+<li>新系统可以考虑！</li>
+</ul>
+<h4 id="读也是事件"><a href="#读也是事件" class="headerlink" title="读也是事件"></a>读也是事件</h4><p>为什么说读也是事件？</p>
+<ul>
+<li>当写入和读取都被表示为事件，并且被路由到同一个流算子以便处理时，我们实际上是在<strong>读取查询流和数据库之间执行流表连接</strong>。</li>
+<li>服务请求与执行连接之间的这种相似之处是非常关键的。一次性读取请求只是将请求传过连接算子，然后请求马上就被忘掉了；而一个订阅请求，则是与连接另一侧过去与未来事件的持久化连接。</li>
+<li>记录读取事件的日志可能对于追踪整个系统中的因果关系与数据来源也有好处：<strong>它可以让你重现出当用户做出特定决策之前看见了什么。</strong></li>
+<li>将读取事件写入持久存储可以更好地跟踪因果关系（请参阅“<a href="#%E6%8E%92%E5%BA%8F%E4%BA%8B%E4%BB%B6%E4%BB%A5%E6%8D%95%E8%8E%B7%E5%9B%A0%E6%9E%9C%E5%85%B3%E7%B3%BB">排序事件以捕获因果关系</a>”），但会产生额外的存储与I&#x2F;O成本。如果需要的话，那么是值得的。</li>
+</ul>
+<h4 id="多分区数据处理"><a href="#多分区数据处理" class="headerlink" title="多分区数据处理"></a>多分区数据处理</h4><p>为什么要有多分区数据处理？</p>
+<ul>
+<li>对于只涉及单个分区的查询，通过流来发送查询与收集响应可能是杀鸡用牛刀了。</li>
+<li>然而，这个想法开启了分布式执行复杂查询的可能性，这需要合并来自多个分区的数据，利用了流处理器已经提供的消息路由、分区和连接的基础设施。</li>
+</ul>
+<p>多分区数据处理举例？</p>
+<ul>
+<li>Twitter 用 Storm 统计多个用户分区点击了某个 URL 的人数</li>
+<li>信用卡反欺诈，需要读取多个数据库的分区；</li>
+<li>MPP 数据库内部也有多分区连接功能，但是比流处理器更简单。</li>
+</ul>
+<h2 id="将事情做正确"><a href="#将事情做正确" class="headerlink" title="将事情做正确"></a>将事情做正确</h2><p>为什么需要正确？</p>
+<ul>
+<li>只读数据的无状态服务，出问题可以重启；</li>
+<li>数据库这样的有状态系统，出问题后只能永远的持续下去，因此需要仔细的思考。<ul>
+<li>使用事务保证正确</li>
+</ul>
+</li>
+</ul>
+<h3 id="数据库的端到端原则"><a href="#数据库的端到端原则" class="headerlink" title="数据库的端到端原则"></a>数据库的端到端原则</h3><p>虽然数据库有较强的可靠安全属性，但是并不能保证数据没有损失或损坏：还要考虑应用代码。</p>
+<h4 id="正好执行一次操作"><a href="#正好执行一次操作" class="headerlink" title="正好执行一次操作"></a>正好执行一次操作</h4><p>举一个可能发生数据损坏的例子：</p>
+<ul>
+<li>我们见到了<strong>恰好一次</strong>（或<strong>等效一次</strong>）语义的概念。</li>
+<li>如果在处理消息时出现问题，你可以选择放弃（丢弃消息 —— 导致数据丢失）或重试。</li>
+<li>如果重试，就会有这种风险：第一次实际上成功了，只不过你没有发现。结果这个消息就被处理了两次。（导致收费两次）</li>
+</ul>
+<p>如何解决？</p>
+<ul>
+<li>最有效的方法之一是使操作<strong>幂等（idempotent），</strong>即确保它无论是执行一次还是执行多次都具有相同的效果。</li>
+<li>实现幂等需要一些额外的努力。</li>
+</ul>
+<h4 id="抑制重复"><a href="#抑制重复" class="headerlink" title="抑制重复"></a>抑制重复</h4><p>怎么抑制重复？</p>
+<ul>
+<li>除了流处理，还有很多地方需要抑制重复：如 TCP 重传中的序列号。</li>
+<li>我们即使能抑制数据库的重复事务，但是仍要担心网络重传。</li>
+</ul>
+<p>下面的例子，如果客户端没收到转账成功的响应，那么可能再次提交，导致转了 22$。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">BEGIN</span> TRANSACTION;<br>    <span class="hljs-keyword">UPDATE</span> accounts <span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">+</span> <span class="hljs-number">11.00</span> <span class="hljs-keyword">WHERE</span> account_id <span class="hljs-operator">=</span> <span class="hljs-number">1234</span>;<br>    <span class="hljs-keyword">UPDATE</span> accounts <span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">-</span> <span class="hljs-number">11.00</span> <span class="hljs-keyword">WHERE</span> account_id <span class="hljs-operator">=</span> <span class="hljs-number">4321</span>;<br><span class="hljs-keyword">COMMIT</span>;<br></code></pre></td></tr></table></figure>
+
+<h4 id="操作标识符"><a href="#操作标识符" class="headerlink" title="操作标识符"></a>操作标识符</h4><p>不能依赖网络实现幂等，需要考虑<strong>端到端（end-to-end）</strong> 的请求流。</p>
+<ul>
+<li>比如，你可以为操作生成一个唯一的标识符（例如UUID），每次操作的时候带上。</li>
+<li>服务端如果发现两次同样的标识符，那么就不操作。</li>
+</ul>
+<p>在数据库上可以对此标识符进行唯一的标记，防止重复插入：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> requests <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">UNIQUE</span> (request_id);<br><br><span class="hljs-keyword">BEGIN</span> TRANSACTION;<br>    <span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> requests<br>        (request_id, from_account, to_account, amount) <br>        <span class="hljs-keyword">VALUES</span>(<span class="hljs-string">&#x27;0286FDB8-D7E1-423F-B40B-792B3608036C&#x27;</span>, <span class="hljs-number">4321</span>, <span class="hljs-number">1234</span>, <span class="hljs-number">11.00</span>);<br>    <span class="hljs-keyword">UPDATE</span> accounts <span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">+</span> <span class="hljs-number">11.00</span> <span class="hljs-keyword">WHERE</span> account_id <span class="hljs-operator">=</span> <span class="hljs-number">1234</span>;<br>    <span class="hljs-keyword">UPDATE</span> accounts <span class="hljs-keyword">SET</span> balance <span class="hljs-operator">=</span> balance <span class="hljs-operator">-</span> <span class="hljs-number">11.00</span> <span class="hljs-keyword">WHERE</span> account_id <span class="hljs-operator">=</span> <span class="hljs-number">4321</span>;<br><span class="hljs-keyword">COMMIT</span>;<br></code></pre></td></tr></table></figure>
+
+<h4 id="端到端原则"><a href="#端到端原则" class="headerlink" title="端到端原则"></a>端到端原则</h4><p>抑制重复事务的这种情况只是一个更普遍的原则的一个例子，这个原则被称为<strong>端到端原则（end-to-end argument）：</strong></p>
+<ul>
+<li>只有在通信系统两端应用的知识与帮助下，所讨论的功能才能完全地正确地实现。因而将这种被质疑的功能作为通信系统本身的功能是不可能的。 （有时，通信系统可以提供这种功能的不完备版本，可能有助于提高性能。）</li>
+</ul>
+<p>只有端到端的安全，才能抑制重复事务。<br>我们只需要记住，低级别的可靠性功能本身并不足以确保端到端的正确性。</p>
+<h4 id="在数据系统中应用端到端思考"><a href="#在数据系统中应用端到端思考" class="headerlink" title="在数据系统中应用端到端思考"></a>在数据系统中应用端到端思考</h4><ul>
+<li>事务是很好的抽象，也有用，但是还不够端到端的安全。</li>
+<li>事务代价高昂，当涉及异构存储技术时尤为甚。</li>
+<li>我们拒绝使用分布式事务是因为它开销太大，结果我们最后不得不在应用代码中重新实现容错机制。</li>
+</ul>
+<h3 id="强制约束"><a href="#强制约束" class="headerlink" title="强制约束"></a>强制约束</h3><p>在端到端去重之外，我们来关注其他的约数。特别关注一下<strong>唯一性约束。</strong></p>
+<h4 id="唯一性约束需要达成共识"><a href="#唯一性约束需要达成共识" class="headerlink" title="唯一性约束需要达成共识"></a>唯一性约束需要达成共识</h4><p>怎么实现？</p>
+<ul>
+<li>在分布式环境中，强制执行唯一性约束需要<strong>共识</strong>：如果存在多个具有相同值的并发请求，则系统需要决定冲突操作中的哪一个被接受，并拒绝其他违背约束的操作。</li>
+<li>达成这一共识的最常见方式是使单个节点作为领导，并使其负责所有决策。</li>
+<li>唯一性检查可以通过对唯一性字段分区做横向伸缩，如通过哈希分区。</li>
+<li>但异步多主复制排除在外，因为可能会发生不同主库同时接受冲突写操作的情况，因而这些值不再是唯一的。此时同步协调是无法避免的。</li>
+</ul>
+<h4 id="基于日志消息传递中的唯一性"><a href="#基于日志消息传递中的唯一性" class="headerlink" title="基于日志消息传递中的唯一性"></a>基于日志消息传递中的唯一性</h4><p>怎么使用日志消息传递中实现唯一性？</p>
+<ul>
+<li>日志确保所有消费者以相同的顺序看见消息 —— 这种保证在形式上被称为<strong>全序广播（total order boardcast）</strong> 并且等价于共识。</li>
+<li>类似于分拆数据库的方法。</li>
+<li>流处理器在单个线程上依次消费单个日志<strong>分区</strong>中的所有消息。因此，如果日志是按需要确保唯一的值做的分区，则流处理器可以无歧义地、确定性地决定几个冲突操作中的哪一个先到达。</li>
+</ul>
+<h4 id="多分区请求处理"><a href="#多分区请求处理" class="headerlink" title="多分区请求处理"></a>多分区请求处理</h4><p>当涉及多个分区时，确保操作以原子方式执行且同时满足约束就变得很有趣了。</p>
+<p>如果一个操作需要三个分区：一个包含请求ID，一个包含收款人账户，另一个包含付款人账户，咋办？</p>
+<ul>
+<li>在数据库的传统方法中，执行此事务需要跨全部三个分区进行原子提交，就这些分区上的所有其他事务而言，这实质上是将该事务嵌入一个全序。</li>
+<li>缺点：影响性能。</li>
+</ul>
+<p>有没有更好的方法？<br>但事实证明，使用分区日志可以达到等价的正确性而无需原子提交：</p>
+<ol>
+<li>从账户A向账户B转账的请求由客户端提供一个唯一的请求ID，并按请求ID追加写入相应日志分区。</li>
+<li>流处理器读取请求日志。对于每个请求消息，它向输出流发出两条消息：付款人账户A的借记指令（按A分区），收款人B的贷记指令（按B分区）。被发出的消息中会带有原始的请求ID。</li>
+<li>后续处理器消费借记&#x2F;贷记指令流，按照请求ID除重，并将变更应用至账户余额。</li>
+</ol>
+<p>因为有确定的 ID 的存在，那么失败重启可以从断点恢复，如果重复提交可以用 ID 去重。</p>
+<h3 id="及时性与完整性"><a href="#及时性与完整性" class="headerlink" title="及时性与完整性"></a>及时性与完整性</h3><p>一致性要同步吗？</p>
+<ul>
+<li>事务的一个便利属性是，它们通常是线性一致的：写入者等待写入完成；</li>
+<li>而跨越多个阶段的流处理器时，却并非如此：日志的消费者在设计上就是异步的，因此发送者不会等其消息被消费者处理完。</li>
+</ul>
+<p>更一般地来讲，我认为术语<strong>一致性（consistency）</strong> 这个术语混淆了两个值得分别考虑的需求：<br><em><strong>及时性（Timeliness）</strong></em></p>
+<ul>
+<li>及时性意味着确保用户观察到系统的最新状态。</li>
+<li>用户从旧数据中读取，那么可能观察到系统处于不一致的状态。但这是暂时的。</li>
+<li>CAP定理使用<strong>线性一致性（linearizability）</strong> 意义上的一致性，这是实现及时性的强有力方法。像<strong>写后读</strong>这样及时性更弱的一致性也很有用也很有用。</li>
+</ul>
+<p><em><strong>完整性（Integrity）</strong></em><br>完整性意味着没有损坏；即没有数据丢失，并且没有矛盾或错误的数据。衍生数据也必须都正确。</p>
+<p>结论：</p>
+<ul>
+<li>口号形式：违反及时性，“最终一致性”；违反完整性，“永无一致性”。</li>
+<li>我断言在大多数应用中，完整性比及时性重要得多。违反及时性可能令人困惑与讨厌，但违反完整性的结果可能是灾难性的。</li>
+</ul>
+<h4 id="数据流系统的正确性"><a href="#数据流系统的正确性" class="headerlink" title="数据流系统的正确性"></a>数据流系统的正确性</h4><p>数据库、流系统的正确性？</p>
+<ul>
+<li>ACID事务通常既提供及时性（例如线性一致性）也提供完整性保证（例如原子提交）。因此如果你从ACID事务的角度来看待应用的正确性，那么及时性与完整性的区别是无关紧要的。</li>
+<li>基于事件的数据流系统而言，它们的一个有趣特性就是将及时性与完整性分开。在异步处理事件流时不能保证及时性，除非你显式构建一个在返回之前明确等待特定消息到达的消费者。但完整性实际上才是流处理系统的核心。</li>
+</ul>
+<p>怎么保证完整性？</p>
+<ul>
+<li><strong>恰好一次</strong>或<strong>等效一次</strong>语义（请参阅“<strong>容错</strong>”）是一种保持完整性的机制。</li>
+<li>如果事件丢失或者生效两次，就有可能违背数据系统的完整性。</li>
+<li>因此在出现故障时，容错消息传递与重复抑制（例如，幂等操作）对于维护数据系统的完整性是很重要的。</li>
+</ul>
+<p>为了达成这种正确性，我们组合使用了多种机制：</p>
+<ul>
+<li>将写入操作的内容表示为单条消息，从而可以轻松地被原子写入 —— 与事件溯源搭配效果拔群（请参阅“第十一章的事件溯源”）。</li>
+<li>使用与存储过程类似的确定性衍生函数，从这一消息中衍生出所有其他的状态变更（请参阅“第七章真的串行执行)”和“本章的应用代码作为衍生函数”）</li>
+<li>将客户端生成的请求ID传递通过所有的处理层次，从而允许端到端的除重，带来幂等性。</li>
+<li>使消息不可变，并允许衍生数据能随时被重新处理，这使从错误中恢复更加容易（请参阅“第十一章的1不可变事件的优点”）</li>
+</ul>
+<h4 id="宽松地解释约束"><a href="#宽松地解释约束" class="headerlink" title="宽松地解释约束"></a>宽松地解释约束</h4><p>在执行唯一性约束时，许多真实世界的应用实际上可以摆脱这种形式，接受弱得多的唯一性：</p>
+<ul>
+<li>给客户道歉，补偿，给折扣</li>
+</ul>
+<h4 id="无协调数据系统"><a href="#无协调数据系统" class="headerlink" title="无协调数据系统"></a>无协调数据系统</h4><p>两个现象：</p>
+<ol>
+<li>数据流系统可以维持衍生数据的完整性保证，而无需原子提交、线性一致性或者同步的跨分区协调。</li>
+<li>虽然严格的唯一性约束要求及时性和协调，但许多应用实际上可以接受宽松的约束：只要整个过程保持完整性，这些约束可能会被临时违反并在稍后被修复。</li>
+</ol>
+<p>总之：</p>
+<ul>
+<li>数据流系统可以为许多应用提供无需协调的数据管理服务，且仍能给出很强的完整性保证。</li>
+<li>这种<strong>无协调（coordination-avoiding）</strong> 的数据系统有着很大的吸引力：比起需要执行同步协调的系统，它们能达到更好的性能与更强的容错能力。</li>
+</ul>
+<p>所以：</p>
+<ul>
+<li>我们可以在一小部分中使用同步协调，没必要让所有操作都付出协调代价。</li>
+<li>异构分布式事务，不是必须的。</li>
+</ul>
+<p>另一种协调与约束的角度是：</p>
+<ul>
+<li>它们减少了由于不一致而必须做出的道歉数量，但也可能会降低系统的性能和可用性，从而可能增加由于宕机中断而需要做出的道歉数量。</li>
+<li>自己平衡点。</li>
+</ul>
+<h3 id="信任但验证"><a href="#信任但验证" class="headerlink" title="信任但验证"></a>信任但验证</h3><p>我们所有关于正确性，完整性和容错的讨论都基于一些假设，假设某些事情可能会出错，但其他事情不会。我们将这些假设称为我们的<strong>系统模型（system model）</strong>。<br>这些假设相当合理，但是错误是个概率问题。</p>
+<h4 id="维护完整性，尽管软件有Bug"><a href="#维护完整性，尽管软件有Bug" class="headerlink" title="维护完整性，尽管软件有Bug"></a>维护完整性，尽管软件有Bug</h4><p>软件有存在Bug的风险，Mysql 也可能有 bug。<br>ACID 也可能有 bug。<br>错误使用数据库，也可能导致数据出问题。</p>
+<h4 id="不要盲目信任承诺"><a href="#不要盲目信任承诺" class="headerlink" title="不要盲目信任承诺"></a>不要盲目信任承诺</h4><p>数据有概率损坏，检查数据完整性称为<strong>审计（auditing）</strong><br>定期审计数据和备份。</p>
+<h4 id="验证的文化"><a href="#验证的文化" class="headerlink" title="验证的文化"></a>验证的文化</h4><ul>
+<li>我希望未来能看到更多的<strong>自我验证（self-validating）</strong> 或<strong>自我审计（self-auditing）</strong> 系统，不断检查自己的完整性，而不是依赖盲目的信任。</li>
+<li>我担心ACID数据库的文化导致我们在盲目信任技术（如事务机制）的基础上开发应用，而忽视了这种过程中的任何可审计性。由于我们所信任的技术在大多数情况下工作得很好，通常会认为审计机制并不值得投资。</li>
+<li>在NoSQL的旗帜下，更弱的一致性保证成为常态，更不成熟的存储技术越来越被广泛使用。</li>
+<li>如果没有审计，越来越危险。</li>
+</ul>
+<h4 id="为可审计性而设计"><a href="#为可审计性而设计" class="headerlink" title="为可审计性而设计"></a>为可审计性而设计</h4><ul>
+<li>事务操作发生后，很难说清楚意味着什么。</li>
+<li>相比之下，基于事件的系统可以提供更好的可审计性。</li>
+<li>显式处理数据流可以使数据的<strong>来龙去脉（provenance）</strong> 更加清晰，从而使完整性检查更具可行性。</li>
+<li>具有确定性且定义良好的数据流，也使调试与跟踪系统的执行变得容易，以便确定它<strong>为什么</strong>做了某些事情</li>
+</ul>
+<h4 id="端到端原则重现"><a href="#端到端原则重现" class="headerlink" title="端到端原则重现"></a>端到端原则重现</h4><ul>
+<li>检查数据系统的完整性，最好是以端到端的方式进行</li>
+<li>持续的端到端完整性检查可以不断提高你对系统正确性的信心，从而使你能更快地进步</li>
+</ul>
+<h4 id="用于可审计数据系统的工具"><a href="#用于可审计数据系统的工具" class="headerlink" title="用于可审计数据系统的工具"></a>用于可审计数据系统的工具</h4><ul>
+<li>目前，将可审计性作为顶层关注点的数据系统并不多。</li>
+<li>使用密码学工具来证明系统的完整性是十分有趣的，现在有些加密货币、区块链技术出现在这个领域。</li>
+<li>密码学审计与完整性检查通常依赖<strong>默克尔树（Merkle tree）</strong>，这是一颗散列值的树，能够用于高效地证明一条记录出现在一个数据集中（以及其他一些特性）。</li>
+<li>除了炒作的沸沸扬扬的加密货币之外，<strong>证书透明性（certificate transparency）</strong> 也是一种依赖Merkle树的安全技术，用来检查TLS&#x2F;SSL证书的有效性。</li>
+<li>这是值得关注的有趣领域。</li>
+</ul>
+<h2 id="做正确的事情"><a href="#做正确的事情" class="headerlink" title="做正确的事情"></a>做正确的事情</h2><ul>
+<li>每个系统都服务于一个目的；我们，建立这些系统的工程师，有责任去仔细考虑这些后果，并有意识地决定，我们希望生活在怎样的世界中。</li>
+<li>许多数据集都是关于人的：他们的行为，他们的兴趣，他们的身份。对待这些数据，我们必须怀着人性与尊重。用户也是人类，人类的尊严是至关重要的。</li>
+<li>技术本身并无好坏之分 —— 关键在于它被如何使用，以及它如何影响人们。</li>
+<li>软件工程师仅仅专注于技术而忽视其后果是不够的：道德责任也是我们的责任。对道德推理很困难，但它太重要了，我们无法忽视。</li>
+</ul>
+<h3 id="预测性分析"><a href="#预测性分析" class="headerlink" title="预测性分析"></a>预测性分析</h3><ul>
+<li>预测性分析是“大数据”炒作的主要内容之一。</li>
+<li>如果算法决策把某个人判定为有风险的人，那么就会带来很大风险。</li>
+<li>无罪推定。</li>
+</ul>
+<h4 id="偏见与歧视"><a href="#偏见与歧视" class="headerlink" title="偏见与歧视"></a>偏见与歧视</h4><p>预测性分析系统只是基于过去进行推断；</p>
+<ul>
+<li>如果过去是歧视性的，它们就会将这种歧视归纳为规律。</li>
+<li>如果我们希望未来比过去更好，那么就需要道德想象力，而这是只有人类才能提供的东西。</li>
+<li>数据与模型应该是我们的工具，而不是我们的主人。</li>
+</ul>
+<h4 id="责任与问责"><a href="#责任与问责" class="headerlink" title="责任与问责"></a>责任与问责</h4><ul>
+<li>自动决策引发了关于责任与问责的问题：算法犯错误，谁来负责？比如自动驾驶。</li>
+<li>很多数据本质上是统计性的，这意味着即使概率分布在总体上是正确的，对于个例也可能是错误的。</li>
+<li>盲目相信数据决策至高无上，这不仅仅是一种妄想，而是有切实危险的。</li>
+<li>我们还需要想清楚，如何避免数据被用于害人，如何认识数据的积极潜力。</li>
+</ul>
+<h4 id="反馈循环"><a href="#反馈循环" class="headerlink" title="反馈循环"></a>反馈循环</h4><p>推荐算法，使人进入信息茧房、回音室；<br>反馈算法，导致恶性循环，增大贫富差距。</p>
+<h3 id="隐私和追踪"><a href="#隐私和追踪" class="headerlink" title="隐私和追踪"></a>隐私和追踪</h3><ul>
+<li>当系统只存储用户明确输入的数据时，是因为用户希望系统以特定方式存储和处理这些数据，<strong>系统是在为用户提供服务</strong>：用户就是客户。</li>
+<li>但是如广告这样的商业模式，通过隐私和追踪获利。</li>
+<li>相当于<strong>监视（surveilance）</strong></li>
+</ul>
+<h4 id="监视"><a href="#监视" class="headerlink" title="监视"></a>监视</h4><p>并不是所有的数据收集都称得上监视，但检视这一点有助于理解我们与数据收集者之间的关系。</p>
+<h4 id="同意与选择的自由"><a href="#同意与选择的自由" class="headerlink" title="同意与选择的自由"></a>同意与选择的自由</h4><ul>
+<li>而且从用户身上挖掘数据是一个单向过程，而不是真正的互惠关系，也不是公平的价值交换。</li>
+<li>因为一个服务会跟踪用户而拒绝使用它，这只是少数人才拥有的权力，他们有足够的时间与知识来了解隐私政策，并承受得起代价：错过社会参与，以及使用服务可能带来的专业机会。</li>
+<li>对于那些处境不太好的人而言，并没有真正意义上的选择：监控是不可避免的。</li>
+</ul>
+<h4 id="隐私与数据使用"><a href="#隐私与数据使用" class="headerlink" title="隐私与数据使用"></a>隐私与数据使用</h4><ul>
+<li><strong>隐私权是一项决定权</strong>：在从保密到透明的光谱上，隐私使得每个人都能决定自己想要在什么地方位于光谱上的哪个位置。这是一个人自由与自主的重要方面。</li>
+<li>决定向谁透露什么并不是由个体按照自己的喜好决定的，而是由<strong>公司</strong>，以利润最大化为目标来行使隐私权的。</li>
+<li>这种从个体到公司的大规模隐私权转移在历史上是史无前例的。</li>
+</ul>
+<h4 id="数据资产与权力"><a href="#数据资产与权力" class="headerlink" title="数据资产与权力"></a>数据资产与权力</h4><ul>
+<li>因为数据很有价值，所以很多人都想要它。</li>
+<li>当然，公司也想要它 —— 这就是为什么它们一开始就收集数据的原因。</li>
+<li>但政府也想获得它：通过秘密交易、胁迫、法律强制或者只是窃取。</li>
+<li>俗话说，“知识就是力量”。更进一步，“在避免自己被审视的同时审视他人，是权力最重要的形式之一”</li>
+</ul>
+<h4 id="回顾工业革命"><a href="#回顾工业革命" class="headerlink" title="回顾工业革命"></a>回顾工业革命</h4><ul>
+<li>就像工业革命有着黑暗面需要应对一样，我们转向信息时代的过程中，也有需要应对与解决的重大问题。</li>
+<li>我相信数据的收集与使用就是其中一个问题。</li>
+</ul>
+<h4 id="立法与自律"><a href="#立法与自律" class="headerlink" title="立法与自律"></a>立法与自律</h4><ul>
+<li>那些收集了大量有关人的数据的公司反对监管，认为这是创新的负担与阻碍。</li>
+<li>我们应该允许每个人保留自己的隐私 —— 即，对自己数据的控制 —— 而不是通过监视来窃取这种控制权。</li>
+<li>我们究竟能做到哪一步，是一个开放的问题。</li>
+<li>总的来说，文化与态度的改变是必要的。</li>
+</ul>
+<h2 id="本章小结"><a href="#本章小结" class="headerlink" title="本章小结"></a>本章小结</h2><p>没有单种工具能高效服务所有可能的用例，因此应用必须组合使用几种不同的软件才能实现其目标。</p>
+<ul>
+<li>我们讨论了如何使用批处理与事件流来解决这一<strong>数据集成（data integration）</strong> 问题，以便让数据变更在不同系统之间流动。</li>
+</ul>
+<p>通过使这些衍生和转换操作异步且松散耦合，能够防止一个区域中的问题扩散到系统中不相关部分，从而增加整个系统的稳健性与容错性。<br>将数据流表示为从一个数据集到另一个数据集的转换也有助于演化应用程序。<br>这些过程与数据库内部已经完成的过程非常类似，因此我们将数据流应用的概念重新改写为，<strong>分拆（unbundling）</strong> 数据库组件，并通过组合这些松散耦合的组件来构建应用程序。<br>衍生状态可以通过观察底层数据的变更来更新。<br>接下来，我们讨论了如何确保所有这些处理在出现故障时保持正确。<br>通过围绕数据流构建应用，并异步检查约束，我们可以避免绝大多数的协调工作，创建保证完整性且性能仍然表现良好的系统，<br>最后，我们退后一步，审视了构建数据密集型应用的一些道德问题。</p>
+<p>由于软件和数据对世界产生了如此巨大的影响，我们工程师们必须牢记，我们有责任为我们想要的那种世界而努力：一个尊重人们，尊重人性的世界。我希望我们能够一起为实现这一目标而努力。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" class="category-chain-item">系统架构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84/">#架构</a>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8/">#设计数据密集型应用</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>12：衍生数据-数据系统的未来</div>
+      <div>https://blog.longpi1.com/2024/08/04/12：衍生数据-数据系统的未来/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/02/11%EF%BC%9A%E8%A1%8D%E7%94%9F%E6%95%B0%E6%8D%AE-%E6%B5%81%E5%A4%84%E7%90%86/" title="11：衍生数据-流处理">
+                        <span class="hidden-mobile">11：衍生数据-流处理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
