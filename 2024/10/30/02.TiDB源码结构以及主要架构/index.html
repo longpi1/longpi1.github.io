@@ -1,0 +1,976 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="TiDB源码笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码结构以及主要架构">
+<meta property="og:url" content="https://blog.longpi1.com/2024/10/30/02.TiDB%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84%E4%BB%A5%E5%8F%8A%E4%B8%BB%E8%A6%81%E6%9E%B6%E6%9E%84/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="TiDB源码笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img1.pingcap.com/prod/1_1c599fdd36.png">
+<meta property="og:image" content="https://img1.pingcap.com/prod/2_a7f34487c3.png">
+<meta property="article:published_time" content="2024-10-30T13:57:34.000Z">
+<meta property="article:modified_time" content="2024-10-30T14:34:47.198Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="TiDB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img1.pingcap.com/prod/1_1c599fdd36.png">
+  
+  
+  
+  <title>源码结构以及主要架构 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="源码结构以及主要架构"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-30 21:57" pubdate>
+          2024年10月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">源码结构以及主要架构</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="二、TiDB-源码结构以及主要架构"><a href="#二、TiDB-源码结构以及主要架构" class="headerlink" title="二、TiDB 源码结构以及主要架构"></a>二、TiDB 源码结构以及主要架构</h1><blockquote>
+<p>主要内容转载自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://cn.pingcap.com/blog/tidb-source-code-reading-2/">TiDB 源码阅读系列文章（二）初识 TiDB 源码</a></p>
+</blockquote>
+<h2 id="TiDB-架构"><a href="#TiDB-架构" class="headerlink" title="TiDB 架构"></a>TiDB 架构</h2><p><img src="https://img1.pingcap.com/prod/1_1c599fdd36.png" srcset="/img/loading.gif" lazyload alt="TiDB 架构"></p>
+<p>本次 TiDB 源码之旅从这幅简单的架构图开始，这幅图很多人都看过，我们可以用一句话来描述这个图：『TiDB 是一个支持 MySQL 协议，以某种支持事务的分布式 KV 存储引擎为底层存储的 SQL 引擎』。从这句话可以看出有三个重要的事情，第一是如何支持 MySQL 协议，与 Client 交互，第二是如何与底层的存储引擎打交道，存取数据，第三是如何实现 SQL 的功能。本篇文章会先介绍一些 TiDB 有哪些模块及其功能简要介绍，然后以这三点为线索，将这些模块串联起来。</p>
+<h2 id="代码简介"><a href="#代码简介" class="headerlink" title="代码简介"></a>代码简介</h2><p>TiDB 源码完全托管在 Github 上，从<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb">项目主页</a>可以看到所有信息。整个项目使用 Go 语言开发，按照功能模块分了很多 Package，通过一些依赖分析工具，可以看到项目内部包之间的依赖关系。</p>
+<p>大部分包都以接口的形式对外提供服务，大部分功能也都集中在某个包中，不过有一些包提供了非常基础的功能，会被很多包依赖，这些包需要特别注意。</p>
+<p>项目的 main 文件在 tidb-server&#x2F;main.go，这里面定义了服务如何启动。整个项目的 Build 方法可以在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/Makefile#L140">Makefile</a> 中找到。</p>
+<p>除了代码之外，还有很多测试用例，可以在 xx_test.go 中找到。另外 <code>cmd</code> 目录下面还有几个工具包，用来做性能测试或者是构造测试数据。</p>
+<h2 id="模块介绍"><a href="#模块介绍" class="headerlink" title="模块介绍"></a>模块介绍</h2><p>TiDB 的模块非常多，这里做一个整体介绍，大家可以看到每个模块大致是做什么用的，想看相关功能的代码是，可以直接找到对应的模块。</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th align="center">Introduction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ast</td>
+<td align="center">抽象语法树的数据结构定义，例如 <code>SelectStmt</code> 定义了一条 Select 语句被解析成什么样的数据结构</td>
+</tr>
+<tr>
+<td>cmd&#x2F;benchdb</td>
+<td align="center">简单的 benchmark 工具，用于性能优化</td>
+</tr>
+<tr>
+<td>cmd&#x2F;benchfilesort</td>
+<td align="center">简单的 benchmark 工具，用于性能优化</td>
+</tr>
+<tr>
+<td>cmd&#x2F;benchkv</td>
+<td align="center">Transactional KV API benchmark 工具，也可以看做 KV 接口的使用样例</td>
+</tr>
+<tr>
+<td>cmd&#x2F;benchraw</td>
+<td align="center">Raw KV API benchmark 工具，也可以看做不带事务的 KV 接口的使用样例</td>
+</tr>
+<tr>
+<td>cmd&#x2F;importer</td>
+<td align="center">根据表结构以及统计信息伪造数据的工具，用于构造测试数据</td>
+</tr>
+<tr>
+<td>config</td>
+<td align="center">配置文件相关逻辑</td>
+</tr>
+<tr>
+<td>context</td>
+<td align="center">主要包括 Context 接口，提供一些基本的功能抽象，很多包以及函数都会依赖于这个接口，把这些功能抽象为接口是为了解决包之间的依赖关系</td>
+</tr>
+<tr>
+<td>ddl</td>
+<td align="center">DDL 的执行逻辑</td>
+</tr>
+<tr>
+<td>distsql</td>
+<td align="center">对分布式计算接口的抽象，通过这个包把 Executor 和 TiKV Client 之间的逻辑做隔离</td>
+</tr>
+<tr>
+<td>domain</td>
+<td align="center">domain 可以认为是一个存储空间的抽象，可以在其中创建数据库、创建表，不同的 domain 之间，可以存在相同名称的数据库，有点像 Name Space。一般来说单个 TiDB 实例只会创建一个 Domain 实例，其中会持有 information schema 信息、统计信息等。</td>
+</tr>
+<tr>
+<td>executor</td>
+<td align="center">执行器相关逻辑，可以认为大部分语句的执行逻辑都在这里，比较杂，后面会专门介绍</td>
+</tr>
+<tr>
+<td>expression</td>
+<td align="center">表达式相关逻辑，包括各种运算符、内建函数</td>
+</tr>
+<tr>
+<td>expression&#x2F;aggregation</td>
+<td align="center">聚合表达式相关的逻辑，比如 Sum、Count 等函数</td>
+</tr>
+<tr>
+<td>infoschema</td>
+<td align="center">SQL 元信息管理模块，另外对于 Information Schema 的操作，都会访问这里</td>
+</tr>
+<tr>
+<td>kv</td>
+<td align="center">KV 引擎接口以及一些公用方法，底层的存储引擎需要实现这个包中定义的接口</td>
+</tr>
+<tr>
+<td>meta</td>
+<td align="center">利用 structure 包提供的功能，管理存储引擎中存储的 SQL 元信息，infoschema&#x2F;DDL 利用这个模块访问或者修改 SQL 元信息</td>
+</tr>
+<tr>
+<td>meta&#x2F;autoid</td>
+<td align="center">用于生成全局唯一自增 ID 的模块，除了用于给每个表的自增 ID 之外，还用于生成全局唯一的 Database ID 和 Table ID</td>
+</tr>
+<tr>
+<td>metrics</td>
+<td align="center">Metrics 相关信息，所有的模块的 Metrics 信息都在这里</td>
+</tr>
+<tr>
+<td>model</td>
+<td align="center">SQL 元信息数据结构，包括 DBInfo &#x2F; TableInfo &#x2F; ColumnInfo &#x2F; IndexInfo 等</td>
+</tr>
+<tr>
+<td>mysql</td>
+<td align="center">MySQL 相关的常量定义</td>
+</tr>
+<tr>
+<td>owner</td>
+<td align="center">TiDB 集群中的一些任务只能由一个实例执行，比如异步 Schema 变更，这个模块用于多个 tidb-server 之间协调产生一个任务执行者。每种任务都会产生自己的执行者。</td>
+</tr>
+<tr>
+<td>parser</td>
+<td align="center">语法解析模块，主要包括词法解析 (lexer.go) 和语法解析 (parser.y)，这个包对外的主要接口是 Parse()，用于将 SQL 文本解析成 AST</td>
+</tr>
+<tr>
+<td>parser&#x2F;goyacc</td>
+<td align="center">对 GoYacc 的包装</td>
+</tr>
+<tr>
+<td>parser&#x2F;opcode</td>
+<td align="center">关于操作符的一些常量定义</td>
+</tr>
+<tr>
+<td>perfschema</td>
+<td align="center">Performance Schema 相关的功能，默认不会启用</td>
+</tr>
+<tr>
+<td>plan</td>
+<td align="center">查询优化相关的逻辑</td>
+</tr>
+<tr>
+<td>privilege</td>
+<td align="center">用户权限管理接口</td>
+</tr>
+<tr>
+<td>privilege&#x2F;privileges</td>
+<td align="center">用户权限管理功能实现</td>
+</tr>
+<tr>
+<td>server</td>
+<td align="center">MySQL 协议以及 Session 管理相关逻辑</td>
+</tr>
+<tr>
+<td>sessionctx&#x2F;binloginfo</td>
+<td align="center">向 Binlog 模块输出 Binlog 信息</td>
+</tr>
+<tr>
+<td>sessionctx&#x2F;stmtctx</td>
+<td align="center">Session 中的语句运行时所需要的信息，比较杂</td>
+</tr>
+<tr>
+<td>sessionctx&#x2F;variable</td>
+<td align="center">System Variable 相关代码</td>
+</tr>
+<tr>
+<td>statistics</td>
+<td align="center">统计信息模块</td>
+</tr>
+<tr>
+<td>store</td>
+<td align="center">储存引擎相关逻辑，这里是存储引擎和 SQL 层之间的交互逻辑</td>
+</tr>
+<tr>
+<td>store&#x2F;mockoracle</td>
+<td align="center">模拟 TSO 组件</td>
+</tr>
+<tr>
+<td>store&#x2F;mockstore</td>
+<td align="center">实例化一个 Mock TiKV 的逻辑，主要方法是 NewMockTikvStore，把这部分逻辑从 mocktikv 中抽出来是避免循环依赖</td>
+</tr>
+<tr>
+<td>store&#x2F;mockstore&#x2F;mocktikv</td>
+<td align="center">在单机存储引擎上模拟 TiKV 的一些行为，主要作用是本地调试、构造单元测试以及指导 TiKV 开发 Coprocessor 相关逻辑</td>
+</tr>
+<tr>
+<td>store&#x2F;tikv</td>
+<td align="center">TiKV 的 Go 语言 Client</td>
+</tr>
+<tr>
+<td>store&#x2F;tikv&#x2F;gcworker</td>
+<td align="center">TiKV GC 相关逻辑，tidb-server 会根据配置的策略向 TiKV 发送 GC 命令</td>
+</tr>
+<tr>
+<td>store&#x2F;tikv&#x2F;oracle</td>
+<td align="center">TSO 服务接口</td>
+</tr>
+<tr>
+<td>store&#x2F;tikv&#x2F;oracle&#x2F;oracles</td>
+<td align="center">TSO 服务的 Client</td>
+</tr>
+<tr>
+<td>store&#x2F;tikv&#x2F;tikvrpc</td>
+<td align="center">TiKV API 的一些常量定义</td>
+</tr>
+<tr>
+<td>structure</td>
+<td align="center">在 Transactional KV API 上定义的一层结构化 API，提供 List&#x2F;Queue&#x2F;HashMap 等结构</td>
+</tr>
+<tr>
+<td>table</td>
+<td align="center">对 SQL 的 Table 的抽象</td>
+</tr>
+<tr>
+<td>table&#x2F;tables</td>
+<td align="center">对 table 包中定义的接口的实现</td>
+</tr>
+<tr>
+<td>tablecodec</td>
+<td align="center">SQL 到 Key-Value 的编解码，每种数据类型的具体编解码方案见 <code>codec</code> 包</td>
+</tr>
+<tr>
+<td>terror</td>
+<td align="center">TiDB 的 error 封装</td>
+</tr>
+<tr>
+<td>tidb-server</td>
+<td align="center">服务的 main 方法</td>
+</tr>
+<tr>
+<td>types</td>
+<td align="center">所有和类型相关的逻辑，包括一些类型的定义、对类型的操作等</td>
+</tr>
+<tr>
+<td>types&#x2F;json</td>
+<td align="center">json 类型相关的逻辑</td>
+</tr>
+<tr>
+<td>util</td>
+<td align="center">一些实用工具，这个目录下面包很多，这里只会介绍几个重要的包</td>
+</tr>
+<tr>
+<td>util&#x2F;admin</td>
+<td align="center">TiDB 的管理语句（ <code>Admin</code> 语句）用到的一些方法</td>
+</tr>
+<tr>
+<td>util&#x2F;charset</td>
+<td align="center">字符集相关逻辑</td>
+</tr>
+<tr>
+<td>util&#x2F;chunk</td>
+<td align="center">Chunk 是 TiDB 1.1 版本引入的一种数据表示结构。一个 Chunk 中存储了若干行数据，在进行 SQL 计算时，数据是以 Chunk 为单位在各个模块之间流动</td>
+</tr>
+<tr>
+<td>util&#x2F;codec</td>
+<td align="center">各种数据类型的编解码</td>
+</tr>
+<tr>
+<td>x-server</td>
+<td align="center">X-Protocol 实现</td>
+</tr>
+</tbody></table>
+<h2 id="从哪里入手"><a href="#从哪里入手" class="headerlink" title="从哪里入手"></a>从哪里入手</h2><p>粗看一下 TiDB 有 80 个包，让人觉得无从下手，不过并不是所有的包都很重要，另外一些功能只会涉及到少量包，从哪里入手去看源码取决于看源码的目的。</p>
+<p>如果是想了解某一个具体的功能的实现细节，那么可以参考上面的模块简介，找到对应的模块即可。</p>
+<p>如果想对源码有全面的了解，那么可以从 tidb-server&#x2F;main.go 入手，看 tidb-server 是如何启动，如何等待并处理用户请求。再跟着代码一直走，看 SQL 的具体执行过程。另外一些重要的模块，需要看一下，知道是如何实现的。辅助性的模块，可以选择性的看一下，有大致的印象即可。</p>
+<h2 id="重要模块"><a href="#重要模块" class="headerlink" title="重要模块"></a>重要模块</h2><p>在全部 80 个模块中，下面几个模块是最重要的，希望大家能仔细阅读。</p>
+<ul>
+<li>plan</li>
+<li>expression</li>
+<li>executor</li>
+<li>distsql</li>
+<li>store&#x2F;tikv</li>
+<li>ddl</li>
+<li>tablecodec</li>
+<li>server</li>
+<li>types</li>
+<li>kv</li>
+<li>tidb</li>
+</ul>
+<h2 id="辅助模块"><a href="#辅助模块" class="headerlink" title="辅助模块"></a>辅助模块</h2><p>除了重要的模块之外，余下的是辅助模块，但并不是说这些模块不重要，只是说这些模块并不在 SQL 执行的关键路径上，我们也会用一定的篇幅描述其中的大部分包。</p>
+<h2 id="SQL-层架构"><a href="#SQL-层架构" class="headerlink" title="SQL 层架构"></a>SQL 层架构</h2><p><img src="https://img1.pingcap.com/prod/2_a7f34487c3.png" srcset="/img/loading.gif" lazyload alt="SQL 层架构"></p>
+<p>SQL 层架构</p>
+<p>这幅图比上一幅图详细很多，大体描述了 SQL 核心模块，大家可以从左边开始，顺着箭头的方向看。</p>
+<h3 id="Protocol-Layer"><a href="#Protocol-Layer" class="headerlink" title="Protocol Layer"></a>Protocol Layer</h3><p>最左边是 TiDB 的 Protocol Layer，这里是与 Client 交互的接口，目前 TiDB 只支持 MySQL 协议，相关的代码都在 <code>server</code> 包中。</p>
+<p>这一层的主要功能是管理客户端 connection，解析 MySQL 命令并返回执行结果。具体的实现是按照 MySQL 协议实现，具体的协议可以参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://dev.mysql.com/doc/internals/en/client-server-protocol.html">MySQL 协议文档</a>。这个模块我们认为是当前实现最好的一个 MySQL 协议组件，如果大家的项目中需要用到 MySQL 协议解析、处理的功能，可以参考或引用这个模块。</p>
+<p>连接建立的逻辑在 server.go 的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/server/server.go#L236">Run()</a> 方法中，主要是下面两行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">236:         conn, err := s.listener.Accept()<br>258:         go s.onConn(conn)<br></code></pre></td></tr></table></figure>
+
+<p>单个 Session 处理命令的入口方法是调用 clientConn 类的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/server/conn.go#L465">dispatch 方法</a>，这里会解析协议并转给不同的处理函数。</p>
+<h3 id="SQL-Layer"><a href="#SQL-Layer" class="headerlink" title="SQL Layer"></a>SQL Layer</h3><p>大体上讲，一条 SQL 语句需要经过，<strong>语法解析–&gt;合法性验证–&gt;制定查询计划–&gt;优化查询计划–&gt;根据计划生成查询器–&gt;执行并返回结果</strong> 等一系列流程。这个主干对应于 TiDB 的下列包：</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tidb</td>
+<td>Protocol 层和 SQL 层之间的接口</td>
+</tr>
+<tr>
+<td>parser</td>
+<td>语法解析</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>合法性验证 + 制定查询计划 + 优化查询计划</td>
+</tr>
+<tr>
+<td>executor</td>
+<td>执行器生成以及执行</td>
+</tr>
+<tr>
+<td>distsql</td>
+<td>通过 TiKV Client 向 TiKV 发送以及汇总返回结果</td>
+</tr>
+<tr>
+<td>store&#x2F;tikv</td>
+<td>TiKV Client</td>
+</tr>
+</tbody></table>
+<h3 id="KV-API-Layer"><a href="#KV-API-Layer" class="headerlink" title="KV API Layer"></a>KV API Layer</h3><p>TiDB 依赖于底层的存储引擎提供数据的存取功能，但是并不是依赖于特定的存储引擎（比如 TiKV），而是对存储引擎提出一些要求，满足这些要求的引擎都能使用（其中 TiKV 是最合适的一款）。</p>
+<p>最基本的要求是『带事务的 Key-Value 引擎，且提供 Go 语言的 Driver』，再高级一点的要求是『支持分布式计算接口』，这样 TiDB 可以把一些计算请求下推到 存储引擎上进行。</p>
+<p>这些要求都可以在 <code>kv</code> 这个包的<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go">接口</a>中找到，存储引擎需要提供实现了这些接口的 Go 语言 Driver，然后 TiDB 利用这些接口操作底层数据。</p>
+<p>对于最基本的要求，可以重点看这几个接口：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L121">Transaction</a>：事务基本操作</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L75">Retriever </a>：读取数据的接口</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L91">Mutator</a>：修改数据的接口</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L229">Storage</a>：Driver 提供的基本功能</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L214">Snapshot</a>：在数据 Snapshot 上面的操作</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L255">Iterator</a>：<code>Seek</code> 返回的结果，可以用于遍历数据</li>
+</ul>
+<p>有了上面这些接口，可以对数据做各种所需要的操作，完成全部 SQL 功能，但是为了更高效的进行运算，我们还定义了一个高级计算接口，可以关注这三个 Interface&#x2F;struct :</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L150">Client</a>：向下层发送请求以及获取下层存储引擎的计算能力</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L176">Request</a>: 请求的内容</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/kv/kv.go#L204">Response</a>: 返回结果的抽象</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这篇文章主要介绍了TiDB 的源码结构以及三个主要部分的架构，更详细的内容会在后面的章节中详细描述。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/TiDB/" class="category-chain-item">TiDB</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%AD%98%E5%82%A8/">#存储</a>
+      
+        <a href="/tags/TiDB/">#TiDB</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>源码结构以及主要架构</div>
+      <div>https://blog.longpi1.com/2024/10/30/02.TiDB源码结构以及主要架构/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/28/01-TiDB%E5%BA%8F/" title="01.TiDB序">
+                        <span class="hidden-mobile">01.TiDB序</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
