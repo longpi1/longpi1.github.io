@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="TiDB源码笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="03.TiDB SQL执行流程">
+<meta property="og:url" content="https://blog.longpi1.com/2024/11/01/03-TiDBSQL%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="TiDB源码笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img1.pingcap.com/prod/1_c3e07627e9.png">
+<meta property="og:image" content="https://img1.pingcap.com/prod/2_9c0f3a6934.png">
+<meta property="article:published_time" content="2024-11-01T12:13:31.000Z">
+<meta property="article:modified_time" content="2024-11-01T12:14:39.479Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="TiDB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img1.pingcap.com/prod/1_c3e07627e9.png">
+  
+  
+  
+  <title>03.TiDB SQL执行流程 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="03.TiDB SQL执行流程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-01 20:13" pubdate>
+          2024年11月1日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">03.TiDB SQL执行流程</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="三、TiDB-SQL执行流程"><a href="#三、TiDB-SQL执行流程" class="headerlink" title="三、TiDB SQL执行流程"></a>三、TiDB SQL执行流程</h1><blockquote>
+<p>主要内容转载自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://cn.pingcap.com/blog/tidb-source-code-reading-3/">TiDB 源码阅读系列文章（三）SQL 的一生</a></p>
+</blockquote>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>上一篇文章讲解了 TiDB 项目的结构以及三个核心部分，本篇文章从 SQL 处理流程出发，介绍哪里是入口，对 SQL 需要做哪些操作，知道一个 SQL 是从哪里进来的，在哪里处理，并从哪里返回。</p>
+<p>SQL 有很多种，比如读、写、修改、删除以及管理类的 SQL，每种 SQL 有自己的执行逻辑，不过大体上的流程是类似的，都在一个统一的框架下运转。</p>
+<h2 id="框架"><a href="#框架" class="headerlink" title="框架"></a>框架</h2><p>我们先从整体上看一下，一条语句需要经过哪些方面的工作。如果大家还记得上一篇文章所说的三个核心部分，可以想到<strong>首先要经过协议解析和转换</strong>，拿到语句内容，<strong>然后经过 SQL 核心层逻辑处理，生成查询计划</strong>，<strong>最后去存储引擎中获取数据，进行计算，返回结果</strong>。这个就是一个粗略的处理框架，本篇文章会把这个框架不断细化。</p>
+<p>对于第一部分，协议解析和转换，所有的逻辑都在 server 这个包中，主要逻辑分为两块：一是连接的建立和管理，每个连接对应于一个 Session；二是在单个连接上的处理逻辑。第一点本文暂时不涉及，感兴趣的可以翻翻代码，看看连接如何建立、如何握手、如何销毁，后面也会有专门的文章讲解。对于 SQL 的执行过程，更重要的是第二点，也就是已经建立了连接，在这个连接上的操作，本文会详细讲解这一点。</p>
+<p>对于第二部分，SQL 层的处理是整个 TiDB 最复杂的部分。这部分为什么复杂？原因有三点：</p>
+<ol>
+<li>SQL 语言本身是一门复杂的语言，语句的种类多、数据类型多、操作符多、语法组合多，这些『多』经过排列组合会变成『很多』『非常多』，所以需要写大量的代码来处理。</li>
+<li>SQL 是一门表意的语言，只是说『要什么数据』，而不说『如何拿数据』，所以需要一些复杂的逻辑选择『如何拿数据』，也就是选择一个好的查询计划。</li>
+<li>底层是一个分布式存储引擎，会面临很多单机存储引擎不会遇到的问题，比如做查询计划的时候要考虑到下层的数据是分片的、网络不通了如何处理等情况，所以需要一些复杂的逻辑处理这些情况，并且需要一个很好的机制将这些处理逻辑封装起来。这些复杂性是看懂源码比较大的障碍，所以本篇文章会尽量排除这些干扰，给大家讲解核心的逻辑是什么。</li>
+</ol>
+<p>这一层有几个核心概念，掌握了这几个也就掌握了这一层的框架，请大家关注下面这几个接口：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/session.go#L62">Session</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/ast/ast.go#L136">RecordSet</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/plan/plan.go#L30">Plan</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/plan/plan.go#L140">LogicalPlan</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/plan/plan.go#L190">PhysicalPlan</a></li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/executor/executor.go#L190">Executor</a></li>
+</ul>
+<p>下面的详细内容中，会讲解这些接口，用这些接口理清楚整个逻辑。</p>
+<p>对于第三部分可以认为两块，第一块是 KV 接口层，主要作用是将请求路由到正确的的 KV Server，接收返回消息传给 SQL 层，并在此过程中处理各种异常逻辑；第二块是 KV Server 的具体实现，由于 TiKV 比较复杂，我们可以先看 Mock-TiKV 的实现，这里有所有的 SQL 分布式计算相关的逻辑。<br>接下来的几节，会对上面的三块详细展开描述。</p>
+<h3 id="协议层入口"><a href="#协议层入口" class="headerlink" title="协议层入口"></a>协议层入口</h3><p>当和客户端的连接建立好之后，TiDB 中会有一个 Goroutine 监听端口，等待从客户端发来的包，并对发来的包做处理。这段逻辑在 server&#x2F;conn.go 中，可以认为是 TiDB 的入口，本节介绍一下这段逻辑。 首先看 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/server/conn.go#L413">clientConn.Run()</a>，这里会在一个循环中，不断的读取网络包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">445:    data, err := cc.readPacket()<br></code></pre></td></tr></table></figure>
+
+<p>调用 dispatch() 方法处理收到的请求：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">465:        if err = cc.dispatch(data); err != nil &#123;<br></code></pre></td></tr></table></figure>
+
+<p>接下来进入 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/server/conn.go#L571">clientConn.dispatch()</a>方法：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">func (cc *clientConn) dispatch(data []byte) error &#123;<br></code></pre></td></tr></table></figure>
+
+<p>这里要处理的包是原始 byte 数组，里面的内容读者可以参考 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://dev.mysql.com/doc/internals/en/client-server-protocol.html">MySQL 协议</a>，第一个 byte 即为 Command 的类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">580:    cmd := data[0]<br></code></pre></td></tr></table></figure>
+
+<p>根据 Command 的类型，调用对应的处理函数，最常用的 Command 是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://dev.mysql.com/doc/internals/en/com-query.html#packet-COM_QUERY">COM_QUERY</a>，对于大多数 SQL 语句，只要不是用 Prepared 方式，都是 COM_QUERY，本文也只会介绍这个 Command，其他的 Command 请读者对照 MySQL 文档看代码。 对于 Command Query，从客户端发送来的主要是 SQL 文本，处理函数是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/server/conn.go#L849">handleQuery()</a>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(cc *clientConn)</span></span> handleQuery(goCtx goctx.Context, sql <span class="hljs-type">string</span>) (err <span class="hljs-type">error</span>) &#123;<br></code></pre></td></tr></table></figure>
+
+<p>这个函数会调用具体的执行逻辑：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">850:  rs, err := cc.ctx.Execute(goCtx, sql)<br></code></pre></td></tr></table></figure>
+
+<p>这个 Execute 方法的实现在 server&#x2F;driver_tidb.go 中，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">func (tc *TiDBContext) Execute(goCtx goctx.Context, sql string) (rs []ResultSet, err error) &#123;<br>    rsList, err := tc.session.Execute(goCtx, sql)<br></code></pre></td></tr></table></figure>
+
+<p>最重要的就是调用 tc.session.Execute，这个 session.Execute 的实现在 session.go 中，自此会进入 SQL 核心层，详细的实现会在后面的章节中描述。</p>
+<p>经过一系列处理，拿到 SQL 语句的结果后会调用 writeResultset 方法把结果写回客户端：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">857:        err = cc.writeResultset(goCtx, rs[0], false, false)<br></code></pre></td></tr></table></figure>
+
+<h3 id="协议层出口"><a href="#协议层出口" class="headerlink" title="协议层出口"></a>协议层出口</h3><p>出口比较简单，就是上面提到的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/server/conn.go#L909">writeResultset</a> 方法，按照 MySQL 协议的要求，将结果（包括 Field 列表、每行数据）写回客户端。读者可以参考 MySQL 协议中的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://dev.mysql.com/doc/internals/en/com-query-response.html">COM_QUERY Response</a> 理解这段代码。</p>
+<p>接下的几节我们进入核心流程，看看一条文本的 SQL 是如何处理的。我会先介绍所有的流程，然后用一个图把所有的流程串起来。</p>
+<h3 id="Session"><a href="#Session" class="headerlink" title="Session"></a>Session</h3><p>Session 中最重要的函数是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/session.go#L742">Execute</a>，这里会调用下面所述的各种模块，完成语句执行。注意这里在执行的过程中，会考虑 Session 环境变量，比如是否 <code>AutoCommit</code>，时区是什么。</p>
+<h3 id="Lexer-amp-Yacc"><a href="#Lexer-amp-Yacc" class="headerlink" title="Lexer &amp; Yacc"></a>Lexer &amp; Yacc</h3><p>这两个组件共同构成了 Parser 模块，调用 Parser，可以将文本解析成结构化数据，也就是抽象语法树 （AST）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">session.go 699:     return s.parser.Parse(sql, charset, collation)<br></code></pre></td></tr></table></figure>
+
+<p>在解析过程中，会先用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/lexer.go">lexer</a> 不断地将文本转换成 token，交付给 Parser，Parser 是根据 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/parser.y">yacc 语法</a>生成，根据语法不断的决定 Lexer 中发来的 token 序列可以匹配哪条语法规则，最终输出结构化的节点。 例如对于这样一条语句 <code>SELECT * FROM t WHERE c &gt; 1;</code>，可以匹配 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/parser.y#L3936">SelectStmt 的规则</a>，被转换成下面这样一个数据结构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs shell">type SelectStmt struct &#123;<br>    dmlNode<br>    resultSetNode<br>    // SelectStmtOpts wraps around select hints and switches.<br>    *SelectStmtOpts<br>    // Distinct represents whether the select has distinct option.<br>    Distinct bool<br>    // From is the from clause of the query.<br>    From *TableRefsClause<br>    // Where is the where clause in select statement.<br>    Where ExprNode<br>    // Fields is the select expression list.<br>    Fields *FieldList<br>    // GroupBy is the group by expression list.<br>    GroupBy *GroupByClause<br>    // Having is the having condition.<br>    Having *HavingClause<br>    // OrderBy is the ordering expression list.<br>    OrderBy *OrderByClause<br>    // Limit is the limit clause.<br>    Limit *Limit<br>    // LockTp is the lock type<br>    LockTp SelectLockType<br>    // TableHints represents the level Optimizer Hint<br>    TableHints []*TableOptimizerHint<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中，<code>FROM t</code> 会被解析为 <code>FROM</code> 字段，<code>WHERE c &gt; 1</code> 被解析为 <code>Where</code> 字段，<code>*</code> 被解析为 <code>Fields</code> 字段。所有的语句的结构够都被抽象为一个 <code>ast.StmtNode</code>，这个接口读者可以自行看注释，了解一下。这里只提一点，大部分 ast 包中的数据结构，都实现了 <code>ast.Node</code> 接口，这个接口有一个 <code>Accept</code> 方法，后续对 AST 的处理，主要依赖这个 Accept 方法，以 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Visitor_pattern">Visitor 模式</a>遍历所有的节点以及对 AST 做结构转换。</p>
+<h3 id="制定查询计划以及优化"><a href="#制定查询计划以及优化" class="headerlink" title="制定查询计划以及优化"></a>制定查询计划以及优化</h3><p>拿到 AST 之后，就可以做各种验证、变化、优化，这一系列动作的入口在这里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">session.go 805:             stmt, err := compiler.Compile(goCtx, stmtNode)<br></code></pre></td></tr></table></figure>
+
+<p>我们进入 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/executor/compiler.go#L37">Compile 函数</a>，可以看到三个重要步骤：</p>
+<ul>
+<li><code>plan.Preprocess</code>: 做一些合法性检查以及名字绑定；</li>
+<li><code>plan.Optimize</code>：制定查询计划，并优化，这个是最核心的步骤之一，后面的文章会重点介绍；</li>
+<li>构造 <code>executor.ExecStmt</code> 结构：这个 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/executor/adapter.go#L148">ExecStmt</a> 结构持有查询计划，是后续执行的基础，非常重要，特别是 Exec 这个方法。</li>
+</ul>
+<h3 id="生成执行器"><a href="#生成执行器" class="headerlink" title="生成执行器"></a>生成执行器</h3><p>在这个过程中，会将 plan 转换成 executor，执行引擎即可通过 executor 执行之前定下的查询计划，具体的代码见 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/executor/adapter.go#L318">ExecStmt.buildExecutor()</a>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">executor/adpter.go 227:  e, err := a.buildExecutor(ctx)<br></code></pre></td></tr></table></figure>
+
+<p>生成执行器之后，被<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/executor/adapter.go#L260">封装在一个 <code>recordSet</code> 结构中</a>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">return &amp;recordSet&#123;<br>    executor:    e,<br>    stmt:        a,<br>    processinfo: pi,<br>    txnStartTS:  ctx.Txn().StartTS(),<br>&#125;, nil<br></code></pre></td></tr></table></figure>
+
+<p>这个结构实现了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/ast/ast.go#L136"><code>ast.RecordSet</code></a> 接口，从字面上大家可以看出，这个接口代表了查询结果集的抽象，我们看一下它的几个方法：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell">// RecordSet is an abstract result set interface to help get data from Plan.<br>type RecordSet interface &#123;<br>    // Fields gets result fields.<br>    Fields() []*ResultField<br>    // Next returns the next row, nil row means there is no more to return.<br>    Next(ctx context.Context) (row types.Row, err error)<br>    // NextChunk reads records into chunk.<br>    NextChunk(ctx context.Context, chk *chunk.Chunk) error<br>    // NewChunk creates a new chunk with initial capacity.<br>    NewChunk() *chunk.Chunk<br>    // SupportChunk check if the RecordSet supports Chunk structure.<br>    SupportChunk() bool<br>    // Close closes the underlying iterator, call Next after Close will<br>    // restart the iteration.<br>    Close() error<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>通过注释大家可以看到这个接口的作用，简单来说，可以调用 Fields() 方法获得结果集每一列的类型，调用 Next&#x2F;NextChunk() 可以获取一行或者一批数据，调用 Close() 可以关闭结果集。</p>
+<h3 id="运行执行器"><a href="#运行执行器" class="headerlink" title="运行执行器"></a>运行执行器</h3><p>TiDB 的执行引擎是以 Volcano 模型运行，所有的物理 Executor 构成一个树状结构，每一层通过调用下一层的 Next&#x2F;NextChunk() 方法获取结果。 举个例子，假设语句是 <code>SELECT c1 FROM t WHERE c2 &gt; 1;</code>，并且查询计划选择的是全表扫描+过滤，那么执行器树会是下面这样：</p>
+<p><img src="https://img1.pingcap.com/prod/1_c3e07627e9.png" srcset="/img/loading.gif" lazyload alt="执行器树"></p>
+<p>执行器树</p>
+<p>大家可以从图中看到 Executor 之间的调用关系，以及数据的流动方式。那么最上层的 Next 是在哪里调用，也就是整个计算的起始点在哪里，谁来驱动这个流程？ 有两个地方大家需要关注，这两个地方分别处理两类语句。 第一类语句是 Select 这种查询语句，需要对客户端返回结果，这类语句的执行器调用点在给客户端返回数据的地方：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">row, err = rs.Next(ctx)<br></code></pre></td></tr></table></figure>
+
+<p>这里的 <code>rs</code> 即为一个 <code>RecordSet</code> 接口，对其不断的调用 <code>Next()</code>，拿到更多结果，返回给 MySQL Client。 第二类语句是 Insert 这种不需要返回数据的语句，只需要把语句执行完成即可。这类语句也是通过 <code>Next</code> 驱动执行，驱动点在<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/executor/adapter.go#L251">构造 <code>recordSet</code> 结构之前</a>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">// If the executor doesn&#x27;t return any result to the client, we execute it without delay.<br>if e.Schema().Len() == 0 &#123;<br>    return a.handleNoDelayExecutor(goCtx, e, ctx, pi)<br>&#125; else if proj, ok := e.(*ProjectionExec); ok &amp;&amp; proj.calculateNoDelay &#123;<br>    // Currently this is only for the &quot;DO&quot; statement. Take &quot;DO 1, @a=2;&quot; as an example:<br>    // the Projection has two expressions and two columns in the schema, but we should<br>    // not return the result of the two expressions.<br>    return a.handleNoDelayExecutor(goCtx, e, ctx, pi)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="核心流程代码"><a href="#核心流程代码" class="headerlink" title="核心流程代码"></a>核心流程代码</h2><p>tidb&#x2F;pkg&#x2F;session&#x2F;nontransactional.go</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// HandleNonTransactionalDML 是处理非事务性 DML 语句的入口函数</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">HandleNonTransactionalDML</span><span class="hljs-params">(ctx context.Context, stmt *ast.NonTransactionalDMLStmt, se sessiontypes.Session)</span></span> (sqlexec.RecordSet, <span class="hljs-type">error</span>) &#123;<br>    <span class="hljs-comment">// 获取会话变量</span><br>    sessVars := se.GetSessionVars()<br>    <span class="hljs-comment">// 保存当前会话的读陈旧性设置</span><br>    originalReadStaleness := se.GetSessionVars().ReadStaleness<br>    <span class="hljs-comment">// 非事务性 DML 是写操作，不应该受读陈旧性（read_staleness）的影响，read_staleness 主要影响 SELECT 查询</span><br>    sessVars.ReadStaleness = <span class="hljs-number">0</span><br>    <span class="hljs-comment">// 使用 defer 在函数结束时恢复原始的读陈旧性设置</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>        sessVars.ReadStaleness = originalReadStaleness<br>    &#125;()<br>    <br>    <span class="hljs-comment">// 预处理 DML 语句，检查语法、权限等</span><br>    err := core.Preprocess(ctx, se, stmt)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br><br>    <span class="hljs-comment">// 检查约束条件，确保 DML 操作符合表的约束条件</span><br>    <span class="hljs-keyword">if</span> err := checkConstraint(stmt, se); err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br><br>    <span class="hljs-comment">// 构建 SELECT SQL 语句，用于从表中查询出需要处理的数据</span><br>    tableName, selectSQL, shardColumnInfo, tableSources, err := buildSelectSQL(stmt, se)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br><br>    <span class="hljs-comment">// 检查带有分片列的约束条件，确保分片列符合约束</span><br>    <span class="hljs-keyword">if</span> err := checkConstraintWithShardColumn(se, stmt, tableName, shardColumnInfo, tableSources); err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br><br>    <span class="hljs-comment">// 如果是 DryRun 模式，则不实际执行 DML 操作，只是返回构建的 SQL 语句</span><br>    <span class="hljs-keyword">if</span> stmt.DryRun == ast.DryRunQuery &#123;<br>        <span class="hljs-keyword">return</span> buildDryRunResults(stmt.DryRun, []<span class="hljs-type">string</span>&#123;selectSQL&#125;, se.GetSessionVars().BatchSize.MaxChunkSize)<br>    &#125;<br><br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 选择合适的配额限制，目前使用 mem-quota-query 作为临时方案</span><br>    <span class="hljs-comment">// 使用 mem-quota-query 作为内存配额限制的临时解决方案，结果是 NT-DML 可能会消耗 2 倍的内存配额</span><br>    memTracker := memory.NewTracker(memory.LabelForNonTransactionalDML, <span class="hljs-number">-1</span>)<br>    <span class="hljs-comment">// 将内存追踪器绑定到当前会话的内存追踪器</span><br>    memTracker.AttachTo(se.GetSessionVars().MemTracker)<br>    <span class="hljs-comment">// 设置内存使用限制为当前会话的查询内存配额</span><br>    se.GetSessionVars().MemTracker.SetBytesLimit(se.GetSessionVars().MemQuotaQuery)<br>    <span class="hljs-comment">// 在函数结束时解除内存追踪器的绑定</span><br>    <span class="hljs-keyword">defer</span> memTracker.Detach()<br><br>    <span class="hljs-comment">// 构建分片任务，根据 SELECT 语句和分片列的信息，生成多个并发执行的任务</span><br>    jobs, err := buildShardJobs(ctx, stmt, se, selectSQL, shardColumnInfo, memTracker)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br><br>    <span class="hljs-comment">// 执行分片任务，拆解 DML 语句为多个分片的 SQL 语句</span><br>    splitStmts, err := runJobs(ctx, jobs, stmt, tableName, se, stmt.DMLStmt.WhereExpr())<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>    &#125;<br><br>    <span class="hljs-comment">// 如果是 DryRun 模式，并且是 SplitDML 类型，则返回生成的分片 SQL 语句</span><br>    <span class="hljs-keyword">if</span> stmt.DryRun == ast.DryRunSplitDml &#123;<br>        <span class="hljs-keyword">return</span> buildDryRunResults(stmt.DryRun, splitStmts, se.GetSessionVars().BatchSize.MaxChunkSize)<br>    &#125;<br><br>    <span class="hljs-comment">// 执行并返回执行结果，设置批次大小和日志脱敏配置</span><br>    <span class="hljs-keyword">return</span> buildExecuteResults(ctx, jobs, se.GetSessionVars().BatchSize.MaxChunkSize, se.GetSessionVars().EnableRedactLog)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上面描述了整个 SQL 层的执行框架，这里用一幅图来描述整个过程：</p>
+<p><img src="https://img1.pingcap.com/prod/2_9c0f3a6934.png" srcset="/img/loading.gif" lazyload alt="SQL 层执行过程"></p>
+<p>SQL 层执行过程</p>
+<p>通过这篇文章，相信大家已经了解了 TiDB 中语句的执行框架，整个逻辑还是比较简单，框架中具体的模块的详细解释会在后续章节中给出。下一篇文章会用具体的语句为例，帮助大家理解本篇文章。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/TiDB/" class="category-chain-item">TiDB</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%AD%98%E5%82%A8/">#存储</a>
+      
+        <a href="/tags/TiDB/">#TiDB</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>03.TiDB SQL执行流程</div>
+      <div>https://blog.longpi1.com/2024/11/01/03-TiDBSQL执行流程/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/30/02.TiDB%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84%E4%BB%A5%E5%8F%8A%E4%B8%BB%E8%A6%81%E6%9E%B6%E6%9E%84/" title="02.TiDB源码结构以及主要架构">
+                        <span class="hidden-mobile">02.TiDB源码结构以及主要架构</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
