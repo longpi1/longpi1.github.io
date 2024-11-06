@@ -1,0 +1,757 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="TiDB源码笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="05.TiDB SQL Parser 的实现">
+<meta property="og:url" content="https://blog.longpi1.com/2024/11/06/05-TiDB-SQL-Parser%E7%9A%84%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="TiDB源码笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img1.www.pingcap.com/prod/1_c4469a4858.png">
+<meta property="og:image" content="https://img1.www.pingcap.com/prod/2_3a000040e8.png">
+<meta property="article:published_time" content="2024-11-06T14:11:09.000Z">
+<meta property="article:modified_time" content="2024-11-06T14:24:43.990Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="TiDB">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img1.www.pingcap.com/prod/1_c4469a4858.png">
+  
+  
+  
+  <title>05.TiDB SQL Parser 的实现 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="05.TiDB SQL Parser 的实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-06 22:11" pubdate>
+          2024年11月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">05.TiDB SQL Parser 的实现</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="五、TiDB-SQL-Parser-的实现"><a href="#五、TiDB-SQL-Parser-的实现" class="headerlink" title="五、TiDB SQL Parser 的实现"></a>五、TiDB SQL Parser 的实现</h1><blockquote>
+<p>主要内容转载自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://cn.pingcap.com/blog/tidb-source-code-reading-5/">TiDB 源码阅读系列文章（五）TiDB SQL Parser 的实现</a>，主要对 SQL Parser 功能的实现进行了讲解，内容来自社区小伙伴——马震（GitHub ID：mz1999 ）。</p>
+</blockquote>
+<p>在之前第三篇文章中讲解了一条 SQL 语句的处理流程，从网络上接收数据，MySQL 协议解析和转换，SQL 语法解析，查询计划的制定和优化，查询计划执行，到最后返回结果。</p>
+<p><img src="https://img1.www.pingcap.com/prod/1_c4469a4858.png" srcset="/img/loading.gif" lazyload alt="SQL 语句处理流程"></p>
+<p>其中，<code>SQL Parser</code> 的功能是把 SQL 语句按照 SQL 语法规则进行解析，将文本转换成抽象语法树（<code>AST</code>），这部分功能需要些背景知识才能比较容易理解，我尝试做下相关知识的介绍，希望能对读懂这部分代码有点帮助。</p>
+<p>TiDB 是使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cznic/goyacc">goyacc</a> 根据预定义的 SQL 语法规则文件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/parser.y">parser.y</a> 生成 SQL 语法解析器。我们可以在 TiDB 的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/50e98f427e7943396dbe38d23178b9f9dc5398b7/Makefile#L50">Makefile</a> 文件中看到这个过程，先 build <code>goyacc</code> 工具，然后使用 <code>goyacc</code> 根据 <code>parser.y</code> 生成解析器 <code>parser.go</code>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">goyacc:</span><br>    <span class="hljs-variable">$(GOBUILD)</span> -o bin/goyacc parser/goyacc/main.go<br><span class="hljs-section">parser: goyacc</span><br>    bin/goyacc -o /dev/null parser/parser.y<br>    bin/goyacc -o parser/parser.go parser/parser.y 2&gt;&amp;1 ...<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cznic/goyacc">goyacc</a> 是 yacc 的 Golang 版，所以要想看懂语法规则定义文件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/parser.y">parser.y</a>，了解解析器是如何工作的，先要对 Lex &amp; Yacc 有些了解。</p>
+<h2 id="Lex-amp-Yacc-介绍"><a href="#Lex-amp-Yacc-介绍" class="headerlink" title="Lex &amp; Yacc 介绍"></a>Lex &amp; Yacc 介绍</h2><p>Lex &amp; Yacc 是用来生成词法分析器和语法分析器的工具，它们的出现简化了编译器的编写。<code>Lex &amp; Yacc</code> 分别是由贝尔实验室的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Mike_Lesk">Mike Lesk</a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://en.wikipedia.org/wiki/Stephen_C._Johnson">Stephen C. Johnson</a> 在 1975 年发布。对于 Java 程序员来说，更熟悉的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.antlr.org/">ANTLR</a>，<code>ANTLR 4</code> 提供了 <code>Listener</code>+<code>Visitor</code> 组合接口， 不需要在语法定义中嵌入<code>actions</code>，使应用代码和语法定义解耦。<code>Spark</code> 的 SQL 解析就是使用了 <code>ANTLR</code>。<code>Lex &amp; Yacc</code> 相对显得有些古老，实现的不是那么优雅，不过我们也不需要非常深入的学习，只要能看懂语法定义文件，了解生成的解析器是如何工作的就够了。我们可以从一个简单的例子开始：</p>
+<p><img src="https://img1.www.pingcap.com/prod/2_3a000040e8.png" srcset="/img/loading.gif" lazyload alt="图例"></p>
+<p>上图描述了使用 <code>Lex &amp; Yacc</code> 构建编译器的流程。<code>Lex</code> 根据用户定义的 <code>patterns</code> 生成词法分析器。词法分析器读取源代码，根据 <code>patterns</code> 将源代码转换成 <code>tokens</code> 输出。<code>Yacc</code> 根据用户定义的语法规则生成语法分析器。语法分析器以词法分析器输出的 <code>tokens</code> 作为输入，根据语法规则创建出语法树。最后对语法树遍历生成输出结果，结果可以是产生机器代码，或者是边遍历 <code>AST</code> 边解释执行。</p>
+<p>从上面的流程可以看出，用户需要分别为 <code>Lex</code> 提供 <code>patterns</code> 的定义，为 <code>Yacc</code> 提供语法规则文件，<code>Lex &amp; Yacc</code> 根据用户提供的输入文件，生成符合他们需求的词法分析器和语法分析器。这两种配置都是文本文件，并且结构相同：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">... definitions ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>... rules ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>... subroutines ...<br></code></pre></td></tr></table></figure>
+
+<p>文件内容由 <code>%%</code> 分割成三部分，我们重点关注中间规则定义部分。对于上面的例子，<code>Lex</code> 的输入文件如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell">...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>/* 变量 */<br>[a-z]    &#123;<br>            yylval = *yytext - &#x27;a&#x27;;<br>            return VARIABLE;<br>         &#125;   <br>/* 整数 */<br>[0-9]+   &#123;<br>            yylval = atoi(yytext);<br>            return INTEGER;<br>         &#125;<br>/* 操作符 */<br>[-+()=/*\n] &#123; return *yytext; &#125;<br>/* 跳过空格 */<br>[ \t]    ;<br>/* 其他格式报错 */<br>.        yyerror(&quot;invalid character&quot;);<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>...<br></code></pre></td></tr></table></figure>
+
+<p>上面只列出了规则定义部分，可以看出该规则使用正则表达式定义了变量、整数和操作符等几种 <code>token</code>。例如整数 <code>token</code> 的定义如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">[0-9]+  &#123;<br>            yylval = atoi(yytext);<br>            return INTEGER; <br>        &#125;<br></code></pre></td></tr></table></figure>
+
+<p>当输入字符串匹配这个正则表达式，大括号内的动作会被执行：将整数值存储在变量 <code>yylval</code> 中，并返回 <code>token</code> 类型 <code>INTEGER</code> 给 <code>Yacc</code>。</p>
+<p>再来看看 <code>Yacc</code> 语法规则定义文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">%</span><span class="language-bash">token INTEGER VARIABLE</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">left <span class="hljs-string">&#x27;+&#x27;</span> <span class="hljs-string">&#x27;-&#x27;</span></span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">left <span class="hljs-string">&#x27;*&#x27;</span> <span class="hljs-string">&#x27;/&#x27;</span></span><br>...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>program:<br>        program statement &#x27;\n&#x27; <br>        |<br>        ;<br>statement:<br>        expr                    &#123; printf(&quot;%d\n&quot;, $1); &#125;<br>        | VARIABLE &#x27;=&#x27; expr     &#123; sym[$1] = $3; &#125;<br>        ;<br>expr:<br>        INTEGER<br>        | VARIABLE              &#123; $$ = sym[$1]; &#125;<br>        | expr &#x27;+&#x27; expr         &#123; $$ = $1 + $3; &#125;<br>        | expr &#x27;-&#x27; expr         &#123; $$ = $1 - $3; &#125;<br>        | expr &#x27;*&#x27; expr         &#123; $$ = $1 * $3; &#125;<br>        | expr &#x27;/&#x27; expr         &#123; $$ = $1 / $3; &#125;<br>        | &#x27;(&#x27; expr &#x27;)&#x27;          &#123; $$ = $2; &#125;<br>        ;<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>...<br></code></pre></td></tr></table></figure>
+
+<p>第一部分定义了 <code>token</code> 类型和运算符的结合性。四种运算符都是左结合，同一行的运算符优先级相同，不同行的运算符，后定义的行具有更高的优先级。</p>
+<p>语法规则使用了 <code>BNF</code> 定义。<code>BNF</code> 可以用来表达上下文无关（<em>context-free</em>）语言，大部分的现代编程语言都可以使用 <code>BNF</code> 表示。上面的规则定义了三个<strong>产生式</strong>。<strong>产生式</strong>冒号左边的项（例如 <code>statement</code>）被称为<strong>非终结符</strong>， <code>INTEGER</code> 和 <code>VARIABLE</code> 被称为<strong>终结符</strong>,它们是由 <code>Lex</code> 返回的 <code>token</code> 。<strong>终结符</strong>只能出现在<strong>产生式</strong>的右侧。可以使用<strong>产生式</strong>定义的语法生成表达式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">expr -&gt; expr * expr<br>     -&gt; expr * INTEGER<br>     -&gt; expr + expr * INTEGER<br>     -&gt; expr + INTEGER * INTEGER<br>     -&gt; INTEGER + INTEGER * INTEGER<br></code></pre></td></tr></table></figure>
+
+<p>解析表达式是生成表达式的逆向操作，我们需要归约表达式到一个<strong>非终结符</strong>。<code>Yacc</code> 生成的语法分析器使用<strong>自底向上</strong>的归约（<em>shift-reduce</em>）方式进行语法解析，同时使用堆栈保存中间状态。还是看例子，表达式 <code>x + y * z</code> 的解析过程：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">1    . x + y * z<br>2    x . + y * z<br>3    expr . + y * z<br>4    expr + . y * z<br>5    expr + y . * z<br>6    expr + expr . * z<br>7    expr + expr * . z<br>8    expr + expr * z .<br>9    expr + expr * expr .<br>10   expr + expr .<br>11   expr .<br>12   statement .<br>13   program  .<br></code></pre></td></tr></table></figure>
+
+<p>点（<code>.</code>）表示当前的读取位置，随着 <code>.</code> 从左向右移动，我们将读取的 <code>token</code> 压入堆栈，当发现堆栈中的内容匹配了某个<strong>产生式</strong>的右侧，则将匹配的项从堆栈中弹出，将该<strong>产生式</strong>左侧的<strong>非终结符</strong>压入堆栈。这个过程持续进行，直到读取完所有的 <code>tokens</code>，并且只有<strong>启始非终结符</strong>（本例为 <code>program</code>）保留在堆栈中。</p>
+<p>产生式右侧的大括号中定义了该规则关联的动作，例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">expr:  expr &#x27;*&#x27; expr         &#123; $$ = $1 * $3; &#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们将堆栈中匹配该<strong>产生式</strong>右侧的项替换为<strong>产生式</strong>左侧的<strong>非终结符</strong>，本例中我们弹出 <code>expr &#39;*&#39; expr</code>，然后把 <code>expr</code> 压回堆栈。 我们可以使用 <code>$position</code> 的形式访问堆栈中的项，<code>$1</code> 引用的是第一项，<code>$2</code> 引用的是第二项，以此类推。<code>$$</code> 代表的是归约操作执行后的堆栈顶。本例的动作是将三项从堆栈中弹出，两个表达式相加，结果再压回堆栈顶。</p>
+<p>上面例子中语法规则关联的动作，在完成语法解析的同时，也完成了表达式求值。一般我们希望语法解析的结果是一棵抽象语法树（<code>AST</code>），可以这么定义语法规则关联的动作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>...<br>expr:<br>    INTEGER             &#123; $$ = con($1); &#125;<br>    | VARIABLE          &#123; $$ = id($1); &#125;<br>    | expr &#x27;+&#x27; expr     &#123; $$ = opr(&#x27;+&#x27;, 2, $1, $3); &#125;<br>    | expr &#x27;-&#x27; expr     &#123; $$ = opr(&#x27;-&#x27;, 2, $1, $3); &#125;<br>    | expr &#x27;*&#x27; expr     &#123; $$ = opr(&#x27;*&#x27;, 2, $1, $3); &#125; <br>    | expr &#x27;/&#x27; expr     &#123; $$ = opr(&#x27;/&#x27;, 2, $1, $3); &#125;<br>    | &#x27;(&#x27; expr &#x27;)&#x27;      &#123; $$ = $2; &#125;<br>    ; <br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>nodeType *con(int value) &#123;<br>    ...<br>&#125;<br>nodeType *id(int i) &#123;<br>    ...<br>&#125;<br>nodeType *opr(int oper, int nops, ...) &#123;<br>    ...<br>&#125;    <br></code></pre></td></tr></table></figure>
+
+<p>上面是一个语法规则定义的片段，我们可以看到，每个规则关联的动作不再是求值，而是调用相应的函数，该函数会返回抽象语法树的节点类型 <code>nodeType</code>，然后将这个节点压回堆栈，解析完成时，我们就得到了一颗由 <code>nodeType</code> 构成的抽象语法树。对这个语法树进行遍历访问，可以生成机器代码，也可以解释执行。</p>
+<p>至此，我们大致了解了 <code>Lex &amp; Yacc</code> 的原理。其实还有非常多的细节，例如如何消除语法的歧义，但我们的目的是读懂 TiDB 的代码，掌握这些概念已经够用了。</p>
+<h2 id="goyacc-简介"><a href="#goyacc-简介" class="headerlink" title="goyacc 简介"></a>goyacc 简介</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cznic/goyacc">goyacc</a> 是 golang 版的 <code>Yacc</code>。和 <code>Yacc</code> 的功能一样，<code>goyacc</code> 根据输入的语法规则文件，生成该语法规则的 go 语言版解析器。<code>goyacc</code> 生成的解析器 <code>yyParse</code> 要求词法分析器符合下面的接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> yyLexer <span class="hljs-keyword">interface</span> &#123;<br>    Lex(lval *yySymType) <span class="hljs-type">int</span><br>    Error(e <span class="hljs-type">string</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>或者</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> yyLexerEx <span class="hljs-keyword">interface</span> &#123;<br>    yyLexer<br>    <span class="hljs-comment">// Hook for recording a reduction.</span><br>    Reduced(rule, state <span class="hljs-type">int</span>, lval *yySymType) (stop <span class="hljs-type">bool</span>) <span class="hljs-comment">// Client should copy *lval.</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>TiDB 没有使用类似 <code>Lex</code> 的工具生成词法分析器，而是纯手工打造，词法分析器对应的代码是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/lexer.go">parser&#x2F;lexer.go</a>， 它实现了 <code>goyacc</code> 要求的接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs go">...<br><span class="hljs-comment">// Scanner implements the yyLexer interface.</span><br><span class="hljs-keyword">type</span> Scanner <span class="hljs-keyword">struct</span> &#123;<br>    r   reader<br>    buf bytes.Buffer<br>    errs         []<span class="hljs-type">error</span><br>    stmtStartPos <span class="hljs-type">int</span><br>    <span class="hljs-comment">// For scanning such kind of comment: /*! MySQL-specific code */ or /*+ optimizer hint */</span><br>    specialComment specialCommentScanner<br>    sqlMode mysql.SQLMode<br>&#125;<br><span class="hljs-comment">// Lex returns a token and store the token value in v.</span><br><span class="hljs-comment">// Scanner satisfies yyLexer interface.</span><br><span class="hljs-comment">// 0 and invalid are special token id this function would return:</span><br><span class="hljs-comment">// return 0 tells parser that scanner meets EOF,</span><br><span class="hljs-comment">// return invalid tells parser that scanner meets illegal character.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *Scanner)</span></span> Lex(v *yySymType) <span class="hljs-type">int</span> &#123;<br>    tok, pos, lit := s.scan()<br>    v.offset = pos.Offset<br>    v.ident = lit<br>    ...<br>&#125;<br><span class="hljs-comment">// Errors returns the errors during a scan.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *Scanner)</span></span> Errors() []<span class="hljs-type">error</span> &#123;<br>    <span class="hljs-keyword">return</span> s.errs<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>另外 <code>lexer</code> 使用了 <code>字典树</code> 技术进行 <code>token</code> 识别，具体的实现代码在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/misc.go">parser&#x2F;misc.go</a></p>
+<h2 id="TiDB-SQL-Parser-的实现"><a href="#TiDB-SQL-Parser-的实现" class="headerlink" title="TiDB SQL Parser 的实现"></a>TiDB SQL Parser 的实现</h2><p>终于到了正题。有了上面的背景知识，对 TiDB 的 <code>SQL Parser</code> 模块会相对容易理解一些。TiDB 的词法解析使用的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/lexer.go">手写的解析器</a>（这是出于性能考虑），语法解析采用 <code>goyacc</code>。先看 SQL 语法规则文件 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/parser/parser.y">parser.y</a>，<code>goyacc</code> 就是根据这个文件生成SQL语法解析器的。</p>
+<p><code>parser.y</code> 有 6500 多行，第一次打开可能会被吓到，其实这个文件仍然符合我们上面介绍过的结构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">... definitions ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>... rules ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">%</span><br>... subroutines ...<br></code></pre></td></tr></table></figure>
+
+<p><code>parser.y</code> 第三部分 <code>subroutines</code> 是空白没有内容的， 所以我们只需要关注第一部分 <code>definitions</code> 和第二部分 <code>rules</code>。</p>
+<p>第一部分主要是定义 <code>token</code> 的类型、优先级、结合性等。注意 <code>union</code> 这个联合体结构体：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">%</span><span class="language-bash">union &#123;</span><br>    offset int // offset<br>    item interface&#123;&#125;<br>    ident string<br>    expr ast.ExprNode<br>    statement ast.StmtNode<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该联合体结构体定义了在语法解析过程中被压入堆栈的<strong>项</strong>的属性和类型。</p>
+<p>压入堆栈的<strong>项</strong>可能是 <code>终结符</code>，也就是 <code>token</code>，它的类型可以是<code>item</code> 或 <code>ident</code>；</p>
+<p>这个<strong>项</strong>也可能是 <code>非终结符</code>，即产生式的左侧，它的类型可以是 <code>expr</code> 、 <code>statement</code> 、 <code>item</code> 或 <code>ident</code>。</p>
+<p><code>goyacc</code> 根据这个 <code>union</code> 在解析器里生成对应的 <code>struct</code> 是：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> yySymType <span class="hljs-keyword">struct</span> &#123;<br>    yys       <span class="hljs-type">int</span><br>    offset    <span class="hljs-type">int</span> <span class="hljs-comment">// offset</span><br>    item      <span class="hljs-keyword">interface</span>&#123;&#125;<br>    ident     <span class="hljs-type">string</span><br>    expr      ast.ExprNode<br>    statement ast.StmtNode<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在语法解析过程中，<code>非终结符</code> 会被构造成抽象语法树（<code>AST</code>）的节点 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/73900c4890dc9708fe4de39021001ca554bc8374/ast/ast.go#L60">ast.ExprNode</a> 或 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/73900c4890dc9708fe4de39021001ca554bc8374/ast/ast.go#L94">ast.StmtNode</a>。抽象语法树相关的数据结构都定义在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/tree/source-code/ast">ast</a> 包中，它们大都实现了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/73900c4890dc9708fe4de39021001ca554bc8374/ast/ast.go#L29">ast.Node</a> 接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Node is the basic element of the AST.</span><br><span class="hljs-comment">// Interfaces embed Node should have &#x27;Node&#x27; name suffix.</span><br><span class="hljs-keyword">type</span> Node <span class="hljs-keyword">interface</span> &#123;<br>    Accept(v Visitor) (node Node, ok <span class="hljs-type">bool</span>)<br>    Text() <span class="hljs-type">string</span><br>    SetText(text <span class="hljs-type">string</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个接口有一个 <code>Accept</code> 方法，接受 <code>Visitor</code> 参数，后续对 <code>AST</code> 的处理，主要依赖这个 <code>Accept</code> 方法，以 <code>Visitor</code> 模式遍历所有的节点以及对 <code>AST</code> 做结构转换。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Visitor visits a Node.</span><br><span class="hljs-keyword">type</span> Visitor <span class="hljs-keyword">interface</span> &#123;<br>    Enter(n Node) (node Node, skipChildren <span class="hljs-type">bool</span>)<br>    Leave(n Node) (node Node, ok <span class="hljs-type">bool</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>例如 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/plan/preprocess.go">plan.preprocess</a> 是对 <code>AST</code> 做预处理，包括合法性检查以及名字绑定。</p>
+<p><code>union</code> 后面是对 <code>token</code> 和 <code>非终结符</code> 按照类型分别定义：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs shell">/* 这部分的 token 是 ident 类型 */<br><span class="hljs-meta prompt_">%</span><span class="language-bash">token  &lt;ident&gt;</span><br>    ...<br>    add         &quot;ADD&quot;<br>    all             &quot;ALL&quot;<br>    alter           &quot;ALTER&quot;<br>    analyze         &quot;ANALYZE&quot;<br>    and         &quot;AND&quot;<br>    as          &quot;AS&quot;<br>    asc         &quot;ASC&quot;<br>    between         &quot;BETWEEN&quot;<br>    bigIntType      &quot;BIGINT&quot;<br>    ...<br>/* 这部分的 token 是 item 类型 */   <br><span class="hljs-meta prompt_">%</span><span class="language-bash">token  &lt;item&gt;</span><br>    /*yy:token &quot;1.%d&quot;   */    floatLit        &quot;floating-point literal&quot;<br>    /*yy:token &quot;1.%d&quot;   */    decLit          &quot;decimal literal&quot;<br>    /*yy:token &quot;%d&quot;     */    intLit          &quot;integer literal&quot;<br>    /*yy:token &quot;%x&quot;     */    hexLit          &quot;hexadecimal literal&quot;<br>    /*yy:token &quot;%b&quot;     */    bitLit          &quot;bit literal&quot;<br>    andnot      &quot;&amp;^&quot;<br>    assignmentEq    &quot;:=&quot;<br>    eq      &quot;=&quot;<br>    ge      &quot;&gt;=&quot;<br>    ...<br>/* 非终结符按照类型分别定义 */<br><span class="hljs-meta prompt_">%</span><span class="language-bash"><span class="hljs-built_in">type</span>   &lt;<span class="hljs-built_in">expr</span>&gt;</span><br>    Expression          &quot;expression&quot;<br>    BoolPri             &quot;boolean primary expression&quot;<br>    ExprOrDefault           &quot;expression or default&quot;<br>    PredicateExpr           &quot;Predicate expression factor&quot;<br>    SetExpr             &quot;Set variable statement value&#x27;s expression&quot;<br>    ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash"><span class="hljs-built_in">type</span>   &lt;statement&gt;</span><br>    AdminStmt           &quot;Check table statement or show ddl statement&quot;<br>    AlterTableStmt          &quot;Alter table statement&quot;<br>    AlterUserStmt           &quot;Alter user statement&quot;<br>    AnalyzeTableStmt        &quot;Analyze table statement&quot;<br>    BeginTransactionStmt        &quot;BEGIN TRANSACTION statement&quot;<br>    BinlogStmt          &quot;Binlog base64 statement&quot;<br>    ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash"><span class="hljs-built_in">type</span>   &lt;item&gt;</span><br>    AlterTableOptionListOpt     &quot;alter table option list opt&quot;<br>    AlterTableSpec          &quot;Alter table specification&quot;<br>    AlterTableSpecList      &quot;Alter table specification list&quot;<br>    AnyOrAll            &quot;Any or All for subquery&quot;<br>    Assignment          &quot;assignment&quot;<br>    ...<br><span class="hljs-meta prompt_">%</span><span class="language-bash"><span class="hljs-built_in">type</span>   &lt;ident&gt;</span><br>    KeyOrIndex      &quot;&#123;KEY|INDEX&#125;&quot;<br>    ColumnKeywordOpt    &quot;Column keyword or empty&quot;<br>    PrimaryOpt      &quot;Optional primary keyword&quot;<br>    NowSym          &quot;CURRENT_TIMESTAMP/LOCALTIME/LOCALTIMESTAMP&quot;<br>    NowSymFunc      &quot;CURRENT_TIMESTAMP/LOCALTIME/LOCALTIMESTAMP/NOW&quot;<br>    ...<br></code></pre></td></tr></table></figure>
+
+<p>第一部分的最后是对优先级和结合性的定义：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">precedence sqlCache sqlNoCache</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">precedence lowerThanIntervalKeyword</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">precedence interval</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">precedence lowerThanStringLitToken</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">precedence stringLit</span><br>...<br><span class="hljs-meta prompt_">%</span><span class="language-bash">right   assignmentEq</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">left   pipes or pipesAsOr</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">left   xor</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">left   andand and</span><br><span class="hljs-meta prompt_">%</span><span class="language-bash">left   between</span><br>...<br></code></pre></td></tr></table></figure>
+
+<p><code>parser.y</code> 文件的第二部分是 <code>SQL</code> 语法的产生式和每个规则对应的 <code>aciton</code> 。SQL语法非常复杂，<code>parser.y</code> 的大部分内容都是产生式的定义。</p>
+<p><code>SQL</code> 语法可以参照 MySQL 参考手册的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://dev.mysql.com/doc/refman/5.7/en/sql-statements.html">SQL Statements</a> 部分，例如 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://dev.mysql.com/doc/refman/5.7/en/select.html">SELECT</a> 语法的定义如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs shell">SELECT<br>    [ALL | DISTINCT | DISTINCTROW ]<br>      [HIGH_PRIORITY]<br>      [STRAIGHT_JOIN]<br>      [SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]<br>      [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]<br>    select_expr [, select_expr ...]<br>    [FROM table_references<br>      [PARTITION partition_list]<br>    [WHERE where_condition]<br>    [GROUP BY &#123;col_name | expr | position&#125;<br>      [ASC | DESC], ... [WITH ROLLUP]]<br>    [HAVING where_condition]<br>    [ORDER BY &#123;col_name | expr | position&#125;<br>      [ASC | DESC], ...]<br>    [LIMIT &#123;[offset,] row_count | row_count OFFSET offset&#125;]<br>    [PROCEDURE procedure_name(argument_list)]<br>    [INTO OUTFILE &#x27;file_name&#x27;<br>        [CHARACTER SET charset_name]<br>        export_options<br>      | INTO DUMPFILE &#x27;file_name&#x27;<br>      | INTO var_name [, var_name]]<br>    [FOR UPDATE | LOCK IN SHARE MODE]]<br></code></pre></td></tr></table></figure>
+
+<p>我们可以在 <code>parser.y</code> 中找到 <code>SELECT</code> 语句的产生式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">SelectStmt:<br>    &quot;SELECT&quot; SelectStmtOpts SelectStmtFieldList OrderByOptional SelectStmtLimit SelectLockOpt<br>    &#123; ... &#125;<br>|   &quot;SELECT&quot; SelectStmtOpts SelectStmtFieldList FromDual WhereClauseOptional SelectStmtLimit SelectLockOpt<br>    &#123; ... &#125;  <br>|   &quot;SELECT&quot; SelectStmtOpts SelectStmtFieldList &quot;FROM&quot;<br>    TableRefsClause WhereClauseOptional SelectStmtGroup HavingClause OrderByOptional<br>    SelectStmtLimit SelectLockOpt<br>    &#123; ... &#125; <br></code></pre></td></tr></table></figure>
+
+<p>产生式 <code>SelectStmt</code> 和 <code>SELECT</code> 语法是对应的。</p>
+<p>我省略了大括号中的 <code>action</code> ，这部分代码会构建出 <code>AST</code> 的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/3ac2b34a3491e809a96db358ee2ce8d11a66abb6/ast/dml.go#L451">ast.SelectStmt</a> 节点：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> SelectStmt <span class="hljs-keyword">struct</span> &#123;<br>    dmlNode<br>    resultSetNode<br>    <span class="hljs-comment">// SelectStmtOpts wraps around select hints and switches.</span><br>    *SelectStmtOpts<br>    <span class="hljs-comment">// Distinct represents whether the select has distinct option.</span><br>    Distinct <span class="hljs-type">bool</span><br>    <span class="hljs-comment">// From is the from clause of the query.</span><br>    From *TableRefsClause<br>    <span class="hljs-comment">// Where is the where clause in select statement.</span><br>    Where ExprNode<br>    <span class="hljs-comment">// Fields is the select expression list.</span><br>    Fields *FieldList<br>    <span class="hljs-comment">// GroupBy is the group by expression list.</span><br>    GroupBy *GroupByClause<br>    <span class="hljs-comment">// Having is the having condition.</span><br>    Having *HavingClause<br>    <span class="hljs-comment">// OrderBy is the ordering expression list.</span><br>    OrderBy *OrderByClause<br>    <span class="hljs-comment">// Limit is the limit clause.</span><br>    Limit *Limit<br>    <span class="hljs-comment">// LockTp is the lock type</span><br>    LockTp SelectLockType<br>    <span class="hljs-comment">// TableHints represents the level Optimizer Hint</span><br>    TableHints []*TableOptimizerHint<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看出，<code>ast.SelectStmt</code> 结构体内包含的内容和 <code>SELECT</code> 语法也是一一对应的。</p>
+<p>其他的产生式也都是根据对应的 <code>SQL</code> 语法来编写的。从 <code>parser.y</code> 的注释看到，这个文件最初是用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/cznic/ebnf2y">工具</a> 从 <code>BNF</code> 转化生成的，从头手写这个规则文件，工作量会非常大。</p>
+<p>完成了语法规则文件 <code>parser.y</code> 的定义，就可以使用 <code>goyacc</code> 生成语法解析器：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">bin/goyacc -o parser/parser.go parser/parser.y 2&gt;&amp;1<br></code></pre></td></tr></table></figure>
+
+<p>TiDB 对 <code>lexer</code> 和 <code>parser.go</code> 进行了封装，对外提供 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/pingcap/tidb/blob/source-code/plan/preprocess.go">parser.yy_parser</a> 进行 SQL 语句的解析：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Parse parses a query string to raw ast.StmtNode.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(parser *Parser)</span></span> Parse(sql, charset, collation <span class="hljs-type">string</span>) ([]ast.StmtNode, <span class="hljs-type">error</span>) &#123;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后，一个简单的例子，使用 TiDB 的 <code>SQL Parser</code> 进行 SQL 语法解析，构建出 <code>AST</code>，然后利用 <code>visitor</code> 遍历 <code>AST</code> ：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-string">&quot;github.com/pingcap/parser&quot;</span><br>    <span class="hljs-string">&quot;github.com/pingcap/parser/ast&quot;</span><br>    _ <span class="hljs-string">&quot;github.com/pingcap/tidb/types/parser_driver&quot;</span><br>)<br><span class="hljs-keyword">type</span> visitor <span class="hljs-keyword">struct</span>&#123;&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *visitor)</span></span> Enter(in ast.Node) (out ast.Node, skipChildren <span class="hljs-type">bool</span>) &#123;<br>    fmt.Printf(<span class="hljs-string">&quot;%T\n&quot;</span>, in)<br>    <span class="hljs-keyword">return</span> in, <span class="hljs-literal">false</span><br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(v *visitor)</span></span> Leave(in ast.Node) (out ast.Node, ok <span class="hljs-type">bool</span>) &#123;<br>    <span class="hljs-keyword">return</span> in, <span class="hljs-literal">true</span><br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    p := parser.New()<br>    sql := <span class="hljs-string">&quot;SELECT /*+ TIDB_SMJ(employees) */ emp_no, first_name, last_name &quot;</span> +<br>        <span class="hljs-string">&quot;FROM employees USE INDEX (last_name) &quot;</span> +<br>        <span class="hljs-string">&quot;where last_name=&#x27;Aamodt&#x27; and gender=&#x27;F&#x27; and birth_date &gt; &#x27;1960-01-01&#x27;&quot;</span><br>    stmtNodes, _, err := p.Parse(sql, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)<br>    <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>        fmt.Printf(<span class="hljs-string">&quot;parse error:\n%v\n%s&quot;</span>, err, sql)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br>    <span class="hljs-keyword">for</span> _, stmtNode := <span class="hljs-keyword">range</span> stmtNodes &#123;<br>        v := visitor&#123;&#125;<br>        stmtNode.Accept(&amp;v)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>实现的 <code>visitor</code> 什么也没干，只是输出了节点的类型。 这段代码的运行结果如下，依次输出遍历过程中遇到的节点类型：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs golang">*ast.SelectStmt<br>*ast.TableOptimizerHint<br>*ast.TableRefsClause<br>*ast.Join<br>*ast.TableSource<br>*ast.TableName<br>*ast.BinaryOperationExpr<br>*ast.BinaryOperationExpr<br>*ast.BinaryOperationExpr<br>*ast.ColumnNameExpr<br>*ast.ColumnName<br>*ast.ValueExpr<br>*ast.BinaryOperationExpr<br>*ast.ColumnNameExpr<br>*ast.ColumnName<br>*ast.ValueExpr<br>*ast.BinaryOperationExpr<br>*ast.ColumnNameExpr<br>*ast.ColumnName<br>*ast.ValueExpr<br>*ast.FieldList<br>*ast.SelectField<br>*ast.ColumnNameExpr<br>*ast.ColumnName<br>*ast.SelectField<br>*ast.ColumnNameExpr<br>*ast.ColumnName<br>*ast.SelectField<br>*ast.ColumnNameExpr<br>*ast.ColumnName<br></code></pre></td></tr></table></figure>
+
+<p>了解了 TiDB <code>SQL Parser</code> 的实现，我们就有可能实现 TiDB 当前不支持的语法，例如添加内置函数等操作</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/TiDB/" class="category-chain-item">TiDB</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%AD%98%E5%82%A8/">#存储</a>
+      
+        <a href="/tags/TiDB/">#TiDB</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>05.TiDB SQL Parser 的实现</div>
+      <div>https://blog.longpi1.com/2024/11/06/05-TiDB-SQL-Parser的实现/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/03/00-Golang%E6%BA%90%E7%A0%81%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84/" title="00.Golang源码目录结构">
+                        <span class="hidden-mobile">00.Golang源码目录结构</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
