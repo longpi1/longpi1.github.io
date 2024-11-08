@@ -1,0 +1,760 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="TiDB源码笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="08.基于代价的优化">
+<meta property="og:url" content="https://blog.longpi1.com/2024/11/07/08-%E5%9F%BA%E4%BA%8E%E4%BB%A3%E4%BB%B7%E7%9A%84%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="TiDB源码笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img1.pingcap.com/prod/1_75f0aba41e.jpeg">
+<meta property="og:image" content="https://img1.pingcap.com/prod/2_7b89612f4c.png">
+<meta property="og:image" content="https://img1.pingcap.com/prod/3_843600e8c3.jpeg">
+<meta property="og:image" content="https://img1.pingcap.com/prod/4_cc975657e1.jpeg">
+<meta property="og:image" content="https://img1.pingcap.com/prod/5_5468490e00.jpeg">
+<meta property="article:published_time" content="2024-11-07T14:14:22.000Z">
+<meta property="article:modified_time" content="2024-11-08T12:30:15.426Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="存储">
+<meta property="article:tag" content="TiDB">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img1.pingcap.com/prod/1_75f0aba41e.jpeg">
+  
+  
+  
+  <title>08.基于代价的优化 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="08.基于代价的优化"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-07 22:14" pubdate>
+          2024年11月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">08.基于代价的优化</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="TiDB-源码阅读系列文章（八）基于代价的优化"><a href="#TiDB-源码阅读系列文章（八）基于代价的优化" class="headerlink" title="TiDB 源码阅读系列文章（八）基于代价的优化"></a>TiDB 源码阅读系列文章（八）基于代价的优化</h1><blockquote>
+<p>主要内容转载自 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://cn.pingcap.com/blog/tidb-source-code-reading-8/">TiDB 源码阅读系列文章（八）基于代价的优化</a></p>
+</blockquote>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本篇文章先简单介绍制定查询计划以及优化的过程，然后用较大篇幅详述在得到逻辑计划后，如何基于统计信息和不同的属性选择等生成各种不同代价的物理计划，通过比较物理计划的代价，最后选择一个代价最小的物理计划，即 Cost-Based Optimization（CBO）的过程。</p>
+<h2 id="优化器框架"><a href="#优化器框架" class="headerlink" title="优化器框架"></a>优化器框架</h2><p>一般优化器分两个阶段进行优化，即基于规则的优化（Rule-Based-Optimization，简称 RBO）和基于代价的优化（CBO）。</p>
+<p>TiDB 主要分为两个模块对计划进行优化：</p>
+<ul>
+<li>逻辑优化，主要依据关系代数的等价交换规则做一些逻辑变换。</li>
+<li>物理优化，主要通过对查询的数据读取、表连接方式、表连接顺序、排序等技术进行优化。</li>
+</ul>
+<p>相比 RBO，CBO 依赖于统计信息的准确性与及时性，执行计划会及时的根据数据变换做对应的调整。</p>
+<h2 id="优化器流程"><a href="#优化器流程" class="headerlink" title="优化器流程"></a>优化器流程</h2><p>TiDB 一个查询语句的简单流程：一个语句经过 parser 后会得到一个抽象语法树（AST），首先用经过合法性检查后的 AST 生成一个逻辑计划，接着会进行去关联化、谓词下推、聚合下推等规则化优化，然后通过统计数据计算代价选择最优的物理计划，最后执行。流程如下图 1。</p>
+<p><img src="https://img1.pingcap.com/prod/1_75f0aba41e.jpeg" srcset="/img/loading.gif" lazyload alt="图 1"></p>
+<p>图 1</p>
+<h3 id="物理算子简介"><a href="#物理算子简介" class="headerlink" title="物理算子简介"></a>物理算子简介</h3><p>通过之前介绍物理层优化的方式，我们可以知道同一个逻辑算子可能因为它的数据读取、计算方式等不同会生成多个不同的物理算子，例如逻辑上的 Join 算子转换成物理算子可以选择 HashJoin、SortMergeJoin、IndexLookupJoin。</p>
+<p>这里会简单介绍一些逻辑算子可选择的物理算子。例如语句：<code>select sum(*) from t join s on t.c = s.c group by a</code>。此语句中逻辑算子有 DataSource、Aggregation、Join 和 Projection，接下来会对其中几个典型的逻辑算子对应的物理算子进行一个简单介绍，如下表：</p>
+<p><img src="https://img1.pingcap.com/prod/2_7b89612f4c.png" srcset="/img/loading.gif" lazyload alt="表 1"></p>
+<h2 id="CBO-流程"><a href="#CBO-流程" class="headerlink" title="CBO 流程"></a>CBO 流程</h2><p>基于代价优化的的主要思路是计算所有可能的执行计划的代价，并挑选代价最小的执行计划的路径。那么可以倒推出，首先得到需要采集对应表的统计信息，那么就可以用来计算出每个算子的执行代价，最后将得到每条路径上算子的代价按路径各自累加获取代价最小的路径。</p>
+<p>具体的代码实现在 <code>plan/optimizer.go</code> 中 ， <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/tidb/blob/chinese_annotation/pkg/planner/core/optimizer.go">physicalOptimize</a> 这个函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// physicalOptimize 对逻辑计划进行物理优化，选择最佳的物理执行计划。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">physicalOptimize</span><span class="hljs-params">(logic base.LogicalPlan, planCounter *base.PlanCounterTp)</span></span> (plan base.PhysicalPlan, cost <span class="hljs-type">float64</span>, err <span class="hljs-type">error</span>) &#123;<br>        <span class="hljs-comment">// 如果开启了优化器调试跟踪，则进入调试上下文。</span><br>        <span class="hljs-keyword">if</span> logic.SCtx().GetSessionVars().StmtCtx.EnableOptimizerDebugTrace &#123;<br>                debugtrace.EnterContextCommon(logic.SCtx())<br>                <span class="hljs-keyword">defer</span> debugtrace.LeaveContextCommon(logic.SCtx())<br>        &#125;<br>        <span class="hljs-comment">// 递归地推导逻辑计划中每个算子的统计信息。</span><br>        <span class="hljs-keyword">if</span> _, err := logic.RecursiveDeriveStats(<span class="hljs-literal">nil</span>); err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-number">0</span>, err<br>        &#125;<br><br>        <span class="hljs-comment">// 为逻辑计划准备可能的属性，例如排序顺序、数据分布等。</span><br>        preparePossibleProperties(logic)<br><br>        <span class="hljs-comment">// 定义根节点的物理属性，期望获取所有数据。</span><br>        prop := &amp;property.PhysicalProperty&#123;<br>                TaskTp:      property.RootTaskType,<br>                ExpectedCnt: math.MaxFloat64,<br>        &#125;<br><br>        <span class="hljs-comment">// 创建默认的物理优化选项。</span><br>        opt := optimizetrace.DefaultPhysicalOptimizeOption()<br>        stmtCtx := logic.SCtx().GetSessionVars().StmtCtx<br>        <span class="hljs-comment">// 如果开启了优化跟踪，则创建跟踪器并记录优化过程。</span><br>        <span class="hljs-keyword">if</span> stmtCtx.EnableOptimizeTrace &#123;<br>                tracer := &amp;tracing.PhysicalOptimizeTracer&#123;<br>                        PhysicalPlanCostDetails: <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]*tracing.PhysicalPlanCostDetail),<br>                        Candidates:              <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>]*tracing.CandidatePlanTrace),<br>                &#125;<br>                opt = opt.WithEnableOptimizeTracer(tracer)<br>                <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>                        <span class="hljs-comment">// 捕获 panic，确保在发生 panic 时也能记录跟踪信息。</span><br>                        r := <span class="hljs-built_in">recover</span>()<br>                        <span class="hljs-keyword">if</span> r != <span class="hljs-literal">nil</span> &#123;<br>                                <span class="hljs-built_in">panic</span>(r) <span class="hljs-comment">/* pass panic to upper function to handle */</span><br>                        &#125;<br>                        <span class="hljs-comment">// 如果没有错误，则记录最终的物理计划跟踪信息。</span><br>                        <span class="hljs-keyword">if</span> err == <span class="hljs-literal">nil</span> &#123;<br>                                tracer.RecordFinalPlanTrace(plan.BuildPlanTrace())<br>                                stmtCtx.OptimizeTracer.Physical = tracer<br>                        &#125;<br>                &#125;()<br>        &#125;<br><br>        <span class="hljs-comment">// 重置 TaskMap 的备份时间戳。</span><br>        logic.SCtx().GetSessionVars().StmtCtx.TaskMapBakTS = <span class="hljs-number">0</span><br>        <span class="hljs-comment">// 为逻辑计划找到最佳的执行任务，包括物理计划和执行代价。</span><br>        t, _, err := logic.FindBestTask(prop, planCounter, opt)<br>        <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-number">0</span>, err<br>        &#125;<br>        <span class="hljs-comment">// 如果 planCounter 大于 0，说明 nth_plan() 参数超出范围。</span><br>        <span class="hljs-keyword">if</span> *planCounter &gt; <span class="hljs-number">0</span> &#123;<br>                logic.SCtx().GetSessionVars().StmtCtx.AppendWarning(errors.NewNoStackErrorf(<span class="hljs-string">&quot;The parameter of nth_plan() is out of range&quot;</span>))<br>        &#125;<br>        <span class="hljs-comment">// 如果没有找到有效的执行任务，则返回错误。</span><br>        <span class="hljs-keyword">if</span> t.Invalid() &#123;<br>                errMsg := <span class="hljs-string">&quot;Can&#x27;t find a proper physical plan for this query&quot;</span><br>                <span class="hljs-comment">// 如果是 TiFlash 分布式部署且不允许 MPP，则添加额外的错误信息。</span><br>                <span class="hljs-keyword">if</span> config.GetGlobalConfig().DisaggregatedTiFlash &amp;&amp; !logic.SCtx().GetSessionVars().IsMPPAllowed() &#123;<br>                        errMsg += <span class="hljs-string">&quot;: cop and batchCop are not allowed in disaggregated tiflash mode, you should turn on tidb_allow_mpp switch&quot;</span><br>                &#125;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-number">0</span>, plannererrors.ErrInternal.GenWithStackByArgs(errMsg)<br>        &#125;<br><br>        <span class="hljs-comment">// 解析物理计划中的索引信息。</span><br>        <span class="hljs-keyword">if</span> err = t.Plan().ResolveIndices(); err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-number">0</span>, err<br>        &#125;<br>        <span class="hljs-comment">// 获取物理计划的执行代价。</span><br>        cost, err = getPlanCost(t.Plan(), property.RootTaskType, optimizetrace.NewDefaultPlanCostOption())<br>        <span class="hljs-comment">// 返回最佳的物理计划、执行代价和错误信息。</span><br>        <span class="hljs-keyword">return</span> t.Plan(), cost, err<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>出于易读性的考虑，接下来不会按代码调用顺序介绍，下面的段落与上面代码的函数对应情况如下：</p>
+<ul>
+<li>prune prop 对应的函数 <strong>preparePossibleProperties</strong>，为逻辑计划准备可能的属性，例如排序顺序、数据分布等。。</li>
+<li>统计信息对应的获取函数 deriveStats。</li>
+</ul>
+<h3 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h3><h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>为了便于理解 CBO 的整个流程，这里会由一个例子展开。</p>
+<p>在展开前，先引入 required property，这个概念很重要。required property 是对算子返回值数据的要求，比如希望有些算子是按某些列有序的方式返回数据，那么会传对应的列信息，有些算子是没有要求的那么可以传空的 property。</p>
+<p>那么，现在我们举个例子，SQL 如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">sum</span>(s.a),<span class="hljs-built_in">count</span>(t.b) <span class="hljs-keyword">from</span> s <span class="hljs-keyword">join</span> t <span class="hljs-keyword">on</span> s.a <span class="hljs-operator">=</span> t.a <span class="hljs-keyword">and</span> s.c <span class="hljs-operator">&lt;</span> <span class="hljs-number">100</span> <span class="hljs-keyword">and</span> t.c <span class="hljs-operator">&gt;</span> <span class="hljs-number">10</span> <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> s.a<br></code></pre></td></tr></table></figure>
+
+<p>（其中 a 是索引，b 也是索引）</p>
+<p>此语句就是基于此语句的 on 条件对表 s 和表 t 做 join，然后对 join 结果做聚合。将其用图表示如图 2（此处为了与图 3 对比，此处省略 Projection 算子）。</p>
+<p><img src="https://img1.pingcap.com/prod/3_843600e8c3.jpeg" srcset="/img/loading.gif" lazyload alt="图 2"></p>
+<p>图 2</p>
+<p>得到了逻辑算子之后，我们怎么选择最优的物理算子呢？</p>
+<p>TiDB 是用记忆化搜索来处理的。由下往上和由上往下搜索的区别不大，考虑到后者的理解性更好，且按 parent 要求的 prop 传给children，能减少一些可能性（这个后面会具体介绍）。我们选择了由上往下的方式。</p>
+<p>接下来我们来具体介绍一下这个例子中的算子生成及选取流程。一开始的 prop 是空的，不会对 Agg 这个算子有要求。接下来就根据当前逻辑算子所有可能的 prop 构建对应的物理算子，Agg 则可以生成 Stream Agg 和 Hash Agg（此逻辑在如下面代码段的 genPhysPlansByReqProp （老版本）实现）。前者要求按 group bykey 有序，即按 a 列有序，所以他孩子的 prop 里面会带有 a 列。后者没有要求，则 prop 为空。此逻辑代码段在 <code>plan/physical_plan_builder.go</code> 中的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">for</span> _, pp := <span class="hljs-keyword">range</span> p.self.genPhysPlansByReqProp(prop) &#123;<br>     t, err = p.getBestTask(t, pp)<br>     <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>         <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, errors.Trace(err)<br>     &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>那么 Stream Agg 的 child 是 Join，Join 对应 3 种 物理算子，SortMerge Join（SMJ）、Hash Join（HJ）和 Index Join（IdxJ）。SMJ 算子要求按 join key 有序，所以构建 DS（DataSource）时，需要表 s 按 s.a 有序，表 t 按 t.a 有序。所以将 DS 构建成物理算子的时候虽然有 IdxScan（a），IdxScan（b）和 TableScan（TS），但是这些算子中满足 prop（s.a）只有 IdxScan（a）。这个例子中，只有 IdxScan（a）满足要求，返回给 SMJ，如果有另外的 算子满足的话，就会通过代价来选取，这部分内容会在“代价评估”具体介绍。</p>
+<p>使用记忆化搜索，将每个算子的 prop 计算 hash 值并存储到哈希表，所以在 HJ 算 DS（s）（带黄色箭头的路径）时会发现 SMJ 下面的 DS（s）计算过了，那么就会直接取值不做多余计算。</p>
+<p>篇幅有限这里只对左侧的路径做了描述。这个例子最后一层比较是 <code>HA + HJ + idx(c)</code> 和 <code>SA + MJ + idx(a)</code> 的比较，具体也是通过统计信息就算出代价，选取最优解。</p>
+<p><img src="https://img1.pingcap.com/prod/4_cc975657e1.jpeg" srcset="/img/loading.gif" lazyload alt="图 3"></p>
+<p>图 3</p>
+<p>（图中黑色字体算子为逻辑算子，蓝色字体为物理算子，黄色箭头为已经计算过代价的算子，会获取已经缓存在哈希表中的结果，红色虚线箭头为不符合 prop 的算子。）</p>
+<h2 id="代价评估"><a href="#代价评估" class="headerlink" title="代价评估"></a>代价评估</h2><p>代价评估的调用逻辑在 <code>plan/physical_plan_builder.go</code>（老版本代码） 中，代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(p  *baseLogicalPlan)</span></span>  getBestTask(bestTask task, pp PhysicalPlan) (task, <span class="hljs-type">error</span>) &#123;<br>     tasks  := <span class="hljs-built_in">make</span>([]task, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(p.children))<br>     <span class="hljs-keyword">for</span> i, child := <span class="hljs-keyword">range</span> p.children  &#123;<br>         childTask, err :=  child.convert2PhysicalPlan(pp.getChildReqProps(i))<br>         <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>              <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, errors.Trace(err)<br>         &#125;<br>         tasks  = <span class="hljs-built_in">append</span>(tasks, childTask)<br>     &#125;<br>     resultTask  := pp.attach2Task(tasks...)<br>     <span class="hljs-keyword">if</span> resultTask.cost() &lt;  bestTask.cost()  &#123;<br>         bestTask  = resultTask<br>     &#125;<br>     <span class="hljs-keyword">return</span> bestTask,  <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="统计信息"><a href="#统计信息" class="headerlink" title="统计信息"></a>统计信息</h3><p>这里会详细描述一下在 CBO 流程中统计信息的使用。具体采集统计信息的方法和过程，本文不具体展开，后续我们会有文章具体介绍。</p>
+<p>一个 statesInfo 的结构有两个字段：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// statsInfo stores the  basic information of statistics for the plan&#x27;s output. It is used for cost  estimation.</span><br><span class="hljs-keyword">type</span> statsInfo <span class="hljs-keyword">struct</span> &#123;<br>     count       <span class="hljs-type">float64</span><br>     cardinality  []<span class="hljs-type">float64</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中 count 字段表示这个表的数据行数，每个表有一个值。cardinality 字段是用于表示每一列 distinct 数据行数，每个 column 一个。cardinality 一般通过统计数据得到，也就是统计信息中对应表上对应列的 DNV（the number of distinct value）的值。此数据具体的获取方式有两种：</p>
+<ul>
+<li>方式一，使用真实的统计数据，具体公式如下：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">statsTable.count / histogram.count * hist.NDV<br></code></pre></td></tr></table></figure>
+
+<p>（statsTable.count 会根据 stats lease 定期更新，histogram.count 只有用户手动 analyze 才更新）</p>
+<ul>
+<li>方式二，使用一个估计值，由于统计数据在某些情况下还没有收集完成，此时没有统计数据，具体公式如下：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">statsTable.count * distinctFactor<br></code></pre></td></tr></table></figure>
+
+<p>那么接下来我们举两个例子介绍通过统计数据获取算子的 statsInfo。</p>
+<ul>
+<li>DataSource，首先通过前面介绍的两种公式获取 count 和 cardinality，接着用可下推的表达式计算 selectivity 的值，<code>selectivity = row count after filter / row count before filter</code>，最后用计算的 selectivity 来调整原来的 count 和 cardinality 的值。</li>
+<li>LogicalJoin（inner join），此算子的 count 获取的公式：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">N(join(s,t)) = N(s) * N(t) / (V(s.key) * V(t.key)) * Min(V(s.key), V(t.key))<br></code></pre></td></tr></table></figure>
+
+<p>（其中 N 为表的行数，V 为 key 的 cardinality 值）</p>
+<p>可以理解为表 s 与表 t 中不重复值的平均行数的乘积乘上小表的不重复值行数。</p>
+<p>这里介绍的逻辑在 <code>stats.go</code> 文件里面的 plan&#x2F;deriveStats 函数。</p>
+<h3 id="expected-count"><a href="#expected-count" class="headerlink" title="expected count"></a>expected count</h3><p>expected count 表示整个 SQL 结束前此算子期望读取的行数。例如 SQL：<code>select * from s where s.c1 &lt; 5 order by id limit 3</code> (其中 c1 是索引列，id 是主键列)。我们可以简单认为得到两类可能的计划路径图，如图 4。</p>
+<ul>
+<li>前者在 PhysicalLimit 时选择 id 有序，那么它的 expected count 为 3。因为有 c1 &lt; 5 的过滤条件，所以在 TableScan 时 expected count 的值为 <code>min(n(s)，3 / f (σ(c1&lt;5) ))</code> 。</li>
+<li>后者在 TopN 的时候虽然知道它需要读取 3 行，但是它是按 id 列有序，所以它的 expected count 为 Max，在 IndexScan 的时候 expected count 是 <code>count * f (σ(c1&lt;5)</code>。</li>
+</ul>
+<p><img src="https://img1.pingcap.com/prod/5_5468490e00.jpeg" srcset="/img/loading.gif" lazyload alt="图 4"></p>
+<p>图 4</p>
+<h3 id="Task"><a href="#Task" class="headerlink" title="Task"></a>Task</h3><p>在代价评估时将物理算子关联到 task 这个对象结构。task 分为三种类型，分别是 cop single, cop double 和 root。前两种类型都可以下推到 coprocessor 执行。将其区分类型有两个原因：一个是它可以区分对应的算子是在 TiDB 处理还是被下推到 TiKV 的 coprocessor 处理；另外一个比较重要的原因是为了评估代价时更加准确。</p>
+<p>这里我们举个例子，SQL 如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> t <span class="hljs-keyword">where</span> c <span class="hljs-operator">&lt;</span> <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> b <span class="hljs-operator">&lt;</span> <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> a <span class="hljs-operator">=</span> <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>(其中 (a,b) 是索引, (b,a,c) 是索引，表 t 有 a、b 和 c 三列)</p>
+<p>那么可以得到如下两种路径：</p>
+<ul>
+<li>doubleread（即IndexLookUpReader ）：<code>IndexScan( a = 1 and b &lt; 1 ) -&gt; TableScan -&gt; Selection(c &lt; 1)</code></li>
+<li>singleread（即IndexReader）：<code>IndexScan( b &lt; 1 ) -&gt; Selection( a = 1 and c &lt; 1 )</code></li>
+</ul>
+<p>不区分 cop single 和 cop double 的时候，去搜索最底层，这会导致情况二被提前舍弃。但是实际上这两种路径，在第一种路径考虑向 TiKV 读两次数据的情况后，其代价很有可能超过第二种路径。所以我们会区分 copsingle 和 cop double，不在 IndexScan 的时候比较，而是在 Selection 结束的时候再比较开销，那么就很可能选第二种计划路径。这样就比较符合实际情况。</p>
+<p>我们通用的计算代价的公式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">Cost(p) = N(p)*FN+M(p)*FM+C(p)*FC<br></code></pre></td></tr></table></figure>
+
+<p>（其中 N 表示网络开销，M 表示内存开销，C 表示 CPU 开销，F 表示因子）</p>
+<p>将 plan 与 task 关联，并加上此 plan 的 cost。</p>
+<p>task 处理的代码主要在文件 <code>plan/task.go</code> 中。</p>
+<h2 id="prune-properties"><a href="#prune-properties" class="headerlink" title="prune properties"></a>prune properties</h2><p>引入预处理 property 函数的原因是为了减少一些没有必要考虑的 properties，从而尽可能早的裁减掉成物理计划搜索路径上的分支，例如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> t <span class="hljs-keyword">join</span> s <span class="hljs-keyword">on</span> t.A <span class="hljs-operator">=</span> s.A <span class="hljs-keyword">and</span> t.B <span class="hljs-operator">=</span> s.B<br></code></pre></td></tr></table></figure>
+
+<p>它的 property 可以是 {A, B}, {B, A}。</p>
+<p>如果我们有 n 个等式条件，那么我们会有 n! 种可能的 property。如果有了此操作，我们只能使用 t 表和 s 表本身拥有的 properties。</p>
+<p>properties 是在 DataSource 这个 logical 算子中获取的，因为此算子中可以得到对应的主键和索引信息。</p>
+<p>此处逻辑由文件 <code>pkg/planner/core/property_cols_prune.go</code> 里的 preparePossibleProperties 函数处理。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/TiDB/" class="category-chain-item">TiDB</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%AC%94%E8%AE%B0/">#笔记</a>
+      
+        <a href="/tags/%E5%AD%98%E5%82%A8/">#存储</a>
+      
+        <a href="/tags/TiDB/">#TiDB</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>08.基于代价的优化</div>
+      <div>https://blog.longpi1.com/2024/11/07/08-基于代价的优化/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/07/07-%E5%9F%BA%E4%BA%8E%E8%A7%84%E5%88%99%E7%9A%84%E4%BC%98%E5%8C%96/" title="07.基于规则的优化">
+                        <span class="hidden-mobile">07.基于规则的优化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
