@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="02.Golang 切片（slice）源码分析（二、append实现）">
+<meta property="og:url" content="https://blog.longpi1.com/2024/11/10/02-Golang-%E5%88%87%E7%89%87%EF%BC%88slice%EF%BC%89%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81append%E5%AE%9E%E7%8E%B0%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-11-10T02:40:02.000Z">
+<meta property="article:modified_time" content="2024-11-10T02:40:39.118Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>02.Golang 切片（slice）源码分析（二、append实现） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="02.Golang 切片（slice）源码分析（二、append实现）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-10 10:40" pubdate>
+          2024年11月10日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">02.Golang 切片（slice）源码分析（二、append实现）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-切片（slice）源码分析（二、append实现）"><a href="#Golang-切片（slice）源码分析（二、append实现）" class="headerlink" title="Golang 切片（slice）源码分析（二、append实现）"></a>Golang 切片（slice）源码分析（二、append实现）</h1><blockquote>
+<p>前言：</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/01.Golang%20%E5%88%87%E7%89%87%EF%BC%88slice%EF%BC%89%EF%BC%88%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E5%AE%9E%E7%8E%B0%EF%BC%89.md">Golang 切片（slice）源码分析（一、定义与基础操作实现）</a></p>
+<p>在前面的文章我们介绍了，切片的结构体与创建\扩容等基本操作实现，这篇文章我们一起来学习一下切片append的实现逻辑</p>
+<p>注意当前go版本代码为1.23</p>
+</blockquote>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>先来看看 <code>append</code> 函数的原型：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// src/builtin/builtin.go</span><br><span class="hljs-comment">// 内置函数append将元素追加到切片的末尾。</span><br><span class="hljs-comment">// 如果有足够的容量，则重新划分目标以容纳</span><br><span class="hljs-comment">// 新建元素。</span><br><span class="hljs-comment">// 如果没有，将分配一个新的底层数组。</span><br><span class="hljs-comment">// Append返回是更新后的切片。Go编译器不允许调用了 append 函数后不使用返回值。</span><br><span class="hljs-comment">// 因此，有必要存储append的结果，通常在保存切片本身的变量中：</span><br><span class="hljs-comment">// 常见用法:</span><br><span class="hljs-comment">// 添加元素</span><br><span class="hljs-comment">// slice = append（slice, elem1, elem2）</span><br><span class="hljs-comment">// 直接追加一个切片</span><br><span class="hljs-comment">// slice = append（slice, anotherSlice…）</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 作为特殊情况，将字符串附加到字节片是合法的，如下所示：</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// slice = append（[]byte(&quot;hello &quot;), “world”…）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">append</span><span class="hljs-params">(slice []Type, elems ...Type)</span></span> []Type<br></code></pre></td></tr></table></figure>
+
+<p><code>append</code>函数返回值是一个新的slice，Go编译器不允许调用了 append 函数后不使用返回值。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-built_in">append</span>(slice, elem1, elem2)<br><span class="hljs-built_in">append</span>(slice, anotherSlice...) <br></code></pre></td></tr></table></figure>
+
+<p>所以上面的用法是错的，不能编译通过。</p>
+<p>使用 append 可以向 slice 追加元素，实际上是往底层数组添加元素。但是底层数组的长度是固定的，如果索引 <code>len-1</code> 所指向的元素已经是底层数组的最后一个元素，就没法再添加了。</p>
+<p>这时，slice 会迁移到新的内存位置，新底层数组的长度也会增加，这样就可以放置新增的元素。同时，为了应对未来可能再次发生的 append 操作，新的底层数组的长度，也就是新 <code>slice</code> 的容量是留了一定的 <code>buffer</code> 的。否则，每次添加元素的时候，都会发生迁移，成本太高。</p>
+<h2 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h2><p>Go编译可分为四个阶段：词法与语法分析、类型检查与抽象语法树（AST）转换、中间代码生成和生成最后的机器码。</p>
+<p>我们主要需要关注的是编译期第二和第三阶段的代码，分别是位于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/golang/go/blob/master/src/cmd/compile/internal/typecheck/typecheck.go"><code>src/cmd/compile/internal/typecheck/typecheck.go</code></a>下的类型检查逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">typecheck1</span><span class="hljs-params">(n *Node, top <span class="hljs-type">int</span>)</span></span> (res *Node) &#123;<br>    ...<br>    <span class="hljs-keyword">switch</span> n.Op &#123;<br>    <span class="hljs-keyword">case</span> OAPPEND:<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>位于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/golang/go/blob/master/src/cmd/compile/internal/walk/expr.go"><code>src/cmd/compile/internal/gc/walk.go</code></a>下的抽象语法树转换逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkexpr</span><span class="hljs-params">(n *Node, init *Nodes)</span></span> *Node &#123;<br>    ...<br>    <span class="hljs-keyword">case</span> OAPPEND:<br>            <span class="hljs-comment">// x = append(...)</span><br>            r := n.Right<br>            <span class="hljs-keyword">if</span> r.Type.Elem().NotInHeap() &#123;<br>                yyerror(<span class="hljs-string">&quot;%v can&#x27;t be allocated in Go; it is incomplete (or unallocatable)&quot;</span>, r.Type.Elem())<br>            &#125;<br>            <span class="hljs-keyword">switch</span> &#123;<br>            <span class="hljs-keyword">case</span> isAppendOfMake(r):<br>                <span class="hljs-comment">// x = append(y, make([]T, y)...)</span><br>                r = extendslice(r, init)<br>            <span class="hljs-keyword">case</span> r.IsDDD():<br>                r = appendslice(r, init) <span class="hljs-comment">// also works for append(slice, string).</span><br>            <span class="hljs-keyword">default</span>:<br>                r = walkappend(r, init, n)<br>            &#125;<br>    ...<br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>和位于<a href="src/cmd/compile/internal/ssagen/ssa.go"><code>src/cmd/compile/internal/gc/ssa.go</code></a>下的中间代码生成逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *state)</span></span> exprCheckPtr(n ir.Node, checkPtrOK <span class="hljs-type">bool</span>) *ssa.Value &#123;<br>    ...<br>    <span class="hljs-keyword">switch</span> n.Op &#123;<br>	<span class="hljs-keyword">case</span> ir.OAPPEND:<br>		<span class="hljs-keyword">return</span> s.<span class="hljs-built_in">append</span>(n.(*ir.CallExpr), <span class="hljs-literal">false</span>)<br>&#125;<br><br><span class="hljs-comment">// append 将 OAPPEND 节点转换为 SSA形式。SSA，Static Single Assignment，静态单赋值，是Go编译器在优化阶段使用的一种中间代码表示形式。在SSA形式</span><br><span class="hljs-comment">// 中，每个变量只会被赋值一次。这意味着一旦一个变量被赋值，它的值就不会再改变。用于简化和改进编译器优化</span><br><span class="hljs-comment">// 如果 inplace 为 false，它将 OAPPEND 表达式 n 转换为 ssa.Value，</span><br><span class="hljs-comment">// 将其添加到 s，并返回 Value。</span><br><span class="hljs-comment">// 如果 inplace 为 true，它会将 OAPPEND 表达式 n 的结果</span><br><span class="hljs-comment">// 写回到被追加的切片中，并返回 nil。</span><br><span class="hljs-comment">// 如果切片可以被 SSA 化，则 inplace 必须设置为 false。</span><br><span class="hljs-comment">// 注意：此代码仅处理固定数量的追加。 Dotdotdot 追加</span><br><span class="hljs-comment">// 此时已被重写（通过 walk）。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *state)</span></span> <span class="hljs-built_in">append</span>(n *ir.CallExpr, inplace <span class="hljs-type">bool</span>) *ssa.Value &#123;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中，中间代码生成阶段的<code>state.append</code>方法，是我们重点关注的地方。入参 <code>inplace</code> 代表返回值是否覆盖原变量。如果为false，展开逻辑如下（注意：以下代码只是为了方便理解的伪代码，并不是 <code>state.append</code> 中实际的代码）。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 如果 inplace 为 false，则处理表达式 &quot;append(s, e1, e2, e3)&quot;：</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// ptr, len, cap := s</span><br><span class="hljs-comment">// len += 3</span><br><span class="hljs-comment">// if uint(len) &gt; uint(cap) &#123;</span><br><span class="hljs-comment">//     ptr, len, cap = growslice(ptr, len, cap, 3, typ)</span><br><span class="hljs-comment">//     注意，growslice 不会修改 len。</span><br><span class="hljs-comment">// &#125;</span><br><span class="hljs-comment">// // 如果需要，使用写屏障：</span><br><span class="hljs-comment">// *(ptr+(len-3)) = e1</span><br><span class="hljs-comment">// *(ptr+(len-2)) = e2</span><br><span class="hljs-comment">// *(ptr+(len-1)) = e3</span><br><span class="hljs-comment">// return makeslice(ptr, len, cap)</span><br></code></pre></td></tr></table></figure>
+
+<p>如果是true，例如 <code>slice = append(slice, 1, 2, 3)</code> 语句，那么返回值会覆盖原变量。展开方式逻辑如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"> <span class="hljs-comment">// 如果 inplace 为 true，则处理语句 &quot;s = append(s, e1, e2, e3)&quot;：</span><br><span class="hljs-comment">// a := &amp;s</span><br><span class="hljs-comment">// ptr, len, cap := s</span><br><span class="hljs-comment">// len += 3</span><br><span class="hljs-comment">// if uint(len) &gt; uint(cap) &#123;</span><br><span class="hljs-comment">//    ptr, len, cap = growslice(ptr, len, cap, 3, typ)</span><br><span class="hljs-comment">//    vardef(a)    // 如果需要，通知 liveness 我们正在写入一个新的 a</span><br><span class="hljs-comment">//    *a.cap = cap // 在 ptr 之前写入以避免溢出</span><br><span class="hljs-comment">//    *a.ptr = ptr // 使用写屏障</span><br><span class="hljs-comment">// &#125;</span><br><span class="hljs-comment">// *a.len = len</span><br><span class="hljs-comment">// // 如果需要，使用写屏障：</span><br><span class="hljs-comment">// *(ptr+(len-3)) = e1</span><br><span class="hljs-comment">// *(ptr+(len-2)) = e2</span><br><span class="hljs-comment">// *(ptr+(len-1)) = e3</span><br></code></pre></td></tr></table></figure>
+
+<p>不管 <code>inpalce</code> 是否为true，我们均会获取切片的数组指针、大小和容量，如果在追加元素后，切片新的大小大于原始容量，就会调用 <code>runtime.growslice</code> 对切片进行扩容，并将新的元素依次加入切片。</p>
+<p>关于growslice的源码分析可参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/01.Golang%20%E5%88%87%E7%89%87%EF%BC%88slice%EF%BC%89%EF%BC%88%E4%B8%80%E3%80%81%E">Golang 切片（slice）源码分析（一、定义与基础操作实现）</a></p>
+<p><strong>下述为go1.23源码逻辑<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/golang/go/blob/master/src/runtime/slice.go">src&#x2F;runtime&#x2F;slice.go</a> ：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// growslice 为一个切片分配新的底层存储。</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 参数:</span><br><span class="hljs-comment">// oldPtr = 指向切片底层数组的指针</span><br><span class="hljs-comment">// newLen = 新的长度（= oldLen + num）</span><br><span class="hljs-comment">// oldCap = 原始切片的容量</span><br><span class="hljs-comment">// num = 正在添加的元素数量</span><br><span class="hljs-comment">// et = 元素类型</span><br><span class="hljs-comment">// 返回值:</span><br><span class="hljs-comment">// newPtr = 指向新底层存储的指针</span><br><span class="hljs-comment">// newLen = 新的长度与传参相同</span><br><span class="hljs-comment">// newCap = 新底层存储的容量</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 要求 uint(newLen) &gt; uint(oldCap)。</span><br><span class="hljs-comment">// 假设原始切片的长度为 newLen - num</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 分配一个至少能容纳 newLen 个元素的新底层存储。</span><br><span class="hljs-comment">// 已存在的条目 [0, oldLen) 被复制到新的底层存储中。</span><br><span class="hljs-comment">// 添加的条目 [oldLen, newLen) 不会被 growslice 初始化</span><br><span class="hljs-comment">// （虽然对于包含指针的元素类型，它们会被清零）。调用者必须初始化这些条目。</span><br><span class="hljs-comment">// 尾随条目 [newLen, newCap) 被清零。</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// growslice 的特殊调用约定使得调用此函数的生成代码更简单。特别是，它接受并返回</span><br><span class="hljs-comment">// 新的长度，这样旧的长度不需要被保留/恢复，而新的长度返回时也不需要被保留/恢复。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">growslice</span><span class="hljs-params">(oldPtr unsafe.Pointer, newLen, oldCap, num <span class="hljs-type">int</span>, et *_type)</span></span> slice &#123;<br>        oldLen := newLen - num<br>  <span class="hljs-comment">// ... 函数非核心部分省略</span><br><br>        <span class="hljs-keyword">if</span> newLen &lt; <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-built_in">panic</span>(errorString(<span class="hljs-string">&quot;growslice: len out of range&quot;</span>))<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> et.Size_ == <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-comment">// append不应该创建一个指针为nil但长度非零的切片。</span><br>                <span class="hljs-comment">// 我们假设在这种情况下，append不需要保留oldPtr。</span><br>                <span class="hljs-keyword">return</span> slice&#123;unsafe.Pointer(&amp;zerobase), newLen, newLen&#125;<br>        &#125;<br><br>        <span class="hljs-comment">// 1.计算新容量</span><br>        newcap := nextslicecap(newLen, oldCap)<br><br>        <span class="hljs-keyword">var</span> overflow <span class="hljs-type">bool</span><br>        <span class="hljs-keyword">var</span> lenmem, newlenmem, capmem <span class="hljs-type">uintptr</span><br>        <span class="hljs-comment">// 针对常见的 et.Size 进行优化</span><br>        <span class="hljs-comment">// 对于1我们不需要任何除法/乘法。</span><br>        <span class="hljs-comment">// 对于 goarch.PtrSize, 编译器会优化除法/乘法为一个常量移位。</span><br>        <span class="hljs-comment">// 对于2的幂，使用变量移位。</span><br>        noscan := !et.Pointers()<br>        <span class="hljs-comment">// 2.内存对齐</span><br>        <span class="hljs-keyword">switch</span> &#123;<br>        <span class="hljs-keyword">case</span> et.Size_ == <span class="hljs-number">1</span>:<br>                lenmem = <span class="hljs-type">uintptr</span>(oldLen)<br>                newlenmem = <span class="hljs-type">uintptr</span>(newLen)<br>                capmem = roundupsize(<span class="hljs-type">uintptr</span>(newcap), noscan)<br>                overflow = <span class="hljs-type">uintptr</span>(newcap) &gt; maxAlloc<br>                newcap = <span class="hljs-type">int</span>(capmem)<br>        <span class="hljs-keyword">case</span> et.Size_ == goarch.PtrSize:<br>                lenmem = <span class="hljs-type">uintptr</span>(oldLen) * goarch.PtrSize<br>                newlenmem = <span class="hljs-type">uintptr</span>(newLen) * goarch.PtrSize<br>                capmem = roundupsize(<span class="hljs-type">uintptr</span>(newcap)*goarch.PtrSize, noscan)<br>                overflow = <span class="hljs-type">uintptr</span>(newcap) &gt; maxAlloc/goarch.PtrSize<br>                newcap = <span class="hljs-type">int</span>(capmem / goarch.PtrSize)<br>        <span class="hljs-keyword">case</span> isPowerOfTwo(et.Size_):<br>                <span class="hljs-keyword">var</span> shift <span class="hljs-type">uintptr</span><br>                <span class="hljs-keyword">if</span> goarch.PtrSize == <span class="hljs-number">8</span> &#123;<br>                        shift = <span class="hljs-type">uintptr</span>(sys.TrailingZeros64(<span class="hljs-type">uint64</span>(et.Size_))) &amp; <span class="hljs-number">63</span><br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                        shift = <span class="hljs-type">uintptr</span>(sys.TrailingZeros32(<span class="hljs-type">uint32</span>(et.Size_))) &amp; <span class="hljs-number">31</span><br>                &#125;<br>                lenmem = <span class="hljs-type">uintptr</span>(oldLen) &lt;&lt; shift<br>                newlenmem = <span class="hljs-type">uintptr</span>(newLen) &lt;&lt; shift<br>                capmem = roundupsize(<span class="hljs-type">uintptr</span>(newcap)&lt;&lt;shift, noscan)<br>                overflow = <span class="hljs-type">uintptr</span>(newcap) &gt; (maxAlloc &gt;&gt; shift)<br>                newcap = <span class="hljs-type">int</span>(capmem &gt;&gt; shift)<br>                capmem = <span class="hljs-type">uintptr</span>(newcap) &lt;&lt; shift<br>        <span class="hljs-keyword">default</span>:<br>                lenmem = <span class="hljs-type">uintptr</span>(oldLen) * et.Size_<br>                newlenmem = <span class="hljs-type">uintptr</span>(newLen) * et.Size_<br>                capmem, overflow = math.MulUintptr(et.Size_, <span class="hljs-type">uintptr</span>(newcap))<br>                capmem = roundupsize(capmem, noscan)<br>                newcap = <span class="hljs-type">int</span>(capmem / et.Size_)<br>                capmem = <span class="hljs-type">uintptr</span>(newcap) * et.Size_<br>        &#125;<br>  <span class="hljs-comment">// ... 函数非核心部分省略</span><br>&#125;<br><br><br>核心代码:<br><span class="hljs-comment">// nextslicecap 计算下一个合适的切片容量。</span><br><span class="hljs-comment">// 该函数用于在切片需要扩容时，确定新的容量大小。</span><br><span class="hljs-comment">//  newLen: 切片的新长度（所需容量）。</span><br><span class="hljs-comment">//  oldCap: 切片的旧容量。</span><br><span class="hljs-comment">// 返回值: 新的切片容量。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">nextslicecap</span><span class="hljs-params">(newLen, oldCap <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>        newcap := oldCap <span class="hljs-comment">// 将新的容量初始化为旧的容量</span><br><br>        doublecap := newcap + newcap <span class="hljs-comment">// 计算旧容量的两倍</span><br><br>        <span class="hljs-comment">// 如果新长度大于旧容量的两倍，则直接使用新长度作为新容量</span><br>        <span class="hljs-comment">// 这是为了避免频繁的扩容操作，当所需长度远大于当前容量时，直接分配所需的空间</span><br>        <span class="hljs-keyword">if</span> newLen &gt; doublecap &#123;<br>                <span class="hljs-keyword">return</span> newLen<br>        &#125;<br><br>        <span class="hljs-comment">// 设置一个阈值，用于区分小切片和大切片</span><br>        <span class="hljs-keyword">const</span> threshold = <span class="hljs-number">256</span><br><br>        <span class="hljs-comment">// 对于容量小于阈值的小切片，新容量直接设置为旧容量的两倍</span><br>        <span class="hljs-comment">// 这是因为小切片的扩容成本相对较低</span><br>        <span class="hljs-keyword">if</span> oldCap &lt; threshold &#123;<br>                <span class="hljs-keyword">return</span> doublecap<br>        &#125;<br><br>        <span class="hljs-comment">// 对于容量大于等于阈值的大切片，采用更保守的扩容策略</span><br>        <span class="hljs-keyword">for</span> &#123;<br>                <span class="hljs-comment">//  从2倍增长（小切片）过渡到1.25倍增长（大切片）。</span><br>                <span class="hljs-comment">//  该公式在两者之间提供平滑的过渡。</span><br>                <span class="hljs-comment">//  (newcap + 3*threshold) &gt;&gt; 2 等价于 (newcap + 3*threshold) / 4</span><br>                <span class="hljs-comment">//  这使得新容量的增长比例在1.25到2之间，并随着切片容量的增大而逐渐接近1.25</span><br>                newcap += (newcap + <span class="hljs-number">3</span>*threshold) &gt;&gt; <span class="hljs-number">2</span><br><br>                <span class="hljs-comment">// 需要检查 `newcap &gt;= newLen` 以及 `newcap` 是否溢出。</span><br>                <span class="hljs-comment">// newLen 保证大于零，因此当 newcap 溢出时，`uint(newcap) &gt; uint(newLen)` 不成立。</span><br>                <span class="hljs-comment">// 这允许使用相同的比较来检查两者。</span><br>                <span class="hljs-comment">// 使用uint类型进行比较是为了处理溢出情况。如果newcap溢出变成负数，转换为uint类型后会变成一个很大的正数，从而使得比较仍然有效。</span><br>                <span class="hljs-keyword">if</span> <span class="hljs-type">uint</span>(newcap) &gt;= <span class="hljs-type">uint</span>(newLen) &#123;<br>                        <span class="hljs-keyword">break</span> <span class="hljs-comment">// 如果新容量足够大，则退出循环</span><br>                &#125;<br>        &#125;<br><br>        <span class="hljs-comment">//  当 newcap 计算溢出时，将 newcap 设置为请求的容量。</span><br>        <span class="hljs-comment">//  如果 newcap 小于等于 0，说明发生了溢出</span><br>        <span class="hljs-keyword">if</span> newcap &lt;= <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-keyword">return</span> newLen<br>        &#125;<br>        <span class="hljs-keyword">return</span> newcap <span class="hljs-comment">// 返回计算出的新容量</span><br>&#125;<br><br><br><span class="hljs-comment">// roundupsize 返回 mallocgc 为指定大小分配的内存块的大小，减去任何用于元数据的内联空间。</span><br><span class="hljs-comment">//  size: 请求分配的内存大小。</span><br><span class="hljs-comment">//  noscan:  如果为 true，则表示该内存块不需要垃圾回收扫描。</span><br><span class="hljs-comment">// 返回值: mallocgc 实际分配的内存块大小。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">roundupsize</span><span class="hljs-params">(size <span class="hljs-type">uintptr</span>, noscan <span class="hljs-type">bool</span>)</span></span> (reqSize <span class="hljs-type">uintptr</span>) &#123;<br>        reqSize = size <span class="hljs-comment">// 初始化请求大小</span><br><br>        <span class="hljs-comment">// 处理小对象（小于等于 maxSmallSize-mallocHeaderSize）</span><br>        <span class="hljs-keyword">if</span> reqSize &lt;= maxSmallSize-mallocHeaderSize &#123;<br>                <span class="hljs-comment">// 小对象。</span><br>                <span class="hljs-comment">// 如果需要垃圾回收扫描 (noscan 为 false) 并且大小大于 minSizeForMallocHeader，则添加 mallocHeaderSize 用于存储元数据。</span><br>                <span class="hljs-comment">// heapBitsInSpan(reqSize) 用于检查对象是否足够小到可以存储在堆的位图中，如果可以，则不需要 mallocHeader。</span><br>                <span class="hljs-keyword">if</span> !noscan &amp;&amp; reqSize &gt; minSizeForMallocHeader &#123; <span class="hljs-comment">// !noscan &amp;&amp; !heapBitsInSpan(reqSize)</span><br>                        reqSize += mallocHeaderSize<br>                &#125;<br><br>                <span class="hljs-comment">// (reqSize - size) 为 mallocHeaderSize 或 0。如果添加了 mallocHeaderSize，我们需要从结果中减去它，因为 mallocgc 会再次添加它。</span><br>                <span class="hljs-comment">// 这里是为了确保返回的大小是 mallocgc 实际分配的大小，而不是包含了头部之后的大小。</span><br><br>                <span class="hljs-comment">// 进一步区分更小的对象和中等大小的对象，使用不同的查找表进行向上取整</span><br>                <span class="hljs-keyword">if</span> reqSize &lt;= smallSizeMax<span class="hljs-number">-8</span> &#123;<br>                        <span class="hljs-comment">// 对于非常小的对象，使用 size_to_class8 和 class_to_size 查找表进行向上取整，以 8 字节为粒度。</span><br>                        <span class="hljs-comment">// divRoundUp(reqSize, smallSizeDiv) 计算 reqSize 在 smallSizeDiv 粒度下的向上取整值。</span><br>                        <span class="hljs-comment">// class_to_size[...] 获取对应大小类的实际分配大小。</span><br>                        <span class="hljs-comment">// 最后减去 (reqSize - size) 移除之前可能添加的 mallocHeaderSize。</span><br>                        <span class="hljs-keyword">return</span> <span class="hljs-type">uintptr</span>(class_to_size[size_to_class8[divRoundUp(reqSize, smallSizeDiv)]]) - (reqSize - size)<br>                &#125;<br>                <span class="hljs-comment">// 对于中等大小的对象，使用 size_to_class128 和 class_to_size 查找表进行向上取整，以 128 字节为粒度。</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-type">uintptr</span>(class_to_size[size_to_class128[divRoundUp(reqSize-smallSizeMax, largeSizeDiv)]]) - (reqSize - size)<br>        &#125;<br><br>        <span class="hljs-comment">// 处理大对象（大于 maxSmallSize-mallocHeaderSize）</span><br>        <span class="hljs-comment">// 大对象。将 reqSize 向上对齐到下一页。检查溢出。</span><br>        reqSize += pageSize - <span class="hljs-number">1</span> <span class="hljs-comment">// 将 reqSize 增加到下一页边界之前</span><br><br>        <span class="hljs-comment">// 检查溢出。如果 reqSize 加上 pageSize - 1 后反而变小了，说明发生了溢出。</span><br>        <span class="hljs-keyword">if</span> reqSize &lt; size &#123;<br>                <span class="hljs-keyword">return</span> size <span class="hljs-comment">// 返回原始大小，避免分配过大的内存</span><br>        &#125;<br><br>        <span class="hljs-comment">// 通过按位与运算将 reqSize 对齐到下一页边界。</span><br>        <span class="hljs-keyword">return</span> reqSize &amp;^ (pageSize - <span class="hljs-number">1</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="【引申1】"><a href="#【引申1】" class="headerlink" title="【引申1】"></a>【引申1】</h3><p>来看一个例子，来源于<a target="_blank" rel="external nofollow noopener noreferrer" href="https://jiajunhuang.com/articles/2017_07_18-golang_slice.md.html">这里</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	s := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">5</span>&#125;<br>	s = <span class="hljs-built_in">append</span>(s, <span class="hljs-number">7</span>)<br>	s = <span class="hljs-built_in">append</span>(s, <span class="hljs-number">9</span>)<br>	x := <span class="hljs-built_in">append</span>(s, <span class="hljs-number">11</span>)<br>	fmt.Println(s, x)<br>	y := <span class="hljs-built_in">append</span>(s, <span class="hljs-number">12</span>)<br>	fmt.Println(s, x, y)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>切片对应状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>s :&#x3D; []int{5}</td>
+<td>s 只有一个元素，<code>[5]</code></td>
+</tr>
+<tr>
+<td>s &#x3D; append(s, 7)</td>
+<td>s 扩容，容量变为2，<code>[5, 7]</code></td>
+</tr>
+<tr>
+<td>s &#x3D; append(s, 9)</td>
+<td>s 扩容，容量变为4，<code>[5, 7, 9]</code>。注意，这时 s 长度是3，只有3个元素</td>
+</tr>
+<tr>
+<td>x :&#x3D; append(s, 11)</td>
+<td>由于 s 的底层数组仍然有空间，因此并不会扩容。这样，底层数组就变成了 <code>[5, 7, 9, 11]</code>。注意，此时 s &#x3D; <code>[5, 7, 9]</code>，容量为4；x &#x3D; <code>[5, 7, 9, 11]</code>，容量为4。这里 s 不变</td>
+</tr>
+<tr>
+<td>y :&#x3D; append(s, 12)</td>
+<td>这里还是在 s 元素的尾部追加元素，由于 s 的长度为3，容量为4，所以直接在底层数组索引为3的地方填上12。结果：s &#x3D; <code>[5, 7, 9]</code>，y &#x3D; <code>[5, 7, 9, 12]</code>，x &#x3D; <code>[5, 7, 9, 12]</code>，x，y 的长度均为4，容量也均为4</td>
+</tr>
+</tbody></table>
+<p>所以最后程序的执行结果是：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[5 7 9]</span> <span class="hljs-selector-attr">[5 7 9 11]</span><br><span class="hljs-selector-attr">[5 7 9]</span> <span class="hljs-selector-attr">[5 7 9 12]</span> <span class="hljs-selector-attr">[5 7 9 12]</span><br></code></pre></td></tr></table></figure>
+
+<p>这里要注意的是，append函数执行完后，返回的是一个全新的 slice，并且对传入的 slice 并不影响。</p>
+<p>解释</p>
+<ul>
+<li>切片在追加元素时，如果不超过其容量，会直接在原数组上修改。</li>
+</ul>
+<h3 id="【引申2】"><a href="#【引申2】" class="headerlink" title="【引申2】"></a>【引申2】</h3><p>关于 <code>append</code>，来源于 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://jodezer.github.io/2017/05/golangSlice%E7%9A%84%E6%89%A9%E5%AE%B9%E8%A7%84%E5%88%99">Golang Slice的扩容规则</a>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	s := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>,<span class="hljs-number">2</span>&#125;<br>	s = <span class="hljs-built_in">append</span>(s,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>)<br>	fmt.Printf(<span class="hljs-string">&quot;len=%d, cap=%d&quot;</span>,<span class="hljs-built_in">len</span>(s),<span class="hljs-built_in">cap</span>(s))<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果是：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-attribute">len</span>=5, <span class="hljs-attribute">cap</span>=6<br></code></pre></td></tr></table></figure>
+
+<p>如果按网上各种文章中总结的那样：小于原 slice 长度小于 1024 的时候，容量每次增加 1 倍。添加元素 4 的时候，容量变为4；添加元素 5 的时候不变；添加元素 6 的时候容量增加 1 倍，变成 8。</p>
+<p>那上面代码的运行结果应该是是：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">`<span class="hljs-attribute">len</span>=5, <span class="hljs-attribute">cap</span>=8 `<br></code></pre></td></tr></table></figure>
+
+<p>这是错误的！我们来仔细看看，为什么会这样，再次搬出代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// nextslicecap 计算下一个合适的切片容量。</span><br><span class="hljs-comment">// 该函数用于在切片需要扩容时，确定新的容量大小。</span><br><span class="hljs-comment">//  newLen: 切片的新长度（所需容量）。</span><br><span class="hljs-comment">//  oldCap: 切片的旧容量。</span><br><span class="hljs-comment">// 返回值: 新的切片容量。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">nextslicecap</span><span class="hljs-params">(newLen, oldCap <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>        newcap := oldCap <span class="hljs-comment">// 将新的容量初始化为旧的容量</span><br><br>        doublecap := newcap + newcap <span class="hljs-comment">// 计算旧容量的两倍</span><br><br>        <span class="hljs-comment">// 如果新长度大于旧容量的两倍，则直接使用新长度作为新容量</span><br>        <span class="hljs-comment">// 这是为了避免频繁的扩容操作，当所需长度远大于当前容量时，直接分配所需的空间</span><br>        <span class="hljs-keyword">if</span> newLen &gt; doublecap &#123;<br>                <span class="hljs-keyword">return</span> newLen<br>        &#125;<br><br>        <span class="hljs-comment">// 设置一个阈值，用于区分小切片和大切片</span><br>        <span class="hljs-keyword">const</span> threshold = <span class="hljs-number">256</span><br><br>        <span class="hljs-comment">// 对于容量小于阈值的小切片，新容量直接设置为旧容量的两倍</span><br>        <span class="hljs-comment">// 这是因为小切片的扩容成本相对较低</span><br>        <span class="hljs-keyword">if</span> oldCap &lt; threshold &#123;<br>                <span class="hljs-keyword">return</span> doublecap<br>        &#125;<br><br>        <span class="hljs-comment">// 对于容量大于等于阈值的大切片，采用更保守的扩容策略</span><br>        <span class="hljs-keyword">for</span> &#123;<br>                <span class="hljs-comment">//  从2倍增长（小切片）过渡到1.25倍增长（大切片）。</span><br>                <span class="hljs-comment">//  该公式在两者之间提供平滑的过渡。</span><br>                <span class="hljs-comment">//  (newcap + 3*threshold) &gt;&gt; 2 等价于 (newcap + 3*threshold) / 4</span><br>                <span class="hljs-comment">//  这使得新容量的增长比例在1.25到2之间，并随着切片容量的增大而逐渐接近1.25</span><br>                newcap += (newcap + <span class="hljs-number">3</span>*threshold) &gt;&gt; <span class="hljs-number">2</span><br><br>                <span class="hljs-comment">// 需要检查 `newcap &gt;= newLen` 以及 `newcap` 是否溢出。</span><br>                <span class="hljs-comment">// newLen 保证大于零，因此当 newcap 溢出时，`uint(newcap) &gt; uint(newLen)` 不成立。</span><br>                <span class="hljs-comment">// 这允许使用相同的比较来检查两者。</span><br>                <span class="hljs-comment">// 使用uint类型进行比较是为了处理溢出情况。如果newcap溢出变成负数，转换为uint类型后会变成一个很大的正数，从而使得比较仍然有效。</span><br>                <span class="hljs-keyword">if</span> <span class="hljs-type">uint</span>(newcap) &gt;= <span class="hljs-type">uint</span>(newLen) &#123;<br>                        <span class="hljs-keyword">break</span> <span class="hljs-comment">// 如果新容量足够大，则退出循环</span><br>                &#125;<br>        &#125;<br><br>        <span class="hljs-comment">//  当 newcap 计算溢出时，将 newcap 设置为请求的容量。</span><br>        <span class="hljs-comment">//  如果 newcap 小于等于 0，说明发生了溢出</span><br>        <span class="hljs-keyword">if</span> newcap &lt;= <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-keyword">return</span> newLen<br>        &#125;<br>        <span class="hljs-keyword">return</span> newcap <span class="hljs-comment">// 返回计算出的新容量</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个函数的参数依次是 <code>元素的类型，老的 slice，新 slice 最小求的容量</code>。</p>
+<p>例子中 <code>s</code> 原来只有 2 个元素，<code>len</code> 和 <code>cap</code> 都为 2，<code>append</code> 了三个元素后，长度变为 5，容量最小要变成 5，即调用 <code>growslice</code> 函数时，传入的第三个参数应该为 5。即 <code>cap=5</code>。而一方面，<code>doublecap</code> 是原 <code>slice</code>容量的 2 倍，等于 4。满足第一个 <code>if</code> 条件，所以 <code>newcap</code> 变成了 5。</p>
+<p>接着调用了 <code>roundupsize</code> 函数，传入 40。（代码中ptrSize是指一个指针的大小，在64位机上是8）</p>
+<p>我们再看内存对齐，搬出 <code>roundupsize</code> 函数的代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// roundupsize 返回 mallocgc 为指定大小分配的内存块的大小，减去任何用于元数据的内联空间。</span><br><span class="hljs-comment">//  size: 请求分配的内存大小。</span><br><span class="hljs-comment">//  noscan:  如果为 true，则表示该内存块不需要垃圾回收扫描。</span><br><span class="hljs-comment">// 返回值: mallocgc 实际分配的内存块大小。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">roundupsize</span><span class="hljs-params">(size <span class="hljs-type">uintptr</span>, noscan <span class="hljs-type">bool</span>)</span></span> (reqSize <span class="hljs-type">uintptr</span>) &#123;<br>        reqSize = size <span class="hljs-comment">// 初始化请求大小</span><br><br>        <span class="hljs-comment">// 处理小对象（小于等于 maxSmallSize-mallocHeaderSize）</span><br>        <span class="hljs-keyword">if</span> reqSize &lt;= maxSmallSize-mallocHeaderSize &#123;<br>                <span class="hljs-comment">// 小对象。</span><br>                <span class="hljs-comment">// 如果需要垃圾回收扫描 (noscan 为 false) 并且大小大于 minSizeForMallocHeader，则添加 mallocHeaderSize 用于存储元数据。</span><br>                <span class="hljs-comment">// heapBitsInSpan(reqSize) 用于检查对象是否足够小到可以存储在堆的位图中，如果可以，则不需要 mallocHeader。</span><br>                <span class="hljs-keyword">if</span> !noscan &amp;&amp; reqSize &gt; minSizeForMallocHeader &#123; <span class="hljs-comment">// !noscan &amp;&amp; !heapBitsInSpan(reqSize)</span><br>                        reqSize += mallocHeaderSize<br>                &#125;<br><br>                <span class="hljs-comment">// (reqSize - size) 为 mallocHeaderSize 或 0。如果添加了 mallocHeaderSize，我们需要从结果中减去它，因为 mallocgc 会再次添加它。</span><br>                <span class="hljs-comment">// 这里是为了确保返回的大小是 mallocgc 实际分配的大小，而不是包含了头部之后的大小。</span><br><br>                <span class="hljs-comment">// 进一步区分更小的对象和中等大小的对象，使用不同的查找表进行向上取整</span><br>                <span class="hljs-keyword">if</span> reqSize &lt;= smallSizeMax<span class="hljs-number">-8</span> &#123;<br>                        <span class="hljs-comment">// 对于非常小的对象，使用 size_to_class8 和 class_to_size 查找表进行向上取整，以 8 字节为粒度。</span><br>                        <span class="hljs-comment">// divRoundUp(reqSize, smallSizeDiv) 计算 reqSize 在 smallSizeDiv 粒度下的向上取整值。</span><br>                        <span class="hljs-comment">// class_to_size[...] 获取对应大小类的实际分配大小。</span><br>                        <span class="hljs-comment">// 最后减去 (reqSize - size) 移除之前可能添加的 mallocHeaderSize。</span><br>                        <span class="hljs-keyword">return</span> <span class="hljs-type">uintptr</span>(class_to_size[size_to_class8[divRoundUp(reqSize, smallSizeDiv)]]) - (reqSize - size)<br>                &#125;<br>                <span class="hljs-comment">// 对于中等大小的对象，使用 size_to_class128 和 class_to_size 查找表进行向上取整，以 128 字节为粒度。</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-type">uintptr</span>(class_to_size[size_to_class128[divRoundUp(reqSize-smallSizeMax, largeSizeDiv)]]) - (reqSize - size)<br>        &#125;<br><br>        <span class="hljs-comment">// 处理大对象（大于 maxSmallSize-mallocHeaderSize）</span><br>        <span class="hljs-comment">// 大对象。将 reqSize 向上对齐到下一页。检查溢出。</span><br>        reqSize += pageSize - <span class="hljs-number">1</span> <span class="hljs-comment">// 将 reqSize 增加到下一页边界之前</span><br><br>        <span class="hljs-comment">// 检查溢出。如果 reqSize 加上 pageSize - 1 后反而变小了，说明发生了溢出。</span><br>        <span class="hljs-keyword">if</span> reqSize &lt; size &#123;<br>                <span class="hljs-keyword">return</span> size <span class="hljs-comment">// 返回原始大小，避免分配过大的内存</span><br>        &#125;<br><br>        <span class="hljs-comment">// 通过按位与运算将 reqSize 对齐到下一页边界。</span><br>        <span class="hljs-keyword">return</span> reqSize &amp;^ (pageSize - <span class="hljs-number">1</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>很明显，我们最终将返回这个式子的结果：</p>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ceylon"><span class="hljs-keyword">class</span><span class="hljs-number">_</span>to<span class="hljs-number">_</span>size[size<span class="hljs-number">_</span>to<span class="hljs-number">_</span><span class="hljs-keyword">class</span><span class="hljs-number">8</span>[(size+smallSizeDiv-<span class="hljs-number">1</span>)/smallSizeDiv]] <br></code></pre></td></tr></table></figure>
+
+<p>这是 <code>Go</code> 源码中有关内存分配的两个 <code>slice</code>。<code>class_to_size</code>通过 <code>spanClass</code>获取 <code>span</code>划分的 <code>object</code>大小。而 <code>size_to_class8</code> 表示通过 <code>size</code> 获取它的 <code>spanClass</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> size_to_class8 = [smallSizeMax/smallSizeDiv + <span class="hljs-number">1</span>]<span class="hljs-type">uint8</span>&#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">24</span>, <span class="hljs-number">24</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">25</span>, <span class="hljs-number">25</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">26</span>, <span class="hljs-number">26</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">31</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>&#125;<br><br><span class="hljs-keyword">var</span> class_to_size = [_NumSizeClasses]<span class="hljs-type">uint16</span>&#123;<span class="hljs-number">0</span>, <span class="hljs-number">8</span>, <span class="hljs-number">16</span>, <span class="hljs-number">24</span>, <span class="hljs-number">32</span>, <span class="hljs-number">48</span>, <span class="hljs-number">64</span>, <span class="hljs-number">80</span>, <span class="hljs-number">96</span>, <span class="hljs-number">112</span>, <span class="hljs-number">128</span>, <span class="hljs-number">144</span>, <span class="hljs-number">160</span>, <span class="hljs-number">176</span>, <span class="hljs-number">192</span>, <span class="hljs-number">208</span>, <span class="hljs-number">224</span>, <span class="hljs-number">240</span>, <span class="hljs-number">256</span>, <span class="hljs-number">288</span>, <span class="hljs-number">320</span>, <span class="hljs-number">352</span>, <span class="hljs-number">384</span>, <span class="hljs-number">416</span>, <span class="hljs-number">448</span>, <span class="hljs-number">480</span>, <span class="hljs-number">512</span>, <span class="hljs-number">576</span>, <span class="hljs-number">640</span>, <span class="hljs-number">704</span>, <span class="hljs-number">768</span>, <span class="hljs-number">896</span>, <span class="hljs-number">1024</span>, <span class="hljs-number">1152</span>, <span class="hljs-number">1280</span>, <span class="hljs-number">1408</span>, <span class="hljs-number">1536</span>, <span class="hljs-number">1792</span>, <span class="hljs-number">2048</span>, <span class="hljs-number">2304</span>, <span class="hljs-number">2688</span>, <span class="hljs-number">3072</span>, <span class="hljs-number">3200</span>, <span class="hljs-number">3456</span>, <span class="hljs-number">4096</span>, <span class="hljs-number">4864</span>, <span class="hljs-number">5376</span>, <span class="hljs-number">6144</span>, <span class="hljs-number">6528</span>, <span class="hljs-number">6784</span>, <span class="hljs-number">6912</span>, <span class="hljs-number">8192</span>, <span class="hljs-number">9472</span>, <span class="hljs-number">9728</span>, <span class="hljs-number">10240</span>, <span class="hljs-number">10880</span>, <span class="hljs-number">12288</span>, <span class="hljs-number">13568</span>, <span class="hljs-number">14336</span>, <span class="hljs-number">16384</span>, <span class="hljs-number">18432</span>, <span class="hljs-number">19072</span>, <span class="hljs-number">20480</span>, <span class="hljs-number">21760</span>, <span class="hljs-number">24576</span>, <span class="hljs-number">27264</span>, <span class="hljs-number">28672</span>, <span class="hljs-number">32768</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们传进去的 <code>size</code> 等于 40。所以 <code>(size+smallSizeDiv-1)/smallSizeDiv = 5</code>；获取 <code>size_to_class8</code> 数组中索引为 <code>5</code> 的元素为 <code>5</code>；获取 <code>class_to_size</code> 中索引为 <code>5</code> 的元素为 <code>48</code>。</p>
+<p>最终，新的 slice 的容量为 <code>6</code>：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-keyword">new</span><span class="hljs-type">cap</span> = int(capmem / ptrSize) <span class="hljs-comment">// 6 </span><br></code></pre></td></tr></table></figure>
+
+<p>至于，上面的两个<code>魔法数组</code>的由来，就不展开了。</p>
+<h3 id="【引申3】-向一个nil的slice添加元素会发生什么？为什么？"><a href="#【引申3】-向一个nil的slice添加元素会发生什么？为什么？" class="headerlink" title="【引申3】 向一个nil的slice添加元素会发生什么？为什么？"></a>【引申3】 向一个nil的slice添加元素会发生什么？为什么？</h3><p>其实 <code>nil slice</code> 或者 <code>empty slice</code> 都是可以通过调用 append 函数来获得底层数组的扩容。最终都是调用 <code>mallocgc</code> 来向 Go 的内存管理器申请到一块内存，然后再赋给原来的<code>nil slice</code> 或 <code>empty slice</code>，然后摇身一变，成为“真正”的 <code>slice</code> 了。</p>
+<h3 id="【引申4】两次append的data和slice内的数据是什么？"><a href="#【引申4】两次append的data和slice内的数据是什么？" class="headerlink" title="【引申4】两次append的data和slice内的数据是什么？"></a>【引申4】两次append的data和slice内的数据是什么？</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">data := [<span class="hljs-number">10</span>]<span class="hljs-type">int</span>&#123;&#125;<br>slice := data[<span class="hljs-number">5</span>:<span class="hljs-number">8</span>]<br>slice = <span class="hljs-built_in">append</span>(slice,<span class="hljs-number">9</span>)<span class="hljs-comment">// slice=? data=?</span><br>slice = <span class="hljs-built_in">append</span>(slice,<span class="hljs-number">10</span>,<span class="hljs-number">11</span>,<span class="hljs-number">12</span>)<span class="hljs-comment">// slice=? data=?</span><br></code></pre></td></tr></table></figure>
+
+<p>流程如下：</p>
+<p>初始状态</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">data := [<span class="hljs-number">10</span>]<span class="hljs-type">int</span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里定义了一个长度为10的整型数组<code>data</code>，所有元素初始化为0。</p>
+<p>创建切片</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">slice := data[<span class="hljs-number">5</span>:<span class="hljs-number">8</span>]<br></code></pre></td></tr></table></figure>
+
+<p>这里创建了一个切片<code>slice</code>，它引用<code>data</code>数组从索引5到7的元素。因此，<code>slice</code>的初始状态是<code>[0, 0, 0]</code>。</p>
+<p>第一次追加元素</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">slice = <span class="hljs-built_in">append</span>(slice, <span class="hljs-number">9</span>)<br></code></pre></td></tr></table></figure>
+
+<p>这里向<code>slice</code>中追加一个元素<code>9</code>。由于<code>slice</code>的容量足够（<code>data</code>数组的容量是10，<code>slice</code>当前的长度是3，容量是5），这个追加操作不会导致新的数组分配。因此，<code>slice</code>变为<code>[0, 0, 0, 9]</code>，同时<code>data</code>数组也会被更新为：</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs accesslog"><span class="hljs-string">[0, 0, 0, 0, 0, 0, 0, 0, 9, 0]</span><br></code></pre></td></tr></table></figure>
+
+<p>第二次追加元素</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">slice = <span class="hljs-built_in">append</span>(slice, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>)<br></code></pre></td></tr></table></figure>
+
+<p>这里向<code>slice</code>中追加三个元素<code>10, 11, 12</code>。由于<code>slice</code>当前的长度是4，容量是5，追加三个元素会超出当前容量，因此Go会为<code>slice</code>分配一个新的数组来存储这些元素。</p>
+<p>新的<code>slice</code>将是<code>[0, 0, 0, 9, 10, 11, 12]</code>，而原来的<code>data</code>数组不会受到影响，保持不变：</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs accesslog"><span class="hljs-string">[0, 0, 0, 0, 0, 0, 0, 0, 9, 0]</span><br></code></pre></td></tr></table></figure>
+
+<p>总结</p>
+<ul>
+<li>第一次追加后：<ul>
+<li><code>slice = [0, 0, 0, 9]</code></li>
+<li><code>data = [0, 0, 0, 0, 0, 0, 0, 0, 9, 0]</code></li>
+</ul>
+</li>
+<li>第二次追加后：<ul>
+<li><code>slice = [0, 0, 0, 9, 10, 11, 12]</code></li>
+<li><code>data = [0, 0, 0, 0, 0, 0, 0, 0, 9, 0]</code></li>
+</ul>
+</li>
+</ul>
+<p>解释</p>
+<ul>
+<li>切片在追加元素时，如果不超过其容量，会直接在原数组上修改。</li>
+<li>如果追加元素导致超出容量，Go会分配一个新的数组，并将现有元素和新元素复制到新数组中，原数组保持不变。</li>
+<li>append存在对原数据影响的情况，使用时还是需要注意，如有必要，先copy原数据后再进行slice的操作。</li>
+</ul>
+<p>如果是：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go">	data := [<span class="hljs-number">10</span>]<span class="hljs-type">int</span>&#123;&#125;<br>	slice := data[<span class="hljs-number">5</span>:<span class="hljs-number">8</span>]<br>	slice = <span class="hljs-built_in">append</span>(slice, <span class="hljs-number">9</span>) <span class="hljs-comment">// slice=? data=?</span><br>	fmt.Printf(<span class="hljs-string">&quot;slice=?&quot;</span>, slice)<br>	fmt.Printf(<span class="hljs-string">&quot;data=?&quot;</span>, data)<br>	slice = <span class="hljs-built_in">append</span>(slice, <span class="hljs-number">10</span>) <span class="hljs-comment">// slice=? data=?</span><br>	fmt.Printf(<span class="hljs-string">&quot;slice=?&quot;</span>, slice)<br>	fmt.Printf(<span class="hljs-string">&quot;data=?&quot;</span>, data)<br>输出：<br>slice=?%!(EXTRA []<span class="hljs-type">int</span>=[<span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">9</span>])data=?%!(EXTRA [<span class="hljs-number">10</span>]<span class="hljs-type">int</span>=[<span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">9</span> <span class="hljs-number">0</span>])<br>slice=?%!(EXTRA []<span class="hljs-type">int</span>=[<span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">9</span> <span class="hljs-number">10</span>])data=?%!(EXTRA [<span class="hljs-number">10</span>]<span class="hljs-type">int</span>=[<span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">9</span> <span class="hljs-number">10</span>]) <span class="hljs-comment">//因为未超出其容量</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="【引申5】切片作为函数参数是值传递还是引用传递，取自Go-程序员面试笔试宝典"><a href="#【引申5】切片作为函数参数是值传递还是引用传递，取自Go-程序员面试笔试宝典" class="headerlink" title="【引申5】切片作为函数参数是值传递还是引用传递，取自Go 程序员面试笔试宝典"></a>【引申5】切片作为函数参数是值传递还是引用传递，取自<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions">Go 程序员面试笔试宝典</a></h3><p><strong>Go 语言的函数参数传递，只有值传递，没有引用传递。</strong></p>
+<p>当 slice 作为函数参数时，就是一个普通的结构体。其实很好理解：若直接传 slice，在调用者看来，实参 slice 并不会被函数中的操作改变；若传的是 slice 的指针，在调用者看来，是会被改变原 slice 的。</p>
+<p>值得注意的是，不管传的是 slice 还是 slice 指针，如果改变了 slice 底层数组的数据，会反应到实参 slice 的底层数据。为什么能改变底层数组的数据？很好理解：底层数据在 slice 结构体里是一个指针，尽管 slice 结构体自身不会被改变，也就是说底层数据地址不会被改变。 但是通过指向底层数据的指针，可以改变切片的底层数据，没有问题。</p>
+<p>通过 slice 的 array 字段就可以拿到数组的地址。在代码里，是直接通过类似 <code>s[i]=10</code> 这种操作改变 slice 底层数组元素值。</p>
+<p>来看一个代码片段：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	s := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>&#125;<br>	f(s)<br>	fmt.Println(s)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">f</span><span class="hljs-params">(s []<span class="hljs-type">int</span>)</span></span> &#123;<br>	<span class="hljs-comment">// i只是一个副本，不能改变s中元素的值</span><br>	<span class="hljs-comment">/*for _, i := range s &#123;</span><br><span class="hljs-comment">		i++</span><br><span class="hljs-comment">	&#125;</span><br><span class="hljs-comment">	*/</span><br><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-keyword">range</span> s &#123;<br>		s[i] += <span class="hljs-number">1</span><br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行一下，程序输出：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-string">[2 2 2]</span><br></code></pre></td></tr></table></figure>
+
+<p>果真改变了原始 slice 的底层数据。这里传递的是一个 slice 的副本，在 <code>f</code> 函数中，<code>s</code> 只是 <code>main</code> 函数中 <code>s</code> 的一个拷贝。在<code>f</code> 函数内部，对 <code>s</code> 的作用并不会改变外层 <code>main</code> 函数的 <code>s</code>。</p>
+<p>要想真的改变外层 <code>slice</code>，只有将返回的新的 slice 赋值到原始 slice，或者向函数传递一个指向 slice 的指针。再来看一个例子：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">myAppend</span><span class="hljs-params">(s []<span class="hljs-type">int</span>)</span></span> []<span class="hljs-type">int</span> &#123;<br>	<span class="hljs-comment">// 这里 s 虽然改变了，但并不会影响外层函数的 s</span><br>	s = <span class="hljs-built_in">append</span>(s, <span class="hljs-number">100</span>)<br>	<span class="hljs-keyword">return</span> s<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">myAppendPtr</span><span class="hljs-params">(s *[]<span class="hljs-type">int</span>)</span></span> &#123;<br>	<span class="hljs-comment">// 会改变外层 s 本身</span><br>	*s = <span class="hljs-built_in">append</span>(*s, <span class="hljs-number">100</span>)<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	s := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>&#125;<br>	newS := myAppend(s)<br><br>	fmt.Println(s)<br>	fmt.Println(newS)<br><br>	s = newS<br><br>	myAppendPtr(&amp;s)<br>	fmt.Println(s)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[1 1 1]<br>[1 1 1 100]<br>[1 1 1 100 100]<br></code></pre></td></tr></table></figure>
+
+<p><code>myAppend</code> 函数里，虽然改变了 <code>s</code>，但它只是一个值传递，并不会影响外层的 <code>s</code>，因此第一行打印出来的结果仍然是 <code>[1 1 1]</code>。</p>
+<p>而 <code>newS</code> 是一个新的 <code>slice</code>，它是基于 <code>s</code> 得到的。因此它打印的是追加了一个 <code>100</code> 之后的结果： <code>[1 1 1 100]</code>。</p>
+<p>最后，将 <code>newS</code> 赋值给了 <code>s</code>，<code>s</code> 这时才真正变成了一个新的slice。之后，再给 <code>myAppendPtr</code> 函数传入一个 <code>s 指针</code>，这回它真的被改变了：<code>[1 1 1 100 100]</code>。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions">Go 程序员面试笔试宝典</a></p>
+<p>2.《Go学习笔记》</p>
+<p>3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://jodezer.github.io/2017/05/golangSlice%E7%9A%84%E6%89%A9%E5%AE%B9%E8%A7%84%E5%88%99">golangSlice的扩容规则</a></p>
+<p>4.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://segmentfault.com/a/1190000040413412">Go append 扩容机制</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>02.Golang 切片（slice）源码分析（二、append实现）</div>
+      <div>https://blog.longpi1.com/2024/11/10/02-Golang-切片（slice）源码分析（二、append实现）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/09/01-Golang-%E5%88%87%E7%89%87%EF%BC%88slice%EF%BC%89%EF%BC%88%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E5%AE%9E%E7%8E%B0%EF%BC%89/" title="01.Golang 切片（slice）（一、定义与基础操作实现）">
+                        <span class="hidden-mobile">01.Golang 切片（slice）（一、定义与基础操作实现）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
