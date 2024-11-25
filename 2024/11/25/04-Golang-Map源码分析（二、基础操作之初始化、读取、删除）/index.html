@@ -1,0 +1,750 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="04.Golang Map源码分析（二、基础操作之初始化、读取、删除）">
+<meta property="og:url" content="https://blog.longpi1.com/2024/11/25/04-Golang-Map%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B9%8B%E5%88%9D%E5%A7%8B%E5%8C%96%E3%80%81%E8%AF%BB%E5%8F%96%E3%80%81%E5%88%A0%E9%99%A4%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-11-25T14:26:10.000Z">
+<meta property="article:modified_time" content="2024-11-25T14:26:37.647Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>04.Golang Map源码分析（二、基础操作之初始化、读取、删除） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="04.Golang Map源码分析（二、基础操作之初始化、读取、删除）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-25 22:26" pubdate>
+          2024年11月25日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">04.Golang Map源码分析（二、基础操作之初始化、读取、删除）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-Map源码分析（二、基础操作之初始化、读取、写入、删除）"><a href="#Golang-Map源码分析（二、基础操作之初始化、读取、写入、删除）" class="headerlink" title="Golang Map源码分析（二、基础操作之初始化、读取、写入、删除）"></a>Golang Map源码分析（二、基础操作之初始化、读取、写入、删除）</h1><blockquote>
+<p>注意当前go版本代码为1.23</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// A header for a Go map.</span><br><span class="hljs-keyword">type</span> hmap <span class="hljs-keyword">struct</span> &#123;<br>        <span class="hljs-comment">// Note: the format of the hmap is also encoded in cmd/compile/internal/reflectdata/reflect.go.</span><br>        <span class="hljs-comment">// Make sure this stays in sync with the compiler&#x27;s definition.</span><br><br>        <span class="hljs-comment">// count: map 中实际存储的键值对数量。</span><br>        <span class="hljs-comment">// 必须是 hmap 结构体的第一个字段，因为内置函数 len() 会直接读取该字段。</span><br>        count <span class="hljs-type">int</span><br><br>        <span class="hljs-comment">// flags: 用于存储 map 的状态标志，例如是否正在进行迭代、是否正在进行等量扩容等。</span><br>        flags <span class="hljs-type">uint8</span><br><br>        <span class="hljs-comment">// B: buckets 数组大小的以 2 为底的对数。</span><br>        <span class="hljs-comment">// 例如，B=5 表示 buckets 数组的大小为 2^5 = 32。</span><br>        <span class="hljs-comment">// map 最多可以存储 loadFactor * 2^B 个键值对，loadFactor 是负载因子，默认为 6.5。</span><br>        B <span class="hljs-type">uint8</span><br><br>        <span class="hljs-comment">// noverflow: 溢出桶的大致数量。</span><br>        <span class="hljs-comment">// 这是一个近似值，因为在并发访问 map 时，noverflow 的更新可能会有延迟。</span><br>        <span class="hljs-comment">// 详细的更新机制可以参考 incrnoverflow 函数的实现。</span><br>        noverflow <span class="hljs-type">uint16</span><br><br>        <span class="hljs-comment">// hash0: 哈希种子，用于随机化键的哈希值。</span><br>        <span class="hljs-comment">// 在创建 map 时，会生成一个随机的 hash0 值，用于防止哈希碰撞攻击。</span><br>        hash0 <span class="hljs-type">uint32</span><br><br><br>        <span class="hljs-comment">// buckets: 指向 buckets 数组的指针。 buckets 数组的大小为 2^B。</span><br>        <span class="hljs-comment">// 如果 count 为 0，则 buckets 可能为 nil。</span><br>        <span class="hljs-comment">// 每个 bucket 存储多个键值对，具体数量由 bucketCnt 常量决定，通常为 8。</span><br>        buckets unsafe.Pointer<br><br>        <span class="hljs-comment">// oldbuckets: 指向旧 buckets 数组的指针。</span><br>        <span class="hljs-comment">// 仅在 map 扩容时使用。旧 buckets 数组的大小是新 buckets 数组的一半。</span><br>        <span class="hljs-comment">// 在渐进式扩容过程中，键值对会逐渐从 oldbuckets 迁移到 buckets。</span><br>        oldbuckets unsafe.Pointer<br><br>        <span class="hljs-comment">// nevacuate: 渐进式扩容的进度计数器。</span><br>        <span class="hljs-comment">// 表示已经完成迁移的 buckets 数量。</span><br>        <span class="hljs-comment">// buckets 数组中索引小于 nevacuate 的 bucket 都已经迁移到了新的 buckets 数组。</span><br>        nevacuate <span class="hljs-type">uintptr</span><br><br><br>        <span class="hljs-comment">// extra: 指向 mapextra 结构体的指针，其中包含溢出桶和其他一些字段。</span><br>        <span class="hljs-comment">// 如果没有溢出桶，则 extra 可能为 nil。</span><br>    	<span class="hljs-comment">// extra.overflow：保存溢出桶链表</span><br>		<span class="hljs-comment">// extra.oldoverflow：保存旧溢出桶链表</span><br>		<span class="hljs-comment">// extra.nextOverflow：下一个空闲溢出桶地址</span><br>        extra *mapextra<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上一篇文章我们介绍了map的结构与实现，接下来我们看看map的基础操作是如何实现的吧</p>
+<h2 id="基础操作"><a href="#基础操作" class="headerlink" title="基础操作"></a>基础操作</h2><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>从语法层面上来说，创建 map 很简单：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs golang">mp := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">int</span>)<br><span class="hljs-comment">// 指定长度</span><br>mp := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">int</span>, <span class="hljs-number">8</span>)<br><br>mp := <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">int</span>&#123;<br>	<span class="hljs-string">&quot;1&quot;</span>: <span class="hljs-number">2</span>,<br>	<span class="hljs-string">&quot;3&quot;</span>: <span class="hljs-number">4</span>,<br>	<span class="hljs-string">&quot;5&quot;</span>: <span class="hljs-number">6</span>,<br>&#125;<br><br><span class="hljs-comment">// mp 为 nil，不能向其添加元素，会直接panic</span><br><span class="hljs-keyword">var</span> mp <span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">int</span><br></code></pre></td></tr></table></figure>
+
+<p>通过汇编语言可以看到，实际上底层调用的是 <code>makemap</code> 函数，主要做的工作就是初始化 <code>hmap</code> 结构体的各种字段，例如计算 B 的大小，设置哈希种子 hash0 等等。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// makemap 函数实现了 Go 语言中 `make(map[k]v, hint)` 创建 map 的操作。</span><br><span class="hljs-comment">// 如果编译器确定 map 或第一个桶可以在栈上创建，那么 h 和/或 bucket 可能不为 nil。</span><br><span class="hljs-comment">// 如果 h 不为 nil，则可以直接在 h 中创建 map。</span><br><span class="hljs-comment">// 如果 h.buckets 不为 nil，则指向的 bucket 可以用作第一个桶。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">makemap</span><span class="hljs-params">(t *maptype, hint <span class="hljs-type">int</span>, h *hmap)</span></span> *hmap &#123;<br>	<span class="hljs-comment">// 计算 hint 个元素所需的内存大小，并检查是否溢出或超过最大分配限制。</span><br>	mem, overflow := math.MulUintptr(<span class="hljs-type">uintptr</span>(hint), t.Bucket.Size_)<br>	<span class="hljs-keyword">if</span> overflow || mem &gt; maxAlloc &#123;<br>		hint = <span class="hljs-number">0</span> <span class="hljs-comment">// 如果溢出或超过限制，将 hint 设置为 0。</span><br>	&#125;<br><br>	<span class="hljs-comment">// 初始化 Hmap</span><br>	<span class="hljs-keyword">if</span> h == <span class="hljs-literal">nil</span> &#123;<br>		h = <span class="hljs-built_in">new</span>(hmap) <span class="hljs-comment">// 如果 h 为 nil，则创建一个新的 hmap。</span><br>	&#125;<br>	h.hash0 = <span class="hljs-type">uint32</span>(rand()) <span class="hljs-comment">// 生成一个随机的 hash0 值。</span><br><br>	<span class="hljs-comment">// 找到合适的 B 值，它决定了 map 可以容纳的元素数量。</span><br>	<span class="hljs-comment">// 当 hint &lt; 0 时，overLoadFactor 返回 false，因为 hint &lt; bucketCnt。</span><br>	B := <span class="hljs-type">uint8</span>(<span class="hljs-number">0</span>)<br>	<span class="hljs-keyword">for</span> overLoadFactor(hint, B) &#123; <span class="hljs-comment">// 循环直到找到合适的 B 值。</span><br>		B++<br>	&#125;<br>	h.B = B <span class="hljs-comment">// 将 B 值存储到 hmap 中。</span><br><br>	<span class="hljs-comment">// 分配初始的哈希表</span><br>	<span class="hljs-comment">// 如果 B == 0，buckets 字段会在后续 (mapassign) 中延迟分配。</span><br>	<span class="hljs-comment">// 如果 hint 很大，将这块内存清零可能会花费一些时间。</span><br>	<span class="hljs-keyword">if</span> h.B != <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">var</span> nextOverflow *bmap<br>		h.buckets, nextOverflow = makeBucketArray(t, h.B, <span class="hljs-literal">nil</span>) <span class="hljs-comment">// 创建桶数组。</span><br>		<span class="hljs-keyword">if</span> nextOverflow != <span class="hljs-literal">nil</span> &#123;<br>			h.extra = <span class="hljs-built_in">new</span>(mapextra)             <span class="hljs-comment">// 如果有溢出桶，则创建 mapextra。</span><br>			h.extra.nextOverflow = nextOverflow <span class="hljs-comment">// 设置 nextOverflow。</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> h <span class="hljs-comment">// 返回创建的 hmap。</span><br>&#125;<br><br><br><br><br><span class="hljs-comment">// makeBucketArray 函数初始化 map 桶的底层数组。</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 参数：</span><br><span class="hljs-comment">//   t: map的类型信息。</span><br><span class="hljs-comment">//   b: 桶数组的级别，用于计算桶的数量。桶的数量大致为 2^b。</span><br><span class="hljs-comment">//   dirtyalloc: 可选的预分配内存块，如果非空，则会重用该内存块。</span><br><span class="hljs-comment">// 返回值：</span><br><span class="hljs-comment">//   buckets: 指向新桶数组的指针。</span><br><span class="hljs-comment">//   nextOverflow: 指向下一个可用的溢出桶的指针，如果不需要溢出桶，则为 nil。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">makeBucketArray</span><span class="hljs-params">(t *maptype, b <span class="hljs-type">uint8</span>, dirtyalloc unsafe.Pointer)</span></span> (buckets unsafe.Pointer, nextOverflow *bmap) &#123;<br>	<span class="hljs-comment">// 计算桶的基本数量，即 2^b。</span><br>	base := bucketShift(b)<br><br>	<span class="hljs-comment">// 初始化桶的数量为基本数量。</span><br>	nbuckets := base<br><br>	<span class="hljs-comment">// 对于较小的 b 值，溢出桶不太可能出现。</span><br>	<span class="hljs-comment">// 为了避免计算的开销，直接使用基本数量的桶。</span><br>	<span class="hljs-keyword">if</span> b &gt;= <span class="hljs-number">4</span> &#123;<br>		<span class="hljs-comment">// 添加估计需要的溢出桶的数量，</span><br>		<span class="hljs-comment">// 用于插入此 b 值对应的元素数量的中位数。</span><br>		<span class="hljs-comment">// 这里使用 b-4 是一个经验值，用于估计溢出桶的数量。</span><br>		nbuckets += bucketShift(b - <span class="hljs-number">4</span>)<br><br>		<span class="hljs-comment">// 计算桶数组的总大小（字节）。</span><br>		sz := t.Bucket.Size_ * nbuckets<br><br>		<span class="hljs-comment">// 对桶数组的大小进行向上取整，以确保内存对齐。</span><br>		<span class="hljs-comment">// !t.Bucket.Pointers() 用于判断桶是否包含指针。</span><br>		<span class="hljs-comment">// 如果桶包含指针，则向上取整到指针大小的倍数；否则向上取整到 8 字节的倍数。</span><br>		up := roundupsize(sz, !t.Bucket.Pointers())<br><br>		<span class="hljs-comment">// 如果向上取整后的值与原始值不同，则更新桶的数量。</span><br>		<span class="hljs-keyword">if</span> up != sz &#123;<br>			nbuckets = up / t.Bucket.Size_<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 如果没有提供预分配的内存块，则分配一个新的内存块。</span><br>	<span class="hljs-keyword">if</span> dirtyalloc == <span class="hljs-literal">nil</span> &#123;<br>		buckets = newarray(t.Bucket, <span class="hljs-type">int</span>(nbuckets))<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-comment">// 重用预分配的内存块 dirtyalloc。</span><br>		<span class="hljs-comment">// dirtyalloc 之前由 newarray(t.Bucket, int(nbuckets)) 生成，</span><br>		<span class="hljs-comment">// 但可能不为空，因此需要清空。</span><br>		buckets = dirtyalloc<br><br>		<span class="hljs-comment">// 计算桶数组的总大小（字节）。</span><br>		size := t.Bucket.Size_ * nbuckets<br><br>		<span class="hljs-comment">// 根据桶是否包含指针，使用不同的清空函数。</span><br>		<span class="hljs-keyword">if</span> t.Bucket.Pointers() &#123;<br>			<span class="hljs-comment">// 如果桶包含指针，则使用 memclrHasPointers 清空内存，</span><br>			<span class="hljs-comment">// 并将指针置为 nil，避免潜在的内存问题。</span><br>			memclrHasPointers(buckets, size)<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-comment">// 如果桶不包含指针，则使用 memclrNoHeapPointers 清空内存。</span><br>			memclrNoHeapPointers(buckets, size)<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 如果预分配了溢出桶，则设置 nextOverflow 指针和溢出桶的链接。</span><br>	<span class="hljs-keyword">if</span> base != nbuckets &#123;<br>		<span class="hljs-comment">// 我们预分配了一些溢出桶。</span><br>		<span class="hljs-comment">// 为了尽量减少跟踪这些溢出桶的开销，</span><br>		<span class="hljs-comment">// 我们使用以下约定：如果预分配的溢出桶的 overflow 指针为 nil，</span><br>		<span class="hljs-comment">// 则可以通过递增指针获得更多可用的溢出桶。</span><br>		<span class="hljs-comment">// 最后一个溢出桶需要一个安全的非 nil 指针；这里使用 buckets。</span><br><br>		<span class="hljs-comment">// nextOverflow 指向第一个溢出桶。</span><br>		nextOverflow = (*bmap)(add(buckets, base*<span class="hljs-type">uintptr</span>(t.BucketSize)))<br><br>		<span class="hljs-comment">// last 指向最后一个溢出桶。</span><br>		last := (*bmap)(add(buckets, (nbuckets<span class="hljs-number">-1</span>)*<span class="hljs-type">uintptr</span>(t.BucketSize)))<br><br>		<span class="hljs-comment">// 将最后一个溢出桶的 overflow 指针设置为指向 buckets，</span><br>		<span class="hljs-comment">// 形成一个循环链表，方便后续分配溢出桶。</span><br>		last.setoverflow(t, (*bmap)(buckets))<br>	&#125;<br><br>	<span class="hljs-comment">// 返回桶数组指针和下一个可用的溢出桶指针。</span><br>	<span class="hljs-keyword">return</span> buckets, nextOverflow<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>hint</code> 和 <code>b</code>（在代码中为 <code>B</code>）的意义如下：</p>
+<ul>
+<li><strong><code>hint</code> (int):</strong> <code>hint</code> 参数表示 map 预期的元素个数。它作为创建 map 的初始容量的参考。<code>makemap</code> 函数会根据 <code>hint</code> 的值来确定初始桶的数量和大小，以尽量减少后续的扩容操作，提高性能。 需要注意的是，<code>hint</code> 只是一个建议值，Go 运行时并不保证最终创建的 map 的容量与 <code>hint</code> 完全一致。如果 <code>hint</code> 的值过大或者计算过程中发生溢出，<code>hint</code> 会被重置为 0。</li>
+<li><strong><code>B</code> (uint8):</strong> <code>B</code> 决定了 map 的桶数组的大小。桶数组的大小为 2 的 <code>B</code> 次方。<code>B</code> 值越大，桶数组越大，可以容纳的元素越多，但同时也会占用更多的内存。<code>B</code> 的值是通过 <code>overLoadFactor</code> 函数计算得出的，该函数会根据 <code>hint</code> 值和当前的 <code>B</code> 值判断是否需要增加 <code>B</code> 的值。<code>makemap</code> 函数会不断增加 <code>B</code> 的值，直到找到一个合适的 <code>B</code> 值，使得 map 能够容纳 <code>hint</code> 个元素，并且负载因子不会过高。</li>
+</ul>
+<p><code>makemap</code> 函数的目标是创建一个合适的哈希表，以存储用户指定数量的元素。为了实现这个目标，它需要确定两个关键参数：</p>
+<ol>
+<li><strong>桶的数量：</strong> 桶的数量越多，哈希冲突的概率就越小，但同时也会占用更多的内存。</li>
+<li><strong>桶的大小：</strong> 每个桶可以存储多个键值对。桶越大，可以存储的键值对越多，但查找效率会降低。</li>
+</ol>
+<p><code>hint</code> 参数用于指导 <code>makemap</code> 函数确定桶的数量。<code>makemap</code> 函数会根据 <code>hint</code> 的值计算出一个合适的 <code>B</code> 值，然后使用 2 的 <code>B</code> 次方作为桶的数量。</p>
+<p><code>overLoadFactor</code> 函数用于判断当前的 <code>B</code> 值是否足够大。如果 <code>hint</code> 除以 2 的 <code>B</code> 次方（即桶的数量）的结果大于一个预定的负载因子，则说明当前的 <code>B</code> 值不够大，需要继续增加。</p>
+<p>通过这种方式，<code>makemap</code> 函数可以根据 <code>hint</code> 的值动态地调整桶的数量，以确保 map 具有合适的容量和性能。</p>
+<p>总而言之，<code>hint</code> 提供了一个创建 map 的容量建议，而 <code>B</code> 是 <code>makemap</code> 函数根据 <code>hint</code> 计算得出的一个内部参数，它决定了 map 底层桶数组的大小，从而影响 map 的性能和内存占用。</p>
+<h3 id="读取"><a href="#读取" class="headerlink" title="读取"></a>读取</h3><p>上一篇文章<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/03.Golang%20Map%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%EF%BC%89.md">《Golang Map源码分析（一、定义与实现原理）》</a>已经提到过key定位过程，其实就是get操作的主要逻辑，<strong>总而言之， <code>map get</code> 的过程就是：前置检查 -&gt; 计算哈希值 -&gt; 定位桶 -&gt; 遍历桶内条目 -&gt; 比较 tophash 和 key -&gt; 返回 value 指针 (或零值指针)。</strong></p>
+<p>主要源码如下 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mapaccess1"><code>runtime.mapaccess1</code></a></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// mapaccess1 返回一个指向 h[key] 的指针。永远不会返回 nil，</span><br><span class="hljs-comment">// 如果 key 不在地图中，它将返回一个指向 elem 类型零值的引用。</span><br><span class="hljs-comment">// 注意：返回的指针可能会使整个 map 保持活动状态，所以不要长时间持有它。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">mapaccess1</span><span class="hljs-params">(t *maptype, h *hmap, key unsafe.Pointer)</span></span> unsafe.Pointer &#123;<br>	<span class="hljs-comment">//.....</span><br>    <br>	<span class="hljs-comment">// 处理空 map 或空桶的情况</span><br>	<span class="hljs-keyword">if</span> h == <span class="hljs-literal">nil</span> || h.count == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-comment">// 如果key不存在，则抛出key错误</span><br>		<span class="hljs-keyword">if</span> err := mapKeyError(t, key); err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-built_in">panic</span>(err) <span class="hljs-comment">// 抛出panic，参见 issue 23734</span><br>		&#125;<br>		<span class="hljs-comment">// 返回零值的指针</span><br>		<span class="hljs-keyword">return</span> unsafe.Pointer(&amp;zeroVal[<span class="hljs-number">0</span>])<br>	&#125;<br><br>	<span class="hljs-comment">// 并发安全检查：检测并发读写</span><br>	<span class="hljs-keyword">if</span> h.flags&amp;hashWriting != <span class="hljs-number">0</span> &#123;<br>		fatal(<span class="hljs-string">&quot;concurrent map read and map write&quot;</span>) <span class="hljs-comment">// 如果map正在写入，则抛出panic</span><br>	&#125;<br><br>	<span class="hljs-comment">// 计算哈希值，并且加入 hash0 引入随机性</span><br>	hash := t.Hasher(key, <span class="hljs-type">uintptr</span>(h.hash0))<br><br>	<span class="hljs-comment">// 计算桶索引的掩码</span><br>    <span class="hljs-comment">// 比如 B=5，那 m 就是31，二进制是全 1</span><br>	<span class="hljs-comment">// 求 bucket num 时，将 hash 与 m 相与，</span><br>	<span class="hljs-comment">// 达到 bucket num 由 hash 的低 8 位决定的效果</span><br>	m := bucketMask(h.B)<br><br>	<span class="hljs-comment">// 计算桶的地址,b 就是 bucket 的地址</span><br>	b := (*bmap)(add(h.buckets, (hash&amp;m)*<span class="hljs-type">uintptr</span>(t.BucketSize)))<br><br>	<span class="hljs-comment">// oldbuckets 不为 nil，说明发生了扩容, 处理扩容情况</span><br>	<span class="hljs-keyword">if</span> c := h.oldbuckets; c != <span class="hljs-literal">nil</span> &#123; <span class="hljs-comment">// 如果存在旧桶</span><br>		<span class="hljs-keyword">if</span> !h.sameSizeGrow() &#123;<br>			<span class="hljs-comment">// 如果不是等大小扩容，则需要调整掩码</span><br>			m &gt;&gt;= <span class="hljs-number">1</span><br>		&#125;<br>        <span class="hljs-comment">// 求出 key 在老的 map 中的 bucket 位置</span><br>		oldb := (*bmap)(add(c, (hash&amp;m)*<span class="hljs-type">uintptr</span>(t.BucketSize))) <br>        <span class="hljs-comment">// 如果 oldb 没有搬迁到新的 bucket</span><br>		<span class="hljs-comment">// 那就在老的 bucket 中寻找</span><br>		<span class="hljs-keyword">if</span> !evacuated(oldb) &#123; <span class="hljs-comment">// 如果旧桶还没有被迁移</span><br>			b = oldb <span class="hljs-comment">// 使用旧桶</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 计算出高 8 位的 hash</span><br>	<span class="hljs-comment">// 相当于右移 56 位，只取高8位</span><br>	top := tophash(hash)<br><br>	<span class="hljs-comment">// 循环遍历桶和溢出桶</span><br>bucketloop:<br>	<span class="hljs-keyword">for</span> ; b != <span class="hljs-literal">nil</span>; b = b.overflow(t) &#123; <span class="hljs-comment">// 遍历桶及其溢出桶</span><br>		<span class="hljs-keyword">for</span> i := <span class="hljs-type">uintptr</span>(<span class="hljs-number">0</span>); i &lt; abi.OldMapBucketCount; i++ &#123; <span class="hljs-comment">// 遍历桶中的所有条目</span><br>			<span class="hljs-keyword">if</span> b.tophash[i] != top &#123; <span class="hljs-comment">// 如果tophash不匹配</span><br>				<span class="hljs-keyword">if</span> b.tophash[i] == emptyRest &#123; <span class="hljs-comment">// 如果是emptyRest，则表示后续桶都为空</span><br>					<span class="hljs-keyword">break</span> bucketloop <span class="hljs-comment">// 退出循环</span><br>				&#125;<br>				<span class="hljs-keyword">continue</span> <span class="hljs-comment">// 继续下一个条目</span><br>			&#125;<br><br>			<span class="hljs-comment">// 计算 key 的地址</span><br>			k := add(unsafe.Pointer(b), dataOffset+i*<span class="hljs-type">uintptr</span>(t.KeySize))<br>			<span class="hljs-keyword">if</span> t.IndirectKey() &#123; <span class="hljs-comment">// 如果key是指针</span><br>				k = *((*unsafe.Pointer)(k)) <span class="hljs-comment">// 解引用指针</span><br>			&#125;<br><br>			<span class="hljs-comment">// 比较 key 是否相等</span><br>			<span class="hljs-keyword">if</span> t.Key.Equal(key, k) &#123; <span class="hljs-comment">// 使用类型的Equal方法比较key</span><br>				<span class="hljs-comment">// 计算 value 的地址</span><br>				e := add(unsafe.Pointer(b), dataOffset+abi.OldMapBucketCount*<span class="hljs-type">uintptr</span>(t.KeySize)+i*<span class="hljs-type">uintptr</span>(t.ValueSize))<br>				<span class="hljs-keyword">if</span> t.IndirectElem() &#123; <span class="hljs-comment">// 如果value是指针</span><br>					e = *((*unsafe.Pointer)(e)) <span class="hljs-comment">// 解引用指针</span><br>				&#125;<br>				<span class="hljs-keyword">return</span> e <span class="hljs-comment">// 返回 value 的指针</span><br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> unsafe.Pointer(&amp;zeroVal[<span class="hljs-number">0</span>])<br>&#125;<br><span class="hljs-comment">//</span><br></code></pre></td></tr></table></figure>
+
+<p>这里再补充一下get的两种实现方式</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">v     := m[key] <span class="hljs-comment">// =&gt; v     := *mapaccess1(maptype, hash, &amp;key)</span><br>v, ok := m[key] <span class="hljs-comment">// =&gt; v, ok := mapaccess2(maptype, hash, &amp;key)</span><br></code></pre></td></tr></table></figure>
+
+<p>赋值语句左侧接受参数的个数会决定使用的运行时方法：</p>
+<ul>
+<li>当接受一个参数时，会使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mapaccess1"><code>runtime.mapaccess1</code></a>，该函数仅会返回一个指向目标值的指针；</li>
+<li>当接受两个参数时，会使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mapaccess2"><code>runtime.mapaccess2</code></a>，除了返回目标值之外，它还会返回一个用于表示当前键对应的值是否存在的 <code>bool</code> 值：</li>
+</ul>
+<p>另外，根据 key 的不同类型，编译器还会将查找、插入、删除的函数用更具体的函数替换，以优化效率：</p>
+<table>
+<thead>
+<tr>
+<th>key 类型</th>
+<th>查找</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>uint32</td>
+<td>mapaccess1_fast32(t *maptype, h *hmap, key uint32) unsafe.Pointer</td>
+</tr>
+<tr>
+<td>uint32</td>
+<td>mapaccess2_fast32(t *maptype, h *hmap, key uint32) (unsafe.Pointer, bool)</td>
+</tr>
+<tr>
+<td>uint64</td>
+<td>mapaccess1_fast64(t *maptype, h *hmap, key uint64) unsafe.Pointer</td>
+</tr>
+<tr>
+<td>uint64</td>
+<td>mapaccess2_fast64(t *maptype, h *hmap, key uint64) (unsafe.Pointer, bool)</td>
+</tr>
+<tr>
+<td>string</td>
+<td>mapaccess1_faststr(t *maptype, h *hmap, ky string) unsafe.Pointer</td>
+</tr>
+<tr>
+<td>string</td>
+<td>mapaccess2_faststr(t *maptype, h *hmap, ky string) (unsafe.Pointer, bool)</td>
+</tr>
+</tbody></table>
+<p>这些函数的参数类型直接是具体的 uint32、unt64、string，在函数内部由于提前知晓了 key 的类型，所以内存布局是很清楚的，因此能节省很多操作，提高效率。</p>
+<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><p>源码位置：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mapdelete"><code>runtime.mapdelete</code></a> 。</p>
+<p>哈希表的删除逻辑与写入逻辑主要流程很相似</p>
+<ol>
+<li>它首先会检查 h.flags 标志，如果发现写标位是 1，直接 panic，因为这表明有其他协程同时在进行写操作。</li>
+<li>计算 key 的哈希，找到落入的 bucket。如果在删除期间遇到了哈希表的扩容，就会分流桶中的元素进行扩容，分流结束之后会找到桶中的目标元素完成键值对的删除工作。</li>
+<li>找到对应位置后，对 key 或者 value 进行清除操作</li>
+<li>最后，将 count 值减 1，将对应位置的 tophash 值置成 <code>Empty</code>。</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 从map中删除对应kv</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">mapdelete</span><span class="hljs-params">(t *maptype, h *hmap, key unsafe.Pointer)</span></span> &#123;<br>    <span class="hljs-comment">// ...... 其他逻辑</span><br>    <br>	<span class="hljs-comment">// 如果 map 为空</span><br>	<span class="hljs-keyword">if</span> h == <span class="hljs-literal">nil</span> || h.count == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-comment">// 检查 key 是否有效，若无效则抛出 panic</span><br>		<span class="hljs-keyword">if</span> err := mapKeyError(t, key); err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-built_in">panic</span>(err) <span class="hljs-comment">// 参见 issue 23734</span><br>		&#125;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	<span class="hljs-comment">// 如果检测到并发写 map</span><br>	<span class="hljs-keyword">if</span> h.flags&amp;hashWriting != <span class="hljs-number">0</span> &#123;<br>		fatal(<span class="hljs-string">&quot;concurrent map writes&quot;</span>)<br>	&#125;<br><br>	<span class="hljs-comment">// 使用哈希函数计算 key 的哈希值</span><br>	hash := t.Hasher(key, <span class="hljs-type">uintptr</span>(h.hash0))<br><br>	<span class="hljs-comment">// 在调用 hasher 后设置 hashWriting 标志，hasher 可能引发 panic</span><br>	<span class="hljs-comment">// 在这种情况下，我们实际上没有执行写（删除）操作</span><br>	h.flags ^= hashWriting<br><br>	<span class="hljs-comment">// 计算 bucket 的索引</span><br>	bucket := hash &amp; bucketMask(h.B)<br>	<span class="hljs-comment">// 如果在删除期间遇到了哈希表的扩容，就会分流桶中的元素，分流结束之后会找到桶中的目标元素完成键值对的删除工作。</span><br>	<span class="hljs-keyword">if</span> h.growing() &#123;<br>		growWork(t, h, bucket)<br>	&#125;<br>	<span class="hljs-comment">// 获取 bucket 地址</span><br>	b := (*bmap)(add(h.buckets, bucket*<span class="hljs-type">uintptr</span>(t.BucketSize)))<br>	bOrig := b<br>	<span class="hljs-comment">// 获取 hash 的高8位</span><br>	top := tophash(hash)<br>search:<br>	<span class="hljs-comment">// 遍历 bucket 链</span><br>	<span class="hljs-keyword">for</span> ; b != <span class="hljs-literal">nil</span>; b = b.overflow(t) &#123;<br>		<span class="hljs-comment">// 在 bucket 内查找</span><br>		<span class="hljs-keyword">for</span> i := <span class="hljs-type">uintptr</span>(<span class="hljs-number">0</span>); i &lt; abi.OldMapBucketCount; i++ &#123;<br>			<span class="hljs-comment">// 如果 tophash 不匹配</span><br>			<span class="hljs-keyword">if</span> b.tophash[i] != top &#123;<br>				<span class="hljs-comment">// 如果已经到达 bucket 的末尾</span><br>				<span class="hljs-keyword">if</span> b.tophash[i] == emptyRest &#123;<br>					<span class="hljs-keyword">break</span> search<br>				&#125;<br>				<span class="hljs-keyword">continue</span><br>			&#125;<br>			<span class="hljs-comment">// 计算键的地址</span><br>			k := add(unsafe.Pointer(b), dataOffset+i*<span class="hljs-type">uintptr</span>(t.KeySize))<br>			k2 := k<br>			<span class="hljs-comment">// 判断key 是否指针， 如果是指针获取对应内存地址</span><br>			<span class="hljs-keyword">if</span> t.IndirectKey() &#123;<br>				k2 = *((*unsafe.Pointer)(k2))<br>			&#125;<br>			<span class="hljs-comment">// 比较键是否相等</span><br>			<span class="hljs-keyword">if</span> !t.Key.Equal(key, k2) &#123;<br>				<span class="hljs-keyword">continue</span><br>			&#125;<br>			<span class="hljs-comment">// 判断key 是否指针， 对 value 清零</span><br>			<span class="hljs-keyword">if</span> t.IndirectKey() &#123;<br>				<span class="hljs-comment">// 将原 key（是指针）赋为nil</span><br>				*(*unsafe.Pointer)(k) = <span class="hljs-literal">nil</span><br>			&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> t.Key.Pointers() &#123;<br>				<span class="hljs-comment">// 删除对应key（值）</span><br>				memclrHasPointers(k, t.Key.Size_)<br>			&#125;<br>			<span class="hljs-comment">// 计算值的地址并清除值</span><br>			e := add(unsafe.Pointer(b), dataOffset+abi.OldMapBucketCount*<span class="hljs-type">uintptr</span>(t.KeySize)+i*<span class="hljs-type">uintptr</span>(t.ValueSize))<br>            <span class="hljs-comment">// 判断 value 是否指针，对 value 清零</span><br>			<span class="hljs-keyword">if</span> t.IndirectElem() &#123;<br>				*(*unsafe.Pointer)(e) = <span class="hljs-literal">nil</span><br>			&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> t.Elem.Pointers() &#123;<br>				memclrHasPointers(e, t.Elem.Size_)<br>			&#125; <span class="hljs-keyword">else</span> &#123;<br>				memclrNoHeapPointers(e, t.Elem.Size_)<br>			&#125;<br>			<span class="hljs-comment">// 标记这个槽位为空</span><br>			b.tophash[i] = emptyOne<br>			<span class="hljs-comment">// 如果 bucket 结束于一系列 emptyOne 状态，将其改为 emptyRest</span><br>			<span class="hljs-comment">// 这里的逻辑是优化 emptyOne 到 emptyRest 的转换</span><br>			<span class="hljs-keyword">if</span> i == abi.OldMapBucketCount<span class="hljs-number">-1</span> &#123;<br>				<span class="hljs-keyword">if</span> b.overflow(t) != <span class="hljs-literal">nil</span> &amp;&amp; b.overflow(t).tophash[<span class="hljs-number">0</span>] != emptyRest &#123;<br>					<span class="hljs-keyword">goto</span> notLast<br>				&#125;<br>			&#125; <span class="hljs-keyword">else</span> &#123;<br>				<span class="hljs-keyword">if</span> b.tophash[i+<span class="hljs-number">1</span>] != emptyRest &#123;<br>					<span class="hljs-keyword">goto</span> notLast<br>				&#125;<br>			&#125;<br>			<span class="hljs-keyword">for</span> &#123;<br>				b.tophash[i] = emptyRest<br>				<span class="hljs-keyword">if</span> i == <span class="hljs-number">0</span> &#123;<br>					<span class="hljs-keyword">if</span> b == bOrig &#123;<br>						<span class="hljs-keyword">break</span> <span class="hljs-comment">// 回到初始 bucket，我们完成了</span><br>					&#125;<br>					<span class="hljs-comment">// 找到前一个 bucket，继续在其最后一个条目</span><br>					c := b<br>					<span class="hljs-keyword">for</span> b = bOrig; b.overflow(t) != c; b = b.overflow(t) &#123;<br>					&#125;<br>					i = abi.OldMapBucketCount - <span class="hljs-number">1</span><br>				&#125; <span class="hljs-keyword">else</span> &#123;<br>					i--<br>				&#125;<br>				<span class="hljs-keyword">if</span> b.tophash[i] != emptyOne &#123;<br>					<span class="hljs-keyword">break</span><br>				&#125;<br>			&#125;<br>		notLast:<br>			<span class="hljs-comment">// 减少 map 中的元素计数</span><br>			h.count--<br>			<span class="hljs-comment">// 如果 map 为空，重新设置哈希种子以防攻击者触发哈希碰撞</span><br>			<span class="hljs-keyword">if</span> h.count == <span class="hljs-number">0</span> &#123;<br>				h.hash0 = <span class="hljs-type">uint32</span>(rand())<br>			&#125;<br>			<span class="hljs-keyword">break</span> search<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 确保没有并发的写操作</span><br>	<span class="hljs-keyword">if</span> h.flags&amp;hashWriting == <span class="hljs-number">0</span> &#123;<br>		fatal(<span class="hljs-string">&quot;concurrent map writes&quot;</span>)<br>	&#125;<br>	<span class="hljs-comment">// 清除 hashWriting 标志</span><br>	h.flags &amp;^= hashWriting<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="可以对-map-的元素取地址吗"><a href="#可以对-map-的元素取地址吗" class="headerlink" title="可以对 map 的元素取地址吗"></a>可以对 map 的元素取地址吗</h3><p>无法对 map 的 key 或 value 进行取址。以下代码不能通过编译：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	m := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">int</span>)<br><br>	fmt.Println(&amp;m[<span class="hljs-string">&quot;test&quot;</span>])<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译报错：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./main.go:8:14: cannot take the address of m[&quot;qcrao&quot;]<br></code></pre></td></tr></table></figure>
+
+<p>如果通过其他 hack 的方式，例如 unsafe.Pointer 等获取到了 key 或 value 的地址，也不能长期持有，因为一旦发生扩容，key 和 value 的位置就会改变，之前保存的地址也就失效了。</p>
+<h3 id="map-是线程安全的吗"><a href="#map-是线程安全的吗" class="headerlink" title="map 是线程安全的吗"></a>map 是线程安全的吗</h3><p>map 不是线程安全的。</p>
+<p>在查找、赋值、遍历、删除的过程中都会检测写标志，一旦发现写标志置位（等于1），则直接 panic。赋值和删除函数在检测完写标志是复位之后，先将写标志位置位，才会进行之后的操作。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-comment">// 检测写标志：</span><br><span class="hljs-keyword">if</span> h.flags&amp;hashWriting == <span class="hljs-number">0</span> &#123;<br>		throw(<span class="hljs-string">&quot;concurrent map writes&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 设置写标志：</span><br>h.flags |= hashWriting<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions">Go 程序员面试笔试宝典</a></p>
+<p>2.《Go学习笔记》</p>
+<p>3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang">Go 语言设计与实现</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>04.Golang Map源码分析（二、基础操作之初始化、读取、删除）</div>
+      <div>https://blog.longpi1.com/2024/11/25/04-Golang-Map源码分析（二、基础操作之初始化、读取、删除）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/21/03-Golang-Map%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%EF%BC%89/" title="03.Golang Map源码分析（一、定义与实现原理）">
+                        <span class="hidden-mobile">03.Golang Map源码分析（一、定义与实现原理）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
