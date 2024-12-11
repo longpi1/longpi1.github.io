@@ -18,14 +18,14 @@
   
     <meta name="description" content="Golang源码分析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="07.Golang 通道（channel ）源码分析（一、定义与数据结构）">
+<meta property="og:title" content="07.Golang 通道（channel ）源码分析（一、定义与创建关闭）">
 <meta property="og:url" content="https://blog.longpi1.com/2024/12/06/07-Golang-%E9%80%9A%E9%81%93%EF%BC%88channel-%EF%BC%89%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%89/index.html">
 <meta property="og:site_name" content="lp&#39;s blog">
 <meta property="og:description" content="Golang源码分析">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://golang.design/go-questions/channel/assets/0.png">
 <meta property="article:published_time" content="2024-12-06T11:51:27.000Z">
-<meta property="article:modified_time" content="2024-12-06T11:54:26.156Z">
+<meta property="article:modified_time" content="2024-12-11T15:10:22.146Z">
 <meta property="article:author" content="lp">
 <meta property="article:tag" content="原创">
 <meta property="article:tag" content="编程语言">
@@ -36,7 +36,7 @@
   
   
   
-  <title>07.Golang 通道（channel ）源码分析（一、定义与数据结构） - lp&#39;s blog</title>
+  <title>07.Golang 通道（channel ）源码分析（一、定义与创建关闭） - lp&#39;s blog</title>
 
   <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
 
@@ -214,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="07.Golang 通道（channel ）源码分析（一、定义与数据结构）"></span>
+            <span id="subtitle" data-typed-text="07.Golang 通道（channel ）源码分析（一、定义与创建关闭）"></span>
           
         </div>
 
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.2k 字
+          5.8k 字
         
       </span>
     
@@ -285,13 +285,13 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">07.Golang 通道（channel ）源码分析（一、定义与数据结构）</h1>
+            <h1 style="display: none">07.Golang 通道（channel ）源码分析（一、定义与创建关闭）</h1>
             
             
               <div class="markdown-body">
               <meta name="referrer" content="no-referrer">
                 
-                <h1 id="Golang-通道（channel-）源码分析（一、定义与数据结构）"><a href="#Golang-通道（channel-）源码分析（一、定义与数据结构）" class="headerlink" title="Golang 通道（channel ）源码分析（一、定义与数据结构）"></a>Golang 通道（channel ）源码分析（一、定义与数据结构）</h1><blockquote>
+                <h1 id="Golang-通道（channel-）源码分析（一、定义与创建关闭）"><a href="#Golang-通道（channel-）源码分析（一、定义与创建关闭）" class="headerlink" title="Golang 通道（channel ）源码分析（一、定义与创建关闭）"></a>Golang 通道（channel ）源码分析（一、定义与创建关闭）</h1><blockquote>
 <p>注意当前go版本代码为1.23</p>
 </blockquote>
 <p>Channel 在运行时的内部表示是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.hchan"><code>runtime.hchan</code></a></p>
@@ -307,13 +307,81 @@
 <h2 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h2><p>源码位置：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.makechan"><code>runtime.makechan</code></a>：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// makechan 创建一个新的通道</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">makechan</span><span class="hljs-params">(t *chantype, size <span class="hljs-type">int</span>)</span></span> *hchan &#123;<br>        <span class="hljs-comment">// 获取通道的元素类型</span><br>        elem := t.Elem<br><br>    	<span class="hljs-comment">// 。。。。。。省略前置检查与对齐</span><br>      <br>        <span class="hljs-comment">// 计算所需内存大小，检查是否溢出或超出最大分配限制</span><br>        mem, overflow := math.MulUintptr(elem.Size_, <span class="hljs-type">uintptr</span>(size))<br>        <span class="hljs-keyword">if</span> overflow || mem &gt; maxAlloc-hchanSize || size &lt; <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-built_in">panic</span>(plainError(<span class="hljs-string">&quot;makechan: 尺寸超出范围&quot;</span>))<br>        &#125;<br><br>        <span class="hljs-comment">// 根据元素是否包含指针，决定如何分配内存</span><br>        <span class="hljs-keyword">var</span> c *hchan<br>        <span class="hljs-keyword">switch</span> &#123;<br>        <span class="hljs-keyword">case</span> mem == <span class="hljs-number">0</span>:<br>                <span class="hljs-comment">// 如果队列或元素大小为零，直接分配hchan大小</span><br>                c = (*hchan)(mallocgc(hchanSize, <span class="hljs-literal">nil</span>, <span class="hljs-literal">true</span>))<br>                <span class="hljs-comment">// 为竞争检测器设置同步位置</span><br>                c.buf = c.raceaddr()<br>        <span class="hljs-keyword">case</span> !elem.Pointers():<br>                <span class="hljs-comment">// 如果元素不包含指针，一次性分配hchan和缓冲区，为当前的 Channel 和底层的数组分配一块连续的内存空间；</span><br>                c = (*hchan)(mallocgc(hchanSize+mem, <span class="hljs-literal">nil</span>, <span class="hljs-literal">true</span>))<br>                c.buf = add(unsafe.Pointer(c), hchanSize)<br>        <span class="hljs-keyword">default</span>:<br>                <span class="hljs-comment">// 元素包含指针，需要分别分配hchan和缓冲区</span><br>                c = <span class="hljs-built_in">new</span>(hchan)<br>                c.buf = mallocgc(mem, elem, <span class="hljs-literal">true</span>)<br>        &#125;<br><br>        <span class="hljs-comment">// 初始化 hchan 结构体的字段。</span><br>        c.elemsize = <span class="hljs-type">uint16</span>(elem.Size_) <span class="hljs-comment">// 元素大小</span><br>        c.elemtype = elem                <span class="hljs-comment">// 元素类型信息</span><br>        c.dataqsiz = <span class="hljs-type">uint</span>(size)          <span class="hljs-comment">// 缓冲区大小</span><br>        lockInit(&amp;c.lock, lockRankHchan)   <span class="hljs-comment">// 初始化 channel 的锁</span><br><br>        <span class="hljs-comment">// 如果开启了通道调试，打印创建通道的信息</span><br>        <span class="hljs-keyword">if</span> debugChan &#123;<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;makechan: chan=&quot;</span>, c, <span class="hljs-string">&quot;; elemsize=&quot;</span>, elem.Size_, <span class="hljs-string">&quot;; dataqsiz=&quot;</span>, size, <span class="hljs-string">&quot;\n&quot;</span>)<br>        &#125;<br>        <span class="hljs-keyword">return</span> c<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<h2 id="关闭"><a href="#关闭" class="headerlink" title="关闭"></a>关闭</h2><p>源码位置：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.closechan"><code>runtime.closechan</code></a> ：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// closechan 函数用于关闭一个 channel。</span><br><span class="hljs-comment">// c 参数是指向 hchan 结构体的指针，表示要关闭的 channel。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">closechan</span><span class="hljs-params">(c *hchan)</span></span> &#123;<br>    <span class="hljs-comment">// 。。。。。忽略前置检查</span><br><br>    <span class="hljs-comment">// 将 channel 的 closed 字段设置为 1，表示 channel 已关闭。</span><br>    c.closed = <span class="hljs-number">1</span><br><br>    <span class="hljs-comment">// 创建一个空的 gList，用于存储需要被唤醒的 goroutine。</span><br>    <span class="hljs-keyword">var</span> glist gList<br><br>    <span class="hljs-comment">// 释放所有正在等待接收数据的 goroutine (readers)。</span><br>    <span class="hljs-keyword">for</span> &#123;<br>       <span class="hljs-comment">// 从 recvq (接收队列) 中取出一个等待的 sudog。</span><br>       sg := c.recvq.dequeue()<br>       <span class="hljs-comment">// 如果 recvq 为空，则跳出循环。</span><br>       <span class="hljs-keyword">if</span> sg == <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-keyword">break</span><br>       &#125;<br>       <span class="hljs-comment">// 如果 sudog 的 elem 字段不为 nil (表示它正在等待接收数据)。</span><br>       <span class="hljs-keyword">if</span> sg.elem != <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-comment">// 清空 sudog 的 elem 字段指向的内存区域 (将接收到的值设置为零值)。</span><br>          typedmemclr(c.elemtype, sg.elem)<br>          <span class="hljs-comment">// 将 sudog 的 elem 字段设置为 nil。</span><br>          sg.elem = <span class="hljs-literal">nil</span><br>       &#125;<br>       <span class="hljs-comment">// 如果 sudog 的 releasetime 字段不为 0 (表示它被阻塞了)。</span><br>       <span class="hljs-keyword">if</span> sg.releasetime != <span class="hljs-number">0</span> &#123;<br>          <span class="hljs-comment">// 更新 sudog 的 releasetime 字段为当前时间。</span><br>          sg.releasetime = cputicks()<br>       &#125;<br>       <span class="hljs-comment">// 获取 sudog 关联的 goroutine。</span><br>       gp := sg.g<br>       <span class="hljs-comment">// 将 sudog 的指针存储在 goroutine 的 param 字段中。</span><br>       gp.param = unsafe.Pointer(sg)<br>       <span class="hljs-comment">// 将 sudog 的 success 字段设置为 false，表示接收操作失败。</span><br>       sg.success = <span class="hljs-literal">false</span><br>       <span class="hljs-comment">// 如果启用了竞态检测，则获取 goroutine 的竞态资源。</span><br>       <span class="hljs-keyword">if</span> raceenabled &#123;<br>          raceacquireg(gp, c.raceaddr())<br>       &#125;<br>       <span class="hljs-comment">// 将 goroutine 添加到 glist 中。</span><br>       glist.push(gp)<br>    &#125;<br><br>    <span class="hljs-comment">// 释放所有正在等待发送数据的 goroutine (writers)。</span><br>    <span class="hljs-comment">// 这些 goroutine 将会 panic。</span><br>    <span class="hljs-keyword">for</span> &#123;<br>       <span class="hljs-comment">// 从 sendq (发送队列) 中取出一个等待的 sudog。</span><br>       sg := c.sendq.dequeue()<br>       <span class="hljs-comment">// 如果 sendq 为空，则跳出循环。</span><br>       <span class="hljs-keyword">if</span> sg == <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-keyword">break</span><br>       &#125;<br>       <span class="hljs-comment">// 将 sudog 的 elem 字段设置为 nil (表示它发送的数据不会被接收)。</span><br>       sg.elem = <span class="hljs-literal">nil</span><br>       <span class="hljs-comment">// 如果 sudog 的 releasetime 字段不为 0 (表示它被阻塞了)。</span><br>       <span class="hljs-keyword">if</span> sg.releasetime != <span class="hljs-number">0</span> &#123;<br>          <span class="hljs-comment">// 更新 sudog 的 releasetime 字段为当前时间。</span><br>          sg.releasetime = cputicks()<br>       &#125;<br>       <span class="hljs-comment">// 获取 sudog 关联的 goroutine。</span><br>       gp := sg.g<br>       <span class="hljs-comment">// 将 sudog 的指针存储在 goroutine 的 param 字段中。</span><br>       gp.param = unsafe.Pointer(sg)<br>       <span class="hljs-comment">// 将 sudog 的 success 字段设置为 false，表示发送操作失败。</span><br>       sg.success = <span class="hljs-literal">false</span><br>       <span class="hljs-comment">// 如果启用了竞态检测，则获取 goroutine 的竞态资源。</span><br>       <span class="hljs-keyword">if</span> raceenabled &#123;<br>          raceacquireg(gp, c.raceaddr())<br>       &#125;<br>       <span class="hljs-comment">// 将 goroutine 添加到 glist 中。</span><br>       glist.push(gp)<br>    &#125;<br>    unlock(&amp;c.lock)<br><br>    <span class="hljs-comment">// 现在已经释放了 channel 的锁，可以安全地唤醒所有在 glist 中的 goroutine。</span><br>    <span class="hljs-comment">// 唤醒这些 goroutine 的操作必须在释放锁之后进行，以避免死锁。</span><br>    <span class="hljs-keyword">for</span> !glist.empty() &#123;<br>       <span class="hljs-comment">// 从 glist 中取出一个 goroutine。</span><br>       gp := glist.pop()<br>       <span class="hljs-comment">// 将 goroutine 的 schedlink 字段设置为 0。schedlink 通常用于将 goroutine 链接到调度器的运行队列中。</span><br>       <span class="hljs-comment">// 设置为 0 表示该 goroutine 不在任何运行队列中。</span><br>       gp.schedlink = <span class="hljs-number">0</span><br>       <span class="hljs-comment">// 使用 goready 函数将 goroutine 标记为就绪状态，并将其放入全局运行队列或 P 的本地运行队列。</span><br>       <span class="hljs-comment">// 第三个参数 3 表示唤醒的优先级，通常用于表示该 goroutine 是由于 channel 操作被唤醒的。</span><br>       goready(gp, <span class="hljs-number">3</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 
 
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="1-go-可以从一个关闭的channel里面读取数据吗？"><a href="#1-go-可以从一个关闭的channel里面读取数据吗？" class="headerlink" title="1.go 可以从一个关闭的channel里面读取数据吗？"></a>1.go 可以从一个关闭的channel里面读取数据吗？</h3><p><strong>可以</strong>，Go 语言可以从一个已经关闭的 channel 中读取数据。</p>
+<p><strong>具体情况如下：</strong></p>
+<ol>
+<li><p><strong>读取已存在的数据：</strong> 当一个 channel 被关闭后，你仍然可以从中读取之前发送到 channel 中但尚未被接收的数据。一旦 channel 中所有已存在的数据都被读取完毕，后续的读取操作将会立即返回该 channel 类型的零值，并且不会阻塞。</p>
+</li>
+<li><p><strong>判断 channel 是否关闭：</strong> 从 channel 接收数据时，可以使用两个返回值的形式来判断 channel 是否已经关闭：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs go">value, ok := &lt;-ch<br></code></pre></td></tr></table></figure>
 
+<ul>
+<li><code>value</code>：接收到的值。如果 channel 已关闭且没有数据，则为该类型的零值。</li>
+<li>ok： 布尔值。<ul>
+<li>如果 <code>ok</code> 为 <code>true</code>，表示成功从 channel 接收到了一个值。</li>
+<li>如果 <code>ok</code> 为 <code>false</code>，表示 channel 已经被关闭且没有更多数据可读取。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>示例代码：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>        <span class="hljs-string">&quot;fmt&quot;</span><br>        <span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>        ch := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">int</span>, <span class="hljs-number">3</span>)<br><br>        <span class="hljs-comment">// 发送一些数据到 channel</span><br>        ch &lt;- <span class="hljs-number">1</span><br>        ch &lt;- <span class="hljs-number">2</span><br>        ch &lt;- <span class="hljs-number">3</span><br><br>        <span class="hljs-comment">// 关闭 channel</span><br>        <span class="hljs-built_in">close</span>(ch)<br><br>        <span class="hljs-comment">// 从 channel 中读取数据</span><br>        <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++ &#123;<br>                value, ok := &lt;-ch<br>                fmt.Printf(<span class="hljs-string">&quot;Value: %d, OK: %t\n&quot;</span>, value, ok)<br>                time.Sleep(time.Millisecond * <span class="hljs-number">100</span>) <span class="hljs-comment">// 为了观察输出</span><br>        &#125;<br><br>        <span class="hljs-comment">// 使用 range 循环读取，直到 channel 关闭</span><br>        ch2 := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">2</span>)<br>        ch2 &lt;- <span class="hljs-string">&quot;hello&quot;</span><br>        ch2 &lt;- <span class="hljs-string">&quot;world&quot;</span><br>        <span class="hljs-built_in">close</span>(ch2)<br>        <span class="hljs-keyword">for</span> v := <span class="hljs-keyword">range</span> ch2 &#123;<br>                fmt.Println(<span class="hljs-string">&quot;Range:&quot;</span>, v)<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>输出：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">Value: 1, OK: true<br>Value: 2, OK: true<br>Value: 3, OK: true<br>Value: 0, OK: false<br>Value: 0, OK: false<br>Range: hello<br>Range: world<br></code></pre></td></tr></table></figure>
+
+<p><strong>总结：</strong></p>
+<ul>
+<li>关闭 channel 后，仍然可以读取其中已有的数据。</li>
+<li>使用 <code>value, ok := &lt;-ch</code> 可以判断 channel 是否关闭以及是否还有数据。</li>
+<li>使用 <code>range</code> 循环可以方便地读取 channel 中的数据，直到 channel 关闭。</li>
+</ul>
+<p><strong>需要注意：</strong></p>
+<ul>
+<li><strong>向一个已经关闭的 channel 发送数据会导致 panic。</strong></li>
+<li><strong>关闭一个未初始化的 channel (nil channel) 也会导致 panic。</strong></li>
+<li><strong>重复关闭一个 channel 也会导致 panic。</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>nil channel</th>
+<th>closed channel</th>
+<th>not nil, not closed channel</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>close</td>
+<td>panic</td>
+<td>panic</td>
+<td>正常关闭</td>
+</tr>
+<tr>
+<td>读 &lt;- ch</td>
+<td>阻塞</td>
+<td>读到对应类型的零值</td>
+<td>阻塞或正常读取数据。缓冲型 channel 为空或非缓冲型 channel 没有等待发送者时会阻塞</td>
+</tr>
+<tr>
+<td>写 ch &lt;-</td>
+<td>阻塞</td>
+<td>panic</td>
+<td>阻塞或正常写入数据。非缓冲型 channel 没有等待接收者或缓冲型 channel buf 满时会被阻塞</td>
+</tr>
+</tbody></table>
+<p>因此，在操作 channel 时，需要谨慎处理关闭操作，确保不会出现上述 panic 情况。 通常，由发送方负责关闭 channel。</p>
+<p>2.关于如何优雅关闭通道：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://gfw.go101.org/article/channel-closing.html">如何优雅地关闭通道</a></p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions">Go 程序员面试笔试宝典</a></p>
 <p>2.《Go学习笔记》</p>
 <p>3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang">Go 语言设计与实现</a></p>
+<p>4.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://gfw.go101.org/article/channel-closing.html">《如何优雅地关闭通道》</a></p>
 
                 
               </div>
@@ -365,7 +433,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>07.Golang 通道（channel ）源码分析（一、定义与数据结构）</div>
+      <div>07.Golang 通道（channel ）源码分析（一、定义与创建关闭）</div>
       <div>https://blog.longpi1.com/2024/12/06/07-Golang-通道（channel-）源码分析（一、定义与数据结构）/</div>
     </div>
     </div>
