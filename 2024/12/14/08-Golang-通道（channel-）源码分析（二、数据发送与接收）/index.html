@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="08.Golang 通道（channel ）源码分析（二、数据发送与接收）">
+<meta property="og:url" content="https://blog.longpi1.com/2024/12/14/08-Golang-%E9%80%9A%E9%81%93%EF%BC%88channel-%EF%BC%89%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://golang.design/go-questions/channel/assets/12.png">
+<meta property="article:published_time" content="2024-12-14T03:02:01.000Z">
+<meta property="article:modified_time" content="2024-12-14T03:02:26.930Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://golang.design/go-questions/channel/assets/12.png">
+  
+  
+  
+  <title>08.Golang 通道（channel ）源码分析（二、数据发送与接收） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="08.Golang 通道（channel ）源码分析（二、数据发送与接收）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-14 11:02" pubdate>
+          2024年12月14日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">08.Golang 通道（channel ）源码分析（二、数据发送与接收）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-通道（channel-）源码分析（二、数据发送与接收）"><a href="#Golang-通道（channel-）源码分析（二、数据发送与接收）" class="headerlink" title="Golang 通道（channel ）源码分析（二、数据发送与接收）"></a>Golang 通道（channel ）源码分析（二、数据发送与接收）</h1><blockquote>
+<p>注意当前go版本代码为1.23</p>
+<p>Channel 在运行时的内部表示是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.hchan"><code>runtime.hchan</code></a></p>
+</blockquote>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>当向 Channel 发送数据时，就需要使用 <code>ch &lt;- i</code> 语句，编译器会将它解析成 <code>OSEND</code> 节点并在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/cmd/compile/internal/gc.walkexpr"><code>cmd/compile/internal/gc.walkexpr</code></a> 中转换成</p>
+<p>而接收 Channel数据时，可以使用两种不同的方式去接收 Channel 中的数据：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go">i &lt;- ch<br>i, ok &lt;- ch<br></code></pre></td></tr></table></figure>
+
+<p>最终会通过编译器转换成 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.chanrecv1"><code>runtime.chanrecv1</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.chanrecv2"><code>runtime.chanrecv2</code></a> 两种不同函数的调用，这两个函数最终会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.chanrecv"><code>runtime.chanrecv</code></a>进行处理。</p>
+<h2 id="数据发送"><a href="#数据发送" class="headerlink" title="数据发送"></a>数据发送</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.chansend"><code>runtime.chansend</code></a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// chansend 函数实现向 channel 发送数据的核心逻辑</span><br><span class="hljs-comment">// c: channel指针</span><br><span class="hljs-comment">// ep: 要发送的数据的指针</span><br><span class="hljs-comment">// block: 是否阻塞</span><br><span class="hljs-comment">// callerpc: 调用者的程序计数器</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chansend</span><span class="hljs-params">(c *hchan, ep unsafe.Pointer, block <span class="hljs-type">bool</span>, callerpc <span class="hljs-type">uintptr</span>)</span></span> <span class="hljs-type">bool</span> &#123;<br>    <span class="hljs-comment">// 。。。。。忽略前置检查逻辑</span><br>    <br>	<span class="hljs-comment">// 情况1： 如果存在等待接收的 goroutine</span><br>    <span class="hljs-keyword">if</span> sg := c.recvq.dequeue(); sg != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-comment">// 找到一个等待的接收者。我们将要发送的值直接传递给接收者，绕过通道缓冲区（如果有）。</span><br>       <span class="hljs-comment">// send 函数负责调用sendDirect方法将数据从发送者数据 ep 传递给接收者 sg，成功后唤醒接收者。</span><br>       <span class="hljs-comment">// 第三个参数是一个函数，它将在数据传递完成后被调用，这里是解锁。</span><br>       send(c, sg, ep, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; unlock(&amp;c.lock) &#125;, <span class="hljs-number">3</span>)<br>       <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>    &#125;<br><br>    <span class="hljs-comment">// 情况2： 如果通道缓冲区有空间</span><br>    <span class="hljs-keyword">if</span> c.qcount &lt; c.dataqsiz &#123;<br>       <span class="hljs-comment">// 空间在通道缓冲区中可用。将要发送的元素入队。</span><br>       <span class="hljs-comment">// 获取下一个可用的缓冲区位置</span><br>       qp := chanbuf(c, c.sendx)<br>       <span class="hljs-comment">// 如果开启了 race 竞争检测</span><br>       <span class="hljs-keyword">if</span> raceenabled &#123;<br>          <span class="hljs-comment">// 通知竞争检测器，将要向通道缓冲区写入数据</span><br>          racenotify(c, c.sendx, <span class="hljs-literal">nil</span>)<br>       &#125;<br>       <span class="hljs-comment">// 将数据从 ep 复制到缓冲区</span><br>       typedmemmove(c.elemtype, qp, ep)<br>       <span class="hljs-comment">// 发送索引加 1</span><br>       c.sendx++<br>       <span class="hljs-comment">// 如果发送索引到达缓冲区末尾，则循环回到开头</span><br>       <span class="hljs-keyword">if</span> c.sendx == c.dataqsiz &#123;<br>          c.sendx = <span class="hljs-number">0</span><br>       &#125;<br>       c.qcount++<br>       unlock(&amp;c.lock)<br>       <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>    &#125;<br><br>    <span class="hljs-comment">// 对于非阻塞发送，如果没有接收者且缓冲区已满，返回失败</span><br>    <span class="hljs-keyword">if</span> !block &#123;<br>       unlock(&amp;c.lock)<br>       <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>    &#125;<br><br>    <span class="hljs-comment">// 情况3：代码执行到这里，说明是阻塞模式 (block == true) 且不存在缓冲区或者缓冲区已满，需要阻塞当前 goroutine 等待接收者</span><br><br>    <span class="hljs-comment">// 获取当前 goroutine 的指针</span><br>    gp := getg()<br>    <span class="hljs-comment">// 从 sudog 池中分配一个 sudog 结构体，用于表示当前 goroutine 在通道上的等待信息</span><br>    mysg := acquireSudog()<br>    <span class="hljs-comment">// 初始化 sudog 的 releasetime 字段为 0，表示尚未记录阻塞时间</span><br>    mysg.releasetime = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">if</span> t0 != <span class="hljs-number">0</span> &#123;<br>       mysg.releasetime = <span class="hljs-number">-1</span><br>    &#125;<br><br>    <span class="hljs-comment">// 在将要发送的数据指针分配给 mysg.elem 和将 mysg 加入到 gp.waiting 链表之间，不允许发生栈分裂。</span><br>    <span class="hljs-comment">// 这是为了防止 copystack 在进行栈复制时，无法正确找到 mysg.elem 指向的数据。</span><br>    <span class="hljs-comment">// 将要发送的数据的指针保存到 sudog 中</span><br>    mysg.elem = ep<br>    <span class="hljs-comment">// 将 sudog 的 waitlink 指针置为 nil，表示当前 sudog 还没有加入到等待队列中</span><br>    mysg.waitlink = <span class="hljs-literal">nil</span><br>    mysg.g = gp <span class="hljs-comment">// 关联当前goroutine</span><br>    <span class="hljs-comment">// 将 sudog 的 isSelect 字段设置为 false，表示当前操作不是 select 语句的一部分</span><br>    mysg.isSelect = <span class="hljs-literal">false</span><br>    mysg.c = c        <span class="hljs-comment">// 关联当前channel</span><br>    gp.waiting = mysg <span class="hljs-comment">// 设置goroutine的等待对象</span><br>    <span class="hljs-comment">// 将当前 goroutine 的 param 字段置为 nil，用于在唤醒时传递额外信息（这里不需要）</span><br>    gp.param = <span class="hljs-literal">nil</span><br>    <span class="hljs-comment">// 将 mysg 加入到通道的发送队列 c.sendq 中</span><br>    c.sendq.enqueue(mysg)<br><br>    <span class="hljs-comment">//  parkingOnChan 字段设置为 true，通知其他goroutine，当前goroutine 即将因channel操作而阻塞</span><br>    <span class="hljs-comment">// 这个时间窗口内不能进行栈收缩，因为G的状态正在改变</span><br>    gp.parkingOnChan.Store(<span class="hljs-literal">true</span>)<br><br>    <span class="hljs-comment">// 调用 gopark 函数阻塞当前 goroutine</span><br>    <span class="hljs-comment">// chanparkcommit 函数用于在真正阻塞前做一些提交操作，例如解锁等</span><br>    gopark(chanparkcommit, unsafe.Pointer(&amp;c.lock), waitReasonChanSend, traceBlockChanSend, <span class="hljs-number">2</span>)<br><br>    <span class="hljs-comment">// 确保待发送的值在接收者复制完成前不会被垃圾回收</span><br>    <span class="hljs-comment">// sudog虽然有指向栈对象的指针，但不会被栈追踪器视为根对象</span><br>    KeepAlive(ep)<br><br>    <span class="hljs-comment">// 被唤醒后的处理逻辑</span><br><br>    <span class="hljs-comment">// 检查当前 goroutine 的 waiting 字段是否仍然指向 mysg，如果不一致，说明等待列表被破坏了</span><br>    <span class="hljs-keyword">if</span> mysg != gp.waiting &#123;<br>       throw(<span class="hljs-string">&quot;G waiting list is corrupted&quot;</span>) <span class="hljs-comment">// 等待列表损坏</span><br>    &#125;<br>    <span class="hljs-comment">// 将当前 goroutine 的 waiting 字段置为 nil，表示当前 goroutine 不再等待任何 sudog</span><br>    gp.waiting = <span class="hljs-literal">nil</span><br>    <span class="hljs-comment">// 将当前 goroutine 的 activeStackChans 字段设置为 false, 表示当前 goroutine 不在 channel 操作相关的栈上</span><br>    gp.activeStackChans = <span class="hljs-literal">false</span><br>    <span class="hljs-comment">// 检查 mysg 的 success 字段，如果为 false，则表示发送失败（例如通道被关闭）</span><br>    closed := !mysg.success<br>    gp.param = <span class="hljs-literal">nil</span> <span class="hljs-comment">// 清空参数</span><br><br>    <span class="hljs-comment">// 记录阻塞事件用于性能分析</span><br>    <span class="hljs-keyword">if</span> mysg.releasetime &gt; <span class="hljs-number">0</span> &#123;<br>       blockevent(mysg.releasetime-t0, <span class="hljs-number">2</span>)<br>    &#125;<br><br>    <span class="hljs-comment">// 清理sudog</span><br>    mysg.c = <span class="hljs-literal">nil</span><br>    releaseSudog(mysg)<br><br>    <span class="hljs-comment">// 处理channel关闭的情况</span><br>    <span class="hljs-keyword">if</span> closed &#123;<br>       <span class="hljs-keyword">if</span> c.closed == <span class="hljs-number">0</span> &#123;<br>          throw(<span class="hljs-string">&quot;chansend: spurious wakeup&quot;</span>) <span class="hljs-comment">// 异常唤醒</span><br>       &#125;<br>       <span class="hljs-built_in">panic</span>(plainError(<span class="hljs-string">&quot;send on closed channel&quot;</span>)) <span class="hljs-comment">// channel已关闭则panic</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-comment">// 发送成功</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上述代码可以知道，go通道发送主要流程总结如下：</p>
+<p><strong>发送流程:</strong></p>
+<ol>
+<li><strong>空 Channel 检查  &amp;&amp;   竞态检测   &amp;&amp;     (非阻塞)快速检测    &amp;&amp;    加锁    &amp;&amp;    Channel 关闭检查:</strong></li>
+<li><strong>三种发送情况:</strong><ul>
+<li><strong>情况 1: 存在等待的接收者 (<code>c.recvq.dequeue() != nil</code>)</strong><ul>
+<li>从接收队列 <code>c.recvq</code> 中取出一个等待的接收者 <code>sg</code>。</li>
+<li>调用 <code>send(c, sg, ep, func() &#123; unlock(&amp;c.lock) &#125;, 3)</code> 直接将数据从发送者 <code>ep</code> 传递给接收者 <code>sg</code>，绕过缓冲区。</li>
+<li>发送成功后唤醒接收者 <code>sg</code>。</li>
+<li>发送成功，返回 <code>true</code>。</li>
+</ul>
+</li>
+<li><strong>情况 2: 缓冲区有空间 (<code>c.qcount &lt; c.dataqsiz</code>)</strong><ul>
+<li>计算下一个可用缓冲区位置 <code>qp</code>。</li>
+<li>如果启用了竞态检测，调用 <code>racenotify</code> 通知将要向缓冲区写入数据。</li>
+<li>使用 <code>typedmemmove</code> 将数据从 <code>ep</code> 复制到缓冲区 <code>qp</code>。</li>
+<li>更新发送索引 <code>c.sendx</code> 和缓冲区元素计数 <code>c.qcount</code>。</li>
+<li>释放锁 <code>c.lock</code>。</li>
+<li>发送成功，返回 <code>true</code>。</li>
+</ul>
+</li>
+<li><strong>情况 3: 不存在缓冲区或者缓冲区已满且为阻塞模式 (<code>block == true</code>)</strong><ul>
+<li>获取当前 goroutine 的指针 <code>gp</code>。</li>
+<li>从 <code>sudog</code> 池中分配一个 <code>sudog</code> 结构体 <code>mysg</code>。</li>
+<li>初始化 <code>mysg</code> 的各个字段，包括要发送的数据指针 <code>ep</code>、当前 goroutine <code>gp</code>、当前 channel <code>c</code> 等。</li>
+<li>将 <code>mysg</code> 加入到 channel 的发送队列 <code>c.sendq</code> 中。</li>
+<li>设置 <code>gp.parkingOnChan</code> 为 <code>true</code>，表示 goroutine 即将因 channel 操作阻塞。</li>
+<li>调用 <code>gopark</code> 阻塞当前 goroutine，等待被唤醒。</li>
+<li><code>gopark</code> 会释放锁 <code>c.lock</code>。</li>
+<li>被唤醒后，检查 <code>gp.waiting</code> 是否仍然指向 <code>mysg</code>，确保等待列表的完整性。</li>
+<li>检查 <code>mysg.success</code> 字段，判断发送是否成功。</li>
+<li>清理 <code>mysg</code> 并释放。</li>
+<li>如果 <code>closed</code> 为 <code>true</code> (发送失败)，且 channel 未关闭，则抛出 “spurious wakeup” 异常</li>
+<li>返回 <code>(true, success)</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="数据接收"><a href="#数据接收" class="headerlink" title="数据接收"></a>数据接收</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.chanrecv"><code>runtime.chanrecv</code></a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// chanrecv 从通道 c 接收数据并将其写入 ep。</span><br><span class="hljs-comment">// ep 可以为 nil，在这种情况下，接收到的数据将被忽略。</span><br><span class="hljs-comment">// 如果 block == false 并且没有可用的元素，则返回 (false, false)。</span><br><span class="hljs-comment">// 否则，如果 c 已关闭，则将 *ep 清零并返回 (true, false)。</span><br><span class="hljs-comment">// 否则，用一个元素填充 *ep 并返回 (true, true)。</span><br><span class="hljs-comment">// 非 nil 的 ep 必须指向堆或调用者的栈。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">chanrecv</span><span class="hljs-params">(c *hchan, ep unsafe.Pointer, block <span class="hljs-type">bool</span>)</span></span> (selected, received <span class="hljs-type">bool</span>) &#123;<br>    <span class="hljs-comment">// 。。。。。忽略前置检查逻辑</span><br><br>    <span class="hljs-comment">// 加锁，保护通道状态</span><br>    lock(&amp;c.lock)<br><br>    <span class="hljs-comment">// 如果通道已关闭</span><br>    <span class="hljs-keyword">if</span> c.closed != <span class="hljs-number">0</span> &#123;<br>       <span class="hljs-comment">// 并且缓冲区中没有数据</span><br>       <span class="hljs-keyword">if</span> c.qcount == <span class="hljs-number">0</span> &#123;<br>          <span class="hljs-keyword">if</span> raceenabled &#123;<br>             raceacquire(c.raceaddr())<br>          &#125;<br>          <span class="hljs-comment">// 解锁</span><br>          unlock(&amp;c.lock)<br>          <span class="hljs-comment">// 如果 ep 非空，则将 ep 指向的数据清零</span><br>          <span class="hljs-keyword">if</span> ep != <span class="hljs-literal">nil</span> &#123;<br>             typedmemclr(c.elemtype, ep)<br>          &#125;<br>          <span class="hljs-comment">// 返回 true, false，表示通道已关闭且没有接收到数据</span><br>          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span><br>       &#125;<br>       <span class="hljs-comment">// 通道已关闭，但通道的缓冲区中有数据。</span><br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>       <span class="hljs-comment">// 情况1： 存在等待的发送者且通道未关闭。</span><br>       <span class="hljs-comment">// 从发送队列中取出一个 sudog</span><br>       <span class="hljs-keyword">if</span> sg := c.sendq.dequeue(); sg != <span class="hljs-literal">nil</span> &#123;<br>           	<span class="hljs-comment">/*</span><br><span class="hljs-comment">			调用recv函数接收数据</span><br><span class="hljs-comment">			该函数会根据缓冲区的大小分别处理不同的情况：</span><br><span class="hljs-comment">			1.如果 Channel 不存在缓冲区；</span><br><span class="hljs-comment">			调用 runtime.recvDirect 将 Channel 发送队列中 Goroutine 存储的 elem 数据拷贝到目标内存地址中；</span><br><span class="hljs-comment">			2.如果 Channel 存在缓冲区；</span><br><span class="hljs-comment">			将队列中的数据拷贝到接收方的内存地址；</span><br><span class="hljs-comment">			将发送队列头的数据拷贝到缓冲区中，释放一个阻塞的发送方；</span><br><span class="hljs-comment">			*/</span><br>          recv(c, sg, ep, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; unlock(&amp;c.lock) &#125;, <span class="hljs-number">3</span>)<br>          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span><br>       &#125;<br>    &#125;<br>    <span class="hljs-comment">// 情况2： 如果缓冲区中有数据</span><br>    <span class="hljs-keyword">if</span> c.qcount &gt; <span class="hljs-number">0</span> &#123;<br>       <span class="hljs-comment">// 直接从缓冲区接收数据</span><br>       qp := chanbuf(c, c.recvx) <span class="hljs-comment">// 获取接收索引位置的指针</span><br>       <span class="hljs-keyword">if</span> raceenabled &#123;<br>          <span class="hljs-comment">// 通知 race detector 发生了数据访问</span><br>          racenotify(c, c.recvx, <span class="hljs-literal">nil</span>)<br>       &#125;<br>       <span class="hljs-comment">// 如果 ep 非空，则将数据从缓冲区复制到 ep 指向的内存</span><br>       <span class="hljs-keyword">if</span> ep != <span class="hljs-literal">nil</span> &#123;<br>          typedmemmove(c.elemtype, ep, qp)<br>       &#125;<br>       <span class="hljs-comment">// 清空缓冲区中该位置的数据</span><br>       typedmemclr(c.elemtype, qp)<br>       <span class="hljs-comment">// 接收索引加一</span><br>       c.recvx++<br>       <span class="hljs-comment">// 如果接收索引到达缓冲区末尾，则将其重置为 0</span><br>       <span class="hljs-keyword">if</span> c.recvx == c.dataqsiz &#123;<br>          c.recvx = <span class="hljs-number">0</span><br>       &#125;<br>       <span class="hljs-comment">// 缓冲区中数据数量减一</span><br>       c.qcount--<br>       unlock(&amp;c.lock)<br>       <span class="hljs-comment">// 返回 true, true，表示成功接收到数据</span><br>       <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span><br>    &#125;<br><br>    <span class="hljs-comment">// 如果是非阻塞模式</span><br>    <span class="hljs-keyword">if</span> !block &#123;<br>       unlock(&amp;c.lock)<br>       <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>       <span class="hljs-comment">// 返回 false, false，表示非阻塞模式下没有接收到数据</span><br>    &#125;<br><br>    <span class="hljs-comment">// 情况3： 不存在缓冲区或者缓冲区为空且为阻塞模式</span><br><br>    <span class="hljs-comment">// 获取当前 goroutine</span><br>    gp := getg()<br>    <span class="hljs-comment">// 获取一个 sudog 结构体</span><br>    mysg := acquireSudog()<br>    mysg.releasetime = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">if</span> t0 != <span class="hljs-number">0</span> &#123;<br>       mysg.releasetime = <span class="hljs-number">-1</span><br>    &#125;<br>    <span class="hljs-comment">// 在将 elem 赋值和将 mysg 入队到 gp.waiting 之间没有栈分割，</span><br>    <span class="hljs-comment">// 这样 copystack 就可以找到它。</span><br>    mysg.elem = ep      <span class="hljs-comment">// 存储接收数据的地址</span><br>    mysg.waitlink = <span class="hljs-literal">nil</span> <span class="hljs-comment">// sudog 链表指针</span><br>    gp.waiting = mysg   <span class="hljs-comment">// 将 sudog 设置为当前 goroutine 的 waiting sudog</span><br><br>    mysg.g = gp           <span class="hljs-comment">// sudog 关联的 goroutine</span><br>    mysg.isSelect = <span class="hljs-literal">false</span> <span class="hljs-comment">// 表示不是 select 语句</span><br>    mysg.c = c            <span class="hljs-comment">// sudog 关联的通道</span><br>    gp.param = <span class="hljs-literal">nil</span>        <span class="hljs-comment">// 在被唤醒时，发送方会将数据地址存储在这里，或者将 nil 存储在这里表示通道已关闭</span><br>    <span class="hljs-comment">// 将 sudog 入队到接收队列</span><br>    c.recvq.enqueue(mysg)<br>    <span class="hljs-comment">// 如果设置了通道定时器，则阻塞定时器</span><br>    <span class="hljs-keyword">if</span> c.timer != <span class="hljs-literal">nil</span> &#123;<br>       blockTimerChan(c)<br>    &#125;<br><br>    <span class="hljs-comment">// 向任何试图收缩该协程栈的人发出信号，表明即将停放在一个通道上。</span><br>    <span class="hljs-comment">// 在此 G 的状态更改和设置 gp.activeStackChans 之间的窗口对于栈收缩是不安全的。</span><br>    gp.parkingOnChan.Store(<span class="hljs-literal">true</span>)<br>    <span class="hljs-comment">// 阻塞当前 goroutine</span><br>    gopark(chanparkcommit, unsafe.Pointer(&amp;c.lock), waitReasonChanReceive, traceBlockChanRecv, <span class="hljs-number">2</span>)<br><br>    <span class="hljs-comment">// 被唤醒后的处理逻辑</span><br>    <br>    <span class="hljs-comment">// 检查当前 goroutine 的 waiting 字段是否仍然指向 mysg，如果不一致，说明等待列表被破坏了</span><br>    <span class="hljs-keyword">if</span> mysg != gp.waiting &#123;<br>       throw(<span class="hljs-string">&quot;G waiting list is corrupted&quot;</span>)<br>    &#125;<br>    <span class="hljs-comment">// 如果设置了通道定时器，则解除阻塞</span><br>    <span class="hljs-keyword">if</span> c.timer != <span class="hljs-literal">nil</span> &#123;<br>       unblockTimerChan(c)<br>    &#125;<br>    gp.waiting = <span class="hljs-literal">nil</span>            <span class="hljs-comment">// 清空 waiting sudog</span><br>    gp.activeStackChans = <span class="hljs-literal">false</span> <span class="hljs-comment">// 允许栈收缩</span><br>    <span class="hljs-comment">// 如果记录了阻塞时间，则记录阻塞事件</span><br>    <span class="hljs-keyword">if</span> mysg.releasetime &gt; <span class="hljs-number">0</span> &#123;<br>       blockevent(mysg.releasetime-t0, <span class="hljs-number">2</span>)<br>    &#125;<br>    <span class="hljs-comment">// 获取操作是否成功的标志</span><br>    success := mysg.success<br>    gp.param = <span class="hljs-literal">nil</span> <span class="hljs-comment">// 清空 param</span><br>    mysg.c = <span class="hljs-literal">nil</span>   <span class="hljs-comment">// 清空 sudog 关联的通道</span><br>    <span class="hljs-comment">// 释放 sudog</span><br>    releaseSudog(mysg)<br>    <span class="hljs-comment">// 返回 true 和 success 标志</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>, success<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>主要逻辑和情况处理：</strong></p>
+<ol>
+<li><strong>空 Channel 检查  &amp;&amp;   竞态检测   &amp;&amp;     (非阻塞)快速检测    &amp;&amp;    加锁    &amp;&amp;    Channel 关闭检查:</strong></li>
+<li><strong>通道未关闭:</strong><ul>
+<li><strong>情况 1: 存在等待的发送者 (<code>c.sendq</code> 不为空):</strong><ul>
+<li>调用recv函数接收数据，如果 Channel 不存在缓冲区，调用 runtime.recvDirect 将 Channel 发送队列中 Goroutine 存储的 elem 数据拷贝到目标内存地址中；如果 Channel 存在缓冲区；将发送队列头的数据拷贝到缓冲区中，释放一个阻塞的发送方；</li>
+</ul>
+</li>
+<li><strong>情况 2: 缓冲区中有数据 (<code>c.qcount &gt; 0</code>):</strong><ul>
+<li>直接从缓冲区 <code>c.recvx</code> 索引处读取数据。</li>
+<li>如果 <code>ep</code> 不为 <code>nil</code>，则将数据拷贝到 <code>ep</code> 指向的内存。</li>
+<li>更新 <code>c.recvx</code> 和 <code>c.qcount</code>。</li>
+<li>返回 <code>(true, true)</code>。</li>
+</ul>
+</li>
+<li><strong>情况 3: 不存在缓冲区或者缓冲区为空且为阻塞模式:</strong><ul>
+<li>获取当前 goroutine 的指针 <code>gp</code>。</li>
+<li>从 <code>sudog</code> 池中分配一个 <code>sudog</code> 结构体 <code>mysg</code>。</li>
+<li>初始化 <code>mysg</code> 的各个字段，包括要发送的数据指针 <code>ep</code>、当前 goroutine <code>gp</code>、当前 channel <code>c</code> 等。</li>
+<li>将 <code>mysg</code> 加入到 channel 的发送队列 <code>c.recvq</code> 中。</li>
+<li>调用 <code>gopark</code> 函数阻塞当前 goroutine，等待被唤醒。</li>
+<li>被唤醒后，检查 <code>gp.waiting</code> 是否仍然指向 <code>mysg</code>，确保等待列表的完整性。</li>
+<li>检查 <code>mysg.success</code> 字段，判断发送是否成功。</li>
+<li>清理 <code>mysg</code> 并释放。</li>
+<li>返回 <code>(true, success)</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>nil channel</th>
+<th>closed channel</th>
+<th>not nil, not closed channel</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>close</td>
+<td>panic</td>
+<td>panic</td>
+<td>正常关闭</td>
+</tr>
+<tr>
+<td>读 &lt;- ch</td>
+<td>阻塞</td>
+<td>读到对应类型的零值</td>
+<td>阻塞或正常读取数据。缓冲型 channel 为空或非缓冲型 channel 没有等待发送者时会阻塞</td>
+</tr>
+<tr>
+<td>写 ch &lt;-</td>
+<td>阻塞</td>
+<td>panic</td>
+<td>阻塞或正常写入数据。非缓冲型 channel 没有等待接收者或缓冲型 channel buf 满时会被阻塞</td>
+</tr>
+</tbody></table>
+<h3 id="1-Channel-发送和接收数据的本质是什么？"><a href="#1-Channel-发送和接收数据的本质是什么？" class="headerlink" title="1.Channel 发送和接收数据的本质是什么？"></a>1.Channel 发送和接收数据的本质是什么？</h3><blockquote>
+<p><strong>All transfer of value on the go channels happens with the copy of value.</strong></p>
+</blockquote>
+<p><strong>就是说 channel 的发送和接收操作本质上都是 “值的拷贝”，无论是从 sender goroutine 的栈到 chan buf，还是从 chan buf 到 receiver goroutine，或者是直接从 sender goroutine 到 receiver goroutine。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> user <span class="hljs-keyword">struct</span> &#123;<br>	name <span class="hljs-type">string</span><br>	age <span class="hljs-type">int8</span><br>&#125;<br><br><span class="hljs-keyword">var</span> u = user&#123;name: <span class="hljs-string">&quot;Ankur&quot;</span>, age: <span class="hljs-number">25</span>&#125;<br><span class="hljs-keyword">var</span> g = &amp;u<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">modifyUser</span><span class="hljs-params">(pu *user)</span></span> &#123;<br>	fmt.Println(<span class="hljs-string">&quot;modifyUser Received Vaule&quot;</span>, pu)<br>	pu.name = <span class="hljs-string">&quot;Anand&quot;</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">printUser</span><span class="hljs-params">(u &lt;-<span class="hljs-keyword">chan</span> *user)</span></span> &#123;<br>	time.Sleep(<span class="hljs-number">2</span> * time.Second)<br>	fmt.Println(<span class="hljs-string">&quot;printUser goRoutine called&quot;</span>, &lt;-u)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	c := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> *user, <span class="hljs-number">5</span>)<br>	c &lt;- g<br>	fmt.Println(g)<br>	<span class="hljs-comment">// modify g</span><br>	g = &amp;user&#123;name: <span class="hljs-string">&quot;Ankur Anand&quot;</span>, age: <span class="hljs-number">100</span>&#125;<br>	<span class="hljs-keyword">go</span> printUser(c)<br>	<span class="hljs-keyword">go</span> modifyUser(g)<br>	time.Sleep(<span class="hljs-number">5</span> * time.Second)<br>	fmt.Println(g)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">输出结果：<br>&amp;&#123;Ankur 25&#125;<br>modifyUser Received Vaule &amp;&#123;Ankur Anand 100&#125;<br>printUser goRoutine called &amp;&#123;Ankur 25&#125;<br>&amp;&#123;Anand 100&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://golang.design/go-questions/channel/assets/12.png" srcset="/img/loading.gif" lazyload alt="output"></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions">Go 程序员面试笔试宝典</a></p>
+<p>2.《Go学习笔记》</p>
+<p>3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang">Go 语言设计与实现</a></p>
+<p>4.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://codeburst.io/diving-deep-into-the-golang-channels-549fd4ed21a8">《Diving Deep Into The Golang Channels.》</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>08.Golang 通道（channel ）源码分析（二、数据发送与接收）</div>
+      <div>https://blog.longpi1.com/2024/12/14/08-Golang-通道（channel-）源码分析（二、数据发送与接收）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/06/07-Golang-%E9%80%9A%E9%81%93%EF%BC%88channel-%EF%BC%89%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E5%AE%9A%E4%B9%89%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%89/" title="07.Golang 通道（channel ）源码分析（一、定义与创建关闭）">
+                        <span class="hidden-mobile">07.Golang 通道（channel ）源码分析（一、定义与创建关闭）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
