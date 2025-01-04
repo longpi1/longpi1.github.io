@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）">
+<meta property="og:url" content="https://blog.longpi1.com/2025/01/04/10-Golang-%E9%94%81-sync%E5%8C%85-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%EF%BC%88%E4%B8%80%E3%80%81Mutex%E5%8A%A0%E9%94%81%E8%A7%A3%E9%94%81%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-01-04T06:34:20.000Z">
+<meta property="article:modified_time" content="2025-01-04T06:34:45.537Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-04 14:34" pubdate>
+          2025年1月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.5k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-锁-sync包-源码分析-（一、Mutex加锁解锁）"><a href="#Golang-锁-sync包-源码分析-（一、Mutex加锁解锁）" class="headerlink" title="Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）"></a>Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）</h1><blockquote>
+<p>注意当前go版本代码为1.23</p>
+<p>sync包 源码分析包主要介绍 Go 语言中常见的同步原语 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex"><code>sync.Mutex</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex"><code>sync.RWMutex</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.WaitGroup"><code>sync.WaitGroup</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Once"><code>sync.Once</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Cond"><code>sync.Cond</code></a> 以及扩展原语 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/golang/sync/errgroup.Group"><code>golang/sync/errgroup.Group</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/golang/sync/semaphore.Weighted"><code>golang/sync/semaphore.Weighted</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/golang/sync/singleflight.Group"><code>golang/sync/singleflight.Group</code></a> 的实现原理，同时也会涉及互斥锁、信号量等并发编程中的常见概念。</p>
+</blockquote>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Mutex <span class="hljs-keyword">struct</span> &#123;<br>	state <span class="hljs-type">int32</span> <span class="hljs-comment">// mutex 的状态</span><br>	sema  <span class="hljs-type">uint32</span> <span class="hljs-comment">// 用于阻塞/唤醒 goroutine 的信号量</span><br>&#125;<br><br><span class="hljs-keyword">type</span> Locker <span class="hljs-keyword">interface</span> &#123;<br>	Lock()<br>	Unlock()<br>&#125;<br><br><br><span class="hljs-keyword">const</span> (<br>	mutexLocked = <span class="hljs-number">1</span> &lt;&lt; <span class="hljs-literal">iota</span> <span class="hljs-comment">// mutex 已锁定</span><br>	mutexWoken              <span class="hljs-comment">// 有 waiter 被唤醒</span><br>	mutexStarving           <span class="hljs-comment">// mutex 处于饥饿模式</span><br>	mutexWaiterShift = <span class="hljs-literal">iota</span> <span class="hljs-comment">// waiter 数量的偏移量</span><br>	starvationThresholdNs = <span class="hljs-number">1e6</span> <span class="hljs-comment">// 切换到饥饿模式的阈值，单位纳秒</span><br>)<br></code></pre></td></tr></table></figure>
+
+<p>在默认情况下，互斥锁的所有状态位都是 0，<code>int32</code> 中的不同位分别表示了不同的状态：</p>
+<ul>
+<li><code>mutexLocked</code> — 表示互斥锁的锁定状态；</li>
+<li><code>mutexWoken</code> — 表示从正常模式被从唤醒；</li>
+<li><code>mutexStarving</code> — 当前的互斥锁进入饥饿状态；</li>
+</ul>
+<h3 id="正常模式和饥饿模式"><a href="#正常模式和饥饿模式" class="headerlink" title="正常模式和饥饿模式"></a>正常模式和饥饿模式</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex"><code>sync.Mutex</code></a> 有两种模式 — 正常模式和饥饿模式。</p>
+<p>在正常模式下，waiter 按照 FIFO 顺序排队，但是被唤醒的 waiter并不拥有 mutex，而是与新到达的 goroutine 竞争 mutex 的所有权。新到达的 goroutine 具有优势 – 它们已经在 CPU 上运行，并且可能有很多，因此被唤醒的 waiter 很有可能竞争失败。在这种情况下，它会被重新排到等待队列的前面。为了减少这种情况的出现，一旦 Goroutine 超过 1ms 没有获取到锁，它就会将当前互斥锁切换饥饿模式，防止部分 Goroutine 被『饿死』。</p>
+<pre><code class="hljs">// 在饥饿模式下，mutex 的所有权直接从解锁的 goroutine 移交给队列最前面的 waiter。
+// 新到达的 goroutine 不会尝试获取 mutex，即使它看起来是解锁的，
+// 并且不会尝试自旋。相反，它们会将自己排到等待队列的末尾。
+//
+// 如果一个 waiter 获得了 mutex 的所有权，并且看到
+// (1) 它是队列中的最后一个 waiter，或者 (2) 它等待的时间少于 1ms，
+// it switches mutex back to normal operation mode.
+// mutex 将切换回正常操作模式。
+// 正常模式具有更好的性能，因为一个 goroutine 可以连续多次获取mutex，即使有阻塞的 waiter。
+// 饥饿模式对于防止尾部延迟的病态情况非常重要。
+</code></pre>
+<h2 id="加锁和解锁"><a href="#加锁和解锁" class="headerlink" title="加锁和解锁"></a>加锁和解锁</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex.Lock"><code>sync.Mutex.Lock</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex.Unlock"><code>sync.Mutex.Unlock</code></a> 方法。</p>
+<h3 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Lock 方法用于获取互斥锁。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *Mutex)</span></span> Lock() &#123;<br>        <span class="hljs-comment">// 快速路径：尝试直接获取未锁定的互斥锁。</span><br>        <span class="hljs-comment">// 使用原子操作 CompareAndSwapInt32 来尝试将 m.state 从 0 修改为 mutexLocked。</span><br>        <span class="hljs-comment">// 如果成功，说明当前 goroutine 成功获取了锁，直接返回。</span><br>        <span class="hljs-keyword">if</span> atomic.CompareAndSwapInt32(&amp;m.state, <span class="hljs-number">0</span>, mutexLocked) &#123;<br>                <span class="hljs-comment">// 如果启用了竞态检测，记录当前 goroutine 获取了锁。</span><br>                <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                        race.Acquire(unsafe.Pointer(m))<br>                &#125;<br>                <span class="hljs-keyword">return</span><br>        &#125;<br>        <span class="hljs-comment">// 慢速路径：如果快速路径失败，调用 lockSlow 方法进行更复杂的锁获取逻辑。</span><br>        <span class="hljs-comment">// 将慢速路径单独放在一个函数中，以便快速路径可以被内联优化。</span><br>        m.lockSlow()<br>&#125;<br><br><br><span class="hljs-comment">// lockSlow 方法用于处理锁获取的慢速路径。</span><br><span class="hljs-comment">// 1. 判断当前 Goroutine 能否进入自旋；</span><br><span class="hljs-comment">// 2. 通过自旋等待互斥锁的释放；</span><br><span class="hljs-comment">// 3. 计算互斥锁的最新状态；</span><br><span class="hljs-comment">// 4. 更新互斥锁的状态并获取锁；</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *Mutex)</span></span> lockSlow() &#123;<br>        <span class="hljs-keyword">var</span> waitStartTime <span class="hljs-type">int64</span>  <span class="hljs-comment">// 记录当前 goroutine 开始等待的时间</span><br>        starving := <span class="hljs-literal">false</span>        <span class="hljs-comment">// 标记当前 goroutine 是否处于饥饿模式</span><br>        awoke := <span class="hljs-literal">false</span>           <span class="hljs-comment">// 标记当前 goroutine 是否被唤醒</span><br>        iter := <span class="hljs-number">0</span>                <span class="hljs-comment">// 记录自旋次数</span><br>        old := m.state           <span class="hljs-comment">// old 存储互斥锁的旧状态。</span><br><br>        <span class="hljs-keyword">for</span> &#123;<br>                <span class="hljs-comment">// 如果互斥锁已被锁定且不处于饥饿模式，并且当前 goroutine 可以进行自旋，</span><br>                <span class="hljs-comment">// 则尝试通过自旋来获取锁。</span><br>                <span class="hljs-comment">// runtime.sync_runtime_canSpin 返回 true的前提</span><br>                <span class="hljs-comment">// 运行在多 CPU 的机器上；</span><br>                <span class="hljs-comment">// 当前 Goroutine 为了获取该锁进入自旋的次数小于四次；</span><br>                <span class="hljs-comment">// 当前机器上至少存在一个正在运行的处理器 P 并且处理的运行队列为空；</span><br>                <span class="hljs-keyword">if</span> old&amp;(mutexLocked|mutexStarving) == mutexLocked &amp;&amp; runtime_canSpin(iter) &#123;<br>                        <span class="hljs-comment">// 尝试设置 mutexWoken 标志位，通知 Unlock 方法不要唤醒其他阻塞的 goroutine。</span><br>                        <span class="hljs-comment">// 这样做是为了尝试将互斥锁“传递”给当前正在自旋的 goroutine，减少上下文切换。</span><br>                        <span class="hljs-comment">// 只有在当前 goroutine 未被唤醒，且 mutexWoken 位未被设置，</span><br>                        <span class="hljs-comment">// 并且存在等待的 goroutine 时，才尝试设置 mutexWoken。</span><br>                        <span class="hljs-keyword">if</span> !awoke &amp;&amp; old&amp;mutexWoken == <span class="hljs-number">0</span> &amp;&amp; old&gt;&gt;mutexWaiterShift != <span class="hljs-number">0</span> &amp;&amp;<br>                                atomic.CompareAndSwapInt32(&amp;m.state, old, old|mutexWoken) &#123;<br>                                awoke = <span class="hljs-literal">true</span><br>                        &#125;<br>                        <span class="hljs-comment">// 执行一次自旋操作，让出 CPU 时间片。</span><br>                        runtime_doSpin()<br>                        <span class="hljs-comment">// 增加自旋次数。</span><br>                        iter++<br>                        <span class="hljs-comment">// 更新互斥锁的状态。</span><br>                        <span class="hljs-keyword">continue</span>         <span class="hljs-comment">// 继续循环</span><br>                &#125;<br><br>                <span class="hljs-built_in">new</span> := old  <span class="hljs-comment">// 创建一个新的状态变量，用于后续的 CAS 操作</span><br><br>                <span class="hljs-comment">// 如果互斥锁不处于饥饿模式，则尝试获取锁。</span><br>                <span class="hljs-keyword">if</span> old&amp;mutexStarving == <span class="hljs-number">0</span> &#123;<br>                        <span class="hljs-built_in">new</span> |= mutexLocked<br>                &#125;<br><br>                <span class="hljs-comment">// 如果互斥锁已被锁定或处于饥饿模式，则增加等待者计数。</span><br>                <span class="hljs-keyword">if</span> old&amp;(mutexLocked|mutexStarving) != <span class="hljs-number">0</span> &#123;<br>                        <span class="hljs-built_in">new</span> += <span class="hljs-number">1</span> &lt;&lt; mutexWaiterShift<br>                &#125;<br><br>                <span class="hljs-comment">// 如果当前 goroutine 处于饥饿模式，并且互斥锁已被锁定，</span><br>                <span class="hljs-comment">// 则将互斥锁切换到饥饿模式。</span><br>                <span class="hljs-keyword">if</span> starving &amp;&amp; old&amp;mutexLocked != <span class="hljs-number">0</span> &#123;<br>                        <span class="hljs-built_in">new</span> |= mutexStarving<br>                &#125;<br><br>                <span class="hljs-comment">// 如果当前 goroutine 已被唤醒，则需要重置 mutexWoken 标志。</span><br>                <span class="hljs-keyword">if</span> awoke &#123;<br>                        <span class="hljs-comment">// 如果新的状态中没有 mutexWoken 标志，则抛出异常。</span><br>                        <span class="hljs-keyword">if</span> <span class="hljs-built_in">new</span>&amp;mutexWoken == <span class="hljs-number">0</span> &#123;<br>                                throw(<span class="hljs-string">&quot;sync: inconsistent mutex state&quot;</span>)<br>                        &#125;<br>                        <span class="hljs-built_in">new</span> &amp;^= mutexWoken  <span class="hljs-comment">// 重置 mutexWoken 标志</span><br>                &#125;<br><br>                <span class="hljs-comment">// 尝试通过 CAS 操作将互斥锁的状态从 old 修改为 new。</span><br>                <span class="hljs-keyword">if</span> atomic.CompareAndSwapInt32(&amp;m.state, old, <span class="hljs-built_in">new</span>) &#123;<br>                        <span class="hljs-comment">// 如果互斥锁未被锁定且不处于饥饿模式，则当前 goroutine 成功获取了锁，退出循环。</span><br>                        <span class="hljs-keyword">if</span> old&amp;(mutexLocked|mutexStarving) == <span class="hljs-number">0</span> &#123;<br>                                <span class="hljs-keyword">break</span><br>                        &#125;<br><br>                        <span class="hljs-comment">// 如果当前 goroutine 之前已经在等待，则将其放在等待队列的前面。</span><br>                        queueLifo := waitStartTime != <span class="hljs-number">0</span><br>                        <span class="hljs-keyword">if</span> waitStartTime == <span class="hljs-number">0</span> &#123;<br>                                waitStartTime = runtime_nanotime()  <span class="hljs-comment">// 记录开始等待的时间</span><br>                        &#125;<br><br>                        <span class="hljs-comment">// 阻塞当前 goroutine，等待信号量唤醒。</span><br>                        runtime_SemacquireMutex(&amp;m.sema, queueLifo, <span class="hljs-number">1</span>)<br><br>                        <span class="hljs-comment">// 如果当前 goroutine 等待的时间超过了饥饿阈值，则将其标记为饥饿模式。</span><br>                        starving = starving || runtime_nanotime()-waitStartTime &gt; starvationThresholdNs<br>                        old = m.state  <span class="hljs-comment">// 重新获取当前互斥锁的状态</span><br><br>                        <span class="hljs-comment">// 如果互斥锁处于饥饿模式，则处理饥饿模式下的逻辑。</span><br>                        <span class="hljs-keyword">if</span> old&amp;mutexStarving != <span class="hljs-number">0</span> &#123;<br>                                <span class="hljs-comment">// 如果当前 goroutine 被唤醒且互斥锁处于饥饿模式，</span><br>                                <span class="hljs-comment">// 但互斥锁的状态不一致（例如，mutexLocked 未设置或等待者计数为 0），则抛出异常。</span><br>                                <span class="hljs-keyword">if</span> old&amp;(mutexLocked|mutexWoken) != <span class="hljs-number">0</span> || old&gt;&gt;mutexWaiterShift == <span class="hljs-number">0</span> &#123;<br>                                        throw(<span class="hljs-string">&quot;sync: inconsistent mutex state&quot;</span>)<br>                                &#125;<br><br>                                <span class="hljs-comment">// 计算状态增量，用于退出饥饿模式。</span><br>                                delta := <span class="hljs-type">int32</span>(mutexLocked - <span class="hljs-number">1</span>&lt;&lt;mutexWaiterShift)<br>                                <span class="hljs-keyword">if</span> !starving || old&gt;&gt;mutexWaiterShift == <span class="hljs-number">1</span> &#123;<br>                                        <span class="hljs-comment">// 如果当前 goroutine 不再饥饿，或者等待者计数为 1，则退出饥饿模式。</span><br>                                        delta -= mutexStarving<br>                                &#125;<br><br>                                <span class="hljs-comment">// 更新互斥锁的状态，退出饥饿模式。</span><br>                                atomic.AddInt32(&amp;m.state, delta)<br>                                <span class="hljs-keyword">break</span><br>                        &#125;<br><br>                        <span class="hljs-comment">// 当前 goroutine 已被唤醒，重置 awoke 和 iter 标志。</span><br>                        awoke = <span class="hljs-literal">true</span><br>                        iter = <span class="hljs-number">0</span><br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                        <span class="hljs-comment">// 如果 CAS 操作失败，则重新获取当前互斥锁的状态，继续循环。</span><br>                        old = m.state<br>                &#125;<br>        &#125;<br><br>        <span class="hljs-comment">// 如果启用了竞态检测，记录当前 goroutine 获取了锁。</span><br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                race.Acquire(unsafe.Pointer(m))<br>        &#125;<br>&#125;<br><br><br><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Unlock 解锁 Mutex。</span><br><span class="hljs-comment">// 如果 m 没有被锁定，则会抛出运行时错误。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *Mutex)</span></span> Unlock() &#123;<br>        <span class="hljs-comment">// 如果启用了竞态检测器。</span><br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                _ = m.state <span class="hljs-comment">// 对 m.state 的访问，用于竞态检测。确保在 Release 之前读取。</span><br>                race.Release(unsafe.Pointer(m)) <span class="hljs-comment">// 通知竞态检测器 Mutex 已被释放。</span><br>        &#125;<br><br>        <span class="hljs-comment">// 快速路径：清除锁定位。</span><br>        <span class="hljs-comment">// 使用原子操作将状态值减去 mutexLocked (1)。</span><br>        <span class="hljs-comment">// 如果新的状态值不为 0，说明还有其他位被设置（例如，有等待者或处于饥饿模式）。</span><br>        <span class="hljs-built_in">new</span> := atomic.AddInt32(&amp;m.state, -mutexLocked)<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">new</span> != <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-comment">// 外联的慢速路径，允许内联快速路径。</span><br>                <span class="hljs-comment">// 为了在追踪 GoUnblock 时隐藏 unlockSlow，我们跳过一个额外的栈帧。</span><br>                <span class="hljs-comment">// 这样做可以使追踪信息更简洁，只显示关键的阻塞/唤醒操作。</span><br>                m.unlockSlow(<span class="hljs-built_in">new</span>)<br>        &#125;<br>&#125;<br><br><span class="hljs-comment">// unlockSlow 是 Unlock 的慢速路径。</span><br><span class="hljs-comment">// 当解锁时，Mutex 的状态不仅仅是锁定状态时，会调用此函数。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *Mutex)</span></span> unlockSlow(<span class="hljs-built_in">new</span> <span class="hljs-type">int32</span>) &#123;<br>        <span class="hljs-comment">// 如果 (new + mutexLocked) &amp; mutexLocked == 0，意味着在解锁前 Mutex 就没有被锁定。</span><br>        <span class="hljs-comment">// 因为在 Unlock 的快速路径中，我们已经减去了 mutexLocked，</span><br>        <span class="hljs-comment">// 如果解锁前没有被锁定，那么 new 应该就是 0 或者负数（如果存在等待者或者处于饥饿模式）。</span><br>        <span class="hljs-comment">// 加上 mutexLocked 后，如果原先没被锁定，结果与 mutexLocked 进行与运算应该为 0。</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">new</span>+mutexLocked)&amp;mutexLocked == <span class="hljs-number">0</span> &#123;<br>                fatal(<span class="hljs-string">&quot;sync: unlock of unlocked mutex&quot;</span>) <span class="hljs-comment">// 抛出致命错误，因为尝试解锁一个未锁定的 Mutex。</span><br>        &#125;<br>        <span class="hljs-comment">// 如果没有处于饥饿模式。</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">new</span>&amp;mutexStarving == <span class="hljs-number">0</span> &#123;<br>                old := <span class="hljs-built_in">new</span> <span class="hljs-comment">// 保存当前状态值。</span><br>                <span class="hljs-keyword">for</span> &#123;<br>                        <span class="hljs-comment">// 如果没有等待者，或者一个 goroutine 已经醒来或已经获取了锁，则不需要唤醒任何人。</span><br>                        <span class="hljs-comment">// 在饥饿模式下，所有权直接从解锁的 goroutine 移交给下一个等待者。</span><br>                        <span class="hljs-comment">// 我们不属于这个链条，因为我们在解锁 Mutex 时没有观察到 mutexStarving。</span><br>                        <span class="hljs-comment">// 所以让开道路。</span><br>                        <span class="hljs-comment">// old&gt;&gt;mutexWaiterShift == 0  表示没有等待者。</span><br>                        <span class="hljs-comment">// old&amp;(mutexLocked|mutexWoken|mutexStarving) != 0 表示 Mutex 仍然被锁定，或者有 goroutine 正在被唤醒，或者处于饥饿模式。</span><br>                        <span class="hljs-keyword">if</span> old&gt;&gt;mutexWaiterShift == <span class="hljs-number">0</span> || old&amp;(mutexLocked|mutexWoken|mutexStarving) != <span class="hljs-number">0</span> &#123;<br>                                <span class="hljs-keyword">return</span> <span class="hljs-comment">// 直接返回，无需唤醒任何 goroutine。</span><br>                        &#125;<br>                        <span class="hljs-comment">// 争夺唤醒某人的权利。</span><br>                        <span class="hljs-comment">// 将等待者计数减 1，并设置唤醒位。</span><br>                        <span class="hljs-built_in">new</span> = (old - <span class="hljs-number">1</span>&lt;&lt;mutexWaiterShift) | mutexWoken<br>                        <span class="hljs-comment">// 使用原子操作比较并交换 Mutex 的状态。</span><br>                        <span class="hljs-comment">// 如果当前状态仍然是 old，则将其更新为 new，表示我们成功获得了唤醒的权利。</span><br>                        <span class="hljs-keyword">if</span> atomic.CompareAndSwapInt32(&amp;m.state, old, <span class="hljs-built_in">new</span>) &#123;<br>                                <span class="hljs-comment">// 释放一个信号量，唤醒一个等待的 goroutine。</span><br>                                <span class="hljs-comment">// false 表示不是在持有锁的情况下释放信号量。</span><br>                                <span class="hljs-comment">// 1 表示唤醒一个等待者。</span><br>                                runtime_Semrelease(&amp;m.sema, <span class="hljs-literal">false</span>, <span class="hljs-number">1</span>)<br>                                <span class="hljs-keyword">return</span> <span class="hljs-comment">// 返回，表示已成功唤醒一个等待者。</span><br>                        &#125;<br>                        <span class="hljs-comment">// 如果 CAS 失败，说明状态已被其他 goroutine 修改，重新读取当前状态并重试。</span><br>                        old = m.state<br>                &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 饥饿模式：将 Mutex 的所有权移交给下一个等待者，并让出我们的时间片，</span><br>                <span class="hljs-comment">// 以便下一个等待者可以立即开始运行。</span><br>                <span class="hljs-comment">// 注意：mutexLocked 没有被设置，等待者会在唤醒后设置它。</span><br>                <span class="hljs-comment">// 但是如果设置了 mutexStarving，Mutex 仍然被认为是锁定的，</span><br>                <span class="hljs-comment">// 因此新的 goroutine 不会获取它。</span><br>                <span class="hljs-comment">// true 表示在持有锁的情况下释放信号量（虽然逻辑上锁已经释放，但在饥饿模式下，</span><br>                <span class="hljs-comment">// 我们希望直接将锁交给下一个等待者，所以使用 true 可以确保公平性，</span><br>                <span class="hljs-comment">// 避免其他 goroutine 抢占到锁）。</span><br>                <span class="hljs-comment">// 1 表示唤醒一个等待者。</span><br>                runtime_Semrelease(&amp;m.sema, <span class="hljs-literal">true</span>, <span class="hljs-number">1</span>)<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇文章主要从加锁和解锁两个部分的源码进行分析。</p>
+<p>互斥锁的加锁过程比较复杂，它涉及自旋、信号量以及调度等概念：</p>
+<ul>
+<li>如果互斥锁处于初始化状态，会通过置位 <code>mutexLocked</code> 加锁；</li>
+<li>如果互斥锁处于 <code>mutexLocked</code> 状态并且在普通模式下工作，会进入自旋，执行 30 次 <code>PAUSE</code> 指令消耗 CPU 时间等待锁的释放；</li>
+<li>如果当前 Goroutine 等待锁的时间超过了 1ms，互斥锁就会切换到饥饿模式；</li>
+<li>互斥锁在正常情况下会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.sync_runtime_SemacquireMutex"><code>runtime.sync_runtime_SemacquireMutex</code></a> 将尝试获取锁的 Goroutine 切换至休眠状态，等待锁的持有者唤醒；</li>
+<li>如果当前 Goroutine 是互斥锁上的最后一个等待的协程或者等待的时间小于 1ms，那么它会将互斥锁切换回正常模式；</li>
+</ul>
+<p>互斥锁的解锁过程与之相比就比较简单，其代码行数不多、逻辑清晰，也比较容易理解：</p>
+<ul>
+<li>当互斥锁已经被解锁时，调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex.Unlock"><code>sync.Mutex.Unlock</code></a> 会直接抛出异常；</li>
+<li>当互斥锁处于饥饿模式时，将锁的所有权交给队列中的下一个等待者，等待者会负责设置 <code>mutexLocked</code> 标志位；</li>
+<li>当互斥锁处于普通模式时，如果没有 Goroutine 等待锁的释放或者已经有被唤醒的 Goroutine 获得了锁，会直接返回；在其他情况下会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.runtime_Semrelease"><code>sync.runtime_Semrelease</code></a> 唤醒对应的 Goroutine；</li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang">Go 语言设计与实现</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）</div>
+      <div>https://blog.longpi1.com/2025/01/04/10-Golang-锁-sync包-源码分析-（一、Mutex加锁解锁）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/25/09-Golang-%E4%B8%8A%E4%B8%8B%E6%96%87Context-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" title="09.Golang 上下文Context 源码分析">
+                        <span class="hidden-mobile">09.Golang 上下文Context 源码分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
