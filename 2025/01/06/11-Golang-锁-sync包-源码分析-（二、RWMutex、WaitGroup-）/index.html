@@ -1,0 +1,724 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="11.Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ）">
+<meta property="og:url" content="https://blog.longpi1.com/2025/01/06/11-Golang-%E9%94%81-sync%E5%8C%85-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%EF%BC%88%E4%BA%8C%E3%80%81RWMutex%E3%80%81WaitGroup-%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-01-06T14:21:23.000Z">
+<meta property="article:modified_time" content="2025-01-06T14:21:55.755Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>11.Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="11.Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-06 22:21" pubdate>
+          2025年1月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">11.Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-锁-sync包-源码分析-（二、RWMutex、WaitGroup-）"><a href="#Golang-锁-sync包-源码分析-（二、RWMutex、WaitGroup-）" class="headerlink" title="Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ）"></a>Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ）</h1><blockquote>
+<p>注意当前go版本代码为1.23</p>
+<p>sync包 源码分析包主要介绍 Go 语言中常见的同步原语 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex"><code>sync.Mutex</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex"><code>sync.RWMutex</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.WaitGroup"><code>sync.WaitGroup</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Once"><code>sync.Once</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Cond"><code>sync.Cond</code></a> 以及扩展原语 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/golang/sync/errgroup.Group"><code>golang/sync/errgroup.Group</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/golang/sync/semaphore.Weighted"><code>golang/sync/semaphore.Weighted</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/golang/sync/singleflight.Group"><code>golang/sync/singleflight.Group</code></a> 的实现原理，同时也会涉及互斥锁、信号量等并发编程中的常见概念。</p>
+</blockquote>
+<h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><h3 id="RWMutex"><a href="#RWMutex" class="headerlink" title="RWMutex"></a>RWMutex</h3><p>读写互斥锁 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex"><code>sync.RWMutex</code></a> 是细粒度的互斥锁，它不限制资源的并发读，但是读写、写写操作无法并行执行。</p>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">读</th>
+<th align="center">写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">读</td>
+<td align="center">Y</td>
+<td align="center">N</td>
+</tr>
+<tr>
+<td align="center">写</td>
+<td align="center">N</td>
+<td align="center">N</td>
+</tr>
+</tbody></table>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> RWMutex <span class="hljs-keyword">struct</span> &#123;<br>    w           Mutex        <span class="hljs-comment">// 复用互斥锁提供的能力；</span><br>    writerSem   <span class="hljs-type">uint32</span>       <span class="hljs-comment">// 用于写等待读</span><br>    readerSem   <span class="hljs-type">uint32</span>       <span class="hljs-comment">// 用于读等待写</span><br>    readerCount atomic.Int32 <span class="hljs-comment">// 存储了当前正在执行的读操作数量；</span><br>    readerWait  atomic.Int32 <span class="hljs-comment">// 表示当写操作被阻塞时等待的读操作个数</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>写操作使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex.Lock"><code>sync.RWMutex.Lock</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex.Unlock"><code>sync.RWMutex.Unlock</code></a> 方法；</li>
+<li>读操作使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex.RLock"><code>sync.RWMutex.RLock</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex.RUnlock"><code>sync.RWMutex.RUnlock</code></a> 方法；</li>
+</ul>
+<h2 id="RWMutex写锁"><a href="#RWMutex写锁" class="headerlink" title="RWMutex写锁"></a>RWMutex写锁</h2><h3 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rw *RWMutex)</span></span> Lock() &#123;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                _ = rw.w.state <span class="hljs-comment">// 访问 rw.w 的状态，用于 race 检测</span><br>                race.Disable()  <span class="hljs-comment">// 禁用 race 检测，因为我们即将进入临界区</span><br>        &#125;<br>        <span class="hljs-comment">// 首先，解决与其他写锁的竞争。</span><br>        rw.w.Lock() <span class="hljs-comment">// 获取内部互斥锁 w，这会阻塞其他写操作。</span><br>        <span class="hljs-comment">// 这确保了在任何时候只有一个写操作可以持有写锁。</span><br><br>        <span class="hljs-comment">// 向读者宣告有一个正在等待的写者。</span><br>        <span class="hljs-comment">// 通过从 readerCount 中减去 rwmuxMaxReaders 来实现。</span><br>        <span class="hljs-comment">// rwmuxMaxReaders 是一个很大的值，使得 readerCount 变为负数或接近负数。</span><br>        <span class="hljs-comment">// 这会通知正在尝试获取读锁的 goroutine，当前有写锁正在等待。</span><br>        r := rw.readerCount.Add(-rwmutexMaxReaders) + rwmutexMaxReaders<br>        <span class="hljs-comment">// 此时，r 的值等于在添加操作之前 readerCount 的值。</span><br>        <span class="hljs-comment">// 也就是说，r 代表了在写锁尝试获取时，活跃的读者的数量。</span><br><br>        <span class="hljs-comment">// 等待活跃的读者完成。</span><br>        <span class="hljs-comment">// 如果在写锁尝试获取时，仍然有活跃的读者 (r != 0)，</span><br>        <span class="hljs-comment">// 并且我们递增 readerWait 计数器，并且返回值不为 0，</span><br>        <span class="hljs-comment">// 那么当前写锁的 goroutine 需要等待。</span><br>        <span class="hljs-comment">// readerWait 记录了需要等待的读者数量。</span><br>        <span class="hljs-keyword">if</span> r != <span class="hljs-number">0</span> &amp;&amp; rw.readerWait.Add(r) != <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-comment">// runtime_SemacquireRWMutex 是一个 runtime 包提供的函数，</span><br>                <span class="hljs-comment">// 用于阻塞当前的 goroutine，直到收到来自读者的信号。</span><br>                <span class="hljs-comment">// &amp;rw.writerSem 是用于写锁的信号量。</span><br>                <span class="hljs-comment">// false 表示这不是一个可取消的等待。</span><br>                <span class="hljs-comment">// 0 表示没有超时时间。</span><br>                runtime_SemacquireRWMutex(&amp;rw.writerSem, <span class="hljs-literal">false</span>, <span class="hljs-number">0</span>)<br>        &#125;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                race.Enable()              <span class="hljs-comment">// 重新启用 race 检测</span><br>                race.Acquire(unsafe.Pointer(&amp;rw.readerSem)) <span class="hljs-comment">// 通知 race 检测器我们获得了读信号量</span><br>                race.Acquire(unsafe.Pointer(&amp;rw.writerSem)) <span class="hljs-comment">// 通知 race 检测器我们获得了写信号量</span><br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>调用结构体持有的<code>sync.Mutex</code>结构体的<code>sync.Mutex.Lock</code>阻塞后续的写操作；<ul>
+<li>因为互斥锁已经被获取，其他 Goroutine 在获取写锁时会进入自旋或者休眠；</li>
+</ul>
+</li>
+<li>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync/atomic.AddInt32"><code>sync/atomic.AddInt32</code></a> 函数阻塞后续的读操作：</li>
+<li>如果仍然有其他 Goroutine 持有互斥锁的读锁，该 Goroutine 会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.sync_runtime_SemacquireMutex"><code>runtime.sync_runtime_SemacquireMutex</code></a> 进入休眠状态等待所有读锁所有者执行结束后释放 <code>writerSem</code> 信号量将当前协程唤醒；</li>
+</ol>
+<h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.RWMutex.Unlock"><code>sync.RWMutex.Unlock</code></a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rw *RWMutex)</span></span> Unlock() &#123;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                _ = rw.w.state                 <span class="hljs-comment">// 访问 rw.w 的状态，用于 race 检测</span><br>                race.Release(unsafe.Pointer(&amp;rw.readerSem)) <span class="hljs-comment">// 通知 race 检测器我们释放了读信号量</span><br>                race.Disable()                 <span class="hljs-comment">// 禁用 race 检测，因为我们即将离开临界区</span><br>        &#125;<br><br>        <span class="hljs-comment">// 向读者宣告没有活跃的写者。</span><br>        <span class="hljs-comment">// 通过向 readerCount 中加上 rwmuxMaxReaders 来实现。</span><br>        <span class="hljs-comment">// 这会将 readerCount 的值恢复到非负值，表示没有写锁持有。</span><br>        r := rw.readerCount.Add(rwmutexMaxReaders)<br>        <span class="hljs-comment">// 此时，r 的值代表了在添加操作之后 readerCount 的值。</span><br><br>        <span class="hljs-comment">// 如果 r 的值大于等于 rwmuxMaxReaders，</span><br>        <span class="hljs-comment">// 说明在调用 Unlock 之前，readerCount 的值就已经是大于等于 0 的，</span><br>        <span class="hljs-comment">// 这意味着没有写锁被持有，发生了对未锁定 RWMutex 的解锁操作。</span><br>        <span class="hljs-keyword">if</span> r &gt;= rwmutexMaxReaders &#123;<br>                race.Enable() <span class="hljs-comment">// 重新启用 race 检测</span><br>                fatal(<span class="hljs-string">&quot;sync: Unlock of unlocked RWMutex&quot;</span>) <span class="hljs-comment">// 抛出致命错误</span><br>        &#125;<br>        <span class="hljs-comment">// 解除阻塞被阻塞的读者，如果有的话。</span><br>        <span class="hljs-comment">// 循环次数为之前等待的读者数量，即 r 的低位部分。</span><br>        <span class="hljs-comment">// 因为 readerCount 可能很大，只有低位部分才是实际等待的读者数量。</span><br>        <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-type">int</span>(r); i++ &#123;<br>                runtime_Semrelease(&amp;rw.readerSem, <span class="hljs-literal">false</span>, <span class="hljs-number">0</span>)<br>        &#125;<br><br>        <span class="hljs-comment">// 释放写锁的互斥锁，允许其他写者获取写锁。</span><br>        rw.w.Unlock()<br><br>        <span class="hljs-comment">// 如果启用了竞态检测，重新启用竞态检测。</span><br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                race.Enable()<br>        &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>与加锁的过程正好相反，写锁的释放主要为以下几个执行：</p>
+<ol>
+<li>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync/atomic.AddInt32"><code>sync/atomic.AddInt32</code></a> 函数将 <code>readerCount</code> 变回正数，释放读锁；</li>
+<li>通过 for 循环释放所有因为获取读锁而陷入等待的 Goroutine：</li>
+<li>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.Mutex.Unlock"><code>sync.Mutex.Unlock</code></a> 释放写锁；</li>
+</ol>
+<h2 id="RWMutex读锁"><a href="#RWMutex读锁" class="headerlink" title="RWMutex读锁"></a>RWMutex读锁</h2><h3 id="加锁-1"><a href="#加锁-1" class="headerlink" title="加锁"></a>加锁</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// RLock 获取读锁。</span><br><span class="hljs-comment">// 如果没有其他协程持有写锁，则允许当前协程持有读锁。</span><br><span class="hljs-comment">// 可以有多个协程同时持有读锁。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rw *RWMutex)</span></span> RLock() &#123;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                <span class="hljs-comment">// 如果启用了竞态检测，则访问 rw.w.state，这会触发竞态检测器去检查是否有并发的写操作。</span><br>                _ = rw.w.state<br>                <span class="hljs-comment">// 在尝试获取锁之前，禁用竞态检测，以避免竞态检测器自身导致的虚假报告。</span><br>                race.Disable()<br>        &#125;<br>        <span class="hljs-comment">// readerCount 原子地增加 1，表示当前有一个新的读者获取了读锁。</span><br>        <span class="hljs-comment">// 如果增加后的值小于 0，则表示当前有写锁被持有或者有写锁在等待获取，</span><br>        <span class="hljs-comment">// 此时读者需要等待。</span><br>        <span class="hljs-keyword">if</span> rw.readerCount.Add(<span class="hljs-number">1</span>) &lt; <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-comment">// 有一个写锁正在等待或者已经被持有，当前读者需要等待。</span><br>                <span class="hljs-comment">// runtime_SemacquireRWMutexR 是一个运行时函数，用于阻塞当前协程，</span><br>                <span class="hljs-comment">// 直到 readerSem 信号量变为可用（即写锁被释放）。</span><br>                <span class="hljs-comment">// 第二个参数 false 表示这不是一个可中断的等待。</span><br>                <span class="hljs-comment">// 第三个参数 0 表示没有特定的超时时间。</span><br>                runtime_SemacquireRWMutexR(&amp;rw.readerSem, <span class="hljs-literal">false</span>, <span class="hljs-number">0</span>)<br>        &#125;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                <span class="hljs-comment">// 在成功获取读锁后，重新启用竞态检测。</span><br>                race.Enable()<br>                <span class="hljs-comment">// 通知竞态检测器，当前协程已经获取了 readerSem 信号量。</span><br>                race.Acquire(unsafe.Pointer(&amp;rw.readerSem))<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="解锁-1"><a href="#解锁-1" class="headerlink" title="解锁"></a>解锁</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// RUnlock 释放一个 [RWMutex.RLock] 调用持有的读锁；</span><br><span class="hljs-comment">// 它不会影响其他同时持有读锁的协程。</span><br><span class="hljs-comment">// 如果在调用 RUnlock 时 rw 没有被读锁定，则会发生运行时错误。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rw *RWMutex)</span></span> RUnlock() &#123;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                <span class="hljs-comment">// 如果启用了竞态检测，则访问 rw.w.state，这会触发竞态检测器去检查是否有并发的写操作。</span><br>                _ = rw.w.state<br>                <span class="hljs-comment">// 通知竞态检测器，当前协程正在释放 writerSem 信号量。</span><br>                <span class="hljs-comment">// ReleaseMerge 表示这是一个读锁释放，可能会导致等待的写锁被唤醒。</span><br>                race.ReleaseMerge(unsafe.Pointer(&amp;rw.writerSem))<br>                <span class="hljs-comment">// 在执行解锁操作期间，禁用竞态检测。</span><br>                race.Disable()<br>        &#125;<br>        <span class="hljs-comment">// 减少 readerCount 的值，表示当前有一个读锁被释放。</span><br>        <span class="hljs-comment">// 如果返回值小于 0，说明当前有写锁在等待，需要进入慢路径处理。</span><br>        <span class="hljs-keyword">if</span> r := rw.readerCount.Add(<span class="hljs-number">-1</span>); r &lt; <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-comment">// 外联的慢路径解锁逻辑，目的是让快速路径能够被内联优化。</span><br>                rw.rUnlockSlow(r)<br>        &#125;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                <span class="hljs-comment">// 在解锁操作完成后，重新启用竞态检测。</span><br>                race.Enable()<br>        &#125;<br>&#125;<br><br><span class="hljs-comment">// rUnlockSlow 是 RUnlock 的慢路径实现。</span><br><span class="hljs-comment">// 当 readerCount 变为负数时调用，表示可能存在错误或者有写锁在等待。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rw *RWMutex)</span></span> rUnlockSlow(r <span class="hljs-type">int32</span>) &#123;<br>        <span class="hljs-comment">// 如果 r+1 == 0 或 r+1 == -rwmutexMaxReaders，说明 RWMutex 没有被读锁锁定。</span><br>        <span class="hljs-comment">// 这是一个运行时错误，会触发 fatal 错误。</span><br>        <span class="hljs-keyword">if</span> r+<span class="hljs-number">1</span> == <span class="hljs-number">0</span> || r+<span class="hljs-number">1</span> == -rwmutexMaxReaders &#123;<br>                race.Enable() <span class="hljs-comment">// 重新启用竞态检测</span><br>                fatal(<span class="hljs-string">&quot;sync: RUnlock of unlocked RWMutex&quot;</span>) <span class="hljs-comment">// 触发 fatal 错误</span><br>        &#125;<br><br>        <span class="hljs-comment">// 减少 readerWait 的值，表示当前有一个读锁被释放。</span><br>        <span class="hljs-comment">// 如果 readerWait 的值变为 0，说明所有读锁都已释放，可以唤醒等待的写锁。</span><br>        <span class="hljs-keyword">if</span> rw.readerWait.Add(<span class="hljs-number">-1</span>) == <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-comment">// 最后一个读锁释放，唤醒等待的写锁。</span><br>                <span class="hljs-comment">// runtime_Semrelease 是一个底层函数，用于唤醒等待的写锁。</span><br>                runtime_Semrelease(&amp;rw.writerSem, <span class="hljs-literal">false</span>, <span class="hljs-number">1</span>)<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id><a href="#" class="headerlink" title></a></h2><h2 id="WaitGroup"><a href="#WaitGroup" class="headerlink" title="WaitGroup"></a>WaitGroup</h2><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.WaitGroup"><code>sync.WaitGroup</code></a> 用于等待一组 Goroutine 的返回，一个比较常见的使用场景是批量发出 RPC 或者 HTTP 请求：</p>
+<h3 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// WaitGroup 用于等待一组 goroutine 完成。</span><br><span class="hljs-comment">// 它内部维护了一个计数器，用于跟踪尚未完成的 goroutine 数量。</span><br><span class="hljs-keyword">type</span> WaitGroup <span class="hljs-keyword">struct</span> &#123;<br>	noCopy noCopy <span class="hljs-comment">// 用于防止 WaitGroup 被复制的标记</span><br><br>	<span class="hljs-comment">// state 是一个原子操作的 64 位整数，高 32 位表示计数器（counter），</span><br>	<span class="hljs-comment">// 低 32 位表示等待的 goroutine 数量（waiter count）。</span><br>	state atomic.Uint64<br><br>	<span class="hljs-comment">// sema 是一个信号量，用于阻塞和唤醒等待的 goroutine。</span><br>	sema  <span class="hljs-type">uint32</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Add方法"><a href="#Add方法" class="headerlink" title="Add方法"></a>Add方法</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Add 方法将 delta（可以是负数）添加到 WaitGroup 的计数器。</span><br><span class="hljs-comment">// 如果计数器变为零，所有阻塞在 Wait 上的 goroutine 将被释放。</span><br><span class="hljs-comment">// 如果计数器变为负数，Add 会引发 panic。</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 注意：</span><br><span class="hljs-comment">//  1. 当计数器为零时，带有正 delta 的 Add 调用必须在 Wait 之前执行。</span><br><span class="hljs-comment">//  2. 带有负 delta 的 Add 调用，或者在计数器大于零时开始的带有正 delta 的 Add 调用，-可以在任何时候执行。</span><br><span class="hljs-comment">//  3. 通常这意味着 Add 调用应该在创建 goroutine 或其他等待事件的语句之前执行。</span><br><span class="hljs-comment">//  4. 如果 WaitGroup 被重用于等待多个独立的事件集合，新的 Add 调用必须在前一个 Wait 调用返回之后执行。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(wg *WaitGroup)</span></span> Add(delta <span class="hljs-type">int</span>) &#123;<br>    <span class="hljs-keyword">if</span> race.Enabled &#123; <span class="hljs-comment">// 如果启用了竞态检测</span><br>       <span class="hljs-keyword">if</span> delta &lt; <span class="hljs-number">0</span> &#123;<br>          <span class="hljs-comment">// 同步减量操作与 Wait 操作。</span><br>          race.ReleaseMerge(unsafe.Pointer(wg))<br>       &#125;<br>       race.Disable()      <span class="hljs-comment">// 禁用竞态检测</span><br>       <span class="hljs-keyword">defer</span> race.Enable() <span class="hljs-comment">// 在函数返回时重新启用竞态检测</span><br>    &#125;<br><br>    <span class="hljs-comment">// 将 delta 左移 32 位并添加到 state 中，返回更新后的 state。因为state 是一个 64 位的原子整数，高 32 位表示计数器（counter），低 32 位表示等待的 goroutine 数量（waiter count）。</span><br>    state := wg.state.Add(<span class="hljs-type">uint64</span>(delta) &lt;&lt; <span class="hljs-number">32</span>)<br>    v := <span class="hljs-type">int32</span>(state &gt;&gt; <span class="hljs-number">32</span>) <span class="hljs-comment">// 获取计数器（高 32 位）</span><br>    w := <span class="hljs-type">uint32</span>(state)      <span class="hljs-comment">// 获取等待的 goroutine 数量（低 32 位） </span><br><br>    <span class="hljs-keyword">if</span> race.Enabled &amp;&amp; delta &gt; <span class="hljs-number">0</span> &amp;&amp; v == <span class="hljs-type">int32</span>(delta) &#123;<br>       <span class="hljs-comment">// 第一次增量操作必须与 Wait 同步。</span><br>       <span class="hljs-comment">// 需要将其建模为读操作，因为可能有多个并发的 wg.counter 从 0 开始转换。</span><br>       race.Read(unsafe.Pointer(&amp;wg.sema))<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> v &lt; <span class="hljs-number">0</span> &#123;<br>       <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;sync: negative WaitGroup counter&quot;</span>) <span class="hljs-comment">// 如果计数器为负，引发 panic</span><br>    &#125;<br><br>    <span class="hljs-keyword">if</span> w != <span class="hljs-number">0</span> &amp;&amp; delta &gt; <span class="hljs-number">0</span> &amp;&amp; v == <span class="hljs-type">int32</span>(delta) &#123;<br>       <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;sync: WaitGroup misuse: Add called concurrently with Wait&quot;</span>) <span class="hljs-comment">// 如果 Add 和 Wait 并发调用，引发 panic</span><br>    &#125;<br><br>    <span class="hljs-keyword">if</span> v &gt; <span class="hljs-number">0</span> || w == <span class="hljs-number">0</span> &#123;<br>       <span class="hljs-keyword">return</span> <span class="hljs-comment">// 如果计数器大于零或没有等待的 goroutine，直接返回</span><br>    &#125;<br><br>    <span class="hljs-comment">// 当前 goroutine 已将计数器设置为零，且存在等待的 goroutine。</span><br>    <span class="hljs-comment">// 此时不能有并发的 state 修改：</span><br>    <span class="hljs-comment">// - Add 操作不能与 Wait 操作并发执行，</span><br>    <span class="hljs-comment">// - 如果 Wait 操作看到计数器为零，它不会增加等待的 goroutine 数量。</span><br>    <span class="hljs-comment">// 仍然进行一个简单的检查以检测 WaitGroup 的误用。</span><br>    <span class="hljs-keyword">if</span> wg.state.Load() != state &#123;<br>       <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;sync: WaitGroup misuse: Add called concurrently with Wait&quot;</span>) <span class="hljs-comment">// 如果 state 被并发修改，引发 panic</span><br>    &#125;<br><br>    <span class="hljs-comment">// 将等待的 goroutine 数量重置为零。</span><br>    wg.state.Store(<span class="hljs-number">0</span>)<br><br>    <span class="hljs-comment">// 释放所有等待的 goroutine。</span><br>    <span class="hljs-keyword">for</span> ; w != <span class="hljs-number">0</span>; w-- &#123;<br>       runtime_Semrelease(&amp;wg.sema, <span class="hljs-literal">false</span>, <span class="hljs-number">0</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Done方法"><a href="#Done方法" class="headerlink" title="Done方法"></a>Done方法</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Done 方法将 WaitGroup 的计数器减一。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(wg *WaitGroup)</span></span> Done() &#123;<br>        wg.Add(<span class="hljs-number">-1</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Wait-方法"><a href="#Wait-方法" class="headerlink" title="Wait 方法"></a>Wait 方法</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Wait 方法阻塞，直到 WaitGroup 的计数器变为零。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(wg *WaitGroup)</span></span> Wait() &#123;<br>        <span class="hljs-keyword">if</span> race.Enabled &#123; <span class="hljs-comment">// 如果启用了竞态检测</span><br>                race.Disable() <span class="hljs-comment">// 禁用竞态检测</span><br>        &#125;<br><br>        <span class="hljs-keyword">for</span> &#123;<br>                state := wg.state.Load() <span class="hljs-comment">// 获取当前的 state</span><br>                v := <span class="hljs-type">int32</span>(state &gt;&gt; <span class="hljs-number">32</span>)  <span class="hljs-comment">// 获取计数器（高 32 位）</span><br>                w := <span class="hljs-type">uint32</span>(state)       <span class="hljs-comment">// 获取等待的 goroutine 数量（低 32 位）</span><br><br>                <span class="hljs-keyword">if</span> v == <span class="hljs-number">0</span> &#123;<br>                        <span class="hljs-comment">// 如果计数器为零，无需等待。</span><br>                        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                                race.Enable() <span class="hljs-comment">// 重新启用竞态检测</span><br>                                race.Acquire(unsafe.Pointer(wg)) <span class="hljs-comment">// 获取竞态检测锁</span><br>                        &#125;<br>                        <span class="hljs-keyword">return</span><br>                &#125;<br><br>                <span class="hljs-comment">// 尝试增加等待的 goroutine 数量。</span><br>                <span class="hljs-keyword">if</span> wg.state.CompareAndSwap(state, state+<span class="hljs-number">1</span>) &#123;<br>                        <span class="hljs-keyword">if</span> race.Enabled &amp;&amp; w == <span class="hljs-number">0</span> &#123;<br>                                <span class="hljs-comment">// Wait 操作必须与第一次 Add 操作同步。</span><br>                                <span class="hljs-comment">// 需要将其建模为写操作，以与 Add 中的读操作竞争。</span><br>                                <span class="hljs-comment">// 因此，只能对第一个等待的 goroutine 进行写操作，</span><br>                                <span class="hljs-comment">// 否则并发的 Wait 操作会相互竞争。</span><br>                                race.Write(unsafe.Pointer(&amp;wg.sema))<br>                        &#125;<br><br>                        <span class="hljs-comment">// 阻塞当前 goroutine，直到信号量被释放。</span><br>                        runtime_Semacquire(&amp;wg.sema)<br><br>                        <span class="hljs-keyword">if</span> wg.state.Load() != <span class="hljs-number">0</span> &#123;<br>                                <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;sync: WaitGroup is reused before previous Wait has returned&quot;</span>) <span class="hljs-comment">// 如果 WaitGroup 被重用，引发 panic</span><br>                        &#125;<br><br>                        <span class="hljs-keyword">if</span> race.Enabled &#123;<br>                                race.Enable() <span class="hljs-comment">// 重新启用竞态检测</span><br>                                race.Acquire(unsafe.Pointer(wg)) <span class="hljs-comment">// 获取竞态检测锁</span><br>                        &#125;<br>                        <span class="hljs-keyword">return</span><br>                &#125;<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ol>
+<li><strong><code>state</code> 字段</strong>：<code>state</code> 是一个 64 位的原子整数，高 32 位表示计数器（<code>counter</code>），低 32 位表示等待的 goroutine 数量（<code>waiter count</code>）。</li>
+<li><strong><code>Add</code> 方法</strong>：用于增加或减少计数器。如果计数器变为零，所有等待的 goroutine 将被唤醒。如果计数器变为负数，会引发 panic。</li>
+<li><strong><code>Done</code> 方法</strong>：是 <code>Add(-1)</code> 的简写，用于减少计数器。</li>
+<li><strong><code>Wait</code> 方法</strong>：阻塞当前 goroutine，直到计数器变为零。如果计数器已经为零，则立即返回。</li>
+<li><strong>竞态检测</strong>：代码中包含了竞态检测的逻辑，用于在竞态检测工具（如 <code>-race</code>）启用时检测并发问题。</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.WaitGroup"><code>sync.WaitGroup</code></a> 必须在 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.WaitGroup.Wait"><code>sync.WaitGroup.Wait</code></a> 方法返回之后才能被重新使用；</li>
+<li>可以同时有多个 Goroutine 等待当前 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/sync.WaitGroup"><code>sync.WaitGroup</code></a> 计数器的归零，这些 Goroutine 会被同时唤醒；</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang">Go 语言设计与实现</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>11.Golang 锁 sync包 源码分析 （二、RWMutex、WaitGroup ）</div>
+      <div>https://blog.longpi1.com/2025/01/06/11-Golang-锁-sync包-源码分析-（二、RWMutex、WaitGroup-）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/04/10-Golang-%E9%94%81-sync%E5%8C%85-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%EF%BC%88%E4%B8%80%E3%80%81Mutex%E5%8A%A0%E9%94%81%E8%A7%A3%E9%94%81%EF%BC%89/" title="10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）">
+                        <span class="hidden-mobile">10.Golang 锁 sync包 源码分析 （一、Mutex加锁解锁）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
