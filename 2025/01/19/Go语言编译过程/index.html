@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Go语言编译过程 本文章只对编译过程进行简单介绍，具体实现可直接查看源码  Go 程序并不能直接运行，每条 Go 语句必须转化为一系列的低级机器语言指令，将这些指令打包到一起，并以二进制磁盘文件的形式存储起来，也就是可执行目标文件。 从源文件到可执行目标文件的转化过程：  Go语言的编译过程主要可以分为以下几个核心阶段：  词法分析 (Lexical Analysis)： 将源代码分解成一个个的词">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言编译过程">
+<meta property="og:url" content="https://blog.longpi1.com/2025/01/19/Go%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Go语言编译过程 本文章只对编译过程进行简单介绍，具体实现可直接查看源码  Go 程序并不能直接运行，每条 Go 语句必须转化为一系列的低级机器语言指令，将这些指令打包到一起，并以二进制磁盘文件的形式存储起来，也就是可执行目标文件。 从源文件到可执行目标文件的转化过程：  Go语言的编译过程主要可以分为以下几个核心阶段：  词法分析 (Lexical Analysis)： 将源代码分解成一个个的词">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://golang.design/go-questions/compile/assets/7.png">
+<meta property="og:image" content="https://img.draveness.me/2019-12-20-15768548776662-complication-process.png">
+<meta property="og:image" content="https://golang.design/go-questions/compile/assets/9.png">
+<meta property="og:image" content="https://golang.design/go-questions/compile/assets/10.png">
+<meta property="og:image" content="https://img.draveness.me/2019-02-05-golang-keyword-and-builtin-mapping.png">
+<meta property="article:published_time" content="2025-01-19T13:46:30.000Z">
+<meta property="article:modified_time" content="2025-01-19T13:47:47.339Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://golang.design/go-questions/compile/assets/7.png">
+  
+  
+  
+  <title>Go语言编译过程 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Go语言编译过程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-19 21:46" pubdate>
+          2025年1月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Go语言编译过程</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Go语言编译过程"><a href="#Go语言编译过程" class="headerlink" title="Go语言编译过程"></a>Go语言编译过程</h1><blockquote>
+<p>本文章只对编译过程进行简单介绍，具体实现可直接查看源码</p>
+</blockquote>
+<p>Go 程序并不能直接运行，每条 Go 语句必须转化为一系列的低级机器语言指令，将这些指令打包到一起，并以二进制磁盘文件的形式存储起来，也就是可执行目标文件。</p>
+<p>从源文件到可执行目标文件的转化过程：</p>
+<p><img src="https://golang.design/go-questions/compile/assets/7.png" srcset="/img/loading.gif" lazyload alt="compile"></p>
+<p>Go语言的编译过程主要可以分为以下几个核心阶段：</p>
+<ol>
+<li><strong>词法分析 (Lexical Analysis)：</strong> 将源代码分解成一个个的词法单元 (tokens)。</li>
+<li><strong>语法分析 (Syntax Analysis)：</strong> 将词法单元组织成抽象语法树 (Abstract Syntax Tree, AST)。</li>
+<li><strong>类型检查 (Type Checking)：</strong> 检查代码的类型约束，确保类型安全。</li>
+<li><strong>中间代码生成 (Intermediate Representation Generation)：</strong> 将AST转换成一种更易于优化的中间表示形式 (Static Single Assignment, SSA)。</li>
+<li><strong>代码优化 (Optimization)：</strong> 对中间代码进行各种优化，提高代码执行效率。</li>
+<li><strong>机器码生成 (Code Generation)：</strong> 将优化后的中间代码转换成特定目标平台的机器码。</li>
+<li><strong>链接 (Linking)：</strong> 将编译产生的目标文件和依赖的库进行链接，生成最终的可执行文件。</li>
+</ol>
+<p>完成以上各个阶段的就是 Go 编译系统。你肯定知道大名鼎鼎的 GCC（GNU Compile Collection），中文名为 GNU 编译器套装，它支持像 C，C++，Java，Python，Objective-C，Ada，Fortran，Pascal，能够为很多不同的机器生成机器码。</p>
+<p>可执行目标文件可以直接在机器上执行。一般而言，先执行一些初始化的工作；找到 main 函数的入口，执行用户写的代码；执行完成后，main 函数退出；再执行一些收尾的工作，整个过程完毕。</p>
+<blockquote>
+<p>在接下来的文章里，我们将探索<code>编译</code>和<code>运行</code>的过程。</p>
+</blockquote>
+<p>Go 源码里的编译器源码位于 <code>src/cmd/compile</code> 路径下，链接器源码位于 <code>src/cmd/link</code> 路径下。</p>
+<p><img src="https://img.draveness.me/2019-12-20-15768548776662-complication-process.png" srcset="/img/loading.gif" lazyload alt="complication-process"></p>
+<h2 id="词法分析"><a href="#词法分析" class="headerlink" title="词法分析"></a>词法分析</h2><p>通过前面的例子，我们知道，Go 程序文件在机器看来不过是一堆二进制位。我们能读懂，是因为 Goland 按照 ASCII 码（实际上是 UTF-8）把这堆二进制位进行了编码。例如，把 8个 bit 位分成一组，对应一个字符，通过对照 ASCII 码表就可以查出来。</p>
+<p>当把所有的二进制位都对应成了 ASCII 码字符后，我们就能看到有意义的字符串。它可能是关键字，例如：package；可能是字符串，例如：“Hello World”。</p>
+<p>词法分析其实干的就是这个。输入是原始的 Go 程序文件，在词法分析器看来，就是一堆二进制位，根本不知道是什么东西，经过它的分析后，变成有意义的记号。简单来说，词法分析是计算机科学中将字符序列转换为标记（token）序列的过程。</p>
+<p>我们来看一下维基百科上给出的定义：</p>
+<blockquote>
+<p>词法分析（lexical analysis）是计算机科学中将字符序列转换为标记（token）序列的过程。进行词法分析的程序或者函数叫作词法分析器（lexical analyzer，简称lexer），也叫扫描器（scanner）。词法分析器一般以函数的形式存在，供语法分析器调用。</p>
+</blockquote>
+<p><code>.go</code> 文件被输入到扫描器（Scanner），它使用一种类似于<code>有限状态机</code>的算法，将源代码的字符系列分割成一系列的记号（Token）。</p>
+<p>记号一般分为这几类：关键字、标识符、字面量（包含数字、字符串）、特殊符号（如加号、等号）。</p>
+<p>例如，对于如下的代码：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs golang">slice[i] = i * (<span class="hljs-number">2</span> + <span class="hljs-number">6</span>)<br></code></pre></td></tr></table></figure>
+
+<p>总共包含 16 个非空字符，经过扫描后，</p>
+<table>
+<thead>
+<tr>
+<th>记号</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>slice</td>
+<td>标识符</td>
+</tr>
+<tr>
+<td>[</td>
+<td>左方括号</td>
+</tr>
+<tr>
+<td>i</td>
+<td>标识符</td>
+</tr>
+<tr>
+<td>]</td>
+<td>右方括号</td>
+</tr>
+<tr>
+<td>&#x3D;</td>
+<td>赋值</td>
+</tr>
+<tr>
+<td>i</td>
+<td>标识符</td>
+</tr>
+<tr>
+<td>*</td>
+<td>乘号</td>
+</tr>
+<tr>
+<td>(</td>
+<td>左圆括号</td>
+</tr>
+<tr>
+<td>2</td>
+<td>数字</td>
+</tr>
+<tr>
+<td>+</td>
+<td>加号</td>
+</tr>
+<tr>
+<td>6</td>
+<td>数字</td>
+</tr>
+<tr>
+<td>)</td>
+<td>右圆括号</td>
+</tr>
+</tbody></table>
+<p>还是比较熟悉的，包括名称和字面量、操作符、分隔符和关键字。</p>
+<p>从 Go 语言中定义的 Token 类型，我们可以将语言中的元素分成几个不同的类别，分别是名称和字面量、操作符、分隔符和关键字。词法分析主要是由 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/cmd/compile/internal/syntax.scanner"><code>cmd/compile/internal/syntax.scanner</code></a> 这个结构体中的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/cmd/compile/internal/syntax.scanner.next"><code>cmd/compile/internal/syntax.scanner.next</code></a> 方法驱动，这个 250 行函数的主体是一个 switch&#x2F;case 结构：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *scanner)</span></span> next() &#123;<br>	...<br>	s.stop()<br>	startLine, startCol := s.pos()<br>	<span class="hljs-keyword">for</span> s.ch == <span class="hljs-string">&#x27; &#x27;</span> || s.ch == <span class="hljs-string">&#x27;\t&#x27;</span> || s.ch == <span class="hljs-string">&#x27;\n&#x27;</span> &amp;&amp; !nlsemi || s.ch == <span class="hljs-string">&#x27;\r&#x27;</span> &#123;<br>		s.nextch()<br>	&#125;<br><br>	s.line, s.col = s.pos()<br>	s.blank = s.line &gt; startLine || startCol == colbase<br>	s.start()<br>	<span class="hljs-keyword">if</span> isLetter(s.ch) || s.ch &gt;= utf8.RuneSelf &amp;&amp; s.atIdentChar(<span class="hljs-literal">true</span>) &#123;<br>		s.nextch()<br>		s.ident()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-keyword">switch</span> s.ch &#123;<br>	<span class="hljs-keyword">case</span> <span class="hljs-number">-1</span>:<br>		s.tok = _EOF<br><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-string">&#x27;2&#x27;</span>, <span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;4&#x27;</span>, <span class="hljs-string">&#x27;5&#x27;</span>, <span class="hljs-string">&#x27;6&#x27;</span>, <span class="hljs-string">&#x27;7&#x27;</span>, <span class="hljs-string">&#x27;8&#x27;</span>, <span class="hljs-string">&#x27;9&#x27;</span>:<br>		s.number(<span class="hljs-literal">false</span>)<br>	...<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>代码的主要逻辑就是通过 <code>c := s.getr()</code> 获取下一个未被解析的字符，并且会跳过之后的空格、回车、换行、tab 字符，然后进入一个大的 <code>switch-case</code> 语句，匹配各种不同的情形，最终可以解析出一个 Token，并且把相关的行、列数字记录下来，这样就完成一次解析过程。</p>
+<blockquote>
+<p>当前包中的词法分析器 scanner 也只是为上层提供了 next 方法，词法解析的过程都是惰性的，只有在上层的解析器需要时才会调用 next 获取最新的 Token。</p>
+</blockquote>
+<h2 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h2><p>上一步生成的 Token 序列，需要经过进一步处理，生成一棵以<code>表达式</code>为结点的<code>语法树</code>。</p>
+<p>比如最开始的那个例子，<code>slice[i] = i * (2 + 6)</code>，得到的一棵语法树如下：</p>
+<p><img src="https://golang.design/go-questions/compile/assets/9.png" srcset="/img/loading.gif" lazyload alt="语法树"></p>
+<p>整个语句被看作是一个赋值表达式，左子树是一个数组表达式，右子树是一个乘法表达式；数组表达式由 2 个符号表达式组成；乘号表达式则是由一个符号表达式和一个加号表达式组成；加号表达式则是由两个数字组成。符号和数字是最小的表达式，它们不能再被分解，通常作为树的叶子节点。</p>
+<p>语法分析的过程可以检测一些形式上的错误，例如：括号是否缺少一半，<code>+</code> 号表达式缺少一个操作数等。</p>
+<blockquote>
+<p>语法分析是根据某种特定的形式文法（Grammar）对 Token 序列构成的输入文本进行分析并确定其语法结构的一种过程。</p>
+</blockquote>
+<h2 id="类型检查（语义分析-）"><a href="#类型检查（语义分析-）" class="headerlink" title="类型检查（语义分析 ）"></a>类型检查（语义分析 ）</h2><p>语法分析完成后，我们并不知道语句的具体意义是什么。像上面的 <code>*</code> 号的两棵子树如果是两个指针，这是不合法的，但语法分析检测不出来，语义分析就是干这个事。</p>
+<p>编译期所能检查的是静态语义，可以认为这是在“代码”阶段，包括变量类型的匹配、转换等。例如，将一个浮点值赋给一个指针变量的时候，明显的类型不匹配，就会报编译错误。而对于运行期间才会出现的错误：不小心除了一个 0 ，语义分析是没办法检测的。</p>
+<p>语义分析阶段完成之后，会在每个节点上标注上类型：</p>
+<p><img src="https://golang.design/go-questions/compile/assets/10.png" srcset="/img/loading.gif" lazyload alt="语义分析完成"></p>
+<p>Go 语言编译器在这一阶段检查常量、类型、函数声明以及变量赋值语句的类型，然后检查哈希中键的类型。实现类型检查的函数通常都是几千行的巨型 switch&#x2F;case 语句。</p>
+<blockquote>
+<p>类型检查是 Go 语言编译的第二个阶段，在词法和语法分析之后我们得到了每个文件对应的抽象语法树，随后的类型检查会遍历抽象语法树中的节点，对每个节点的类型进行检验，找出其中存在的语法错误。</p>
+</blockquote>
+<blockquote>
+<p>在这个过程中也可能会对抽象语法树进行改写，这不仅能够去除一些不会被执行的代码对编译进行优化提高执行效率，而且也会修改 make、new 等关键字对应节点的操作类型。</p>
+</blockquote>
+<p>例如比较常用的 make 关键字，用它可以创建各种类型，如 slice，map，channel 等等。到这一步的时候，对于 make 关键字，也就是 OMAKE 节点，会先检查它的参数类型，根据类型的不同，进入相应的分支。如果参数类型是 slice，就会进入 TSLICE case 分支，检查 len 和 cap 是否满足要求，如 len &lt;&#x3D; cap。最后节点类型会从 OMAKE 改成 OMAKESLICE。</p>
+<h2 id="中间代码生成"><a href="#中间代码生成" class="headerlink" title="中间代码生成"></a>中间代码生成</h2><p>我们知道，编译过程一般可以分为前端和后端，前端生成和平台无关的中间代码，后端会针对不同的平台，生成不同的机器码。</p>
+<p>前面词法分析、语法分析、语义分析等都属于编译器前端，之后的阶段属于编译器后端。</p>
+<p>编译过程有很多优化的环节，在这个环节是指源代码级别的优化。它将语法树转换成中间代码，它是语法树的顺序表示。</p>
+<p>中间代码一般和目标机器以及运行时环境无关，它有几种常见的形式：三地址码、P-代码。例如，最基本的<code>三地址码</code>是这样的：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">x = y op z<br></code></pre></td></tr></table></figure>
+
+<p>表示变量 y 和 变量 z 进行 op 操作后，赋值给 x。op 可以是数学运算，例如加减乘除。</p>
+<p>前面我们举的例子可以写成如下的形式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">t1 = 2 + 6<br>t2 = i * t1<br>slice[i] = t2<br></code></pre></td></tr></table></figure>
+
+<p>这里 2 + 6 是可以直接计算出来的，这样就把 t1 这个临时变量“优化”掉了，而且 t1 变量可以重复利用，因此 t2 也可以“优化”掉。优化之后：</p>
+<p>t1 &#x3D; i * 8<br>slice[i] &#x3D; t1</p>
+<p>Go 语言的中间代码表示形式为 SSA（Static Single-Assignment，静态单赋值），之所以称之为单赋值，是因为每个名字在 SSA 中仅被赋值一次。。</p>
+<p>这一阶段会根据 CPU 的架构设置相应的用于生成中间代码的变量，例如编译器使用的指针和寄存器的大小、可用寄存器列表等。中间代码生成和机器码生成这两部分会共享相同的设置。</p>
+<p>在生成中间代码之前，编译器还需要替换抽象语法树中节点的一些元素，这个替换的过程是通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/cmd/compile/internal/gc.walk"><code>cmd/compile/internal/gc.walk</code></a> 和以相关函数实现的，这里简单展示几个函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walk</span><span class="hljs-params">(fn *Node)</span></span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkappend</span><span class="hljs-params">(n *Node, init *Nodes, dst *Node)</span></span> *Node<br>...<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkrange</span><span class="hljs-params">(n *Node)</span></span> *Node<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkselect</span><span class="hljs-params">(sel *Node)</span></span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkselectcases</span><span class="hljs-params">(cases *Nodes)</span></span> []*Node<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkstmt</span><span class="hljs-params">(n *Node)</span></span> *Node<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkstmtlist</span><span class="hljs-params">(s []*Node)</span></span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">walkswitch</span><span class="hljs-params">(sw *Node)</span></span><br></code></pre></td></tr></table></figure>
+
+<p>这些用于遍历抽象语法树的函数会将一些关键字和内建函数转换成函数调用，例如： 上述函数会将 <code>panic</code>、<code>recover</code> 两个内建函数转换成 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gopanic"><code>runtime.gopanic</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gorecover"><code>runtime.gorecover</code></a> 两个真正运行时函数，而关键字 <code>new</code> 也会被转换成调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newobject"><code>runtime.newobject</code></a> 函数。</p>
+<p><img src="https://img.draveness.me/2019-02-05-golang-keyword-and-builtin-mapping.png" srcset="/img/loading.gif" lazyload alt="golang-keyword-and-builtin-mapping"></p>
+<p>例如对于 map 的操作 m[i]，在这里会被转换成 mapacess 或 mapassign。</p>
+<blockquote>
+<p>Go 语言的主程序在执行时会调用 runtime 中的函数，也就是说关键字和内置函数的功能其实是由语言的编译器和运行时共同完成的。</p>
+</blockquote>
+<blockquote>
+<p>中间代码的生成过程其实就是从 AST 抽象语法树到 SSA 中间代码的转换过程，在这期间会对语法树中的关键字在进行一次更新，更新后的语法树会经过多轮处理转变最后的 SSA 中间代码。</p>
+</blockquote>
+<h2 id="目标代码生成与优化与机器码生成"><a href="#目标代码生成与优化与机器码生成" class="headerlink" title="目标代码生成与优化与机器码生成"></a>目标代码生成与优化与机器码生成</h2><p><strong>代码优化 (Optimization)：</strong></p>
+<ul>
+<li><p>目的：</p>
+<p>对生成的中间代码进行各种优化，以提高代码的执行效率，例如：</p>
+<ul>
+<li><strong>内联 (Inlining)：</strong> 将短小的函数调用直接替换为函数体代码，减少函数调用的开销。</li>
+<li><strong>逃逸分析 (Escape Analysis)：</strong> 判断变量是否逃逸到堆上，决定是在栈上分配还是堆上分配内存，减少GC的压力。</li>
+<li><strong>死代码消除 (Dead Code Elimination)：</strong> 移除永远不会被执行的代码。</li>
+<li><strong>常量折叠 (Constant Folding)：</strong> 在编译时计算常量表达式的值。</li>
+<li><strong>循环展开 (Loop Unrolling)：</strong> 减少循环的迭代次数。</li>
+<li><strong>寄存器分配 (Register Allocation)：</strong> 将变量尽可能地分配到寄存器中，提高访问速度。</li>
+</ul>
+</li>
+<li><p><strong>过程：</strong> 应用一系列的优化策略，对SSA形式的中间代码进行转换和改进。</p>
+</li>
+<li><p><strong>输出：</strong> 优化后的SSA形式的中间代码。</p>
+</li>
+</ul>
+<p><strong>机器码生成 (Code Generation)：</strong></p>
+<ul>
+<li><strong>目的：</strong> 将优化后的中间代码转换成特定目标平台的机器码。</li>
+<li><strong>过程：</strong> 根据目标平台的架构 (例如 amd64, arm64) 和操作系统 (例如 Linux, Windows, macOS)，将SSA指令映射</li>
+</ul>
+<p>不同机器的机器字长、寄存器等等都不一样，意味着在不同机器上跑的机器码是不一样的。最后一步的目的就是要生成能在不同 CPU 架构上运行的代码。</p>
+<p>为了榨干机器的每一滴油水，目标代码优化器会对一些指令进行优化，例如使用移位指令代替乘法指令等。</p>
+<p>涉及到相关底层较多，可以基于这篇文章进行扩展<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/docs/part1-prerequisite/ch02-compile/golang-machinecode/">Go 语言设计与实现</a></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang">Go 语言设计与实现</a></p>
+<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://golang.design/go-questions">Go 程序员面试笔试宝典</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Go语言编译过程</div>
+      <div>https://blog.longpi1.com/2025/01/19/Go语言编译过程/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/11/12-Golang-%E9%94%81-sync%E5%8C%85-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%EF%BC%88%E4%B8%89%E3%80%81Once%E3%80%81Cond%E3%80%81semaphore%E3%80%81singleflight%EF%BC%89/" title="12.Golang 锁 sync包 源码分析 （三、Once、Cond、semaphore、singleflight）">
+                        <span class="hidden-mobile">12.Golang 锁 sync包 源码分析 （三、Once、Cond、semaphore、singleflight）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
