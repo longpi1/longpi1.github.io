@@ -1,0 +1,850 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）">
+<meta property="og:url" content="https://blog.longpi1.com/2025/03/08/13-Golang-%E8%B0%83%E5%BA%A6%E5%99%A8%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%81%E8%B0%83%E5%BA%A6%E5%99%A8%E5%90%AF%E5%8A%A8%E4%B8%8E%E5%88%9B%E5%BB%BA%E5%8D%8F%E7%A8%8B%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354595-golang-scheduler.png">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354615-golang-goroutine-state-transition.png">
+<meta property="og:image" content="https://img.draveness.me/golang-newproc-get-goroutine.png">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354654-golang-runnable-queue.png">
+<meta property="og:image" content="https://s2.loli.net/2025/02/23/fB6oCmGuOTxZcsq.png">
+<meta property="article:published_time" content="2025-03-08T11:39:14.000Z">
+<meta property="article:modified_time" content="2025-03-08T11:39:52.846Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img.draveness.me/2020-02-05-15808864354595-golang-scheduler.png">
+  
+  
+  
+  <title>13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-08 19:39" pubdate>
+          2025年3月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-调度器源码分析（一、数据结构、调度器启动与创建协程）"><a href="#Golang-调度器源码分析（一、数据结构、调度器启动与创建协程）" class="headerlink" title="Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）"></a>Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）</h1><blockquote>
+<p>注意当前go版本代码为1.23</p>
+</blockquote>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>关于Golang的协程调度器原理及GMP设计思想可以通过<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/Golang%E7%9A%84%E5%8D%8F%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8AGMP%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3.md">Golang的协程调度器原理及GMP设计思想</a>进行了解。</p>
+<p><img src="https://img.draveness.me/2020-02-05-15808864354595-golang-scheduler.png" srcset="/img/loading.gif" lazyload alt="golang-scheduler"></p>
+<p><strong>Go 语言调度器三个重要组成部分 — 线程 M、Goroutine G 和处理器 P</strong></p>
+<ol>
+<li>G — 表示 Goroutine，它是一个待执行的任务；</li>
+<li>M — 表示操作系统的线程，它由操作系统的调度器调度和管理；</li>
+<li>P — 表示处理器，它可以被看做运行在线程上的本地调度器；</li>
+</ol>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><h4 id="G"><a href="#G" class="headerlink" title="G"></a>G</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> g <span class="hljs-keyword">struct</span> &#123;<br>    <span class="hljs-comment">// 栈管理参数</span><br>    stack       stack   <span class="hljs-comment">// 描述实际栈内存范围：[stack.lo, stack.hi)，偏移量对 runtime/cgo 可见</span><br>    stackguard0 <span class="hljs-type">uintptr</span> <span class="hljs-comment">// 栈增长检查的指针（通常为 stack.lo+StackGuard），可设为 StackPreempt 触发抢占</span><br>    stackguard1 <span class="hljs-type">uintptr</span> <span class="hljs-comment">// 系统栈（如g0、gsignal）的栈增长检查指针，其他协程设为 ~0 触发 morestackc 崩溃</span><br><br>    <span class="hljs-comment">// 异常处理</span><br>    _panic *_panic <span class="hljs-comment">// 当前最内层的 panic 结构（偏移量对 liblink 可见）</span><br>    _defer *_defer <span class="hljs-comment">// 当前最内层的 defer 结构</span><br><br>    <span class="hljs-comment">// 调度与上下文</span><br>    m         *m      <span class="hljs-comment">// 当前绑定的 M（操作系统线程），偏移量对 arm liblink 可见</span><br>    sched     gobuf   <span class="hljs-comment">// 协程切换时的寄存器上下文（SP、PC、BP 等）</span><br>    syscallsp <span class="hljs-type">uintptr</span> <span class="hljs-comment">// 若状态为 Gsyscall，保存 sched.sp 供 GC 使用</span><br>    syscallpc <span class="hljs-type">uintptr</span> <span class="hljs-comment">// 若状态为 Gsyscall，保存 sched.pc 供 GC 使用</span><br>    syscallbp <span class="hljs-type">uintptr</span> <span class="hljs-comment">// 若状态为 Gsyscall，保存 sched.bp 用于栈回溯</span><br>    stktopsp  <span class="hljs-type">uintptr</span> <span class="hljs-comment">// 栈顶期望的 SP 值，用于回溯检查</span><br><br>    <span class="hljs-comment">// 通用参数传递</span><br>    param unsafe.Pointer <span class="hljs-comment">// 多场景临时指针参数：</span><br>    <span class="hljs-comment">// 1. Channel 操作唤醒时指向 sudog</span><br>    <span class="hljs-comment">// 2. GC 辅助完成信号</span><br>    <span class="hljs-comment">// 3. 调试调用传递参数（禁止闭包时）</span><br>    <span class="hljs-comment">// 4. panic 恢复时保存 defer 状态</span><br><br>    <span class="hljs-comment">// 状态与锁</span><br>    atomicstatus atomic.Uint32 <span class="hljs-comment">// 协程原子状态（如 _Grunnable、_Gwaiting）</span><br>    stackLock    <span class="hljs-type">uint32</span>        <span class="hljs-comment">// 栈扫描/性能分析锁（未来可能合并到 atomicstatus）</span><br>    goid         <span class="hljs-type">uint64</span>        <span class="hljs-comment">// 协程唯一 ID</span><br>    schedlink    guintptr      <span class="hljs-comment">// 调度链表指针，指向下一个待运行的 G</span><br>    waitsince    <span class="hljs-type">int64</span>         <span class="hljs-comment">// 协程进入阻塞的近似时间戳</span><br>    waitreason   waitReason    <span class="hljs-comment">// 阻塞原因（若状态为 Gwaiting）</span><br><br>    <span class="hljs-comment">// 抢占控制</span><br>    preempt       <span class="hljs-type">bool</span> <span class="hljs-comment">// 抢占标志（与 stackguard0=stackpreempt 冗余）</span><br>    preemptStop   <span class="hljs-type">bool</span> <span class="hljs-comment">// 抢占时是否转换为 _Gpreempted 状态（否则仅调度）</span><br>    preemptShrink <span class="hljs-type">bool</span> <span class="hljs-comment">// 是否在同步安全点收缩栈</span><br><br>    <span class="hljs-comment">// 栈与内存管理</span><br>    asyncSafePoint   <span class="hljs-type">bool</span>        <span class="hljs-comment">// 是否停在异步安全点（栈帧无精确指针信息）</span><br>    paniconfault     <span class="hljs-type">bool</span>        <span class="hljs-comment">// 非法地址访问时 panic 而非崩溃</span><br>    gcscandone       <span class="hljs-type">bool</span>        <span class="hljs-comment">// 栈是否已扫描完成（受 _Gscan 状态保护）</span><br>    throwsplit       <span class="hljs-type">bool</span>        <span class="hljs-comment">// 禁止栈分裂</span><br>    activeStackChans <span class="hljs-type">bool</span>        <span class="hljs-comment">// 栈中有未锁定的 channel（栈复制需加锁）</span><br>    parkingOnChan    atomic.Bool <span class="hljs-comment">// 是否即将在 channel 上停车（影响栈收缩）</span><br><br>    <span class="hljs-comment">// GC 与追踪</span><br>    inMarkAssist  <span class="hljs-type">bool</span>  <span class="hljs-comment">// 是否在 GC 标记辅助阶段</span><br>    gcAssistBytes <span class="hljs-type">int64</span> <span class="hljs-comment">// GC 辅助分配信用（正数免辅助，负数需扫描）</span><br><br>    <span class="hljs-comment">// 协程控制</span><br>    coroexit   <span class="hljs-type">bool</span>          <span class="hljs-comment">// 协程退出参数（用于 coroswitch_m）</span><br>    lockedm    muintptr      <span class="hljs-comment">// 锁定此 G 的 M（若在系统调用中）</span><br>    timer      *timer        <span class="hljs-comment">// time.Sleep 缓存计时器</span><br>    selectDone atomic.Uint32 <span class="hljs-comment">// select 操作是否已有结果</span><br><br>    <span class="hljs-comment">// 其他</span><br>    <span class="hljs-comment">// 忽略......</span><br>&#125;<br><br><br><span class="hljs-keyword">type</span> gobuf <span class="hljs-keyword">struct</span> &#123;<br>	<span class="hljs-comment">// The offsets of sp, pc, and g are known to (hard-coded in) libmach.</span><br>	<span class="hljs-comment">//</span><br>	<span class="hljs-comment">// ctxt is unusual with respect to GC: it may be a</span><br>	<span class="hljs-comment">// heap-allocated funcval, so GC needs to track it, but it</span><br>	<span class="hljs-comment">// needs to be set and cleared from assembly, where it&#x27;s</span><br>	<span class="hljs-comment">// difficult to have write barriers. However, ctxt is really a</span><br>	<span class="hljs-comment">// saved, live register, and we only ever exchange it between</span><br>	<span class="hljs-comment">// the real register and the gobuf. Hence, we treat it as a</span><br>	<span class="hljs-comment">// root during stack scanning, which means assembly that saves</span><br>	<span class="hljs-comment">// and restores it doesn&#x27;t need write barriers. It&#x27;s still</span><br>	<span class="hljs-comment">// typed as a pointer so that any other writes from Go get</span><br>	<span class="hljs-comment">// write barriers.</span><br>	sp   <span class="hljs-type">uintptr</span><br>	pc   <span class="hljs-type">uintptr</span><br>	g    guintptr<br>	ctxt unsafe.Pointer<br>	ret  <span class="hljs-type">uintptr</span><br>	lr   <span class="hljs-type">uintptr</span><br>	bp   <span class="hljs-type">uintptr</span> <span class="hljs-comment">// for framepointer-enabled architectures</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>结构体 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.g"><code>runtime.g</code></a> 的 <code>atomicstatus</code> 字段存储了当前 Goroutine 的状态。除了几个已经不被使用的以及与 GC 相关的状态之外，Goroutine 可能处于以下 9 种状态：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>_Gidle</code></td>
+<td>刚刚被分配并且还没有被初始化</td>
+</tr>
+<tr>
+<td><code>_Grunnable</code></td>
+<td>没有执行代码，没有栈的所有权，存储在运行队列中</td>
+</tr>
+<tr>
+<td><code>_Grunning</code></td>
+<td>可以执行代码，拥有栈的所有权，被赋予了内核线程 M 和处理器 P</td>
+</tr>
+<tr>
+<td><code>_Gsyscall</code></td>
+<td>正在执行系统调用，拥有栈的所有权，没有执行用户代码，被赋予了内核线程 M 但是不在运行队列上</td>
+</tr>
+<tr>
+<td><code>_Gwaiting</code></td>
+<td>由于运行时而被阻塞，没有执行用户代码并且不在运行队列上，但是可能存在于 Channel 的等待队列上</td>
+</tr>
+<tr>
+<td><code>_Gdead</code></td>
+<td>没有被使用，没有执行代码，可能有分配的栈</td>
+</tr>
+<tr>
+<td><code>_Gcopystack</code></td>
+<td>栈正在被拷贝，没有执行代码，不在运行队列上</td>
+</tr>
+<tr>
+<td><code>_Gpreempted</code></td>
+<td>由于抢占而被阻塞，没有执行用户代码并且不在运行队列上，等待唤醒</td>
+</tr>
+<tr>
+<td><code>_Gscan</code></td>
+<td>GC 正在扫描栈空间，没有执行代码，可以与其他状态同时存在</td>
+</tr>
+</tbody></table>
+<p>虽然 Goroutine 在运行时中定义的状态非常多而且复杂，但是我们可以将这些不同的状态聚合成三种：等待中、可运行、运行中，运行期间会在这三种状态来回切换：</p>
+<ul>
+<li>等待中：Goroutine 正在等待某些条件满足，例如：系统调用结束等，包括 <code>_Gwaiting</code>、<code>_Gsyscall</code> 和 <code>_Gpreempted</code> 几个状态；</li>
+<li>可运行：Goroutine 已经准备就绪，可以在线程运行，如果当前程序中有非常多的 Goroutine，每个 Goroutine 就可能会等待更多的时间，即 <code>_Grunnable</code>；</li>
+<li>运行中：Goroutine 正在某个线程上运行，即 <code>_Grunning</code>；</li>
+</ul>
+<p><strong>Goroutine 的常见状态迁移</strong></p>
+<p><img src="https://img.draveness.me/2020-02-05-15808864354615-golang-goroutine-state-transition.png" srcset="/img/loading.gif" lazyload alt="golang-goroutine-state-transition"></p>
+<p>上图展示了 Goroutine 状态迁移的常见路径，其中包括创建 Goroutine 到 Goroutine 被执行、触发系统调用或者抢占式调度器的状态迁移过程。</p>
+<h4 id="M"><a href="#M" class="headerlink" title="M"></a>M</h4><p>Go 语言并发模型中的 M 是操作系统线程。调度器最多可以创建 10000 个线程，但是其中大多数的线程都不会执行用户代码（可能陷入系统调用），最多只会有 <code>GOMAXPROCS</code> 个活跃线程能够正常运行。</p>
+<p>在默认情况下，运行时会将 <code>GOMAXPROCS</code> 设置成当前机器的核数，我们也可以在程序中使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.GOMAXPROCS"><code>runtime.GOMAXPROCS</code></a> 来改变最大的活跃线程数。</p>
+<p>Go 语言会使用私有结构体 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.m"><code>runtime.m</code></a> 表示操作系统线程，这个结构体包含了几十个字段，这里介绍几个主要的字段：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs awk">g0      *g     <span class="hljs-regexp">//</span> 调度栈 goroutine。每个 m 都拥有一个 g0，它是一个特殊的 goroutine，用于执行调度和 runtime 内部任务。g0 的栈（m-&gt;stack）不是用户 goroutine 的栈，而是 m 在执行调度代码时使用的栈。<br>curg          *g       <span class="hljs-regexp">//</span> 当前正在 m 上运行的 goroutine。如果 m 没有运行任何 goroutine，则为 nil。<br>p             puintptr <span class="hljs-regexp">//</span> 附加到 m 的 P (Processor)。P 是 Go 调度器的处理器，负责运行 goroutine。如果 m 没有执行 Go 代码，则 p 为 nil (例如，在 syscall 或 idle 时)。<br>nextp         puintptr <span class="hljs-regexp">//</span> 下一个要附加到 m 的 P。用于 P 的迁移和负载均衡。<br>oldp          puintptr <span class="hljs-regexp">//</span> 在执行 syscall 之前附加到 m 的 P。当 syscall 返回后，P 会被恢复。<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="P"><a href="#P" class="headerlink" title="P"></a>P</h4><p>调度器中的处理器 P 是线程和 Goroutine 的中间层，它能提供线程需要的上下文环境，也会负责调度线程上的等待队列，通过处理器 P 的调度，每一个内核线程都能够执行多个 Goroutine，它能在 Goroutine 进行一些 I&#x2F;O 操作时及时让出计算资源，提高线程的利用率。</p>
+<p>因为调度器在启动时就会创建 <code>GOMAXPROCS</code> 个处理器，所以 Go 语言程序的处理器数量一定会等于 <code>GOMAXPROCS</code>，这些处理器会绑定到不同的内核线程上。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.p"><code>runtime.p</code></a> 是处理器的运行时表示，作为调度器的内部实现，它包含的字段也非常多，这里不一样介绍，我们主要关注处理器中的线程和运行队列：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> p <span class="hljs-keyword">struct</span> &#123;<br>        id          <span class="hljs-type">int32</span><br>        status      <span class="hljs-type">uint32</span> <span class="hljs-comment">// P 的状态，取值可以是 pidle (空闲), prunning (运行中), psyscall (系统调用中), pgcstop (GC 停止中), pdead (已死亡) 等常量。</span><br>        m           muintptr   <span class="hljs-comment">// 反向链接到关联的 m (Machine, 操作系统线程)。如果 P 处于空闲状态 (pidle)，则 m 为 nil。</span><br>        mcache      *mcache     <span class="hljs-comment">// mcache (M 缓存)。每个 P 都有一个 mcache，用于快速分配小对象，减少对全局堆锁的竞争。</span><br>        pcache      pageCache   <span class="hljs-comment">// pcache (P 缓存)。每个 P 都有一个 pageCache，用于缓存 span 页，进一步优化内存分配性能。</span><br>        <span class="hljs-comment">// 可运行 goroutine 队列。无锁访问。</span><br>        runqhead <span class="hljs-type">uint32</span>     <span class="hljs-comment">// 可运行队列的头部索引。</span><br>        runqtail <span class="hljs-type">uint32</span>     <span class="hljs-comment">// 可运行队列的尾部索引。</span><br>        runq     [<span class="hljs-number">256</span>]guintptr <span class="hljs-comment">// 可运行队列的环形缓冲区，存储等待运行的 goroutine 的 gptr。</span><br>        <span class="hljs-comment">// runnext, 如果非 nil，表示当前 G 准备好的一个可运行 G，应该优先于 runq 中的 goroutine 运行。</span><br>        <span class="hljs-comment">// 如果当前 G 的时间片还有剩余，它会继承剩余的时间片。如果一组 goroutine 锁定在一个</span><br>        <span class="hljs-comment">// 通信-等待模式中，这将作为一个单元调度这组 goroutine，并消除 (潜在的大量) 调度</span><br>        <span class="hljs-comment">// 延迟，否则会因将准备好的 goroutine 添加到运行队列的末尾而产生延迟。</span><br>        <span class="hljs-comment">//</span><br>        <span class="hljs-comment">// 注意，虽然其他 P 可以原子地 CAS 将其设置为零，但只有所有者 P 可以 CAS 将其设置为有效的 G。</span><br>        runnext guintptr <span class="hljs-comment">// 下一个要运行的 goroutine 的 gptr。当一个 goroutine 使用 `go` 关键字创建新的 goroutine 时，新的 goroutine 可能会被设置为 runnext，以便立即执行，提高调度效率，尤其是在 goroutine 之间有紧密协作的情况下。</span><br><br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>反向存储的线程维护着线程与处理器之间的关系，而 <code>runqhead</code>、<code>runqtail</code> 和 <code>runq</code> 三个字段表示处理器持有的运行队列，其中存储着待执行的 Goroutine 列表，<code>runnext</code> 中是线程下一个需要执行的 Goroutine。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.p"><code>runtime.p</code></a> 结构体中的状态 <code>status</code> 字段会是以下五种中的一种：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>_Pidle</code></td>
+<td>处理器没有运行用户代码或者调度器，被空闲队列或者改变其状态的结构持有，运行队列为空</td>
+</tr>
+<tr>
+<td><code>_Prunning</code></td>
+<td>被线程 M 持有，并且正在执行用户代码或者调度器</td>
+</tr>
+<tr>
+<td><code>_Psyscall</code></td>
+<td>没有执行用户代码，当前线程陷入系统调用</td>
+</tr>
+<tr>
+<td><code>_Pgcstop</code></td>
+<td>被线程 M 持有，当前处理器由于垃圾回收被停止</td>
+</tr>
+<tr>
+<td><code>_Pdead</code></td>
+<td>当前处理器已经不被使用</td>
+</tr>
+</tbody></table>
+<p>通过分析处理器 P 的状态，我们能够对处理器的工作过程有一些简单理解，例如处理器在执行用户代码时会处于 <code>_Prunning</code> 状态，在当前线程执行 I&#x2F;O 操作时会陷入 <code>_Psyscall</code> 状态。</p>
+<h2 id="调度器启动"><a href="#调度器启动" class="headerlink" title="调度器启动"></a>调度器启动</h2><p>调度器的启动过程是我们平时比较难以接触的过程，不过作为程序启动前的准备工作，理解调度器的启动过程对我们理解调度器的实现原理很有帮助，运行时通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedinit"><code>runtime.</code></a> 初始化调度器：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">//这里主要介绍核心代码，省略其他代码</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">schedinit</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-comment">// 获取当前 goroutine 的 g 结构体指针。  getg() 是一个汇编实现的函数，用于获取当前 goroutine 的 g 指针。</span><br>        gp := getg()<br><br>        <span class="hljs-comment">// 设置系统可以拥有的最大 M (machine, 即系统线程) 数量。</span><br>        <span class="hljs-comment">// 默认值为 10000，这意味着 Go 程序最多可以创建 10000 个操作系统线程。</span><br>        sched.maxmcount = <span class="hljs-number">10000</span><br><br>        <span class="hljs-comment">// 确定 P (processor, 逻辑处理器) 的数量。</span><br>        <span class="hljs-comment">// 默认情况下，P 的数量等于 CPU 核心数 (ncpu)。</span><br>        procs := ncpu<br><br>        <span class="hljs-comment">// 如果设置了环境变量 GOMAXPROCS，则使用 GOMAXPROCS 的值作为 P 的数量。</span><br>        <span class="hljs-comment">// atoi32 将字符串转换为 int32。</span><br>        <span class="hljs-comment">// gogetenv 获取环境变量的值。</span><br>        <span class="hljs-keyword">if</span> n, ok := atoi32(gogetenv(<span class="hljs-string">&quot;GOMAXPROCS&quot;</span>)); ok &amp;&amp; n &gt; <span class="hljs-number">0</span> &#123;<br>                procs = n<br>        &#125;<br><br>        <span class="hljs-comment">// 调用 procresize 调整 P 的数量，并初始化相关的运行时资源。</span><br>        <span class="hljs-comment">// procresize 会根据 procs 的值调整全局 P 数组的大小，并初始化每个 P。</span><br>        <span class="hljs-comment">// 如果在初始化过程中发现有 runnable 的 goroutine，则抛出异常，</span><br>        <span class="hljs-comment">// 因为在调度器初始化完成之前，不应该有 runnable 的 goroutine。</span><br>        <span class="hljs-keyword">if</span> procresize(procs) != <span class="hljs-literal">nil</span> &#123;<br>                throw(<span class="hljs-string">&quot;unknown runnable goroutine during bootstrap&quot;</span>)<br>        &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在调度器初始函数执行的过程中会将 <code>maxmcount</code> 设置成 10000，这也就是一个 Go 语言程序能够创建的最大线程数，虽然最多可以创建 10000 个线程，但是可以同时运行的线程还是由 <code>GOMAXPROCS</code> 变量控制。</p>
+<p>我们从环境变量 <code>GOMAXPROCS</code> 获取了程序能够同时运行的最大处理器数之后就会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.procresize"><code>runtime.procresize</code></a> 更新程序中处理器的数量，在这时整个程序不会执行任何用户 Goroutine，调度器也会进入锁定状态，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.procresize"><code>runtime.procresize</code></a> 的执行过程如下：</p>
+<ol>
+<li>如果全局变量 <code>allp</code> 切片中的处理器数量少于期望数量，会对切片进行扩容；</li>
+<li>使用 <code>new</code> 创建新的处理器结构体并调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.p.init"><code>runtime.p.init</code></a> 初始化刚刚扩容的处理器；</li>
+<li>通过指针将线程 m0 和处理器 <code>allp[0]</code> 绑定到一起；</li>
+<li>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.p.destroy"><code>runtime.p.destroy</code></a> 释放不再使用的处理器结构；</li>
+<li>通过截断改变全局变量 <code>allp</code> 的长度保证与期望处理器数量相等；</li>
+<li>将除 <code>allp[0]</code> 之外的处理器 P 全部设置成 <code>_Pidle</code> 并加入到全局的空闲队列中；</li>
+</ol>
+<p>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.procresize"><code>runtime.procresize</code></a> 是调度器启动的最后一步，在这一步过后调度器会完成相应数量处理器的启动，等待用户创建运行新的 Goroutine 并为 Goroutine 调度处理器资源。</p>
+<h2 id="创建-Goroutine"><a href="#创建-Goroutine" class="headerlink" title="创建 Goroutine"></a>创建 Goroutine</h2><p>想要启动一个新的 Goroutine 来执行任务时，我们需要使用 Go 语言的 <code>go</code> 关键字，编译器会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/cmd/compile/internal/gc.state.stmt"><code>cmd/compile/internal/gc.state.stmt</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/cmd/compile/internal/gc.state.call"><code>cmd/compile/internal/gc.state.call</code></a> 两个方法将该关键字转换成 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newproc"><code>runtime.newproc</code></a> 函数调用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(s *state)</span></span> call(n *Node, k callKind) *ssa.Value &#123;<br>	<span class="hljs-keyword">if</span> k == callDeferStack &#123;<br>		...<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">switch</span> &#123;<br>		<span class="hljs-keyword">case</span> k == callGo:<br>			call = s.newValue1A(ssa.OpStaticCall, types.TypeMem, newproc, s.mem())<br>		<span class="hljs-keyword">default</span>:<br>		&#125;<br>	&#125;<br>	...<br>&#125;<br><br><span class="hljs-comment">// newproc 函数创建一个新的 goroutine（协程），并将其放入运行队列.</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 参数:</span><br><span class="hljs-comment">//   fn: *funcval 类型，指向要执行的函数的指针。funcval 是一个内部结构，用于表示闭包。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newproc</span><span class="hljs-params">(fn *funcval)</span></span> &#123;<br>        <span class="hljs-comment">// 获取当前 goroutine 的指针 (g)。</span><br>        gp := getg()<br><br>        <span class="hljs-comment">// 获取调用 newproc 函数的调用者的程序计数器 (PC)。</span><br>        <span class="hljs-comment">// sys.GetCallerPC() 是一个汇编级别的函数，用于获取调用者的返回地址，从而确定调用者的位置。</span><br>        pc := sys.GetCallerPC()<br><br>        <span class="hljs-comment">// systemstack 切换到系统栈（g0 栈）上执行匿名函数。</span><br>        <span class="hljs-comment">// 这样做是为了防止在分配新的 goroutine 时用户栈空间不足，因为 newproc1 可能会分配内存。</span><br>        systemstack(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>                <span class="hljs-comment">// newproc1 创建一个新的 goroutine 结构 (g)。</span><br>                <span class="hljs-comment">//</span><br>                <span class="hljs-comment">// 参数:</span><br>                <span class="hljs-comment">//   fn: *funcval 类型，指向要执行的函数的指针。</span><br>                <span class="hljs-comment">//   gp: 调用 newproc 的 goroutine 的指针。</span><br>                <span class="hljs-comment">//   pc: 调用 newproc 函数的调用者的程序计数器。</span><br>                <span class="hljs-comment">//   async: 布尔值，表示是否为异步调用创建的g, 这里是false, 表示同步创建.</span><br>                <span class="hljs-comment">//   reason: waitReason, 表示等待原因, 这里使用 waitReasonZero, 表示无等待原因.</span><br>                newg := newproc1(fn, gp, pc, <span class="hljs-literal">false</span>, waitReasonZero)<br><br>                <span class="hljs-comment">// 获取当前处理器 (P) 的指针。</span><br>                <span class="hljs-comment">// getg().m.p.ptr() 获取当前 goroutine 所属的 M (machine) 上的 P (processor) 的指针。</span><br>                pp := getg().m.p.ptr()<br><br>                <span class="hljs-comment">// runqput 将新创建的 goroutine (newg) 放入当前处理器 (P) 的本地运行队列。</span><br>                <span class="hljs-comment">//</span><br>                <span class="hljs-comment">// 参数:</span><br>                <span class="hljs-comment">//   pp: 当前处理器 (P) 的指针。</span><br>                <span class="hljs-comment">//   newg: 要放入运行队列的 goroutine 的指针。</span><br>                <span class="hljs-comment">//   next: 布尔值，表示是否将 goroutine 放入本地运行队列的下一个可运行位置。</span><br>                <span class="hljs-comment">//         true 表示放入下一个可运行位置，这通常用于新创建的 goroutine，以提高局部性。</span><br>                runqput(pp, newg, <span class="hljs-literal">true</span>)<br><br>                <span class="hljs-comment">// 如果主 goroutine 已经启动，则唤醒一个 P 来运行新的 goroutine。</span><br>                <span class="hljs-comment">// mainStarted 是一个全局变量，表示主 goroutine 是否已经启动。</span><br>                <span class="hljs-keyword">if</span> mainStarted &#123;<br>                        wakep() <span class="hljs-comment">// 唤醒一个 P (如果需要的话)</span><br>                &#125;<br>        &#125;)<br>&#125;<br><br><br><br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newproc1"><code>runtime.newproc1</code></a> 会根据传入参数初始化一个 <code>g</code> 结构体，我们可以将该函数分成以下几个部分介绍它的实现：</p>
+<ol>
+<li>获取或者创建新的 Goroutine 结构体；</li>
+<li>将传入的参数移到 Goroutine 的栈上；</li>
+<li>更新 Goroutine 调度相关的属性；</li>
+</ol>
+<p>首先是 Goroutine 结构体的创建过程：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newproc1</span><span class="hljs-params">(fn *funcval, argp unsafe.Pointer, narg <span class="hljs-type">int32</span>, callergp *g, callerpc <span class="hljs-type">uintptr</span>)</span></span> *g &#123;<br>        <span class="hljs-comment">// 获取当前 goroutine 的 g 结构体指针。</span><br>        _g_ := getg()<br><br>        <span class="hljs-comment">// 计算参数所需的栈空间大小。</span><br>        siz := narg<br>        <span class="hljs-comment">// 对 siz 进行 8 字节对齐。</span><br>        <span class="hljs-comment">// &amp;^7 是一个位操作技巧，等价于 siz = (siz + 7) / 8 * 8，确保 siz 是 8 的倍数。</span><br>        <span class="hljs-comment">//  这是因为在大多数架构上，栈的对齐方式是 8 字节。</span><br>        siz = (siz + <span class="hljs-number">7</span>) &amp;^ <span class="hljs-number">7</span><br><br>        <span class="hljs-comment">// 获取当前 goroutine 所在的处理器(P)的指针。</span><br>        _p_ := _g_.m.p.ptr()<br><br>        <span class="hljs-comment">// 尝试从 P 的空闲 g 列表中获取一个可重用的 g 结构体。</span><br>        newg := gfget(_p_)<br><br>        <span class="hljs-comment">// 如果没有可重用的 g 结构体，则分配一个新的 g 结构体。</span><br>        <span class="hljs-keyword">if</span> newg == <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-comment">// 使用 _StackMin 大小分配一个新的 g 结构体。</span><br>                <span class="hljs-comment">// malg 函数负责分配 g 结构体所需的栈空间。</span><br>                newg = malg(_StackMin)<br>                <span class="hljs-comment">// 将新分配的 g 的状态从 _Gidle 更改为 _Gdead。</span><br>                <span class="hljs-comment">// casgstatus 是一个原子操作，用于安全地更改 g 的状态。</span><br>                casgstatus(newg, _Gidle, _Gdead)<br>                <span class="hljs-comment">// 将新分配的 g 添加到 allgs 列表中，以便垃圾回收器可以跟踪它。</span><br>                allgadd(newg)<br>        &#125;<br>        ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上述代码会先从处理器的 <code>gFree</code> 列表中查找空闲的 Goroutine，如果不存在空闲的 Goroutine，会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.malg"><code>runtime.malg</code></a> 创建一个栈大小足够的新结构体。</p>
+<p>接下来，调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.memmove"><code>runtime.memmove</code></a> 将 <code>fn</code> 函数的所有参数拷贝到栈上，<code>argp</code> 和 <code>narg</code> 分别是参数的内存空间和大小，我们在该方法中会将参数对应的内存空间整块拷贝到栈上：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go">...<br>totalSize := <span class="hljs-number">4</span>*sys.RegSize + <span class="hljs-type">uintptr</span>(siz) + sys.MinFrameSize<br>totalSize += -totalSize &amp; (sys.SpAlign - <span class="hljs-number">1</span>)<br>sp := newg.stack.hi - totalSize<br>spArg := sp<br><span class="hljs-keyword">if</span> narg &gt; <span class="hljs-number">0</span> &#123;<br>	memmove(unsafe.Pointer(spArg), argp, <span class="hljs-type">uintptr</span>(narg))<br>&#125;<br>...<br></code></pre></td></tr></table></figure>
+
+<p>拷贝了栈上的参数之后，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newproc1"><code>runtime.newproc1</code></a> 会设置新的 Goroutine 结构体的参数，包括栈指针、程序计数器并更新其状态到 <code>_Grunnable</code> 并返回：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go">	...<br>	memclrNoHeapPointers(unsafe.Pointer(&amp;newg.sched), unsafe.Sizeof(newg.sched))<br>	newg.sched.sp = sp<br>	newg.stktopsp = sp<br>	newg.sched.pc = funcPC(goexit) + sys.PCQuantum<br>	newg.sched.g = guintptr(unsafe.Pointer(newg))<br>	gostartcallfn(&amp;newg.sched, fn)<br>	newg.gopc = callerpc<br>	newg.startpc = fn.fn<br>	casgstatus(newg, _Gdead, _Grunnable)<br>	newg.goid = <span class="hljs-type">int64</span>(_p_.goidcache)<br>	_p_.goidcache++<br>	<span class="hljs-keyword">return</span> newg<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上述在分析 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newproc"><code>runtime.newproc</code></a> 的过程中，保留了主干省略了用于获取结构体的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gfget"><code>runtime.gfget</code></a>、<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.malg"><code>runtime.malg</code></a>、将 Goroutine 加入运行队列的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.runqput"><code>runtime.runqput</code></a> 以及设置调度信息的过程，下面依次分析这些函数。</p>
+<h3 id="初始化结构体"><a href="#初始化结构体" class="headerlink" title="初始化结构体"></a>初始化结构体</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gfget"><code>runtime.gfget</code></a> 通过两种不同的方式获取新的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.g"><code>runtime.g</code></a>：</p>
+<ol>
+<li>从 Goroutine 所在处理器的 <code>gFree</code> 列表或者调度器的 <code>sched.gFree</code> 列表中获取 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.g"><code>runtime.g</code></a>；</li>
+<li>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.malg"><code>runtime.malg</code></a> 生成一个新的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.g"><code>runtime.g</code></a> 并将结构体追加到全局的 Goroutine 列表 <code>allgs</code> 中。</li>
+</ol>
+<p><img src="https://img.draveness.me/golang-newproc-get-goroutine.png" srcset="/img/loading.gif" lazyload alt="golang-newproc-get-goroutine"></p>
+<p><strong>图  获取 Goroutine 结构体的三种方法</strong></p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gfget"><code>runtime.gfget</code></a> 中包含两部分逻辑，它会根据处理器中 <code>gFree</code> 列表中 Goroutine 的数量做出不同的决策：</p>
+<ol>
+<li>当处理器的 Goroutine 列表为空时，会将调度器持有的空闲 Goroutine 转移到当前处理器上，直到 <code>gFree</code> 列表中的 Goroutine 数量达到 32；</li>
+<li>当处理器的 Goroutine 数量充足时，会从列表头部返回一个新的 Goroutine；</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gfget</span><span class="hljs-params">(_p_ *p)</span></span> *g &#123;<br>retry:<br>	<span class="hljs-keyword">if</span> _p_.gFree.empty() &amp;&amp; (!sched.gFree.stack.empty() || !sched.gFree.noStack.empty()) &#123;<br>		<span class="hljs-keyword">for</span> _p_.gFree.n &lt; <span class="hljs-number">32</span> &#123;<br>			gp := sched.gFree.stack.pop()<br>			<span class="hljs-keyword">if</span> gp == <span class="hljs-literal">nil</span> &#123;<br>				gp = sched.gFree.noStack.pop()<br>				<span class="hljs-keyword">if</span> gp == <span class="hljs-literal">nil</span> &#123;<br>					<span class="hljs-keyword">break</span><br>				&#125;<br>			&#125;<br>			_p_.gFree.push(gp)<br>		&#125;<br>		<span class="hljs-keyword">goto</span> retry<br>	&#125;<br>	gp := _p_.gFree.pop()<br>	<span class="hljs-keyword">if</span> gp == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> gp<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当调度器的 <code>gFree</code> 和处理器的 <code>gFree</code> 列表都不存在结构体时，运行时会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.malg"><code>runtime.malg</code></a> 初始化新的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.g"><code>runtime.g</code></a> 结构，如果申请的堆栈大小大于 0，这里会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.stackalloc"><code>runtime.stackalloc</code></a> 分配 2KB 的栈空间：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">malg</span><span class="hljs-params">(stacksize <span class="hljs-type">int32</span>)</span></span> *g &#123;<br>	newg := <span class="hljs-built_in">new</span>(g)<br>	<span class="hljs-keyword">if</span> stacksize &gt;= <span class="hljs-number">0</span> &#123;<br>		stacksize = round2(_StackSystem + stacksize)<br>		newg.stack = stackalloc(<span class="hljs-type">uint32</span>(stacksize))<br>		newg.stackguard0 = newg.stack.lo + _StackGuard<br>		newg.stackguard1 = ^<span class="hljs-type">uintptr</span>(<span class="hljs-number">0</span>)<br>	&#125;<br>	<span class="hljs-keyword">return</span> newg<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.malg"><code>runtime.malg</code></a> 返回的 Goroutine 会存储到全局变量 <code>allgs</code> 中。</p>
+<p>简单总结一下，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newproc1"><code>runtime.newproc1</code></a> 会从处理器或者调度器的缓存中获取新的结构体，也可以调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.malg"><code>runtime.malg</code></a> 函数创建。</p>
+<h3 id="运行队列"><a href="#运行队列" class="headerlink" title="运行队列"></a>运行队列</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.runqput"><code>runtime.runqput</code></a> 会将 Goroutine 放到运行队列上，这既可能是全局的运行队列，也可能是处理器本地的运行队列：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">runqput</span><span class="hljs-params">(_p_ *p, gp *g, next <span class="hljs-type">bool</span>)</span></span> &#123;<br>        <span class="hljs-comment">// 如果 next 为 true，则尝试将 gp 放入 P 的 runnext 字段。</span><br>        <span class="hljs-comment">// runnext 字段用于存放下一个要运行的 goroutine，具有最高优先级。</span><br>        <span class="hljs-keyword">if</span> next &#123;<br>        retryNext:<br>                <span class="hljs-comment">// 获取 P 的 runnext 字段的旧值。</span><br>                oldnext := _p_.runnext<br>                <span class="hljs-comment">// 使用 CAS 操作尝试将 P 的 runnext 字段设置为 gp。</span><br>                <span class="hljs-comment">// 如果 runnext 的当前值与 oldnext 相同，则将其更新为 gp 的指针，并返回 true；</span><br>                <span class="hljs-comment">// 否则，说明其他线程修改了 runnext，返回 false，并跳转到 retryNext 标签重试。</span><br>                <span class="hljs-keyword">if</span> !_p_.runnext.cas(oldnext, guintptr(unsafe.Pointer(gp))) &#123;<br>                        <span class="hljs-keyword">goto</span> retryNext<br>                &#125;<br>                <span class="hljs-comment">// 如果 oldnext 为 0，说明 runnext 之前没有存放任何 goroutine，</span><br>                <span class="hljs-comment">// 此时已经成功将 gp 放入 runnext，直接返回。</span><br>                <span class="hljs-keyword">if</span> oldnext == <span class="hljs-number">0</span> &#123;<br>                        <span class="hljs-keyword">return</span><br>                &#125;<br>                <span class="hljs-comment">// 如果 oldnext 不为 0，说明 runnext 之前已经存放了一个 goroutine，</span><br>                <span class="hljs-comment">// 将 gp 赋值为 oldnext.ptr()，也就是之前存放在 runnext 中的 goroutine，</span><br>                <span class="hljs-comment">// 准备将其放入本地运行队列。</span><br>                gp = oldnext.ptr()<br>        &#125;<br><br>        <span class="hljs-comment">// 如果 next 为 false，或者将 gp 放入 runnext 失败，则将 gp 放入 P 的本地运行队列。</span><br>retry:<br>        <span class="hljs-comment">// 以原子方式加载 P 的 runqhead。LoadAcq 保证了内存可见性和顺序性。</span><br>        h := atomic.LoadAcq(&amp;_p_.runqhead)<br>        <span class="hljs-comment">// 获取 P 的 runqtail。</span><br>        t := _p_.runqtail<br><br>        <span class="hljs-comment">// 检查本地运行队列是否已满。</span><br>        <span class="hljs-comment">// t - h 表示队列中元素的数量。</span><br>        <span class="hljs-comment">// len(_p_.runq) 表示队列的容量。</span><br>        <span class="hljs-keyword">if</span> t-h &lt; <span class="hljs-type">uint32</span>(<span class="hljs-built_in">len</span>(_p_.runq)) &#123;<br>                <span class="hljs-comment">// 如果队列未满，将 gp 放入队列的下一个可用位置。</span><br>                <span class="hljs-comment">// t%uint32(len(_p_.runq)) 计算 gp 应该放入的索引位置。</span><br>                _p_.runq[t%<span class="hljs-type">uint32</span>(<span class="hljs-built_in">len</span>(_p_.runq))].set(gp)<br>                <span class="hljs-comment">// 以原子方式递增 P 的 runqtail。StoreRel 保证了内存可见性和顺序性。</span><br>                atomic.StoreRel(&amp;_p_.runqtail, t+<span class="hljs-number">1</span>)<br>                <span class="hljs-keyword">return</span><br>        &#125;<br><br>        <span class="hljs-comment">// 如果本地运行队列已满，则调用 runqputslow 函数添加到调度器持有的全局运行队列上处理。</span><br>        <span class="hljs-keyword">if</span> runqputslow(_p_, gp, h, t) &#123;<br>                <span class="hljs-keyword">return</span><br>        &#125;<br>        <span class="hljs-comment">// runqputslow 可能已经将部分 goroutine 转移到了全局运行队列，</span><br>        <span class="hljs-comment">// 本地运行队列可能已经有空闲位置，因此跳转到 retry 标签重试。</span><br>        <span class="hljs-keyword">goto</span> retry<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>当 <code>next</code> 为 <code>true</code> 时，将 Goroutine 设置到处理器的 <code>runnext</code> 作为下一个处理器执行的任务；</li>
+<li>当 <code>next</code> 为 <code>false</code> 并且本地运行队列还有剩余空间时，将 Goroutine 加入处理器持有的本地运行队列；</li>
+<li>当处理器的本地运行队列已经没有剩余空间时就会把本地队列中的一部分 Goroutine 和待加入的 Goroutine 通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.runqputslow"><code>runtime.runqputslow</code></a> 添加到调度器持有的全局运行队列上；</li>
+</ol>
+<p>处理器本地的运行队列是一个使用数组构成的环形链表，它最多可以存储 256 个待执行任务。</p>
+<p><img src="https://img.draveness.me/2020-02-05-15808864354654-golang-runnable-queue.png" srcset="/img/loading.gif" lazyload alt="golang-runnable-queue"></p>
+<p><strong>图  全局和本地运行队列</strong></p>
+<p>简单总结一下，Go 语言有两个运行队列，其中一个是处理器本地的运行队列，另一个是调度器持有的全局运行队列，只有在本地运行队列没有剩余空间时才会使用全局队列。</p>
+<h3 id="调度信息"><a href="#调度信息" class="headerlink" title="调度信息"></a>调度信息</h3><p>运行时创建 Goroutine 时会通过下面的代码设置调度相关的信息，前两行代码会分别将程序计数器和 Goroutine 设置成 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit"><code>runtime.goexit</code></a> 和新创建 Goroutine 运行的函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs go">...<br>newg.sched.pc = funcPC(goexit) + sys.PCQuantum<br>newg.sched.g = guintptr(unsafe.Pointer(newg))<br>gostartcallfn(&amp;newg.sched, fn)<br>...<br></code></pre></td></tr></table></figure>
+
+<p>上述调度信息 <code>sched</code> 不是初始化后的 Goroutine 的最终结果，它还需要经过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gostartcallfn"><code>runtime.gostartcallfn</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gostartcall"><code>runtime.gostartcall</code></a> 的处理：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gostartcallfn</span><span class="hljs-params">(gobuf *gobuf, fv *funcval)</span></span> &#123;<br>	gostartcall(gobuf, unsafe.Pointer(fv.fn), unsafe.Pointer(fv))<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gostartcall</span><span class="hljs-params">(buf *gobuf, fn, ctxt unsafe.Pointer)</span></span> &#123;<br>	sp := buf.sp<br>	<span class="hljs-keyword">if</span> sys.RegSize &gt; sys.PtrSize &#123;<br>		sp -= sys.PtrSize<br>		*(*<span class="hljs-type">uintptr</span>)(unsafe.Pointer(sp)) = <span class="hljs-number">0</span><br>	&#125;<br>	sp -= sys.PtrSize<br>	*(*<span class="hljs-type">uintptr</span>)(unsafe.Pointer(sp)) = buf.pc<br>	buf.sp = sp<br>	buf.pc = <span class="hljs-type">uintptr</span>(fn)<br>	buf.ctxt = ctxt<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调度信息的 <code>sp</code> 中存储了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit"><code>runtime.goexit</code></a> 函数的程序计数器，而 <code>pc</code> 中存储了传入函数的程序计数器。因为 <code>pc</code> 寄存器的作用就是存储程序接下来运行的位置，所以 <code>pc</code> 的使用比较好理解，但是 <code>sp</code> 中存储的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit"><code>runtime.goexit</code></a> 会让人感到困惑，我们需要配合下面的调度循环来理解它的作用。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>1.goruntine与thread有什么区别？</p>
+<p><strong>核心区别概括:</strong></p>
+<ul>
+<li><strong>级别:</strong> Goroutine 是<strong>用户级</strong>的轻量级线程，由 Go 语言运行时 (runtime) 管理；Thread 是<strong>操作系统级</strong>的线程，由操作系统内核 (kernel) 管理。</li>
+<li><strong>资源消耗:</strong> Goroutine 比 thread <strong>更轻量级</strong>，资源消耗更少，创建和销毁速度更快。</li>
+<li><strong>调度:</strong> Goroutine 的调度由 Go 运行时负责，采用 <strong>M:N 调度模型</strong>，将多个 goroutine 调度到少量的 OS 线程上；Thread 的调度由操作系统内核负责，通常是 <strong>1:1 调度模型</strong> (每个 thread 对应一个 OS 线程)。</li>
+<li><strong>上下文切换:</strong> Goroutine 的上下文切换比 thread <strong>更快</strong>，因为 goroutine 的切换发生在用户态，无需内核参与；Thread 的上下文切换需要内核参与，开销更大。</li>
+<li><strong>内存占用:</strong> Goroutine 的初始栈大小比 thread <strong>更小</strong>，且可以动态增长；Thread 的栈大小通常是固定的，占用内存更多。</li>
+<li><strong>编程模型:</strong> Goroutine 与 Go 语言的 <strong>channel</strong> 机制紧密结合，提供了简洁高效的并发编程模型；Thread 通常需要使用操作系统提供的同步机制 (如锁、信号量) 来进行线程间的通信和同步，编程模型相对复杂。</li>
+</ul>
+<p><img src="https://s2.loli.net/2025/02/23/fB6oCmGuOTxZcsq.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>2.关于Golang的协程调度器原理及GMP设计思想</p>
+<p>可参考<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/Golang%E7%9A%84%E5%8D%8F%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8AGMP%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3.md">Golang的协程调度器原理及GMP设计思想</a></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/">Go 语言设计与实现</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）</div>
+      <div>https://blog.longpi1.com/2025/03/08/13-Golang-调度器源码分析（一、数据结构、调度器启动与创建协程）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/19/Go%E8%AF%AD%E8%A8%80%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/" title="Go语言编译过程">
+                        <span class="hidden-mobile">Go语言编译过程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
