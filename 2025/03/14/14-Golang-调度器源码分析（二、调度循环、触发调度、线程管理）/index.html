@@ -1,0 +1,915 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="Golang源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理）">
+<meta property="og:url" content="https://blog.longpi1.com/2025/03/14/14-Golang-%E8%B0%83%E5%BA%A6%E5%99%A8%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E8%B0%83%E5%BA%A6%E5%BE%AA%E7%8E%AF%E3%80%81%E8%A7%A6%E5%8F%91%E8%B0%83%E5%BA%A6%E3%80%81%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="Golang源码分析">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mmbiz.qpic.cn/sz_mmbiz_png/j3gficicyOvatXEp81ac9kdSiaAdzNAZyfAGnPzYZwmsiaibwPDE8J8t6IFLQoNp2iaQAxLbTHN9V7aQNuFAc57WTs0Q/640?wx_fmt=png&from=appmsg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354661-golang-gogo-stack.png">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354669-golang-scheduler-loop.png">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354679-schedule-points.png">
+<meta property="og:image" content="https://img.draveness.me/2020-02-05-15808864354688-golang-syscall-and-rawsyscall.png">
+<meta property="article:published_time" content="2025-03-14T12:13:31.000Z">
+<meta property="article:modified_time" content="2025-03-14T12:13:53.852Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://mmbiz.qpic.cn/sz_mmbiz_png/j3gficicyOvatXEp81ac9kdSiaAdzNAZyfAGnPzYZwmsiaibwPDE8J8t6IFLQoNp2iaQAxLbTHN9V7aQNuFAc57WTs0Q/640?wx_fmt=png&from=appmsg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1">
+  
+  
+  
+  <title>14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-14 20:13" pubdate>
+          2025年3月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="Golang-调度器源码分析（二、调度循环、触发调度、线程管理）"><a href="#Golang-调度器源码分析（二、调度循环、触发调度、线程管理）" class="headerlink" title="Golang 调度器源码分析（二、调度循环、触发调度、线程管理）"></a>Golang 调度器源码分析（二、调度循环、触发调度、线程管理）</h1><blockquote>
+<p>注意当前go版本代码为1.23</p>
+</blockquote>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>关于Golang的协程调度器原理及GMP设计思想可以通过<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/Golang%E7%9A%84%E5%8D%8F%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%99%A8%E5%8E%9F%E7%90%86%E5%8F%8AGMP%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3.md">Golang的协程调度器原理及GMP设计思想</a>进行了解，相关基础结构与启动以及创建源码可查看上一篇文章，这一篇文章主要介绍调度器的调度循环实现、触发调度的时机以及线程管理。</p>
+<p><img src="https://mmbiz.qpic.cn/sz_mmbiz_png/j3gficicyOvatXEp81ac9kdSiaAdzNAZyfAGnPzYZwmsiaibwPDE8J8t6IFLQoNp2iaQAxLbTHN9V7aQNuFAc57WTs0Q/640?wx_fmt=png&from=appmsg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" srcset="/img/loading.gif" lazyload alt="Image"></p>
+<h2 id="调度循环"><a href="#调度循环" class="headerlink" title="调度循环"></a>调度循环</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// schedule 执行一轮调度：寻找一个可运行的 goroutine 并执行它。</span><br><span class="hljs-comment">// 该函数永不返回。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">schedule</span><span class="hljs-params">()</span></span> &#123;<br>        <span class="hljs-comment">// 获取当前 goroutine 的 M（机器，代表线程）</span><br>        mp := getg().m<br><br><span class="hljs-comment">///......忽略非核心代码</span><br><br>top:<br>        <span class="hljs-comment">// 获取当前 M 绑定的 P（处理器，代表调度资源）</span><br>        pp := mp.p.ptr()<br>        <span class="hljs-comment">// 重置 P 的抢占标志，表明当前不处于抢占状态</span><br>        pp.preempt = <span class="hljs-literal">false</span><br><br><span class="hljs-comment">///......忽略非核心代码</span><br><br>        <span class="hljs-comment">// 寻找一个可运行的 goroutine，可能会阻塞直到有工作可用</span><br>        <span class="hljs-comment">// 返回值：</span><br>        <span class="hljs-comment">// - gp: 可运行的 goroutine</span><br>        <span class="hljs-comment">// - inheritTime: 是否继承时间片（用于某些特殊 goroutine，如 GC worker）</span><br>        <span class="hljs-comment">// - tryWakeP: 是否需要唤醒一个空闲的 P</span><br>        gp, inheritTime, tryWakeP := findRunnable()<br><br>    <span class="hljs-comment">///......忽略非核心代码</span><br> <br><br>        <span class="hljs-comment">// 执行找到的 goroutine，inheritTime 表示是否继承时间片。</span><br>        <span class="hljs-comment">// 该函数永不返回，当前 M 将继续执行该 goroutine。</span><br>        execute(gp, inheritTime)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 函数主要通过<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.findrunnable"><code>runtime.findrunnable</code></a> 去实现协程的寻找。再调用execute实现执行</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.findrunnable"><code>runtime.findrunnable</code></a> 的实现非常复杂，这个 300 多行的函数通过以下的过程获取可运行的 Goroutine：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Finds a runnable goroutine to execute.</span><br><span class="hljs-comment">// 查找一个可运行的 goroutine 来执行。</span><br><span class="hljs-comment">// Tries to steal from other P&#x27;s, get g from local or global queue, poll network.</span><br><span class="hljs-comment">// 尝试从其他 P 窃取，从本地或全局队列获取 G，轮询网络。</span><br><span class="hljs-comment">// tryWakeP indicates that the returned goroutine is not normal (GC worker, trace</span><br><span class="hljs-comment">// reader) so the caller should try to wake a P.</span><br><span class="hljs-comment">// tryWakeP 指示返回的 goroutine 不是普通的 goroutine (例如 GC worker, trace reader)，</span><br><span class="hljs-comment">// 因此调用者应该尝试唤醒一个 P。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">findRunnable</span><span class="hljs-params">()</span></span> (gp *g, inheritTime, tryWakeP <span class="hljs-type">bool</span>) &#123;<br>    mp := getg().m <span class="hljs-comment">// 获取当前 M</span><br><br>top:<br>    pp := mp.p.ptr() <span class="hljs-comment">// 获取当前 M 绑定的 P</span><br>    <span class="hljs-keyword">if</span> sched.gcwaiting.Load() &#123;<br>       <span class="hljs-comment">// 如果调度器正在等待 GC，则停止当前 M</span><br>       gcstopm()<br>       <span class="hljs-keyword">goto</span> top <span class="hljs-comment">// 跳转到 top 重新查找</span><br>    &#125;<br>    <br>    <span class="hljs-comment">///......忽略非核心代码</span><br><br>    <span class="hljs-comment">// Check the global runnable queue once in a while to ensure fairness.</span><br>    <span class="hljs-comment">// 1.每隔一段时间检查一次全局可运行队列，以确保公平性。</span><br>    <span class="hljs-comment">// 否则，两个 goroutine 可以通过不断地相互重新生成来完全占据本地运行队列。</span><br>    <span class="hljs-keyword">if</span> pp.schedtick%<span class="hljs-number">61</span> == <span class="hljs-number">0</span> &amp;&amp; sched.runqsize &gt; <span class="hljs-number">0</span> &#123;<br>       lock(&amp;sched.lock)<br>       gp := globrunqget(pp, <span class="hljs-number">1</span>) <span class="hljs-comment">// 从全局运行队列中获取一个 goroutine</span><br>       unlock(&amp;sched.lock)<br>       <span class="hljs-keyword">if</span> gp != <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-keyword">return</span> gp, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span> <span class="hljs-comment">// 返回从全局队列获取的 goroutine，不需要继承时间，不需要唤醒 P</span><br>       &#125;<br>    &#125;<br><br>    <span class="hljs-comment">///......忽略非核心代码</span><br><br>    <span class="hljs-comment">// local runq</span><br>    <span class="hljs-comment">// 2.从本地运行队列获取</span><br>    <span class="hljs-keyword">if</span> gp, inheritTime := runqget(pp); gp != <span class="hljs-literal">nil</span> &#123;<br>       <span class="hljs-keyword">return</span> gp, inheritTime, <span class="hljs-literal">false</span> <span class="hljs-comment">// 返回从本地队列获取的 goroutine，可能需要继承时间，不需要唤醒 P</span><br>    &#125;<br><br>    <span class="hljs-comment">// global runq</span><br>    <span class="hljs-comment">// 3.从全局运行队列获取</span><br>    <span class="hljs-keyword">if</span> sched.runqsize != <span class="hljs-number">0</span> &#123;<br>       lock(&amp;sched.lock)<br>       gp := globrunqget(pp, <span class="hljs-number">0</span>) <span class="hljs-comment">// 从全局运行队列中获取一个 goroutine</span><br>       unlock(&amp;sched.lock)<br>       <span class="hljs-keyword">if</span> gp != <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-keyword">return</span> gp, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span> <span class="hljs-comment">// 返回从全局队列获取的 goroutine，不需要继承时间，不需要唤醒 P</span><br>       &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// Poll network.</span><br>    <span class="hljs-comment">// 4.轮询网络。</span><br>    <span class="hljs-comment">// This netpoll is only an optimization before we resort to stealing.</span><br>    <span class="hljs-comment">// 这种网络轮询只是在我们诉诸窃取之前的一种优化。</span><br>    <span class="hljs-comment">// 如果没有等待者或线程已经在 netpoll 中阻塞，我们可以安全地跳过它。</span><br>    <span class="hljs-comment">// 如果与该阻塞线程存在任何类型的逻辑竞争（例如，它已经从 netpoll 返回，但尚未设置 lastpoll），</span><br>    <span class="hljs-comment">// 则此线程无论如何都将在下面执行阻塞 netpoll。</span><br>    <span class="hljs-keyword">if</span> netpollinited() &amp;&amp; netpollAnyWaiters() &amp;&amp; sched.lastpoll.Load() != <span class="hljs-number">0</span> &#123;<br>       <span class="hljs-keyword">if</span> list, delta := netpoll(<span class="hljs-number">0</span>); !list.empty() &#123; <span class="hljs-comment">// non-blocking 非阻塞网络轮询</span><br>          gp := list.pop()<br>          injectglist(&amp;list)<br>          netpollAdjustWaiters(delta)<br>          trace := traceAcquire()<br>          casgstatus(gp, _Gwaiting, _Grunnable) <span class="hljs-comment">// 将 goroutine 状态从 _Gwaiting 更改为 _Grunnable</span><br>          <span class="hljs-keyword">if</span> trace.ok() &#123;<br>             trace.GoUnpark(gp, <span class="hljs-number">0</span>)<br>             traceRelease(trace)<br>          &#125;<br>          <span class="hljs-keyword">return</span> gp, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span> <span class="hljs-comment">// 返回从网络轮询获取的 goroutine，不需要继承时间，不需要唤醒 P</span><br>       &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// 5.自旋的 M：从其他 P 窃取工作。</span><br>    <span class="hljs-comment">// 将自旋 M 的数量限制为繁忙 P 数量的一半。</span><br>    <span class="hljs-comment">// 这是必要的，以防止当 GOMAXPROCS&gt;&gt;1 但程序并行度较低时过多的 CPU 消耗。</span><br>    <span class="hljs-keyword">if</span> mp.spinning || <span class="hljs-number">2</span>*sched.nmspinning.Load() &lt; gomaxprocs-sched.npidle.Load() &#123;<br>       <span class="hljs-keyword">if</span> !mp.spinning &#123;<br>          mp.becomeSpinning() <span class="hljs-comment">// 将当前 M 设置为自旋状态</span><br>       &#125;<br><br>       gp, inheritTime, tnow, w, newWork := stealWork(now) <span class="hljs-comment">// 尝试从其他 P 窃取工作</span><br>       <span class="hljs-keyword">if</span> gp != <span class="hljs-literal">nil</span> &#123;<br>          <span class="hljs-comment">// Successfully stole.</span><br>          <span class="hljs-comment">// 成功窃取。</span><br>          <span class="hljs-keyword">return</span> gp, inheritTime, <span class="hljs-literal">false</span> <span class="hljs-comment">// 返回窃取的 goroutine，可能需要继承时间，不需要唤醒 P</span><br>       &#125;<br>       <span class="hljs-keyword">if</span> newWork &#123;<br>          <span class="hljs-comment">// There may be new timer or GC work; restart to</span><br>          <span class="hljs-comment">// discover.</span><br>          <span class="hljs-comment">// 可能有新的计时器或 GC 工作；重新启动以发现。</span><br>          <span class="hljs-keyword">goto</span> top<br>       &#125;<br><br>       now = tnow<br>       <span class="hljs-keyword">if</span> w != <span class="hljs-number">0</span> &amp;&amp; (pollUntil == <span class="hljs-number">0</span> || w &lt; pollUntil) &#123;<br>          <span class="hljs-comment">// Earlier timer to wait for.</span><br>          <span class="hljs-comment">// 有更早的计时器需要等待。</span><br>          pollUntil = w<br>       &#125;<br>    &#125;<br>    <span class="hljs-comment">///......忽略非核心代码</span><br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="主要步骤流程总结："><a href="#主要步骤流程总结：" class="headerlink" title="主要步骤流程总结："></a><strong>主要步骤流程总结：</strong></h3><ol>
+<li><strong>尝试从本地和全局队列获取 G:</strong><ul>
+<li><strong>全局队列 (公平性):</strong> 为了保证公平性，每隔一段时间（<code>pp.schedtick%61 == 0</code>）且全局队列不为空时，尝试从全局队列获取一个 G。</li>
+<li><strong>唤醒 finalizer G:</strong> 如果finalizer goroutine处于等待唤醒状态, 唤醒它。</li>
+<li><strong>CGO 让出：</strong> 如果是cgo环境, 尝试让出cpu给c线程。</li>
+<li><strong>本地队列:</strong> 尝试从当前 P 的本地运行队列获取一个 G。如果获取成功，则直接返回。</li>
+<li><strong>全局队列:</strong> 如果本地队列为空，则尝试从全局运行队列获取一个 G。</li>
+</ul>
+</li>
+<li><strong>尝试非阻塞网络轮询 (Netpoll, 优化):</strong><ul>
+<li>如果网络轮询已初始化、有等待者，并且上次轮询时间不为 0，则尝试进行非阻塞网络轮询 (<code>netpoll(0)</code>)。</li>
+<li>如果轮询到可运行的 G，则将其状态设置为 <code>_Grunnable</code> 并返回。</li>
+</ul>
+</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.runqsteal"><code>runtime.runqsteal</code></a><strong>尝试从其他 P 窃取工作 (Work Stealing):</strong><ul>
+<li>如果当前 M 是自旋状态，或者自旋 M 的数量小于限制（繁忙 P 数量的一半），则尝试从其他 P 窃取工作 (<code>stealWork()</code>)。</li>
+<li>如果窃取成功，则直接返回窃取到的 G。</li>
+<li>如果窃取失败，但发现了新的工作（例如新的 timer 或 GC 工作），则重新开始查找循环 (<code>goto top</code>)。</li>
+</ul>
+</li>
+<li><strong>尝试运行空闲时间 GC 标记 (Idle-time GC Marking):</strong><ul>
+<li>如果 GC 标记启用、有可用的 GC 标记工作，并且可以添加空闲标记 worker，则尝试从 worker 池中获取一个 worker 并运行。</li>
+<li>如果获取成功，则将 P 的 GC 标记模式设置为 <code>gcMarkWorkerIdleMode</code>，将 worker goroutine 的状态设置为 <code>_Grunnable</code>，并返回该 goroutine。</li>
+</ul>
+</li>
+<li><strong>WASM 特殊处理:</strong><ul>
+<li>如果回调返回并且没有其他 goroutine 被唤醒，则尝试获取并唤醒事件处理程序 goroutine。</li>
+</ul>
+</li>
+<li><strong>准备释放 P 并阻塞:</strong><ul>
+<li>在释放 P 之前，创建 <code>allp</code>、<code>idlepMask</code> 和 <code>timerpMask</code> 的快照，以防止在释放 P 后这些数据被修改。</li>
+<li>获取全局锁 (<code>sched.lock</code>)。</li>
+<li>再次检查 GC 等待和安全点函数。</li>
+<li>再次检查全局运行队列。</li>
+<li>再次检查是否需要自旋的M。</li>
+<li>释放当前 P (<code>releasep()</code>)。</li>
+<li>将当前 P 放入空闲 P 列表 (<code>pidleput()</code>)。</li>
+<li>释放全局锁 (<code>unlock(&amp;sched.lock)</code>)。</li>
+</ul>
+</li>
+<li><strong>处理从自旋到非自旋状态的转换（微妙的舞蹈）</strong><ul>
+<li>如果当前 M 是自旋状态（<code>mp.spinning</code>），取消自旋状态并减少自旋计数（<code>nmspinning</code>）。</li>
+<li>为了防止遗漏工作，重新检查以下来源：<ul>
+<li>全局和 P 运行队列<ul>
+<li>如果全局队列不为空，尝试获取空闲 P 并从中获取 goroutine，返回该 goroutine。</li>
+<li>检查所有 P 的运行队列（<code>checkRunqsNoP</code>），若找到工作，获取 P 并跳转到 <code>top</code>。</li>
+</ul>
+</li>
+<li>空闲优先级的 GC 工作<ul>
+<li>检查是否有空闲 GC 工作（<code>checkIdleGCNoP</code>），若有则获取 P，唤醒相关 goroutine 并返回。</li>
+</ul>
+</li>
+<li>定时器<ul>
+<li>检查是否有新创建或到期的定时器（<code>checkTimersNoP</code>），更新 <code>pollUntil</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>如果发现新工作且没有空闲 P，需要恢复自旋状态以确保工作不会丢失。</li>
+</ul>
+</li>
+<li><strong>轮询网络直到下一个定时器到期</strong><ul>
+<li>如果网络轮询已初始化（<code>netpollinited</code>），且有等待者或 <code>pollUntil != 0</code>，且上次轮询时间非零：<ul>
+<li>设置 <code>pollUntil</code>，计算阻塞延迟（<code>delay</code>）。</li>
+<li>执行阻塞式网络轮询（<code>netpoll(delay)</code>），获取事件列表。</li>
+<li>更新时间和轮询状态。</li>
+<li>如果使用假时间（<code>faketime != 0</code>）且列表为空，停止 M 并跳转到 <code>top</code>。</li>
+<li>如果获取到空闲 P：<ul>
+<li>从事件列表中获取 goroutine，唤醒并返回。</li>
+<li>如果列表为空但之前是自旋状态，恢复自旋并跳转到 <code>top</code>。</li>
+</ul>
+</li>
+<li>如果未获取到空闲 P，将事件列表注入全局队列，调整等待者计数。</li>
+</ul>
+</li>
+<li>如果 <code>pollUntil != 0</code> 且网络轮询已初始化，检查是否需要中断轮询（<code>netpollBreak</code>）。</li>
+</ul>
+</li>
+<li><strong>停止当前 M 并重新开始循环</strong><ul>
+<li>调用 <code>stopm()</code> 停止当前 M。</li>
+<li>跳转到 <code>top</code> 重新开始循环，寻找可运行的工作。</li>
+<li>总而言之，当前函数一定会返回一个可执行的 Goroutine，如果当前不存在就会阻塞等待。</li>
+</ul>
+</li>
+</ol>
+<p>接下来由 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.execute"><code>runtime.execute</code></a> 执行获取的 Goroutine，做好准备工作后，它会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gogo"><code>runtime.gogo</code></a> 将 Goroutine 调度到当前线程上。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">execute</span><span class="hljs-params">(gp *g, inheritTime <span class="hljs-type">bool</span>)</span></span> &#123;<br>    mp := getg().m<br><br>    <span class="hljs-comment">// .....忽略非核心代码</span><br><br>    <span class="hljs-comment">// Assign gp.m before entering _Grunning so running Gs have an</span><br>    <span class="hljs-comment">// M.</span><br>    mp.curg = gp<br>    gp.m = mp<br>    casgstatus(gp, _Grunnable, _Grunning)<br>    gp.waitsince = <span class="hljs-number">0</span><br>    gp.preempt = <span class="hljs-literal">false</span><br>    gp.stackguard0 = gp.stack.lo + stackGuard<br>    <span class="hljs-keyword">if</span> !inheritTime &#123;<br>       mp.p.ptr().schedtick++<br>    &#125;<br><br>    <span class="hljs-comment">// .....忽略非核心代码</span><br><br>    gogo(&amp;gp.sched)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里的重点是gogo函数，真正完成了g0到g的切换，<strong>切换的实质就是CPU寄存器以及函数调用栈的切换</strong>，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gogo"><code>runtime.gogo</code></a> 在不同处理器架构上的实现都不同，但是也都大同小异，下面是该函数在 386 架构上的实现：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go">TEXT runtime·gogo(SB), NOSPLIT, $<span class="hljs-number">8</span><span class="hljs-number">-4</span><br>	MOVL buf+<span class="hljs-number">0</span>(FP), BX     <span class="hljs-comment">// 获取调度信息</span><br>	MOVL gobuf_g(BX), DX<br>	MOVL <span class="hljs-number">0</span>(DX), CX         <span class="hljs-comment">// 保证 Goroutine 不为空</span><br>	get_tls(CX)<br>	MOVL DX, g(CX)<br>	MOVL gobuf_sp(BX), SP  <span class="hljs-comment">// 将 runtime.goexit 函数的 PC 恢复到 SP 中</span><br>	MOVL gobuf_ret(BX), AX<br>	MOVL gobuf_ctxt(BX), DX<br>	MOVL $<span class="hljs-number">0</span>, gobuf_sp(BX)<br>	MOVL $<span class="hljs-number">0</span>, gobuf_ret(BX)<br>	MOVL $<span class="hljs-number">0</span>, gobuf_ctxt(BX)<br>	MOVL gobuf_pc(BX), BX  <span class="hljs-comment">// 获取待执行函数的程序计数器</span><br>	JMP  BX                <span class="hljs-comment">// 开始执行</span><br></code></pre></td></tr></table></figure>
+
+<p>它从 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gobuf"><code>runtime.gobuf</code></a> 中取出了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit"><code>runtime.goexit</code></a> 的程序计数器和待执行函数的程序计数器，其中：</p>
+<ul>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit"><code>runtime.goexit</code></a> 的程序计数器被放到了栈 SP 上；</li>
+<li>待执行函数的程序计数器被放到了寄存器 BX 上；</li>
+</ul>
+<p>Go 语言的调用惯例中正常的函数调用都会使用 <code>CALL</code> 指令，该指令会将调用方的返回地址加入栈寄存器 SP 中，然后跳转到目标函数；当目标函数返回后，会从栈中查找调用的地址并跳转回调用方继续执行剩下的代码。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gogo"><code>runtime.gogo</code></a> 就利用了 Go 语言的调用惯例成功模拟这一调用过程，通过以下几个关键指令模拟 <code>CALL</code> 的过程：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go">MOVL gobuf_sp(BX), SP  <span class="hljs-comment">// 将 runtime.goexit 函数的 PC 恢复到 SP 中</span><br>MOVL gobuf_pc(BX), BX  <span class="hljs-comment">// 获取待执行函数的程序计数器</span><br>JMP  BX                <span class="hljs-comment">// 开始执行</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img.draveness.me/2020-02-05-15808864354661-golang-gogo-stack.png" srcset="/img/loading.gif" lazyload alt="golang-gogo-stack"></p>
+<p><strong>图:runtime.gogo 栈内存</strong></p>
+<p>上图展示了调用 <code>JMP</code> 指令后的栈中数据，当 Goroutine 中运行的函数返回时，程序会跳转到 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit"><code>runtime.goexit</code></a> 所在位置执行该函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go">TEXT runtime·goexit(SB),NOSPLIT,$<span class="hljs-number">0</span><span class="hljs-number">-0</span><br>	CALL	runtime·goexit1(SB)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">goexit1</span><span class="hljs-params">()</span></span> &#123;<br>	mcall(goexit0)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>经过一系列复杂的函数调用，我们最终在当前线程的 g0 的栈上调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit0"><code>runtime.goexit0</code></a> 函数，该函数会将 Goroutine 转换会 <code>_Gdead</code> 状态、清理其中的字段、移除 Goroutine 和线程的关联并调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gfput"><code>runtime.gfput</code></a> 重新加入处理器的 Goroutine 空闲列表 <code>gFree</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">goexit0</span><span class="hljs-params">(gp *g)</span></span> &#123;<br>	_g_ := getg()<br><br>	casgstatus(gp, _Grunning, _Gdead)<br>	gp.m = <span class="hljs-literal">nil</span><br>	...<br>	gp.param = <span class="hljs-literal">nil</span><br>	gp.labels = <span class="hljs-literal">nil</span><br>	gp.timer = <span class="hljs-literal">nil</span><br><br>	dropg()<br>	gfput(_g_.m.p.ptr(), gp)<br>	schedule()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>在最后 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit0"><code>runtime.goexit0</code></a> 会重新调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 触发新一轮的 Goroutine 调度，Go 语言中的运行时调度循环会从 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 开始，最终又回到 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a>，我们可以认为调度循环永远都不会返回。</strong></p>
+<p><img src="https://img.draveness.me/2020-02-05-15808864354669-golang-scheduler-loop.png" srcset="/img/loading.gif" lazyload alt="golang-scheduler-loop"></p>
+<p><strong>图:调度循环</strong></p>
+<p>这里介绍的是 Goroutine 正常执行并退出的逻辑，实际情况会复杂得多，多数情况下 Goroutine 在执行的过程中都会经历协作式或者抢占式调度，它会让出线程的使用权等待调度器的唤醒。</p>
+<h2 id="触发调度"><a href="#触发调度" class="headerlink" title="触发调度"></a>触发调度</h2><p>这里简单介绍下所有触发调度的时间点，因为调度器的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 会重新选择 Goroutine 在线程上执行，所以我们只要找到该函数的调用方就能找到所有触发调度的时间点，经过分析和整理，我们能得到如下的树形结构：</p>
+<p><img src="https://img.draveness.me/2020-02-05-15808864354679-schedule-points.png" srcset="/img/loading.gif" lazyload alt="schedule-points"></p>
+<p><strong>图  调度时间点</strong></p>
+<p>除了上图中可能触发调度的时间点，运行时还会在线程启动 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mstart"><code>runtime.mstart</code></a> 和 Goroutine 执行结束 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goexit0"><code>runtime.goexit0</code></a> 触发调度。我们在这里会重点介绍运行时触发调度的几个路径：</p>
+<ul>
+<li>主动挂起 — <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gopark"><code>runtime.gopark</code></a> -&gt; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.park_m"><code>runtime.park_m</code></a></li>
+<li>系统调用 — <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscall"><code>runtime.exitsyscall</code></a> -&gt; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscall0"><code>runtime.exitsyscall0</code></a></li>
+<li>协作式调度 — <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.Gosched"><code>runtime.Gosched</code></a> -&gt; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gosched_m"><code>runtime.gosched_m</code></a> -&gt; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goschedImpl"><code>runtime.goschedImpl</code></a></li>
+<li>系统监控 — <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.sysmon"><code>runtime.sysmon</code></a> -&gt; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.retake"><code>runtime.retake</code></a> -&gt; <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.preemptone"><code>runtime.preemptone</code></a></li>
+</ul>
+<p>我们在这里介绍的调度时间点不是将线程的运行权直接交给其他任务，而是通过调度器的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 重新调度。</p>
+<h3 id="主动挂起"><a href="#主动挂起" class="headerlink" title="主动挂起"></a>主动挂起</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gopark"><code>runtime.gopark</code></a> 是触发调度最常见的方法，该函数会将当前 Goroutine 暂停，被暂停的任务不会放回运行队列，我们来分析该函数的实现原理：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gopark</span><span class="hljs-params">(unlockf <span class="hljs-keyword">func</span>(*g, unsafe.Pointer)</span></span> <span class="hljs-type">bool</span>, lock unsafe.Pointer, reason waitReason, traceEv <span class="hljs-type">byte</span>, traceskip <span class="hljs-type">int</span>) &#123;<br>	mp := acquirem()<br>	gp := mp.curg<br>	mp.waitlock = lock<br>	mp.waitunlockf = unlockf<br>	gp.waitreason = reason<br>	mp.waittraceev = traceEv<br>	mp.waittraceskip = traceskip<br>	releasem(mp)<br>	mcall(park_m)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上述会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mcall"><code>runtime.mcall</code></a> 切换到 g0 的栈上调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.park_m"><code>runtime.park_m</code></a>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">park_m</span><span class="hljs-params">(gp *g)</span></span> &#123;<br>	_g_ := getg()<br><br>	casgstatus(gp, _Grunning, _Gwaiting)<br>	dropg()<br><br>	schedule()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.park_m"><code>runtime.park_m</code></a> 会将当前 Goroutine 的状态从 <code>_Grunning</code> 切换至 <code>_Gwaiting</code>，调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.dropg"><code>runtime.dropg</code></a> 移除线程和 Goroutine 之间的关联，在这之后就可以调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 触发新一轮的调度了。</p>
+<p>当 Goroutine 等待的特定条件满足后，运行时会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goready"><code>runtime.goready</code></a> 将因为调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.gopark"><code>runtime.gopark</code></a> 而陷入休眠的 Goroutine 唤醒。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">goready</span><span class="hljs-params">(gp *g, traceskip <span class="hljs-type">int</span>)</span></span> &#123;<br>	systemstack(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		ready(gp, traceskip, <span class="hljs-literal">true</span>)<br>	&#125;)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">ready</span><span class="hljs-params">(gp *g, traceskip <span class="hljs-type">int</span>, next <span class="hljs-type">bool</span>)</span></span> &#123;<br>	_g_ := getg()<br><br>	casgstatus(gp, _Gwaiting, _Grunnable)<br>    <span class="hljs-comment">// 放入队列中</span><br>	runqput(_g_.m.p.ptr(), gp, next)<br>	<span class="hljs-keyword">if</span> atomic.Load(&amp;sched.npidle) != <span class="hljs-number">0</span> &amp;&amp; atomic.Load(&amp;sched.nmspinning) == <span class="hljs-number">0</span> &#123;<br>		wakep()<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.ready"><code>runtime.ready</code></a> 会将准备就绪的 Goroutine 的状态切换至 <code>_Grunnable</code> 并将其加入处理器的运行队列中，等待调度器的调度。</p>
+<h3 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h3><p>系统调用也会触发运行时调度器的调度，为了处理特殊的系统调用，、在 Goroutine 中加入了 <code>_Gsyscall</code> 状态，Go 语言通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/syscall.Syscall"><code>syscall.Syscall</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/syscall.RawSyscall"><code>syscall.RawSyscall</code></a> 等使用汇编语言编写的方法封装操作系统提供的所有系统调用，其中 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/syscall.Syscall"><code>syscall.Syscall</code></a> 的实现如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go">#define INVOKE_SYSCALL	INT	$<span class="hljs-number">0x80</span><br><br>TEXT ·Syscall(SB),NOSPLIT,$<span class="hljs-number">0</span><span class="hljs-number">-28</span><br>	CALL	runtime·entersyscall(SB)<br>	...<br>	INVOKE_SYSCALL<br>	...<br>	CALL	runtime·exitsyscall(SB)<br>	RET<br>ok:<br>	...<br>	CALL	runtime·exitsyscall(SB)<br>	RET<br></code></pre></td></tr></table></figure>
+
+<p>在通过汇编指令 <code>INVOKE_SYSCALL</code> 执行系统调用前后，上述函数会调用运行时的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.entersyscall"><code>runtime.entersyscall</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscall"><code>runtime.exitsyscall</code></a>，正是这一层包装能够让我们在陷入系统调用前触发运行时的准备和清理工作。</p>
+<p><img src="https://img.draveness.me/2020-02-05-15808864354688-golang-syscall-and-rawsyscall.png" srcset="/img/loading.gif" lazyload alt="golang-syscall-and-rawsyscal"></p>
+<p><strong>图  语言系统调用</strong></p>
+<p>不过出于性能的考虑，如果这次系统调用不需要运行时参与，就会使用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/syscall.RawSyscall"><code>syscall.RawSyscall</code></a> 简化这一过程，不再调用运行时函数。<a target="_blank" rel="external nofollow noopener noreferrer" href="https://gist.github.com/draveness/50c88883f30fa99d548cf1163c98aeb1">这里</a>包含 Go 语言对 Linux 386 架构上不同系统调用的分类，我们会按需决定是否需要运行时的参与。</p>
+<table>
+<thead>
+<tr>
+<th align="center">系统调用</th>
+<th align="center">类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">SYS_TIME</td>
+<td align="center">RawSyscall</td>
+</tr>
+<tr>
+<td align="center">SYS_GETTIMEOFDAY</td>
+<td align="center">RawSyscall</td>
+</tr>
+<tr>
+<td align="center">SYS_SETRLIMIT</td>
+<td align="center">RawSyscall</td>
+</tr>
+<tr>
+<td align="center">SYS_GETRLIMIT</td>
+<td align="center">RawSyscall</td>
+</tr>
+<tr>
+<td align="center">SYS_EPOLL_WAIT</td>
+<td align="center">Syscall</td>
+</tr>
+<tr>
+<td align="center">…</td>
+<td align="center">…</td>
+</tr>
+</tbody></table>
+<p><strong>表  系统调用的类型</strong></p>
+<p>由于直接进行系统调用会阻塞当前的线程，所以只有可以立刻返回的系统调用才可能会被设置成 <code>RawSyscall</code> 类型，例如：<code>SYS_EPOLL_CREATE</code>、<code>SYS_EPOLL_WAIT</code>（超时时间为 0）、<code>SYS_TIME</code> 等。</p>
+<p>正常的系统调用过程相对比较复杂，下面将分别介绍进入系统调用前的准备工作和系统调用结束后的收尾工作。</p>
+<h4 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h4><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.entersyscall"><code>runtime.entersyscall</code></a> 会在获取当前程序计数器和栈位置之后调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.reentersyscall"><code>runtime.reentersyscall</code></a>，它会完成 Goroutine 进入系统调用前的准备工作：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">reentersyscall</span><span class="hljs-params">(pc, sp <span class="hljs-type">uintptr</span>)</span></span> &#123;<br>	_g_ := getg()<br>	_g_.m.locks++<br>	_g_.stackguard0 = stackPreempt<br>	_g_.throwsplit = <span class="hljs-literal">true</span><br><br>	save(pc, sp)<br>	_g_.syscallsp = sp<br>	_g_.syscallpc = pc<br>	casgstatus(_g_, _Grunning, _Gsyscall)<br><br>	_g_.m.syscalltick = _g_.m.p.ptr().syscalltick<br>	_g_.m.mcache = <span class="hljs-literal">nil</span><br>	pp := _g_.m.p.ptr()<br>	pp.m = <span class="hljs-number">0</span><br>	_g_.m.oldp.set(pp)<br>	_g_.m.p = <span class="hljs-number">0</span><br>	atomic.Store(&amp;pp.status, _Psyscall)<br>	<span class="hljs-keyword">if</span> sched.gcwaiting != <span class="hljs-number">0</span> &#123;<br>		systemstack(entersyscall_gcwait)<br>		save(pc, sp)<br>	&#125;<br>	_g_.m.locks--<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>禁止线程上发生的抢占，防止出现内存不一致的问题；</li>
+<li>保证当前函数不会触发栈分裂或者增长；</li>
+<li>保存当前的程序计数器 PC 和栈指针 SP 中的内容；</li>
+<li>将 Goroutine 的状态更新至 <code>_Gsyscall</code>；</li>
+<li>将 Goroutine 的处理器和线程暂时分离并更新处理器的状态到 <code>_Psyscall</code>；</li>
+<li>释放当前线程上的锁；</li>
+</ol>
+<p>需要注意的是 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.reentersyscall"><code>runtime.reentersyscall</code></a> 会使处理器和线程的分离，当前线程会陷入系统调用等待返回，在锁被释放后，会有其他 Goroutine 抢占处理器资源。</p>
+<h4 id="恢复工作"><a href="#恢复工作" class="headerlink" title="恢复工作"></a>恢复工作</h4><p>当系统调用结束后，会调用退出系统调用的函数 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscall"><code>runtime.exitsyscall</code></a> 为当前 Goroutine 重新分配资源，该函数有两个不同的执行路径：</p>
+<ol>
+<li>调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscallfast"><code>runtime.exitsyscallfast</code></a>；</li>
+<li>切换至调度器的 Goroutine 并调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscall0"><code>runtime.exitsyscall0</code></a>；</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">exitsyscall</span><span class="hljs-params">()</span></span> &#123;<br>	_g_ := getg()<br><br>	oldp := _g_.m.oldp.ptr()<br>	_g_.m.oldp = <span class="hljs-number">0</span><br>	<span class="hljs-keyword">if</span> exitsyscallfast(oldp) &#123;<br>		_g_.m.p.ptr().syscalltick++<br>		casgstatus(_g_, _Gsyscall, _Grunning)<br>		...<br><br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	mcall(exitsyscall0)<br>	_g_.m.p.ptr().syscalltick++<br>	_g_.throwsplit = <span class="hljs-literal">false</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这两种不同的路径会分别通过不同的方法查找一个用于执行当前 Goroutine 处理器 P，快速路径 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscallfast"><code>runtime.exitsyscallfast</code></a> 中包含两个不同的分支：</p>
+<ol>
+<li>如果 Goroutine 的原处理器处于 <code>_Psyscall</code> 状态，会直接调用 <code>wirep</code> 将 Goroutine 与处理器进行关联；</li>
+<li>如果调度器中存在闲置的处理器，会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.acquirep"><code>runtime.acquirep</code></a> 使用闲置的处理器处理当前 Goroutine；</li>
+</ol>
+<p>另一个相对较慢的路径 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.exitsyscall0"><code>runtime.exitsyscall0</code></a> 会将当前 Goroutine 切换至 <code>_Grunnable</code> 状态，并移除线程 M 和当前 Goroutine 的关联：</p>
+<ol>
+<li>当我们通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.pidleget"><code>runtime.pidleget</code></a> 获取到闲置的处理器时就会在该处理器上执行 Goroutine；</li>
+<li>在其它情况下，我们会将当前 Goroutine 放到全局的运行队列中，等待调度器的调度；</li>
+</ol>
+<p>无论哪种情况，我们在这个函数中都会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 触发调度器的调度，因为上一节已经介绍过调度器的调度过程，所以在这里就不展开了。</p>
+<h3 id="协作式调度"><a href="#协作式调度" class="headerlink" title="协作式调度"></a>协作式调度</h3><p>Go 语言基于协作式和信号的两种抢占式调度，这里简单介绍其中的协作式调度。<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.Gosched"><code>runtime.Gosched</code></a> 函数会主动让出处理器，允许其他 Goroutine 运行。该函数无法挂起 Goroutine，调度器可能会将当前 Goroutine 调度到其他线程上：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Gosched</span><span class="hljs-params">()</span></span> &#123;<br>	checkTimeouts()<br>	mcall(gosched_m)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">gosched_m</span><span class="hljs-params">(gp *g)</span></span> &#123;<br>	goschedImpl(gp)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">goschedImpl</span><span class="hljs-params">(gp *g)</span></span> &#123;<br>	casgstatus(gp, _Grunning, _Grunnable)<br>	dropg()<br>	lock(&amp;sched.lock)<br>    <span class="hljs-comment">// 放入全局队列</span><br>	globrunqput(gp)<br>	unlock(&amp;sched.lock)<br><br>	schedule()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>经过连续几次跳转，我们最终在 g0 的栈上调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.goschedImpl"><code>runtime.goschedImpl</code></a>，运行时会更新 Goroutine 的状态到 <code>_Grunnable</code>，让出当前的处理器并将 Goroutine 重新放回全局队列，在最后，该函数会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.schedule"><code>runtime.schedule</code></a> 触发调度。</p>
+<h2 id="线程管理"><a href="#线程管理" class="headerlink" title="线程管理"></a>线程管理</h2><p>Go 语言既然专门将线程进一步抽象为 Goroutine，自然也就不希望我们对线程做过多的操作，事实也是如此， 大部分的用户代码并不需要线程级的操作。但某些情况下，当需要 使用 cgo 调用 C 端图形库（如 GLib）时，甚至需要将某个 Goroutine 用户态代码一直在主线程上执行。</p>
+<p>Go 语言的运行时会通过调度器改变线程的所有权，它也提供了 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.LockOSThread"><code>runtime.LockOSThread</code></a> 和 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.UnlockOSThread"><code>runtime.UnlockOSThread</code></a> 让我们有能力绑定 Goroutine 和线程完成一些比较特殊的操作。</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.LockOSThread"><code>runtime.LockOSThread</code></a> 会通过如下所示的代码绑定 Goroutine 和当前线程：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">LockOSThread</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-keyword">if</span> atomic.Load(&amp;newmHandoff.haveTemplateThread) == <span class="hljs-number">0</span> &amp;&amp; GOOS != <span class="hljs-string">&quot;plan9&quot;</span> &#123;<br>		startTemplateThread()<br>	&#125;<br>	_g_ := getg()<br>	_g_.m.lockedExt++<br>	dolockOSThread()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dolockOSThread</span><span class="hljs-params">()</span></span> &#123;<br>	_g_ := getg()<br>	_g_.m.lockedg.set(_g_)<br>	_g_.lockedm.set(_g_.m)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.dolockOSThread"><code>runtime.dolockOSThread</code></a> 会分别设置线程的 <code>lockedg</code> 字段和 Goroutine 的 <code>lockedm</code> 字段，这两行代码会绑定线程和 Goroutine。</p>
+<p>当 Goroutine 完成了特定的操作之后，会调用以下函数 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.UnlockOSThread"><code>runtime.UnlockOSThread</code></a> 分离 Goroutine 和线程：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">UnlockOSThread</span><span class="hljs-params">()</span></span> &#123;<br>	_g_ := getg()<br>	<span class="hljs-keyword">if</span> _g_.m.lockedExt == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	_g_.m.lockedExt--<br>	dounlockOSThread()<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">dounlockOSThread</span><span class="hljs-params">()</span></span> &#123;<br>	_g_ := getg()<br>	<span class="hljs-keyword">if</span> _g_.m.lockedInt != <span class="hljs-number">0</span> || _g_.m.lockedExt != <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	_g_.m.lockedg = <span class="hljs-number">0</span><br>	_g_.lockedm = <span class="hljs-number">0</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>函数执行的过程与 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.LockOSThread"><code>runtime.LockOSThread</code></a> 正好相反。在多数的服务中，我们都用不到这一对函数，不过使用 CGO 或者经常与操作系统打交道的读者可能会见到它们的身影。</p>
+<h3 id="线程生命周期"><a href="#线程生命周期" class="headerlink" title="线程生命周期"></a>线程生命周期</h3><p>Go 语言的运行时会通过 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.startm"><code>runtime.startm</code></a> 启动线程来执行处理器 P，如果我们在该函数中没能从闲置列表中获取到线程 M 就会调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newm"><code>runtime.newm</code></a> 创建新的线程：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newm</span><span class="hljs-params">(fn <span class="hljs-keyword">func</span>()</span></span>, _p_ *p, id <span class="hljs-type">int64</span>) &#123;<br>	mp := allocm(_p_, fn, id)<br>	mp.nextp.set(_p_)<br>	mp.sigmask = initSigmask<br>	...<br>	newm1(mp)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newm1</span><span class="hljs-params">(mp *m)</span></span> &#123;<br>	<span class="hljs-keyword">if</span> iscgo &#123;<br>		...<br>	&#125;<br>	newosproc(mp)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>创建新的线程需要使用如下所示的 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newosproc"><code>runtime.newosproc</code></a>，该函数在 Linux 平台上会通过系统调用 <code>clone</code> 创建新的操作系统线程，它也是创建线程链路上距离操作系统最近的 Go 语言函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">newosproc</span><span class="hljs-params">(mp *m)</span></span> &#123;<br>	stk := unsafe.Pointer(mp.g0.stack.hi)<br>	...<br>	ret := clone(cloneFlags, stk, unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(funcPC(mstart)))<br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用系统调用 <code>clone</code> 创建的线程会在线程主动调用 <code>exit</code>、或者传入的函数 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mstart"><code>runtime.mstart</code></a> 返回会主动退出，<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.mstart"><code>runtime.mstart</code></a> 会执行调用 <a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.newm"><code>runtime.newm</code></a> 时传入的匿名函数 <code>fn</code>，到这里也就完成了从线程创建到销毁的整个闭环。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="循环调度获取协程主要流程步骤："><a href="#循环调度获取协程主要流程步骤：" class="headerlink" title="循环调度获取协程主要流程步骤："></a>循环调度获取协程主要流程步骤：</h3><ol>
+<li><strong>尝试从本地和全局队列获取 G:</strong><ul>
+<li><strong>全局队列 (公平性):</strong> 为了保证公平性，每隔一段时间（<code>pp.schedtick%61 == 0</code>）且全局队列不为空时，尝试从全局队列获取一个 G。</li>
+<li><strong>唤醒 finalizer G:</strong> 如果finalizer goroutine处于等待唤醒状态, 唤醒它。</li>
+<li><strong>CGO 让出：</strong> 如果是cgo环境, 尝试让出cpu给c线程。</li>
+<li><strong>本地队列:</strong> 尝试从当前 P 的本地运行队列获取一个 G。如果获取成功，则直接返回。</li>
+<li><strong>全局队列:</strong> 如果本地队列为空，则尝试从全局运行队列获取一个 G。</li>
+</ul>
+</li>
+<li><strong>尝试非阻塞网络轮询 (Netpoll, 优化):</strong><ul>
+<li>如果网络轮询已初始化、有等待者，并且上次轮询时间不为 0，则尝试进行非阻塞网络轮询 (<code>netpoll(0)</code>)。</li>
+<li>如果轮询到可运行的 G，则将其状态设置为 <code>_Grunnable</code> 并返回。</li>
+</ul>
+</li>
+<li><a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/tree/runtime.runqsteal"><code>runtime.runqsteal</code></a><strong>尝试从其他 P 窃取工作 (Work Stealing):</strong><ul>
+<li>如果当前 M 是自旋状态，或者自旋 M 的数量小于限制（繁忙 P 数量的一半），则尝试从其他 P 窃取工作 (<code>stealWork()</code>)。</li>
+<li>如果窃取成功，则直接返回窃取到的 G。</li>
+<li>如果窃取失败，但发现了新的工作（例如新的 timer 或 GC 工作），则重新开始查找循环 (<code>goto top</code>)。</li>
+</ul>
+</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>1.1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/">Go 语言设计与实现</a></p>
+<p>1.2<a target="_blank" rel="external nofollow noopener noreferrer" href="https://mp.weixin.qq.com/s/j9OpuIxXRWa9524oacGCzw">理解Go协程调度的本质</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理）</div>
+      <div>https://blog.longpi1.com/2025/03/14/14-Golang-调度器源码分析（二、调度循环、触发调度、线程管理）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/08/13-Golang-%E8%B0%83%E5%BA%A6%E5%99%A8%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E3%80%81%E8%B0%83%E5%BA%A6%E5%99%A8%E5%90%AF%E5%8A%A8%E4%B8%8E%E5%88%9B%E5%BB%BA%E5%8D%8F%E7%A8%8B%EF%BC%89/" title="13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）">
+                        <span class="hidden-mobile">13.Golang 调度器源码分析（一、数据结构、调度器启动与创建协程）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
