@@ -1,0 +1,1109 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="hashicorp raft源码分析（一、项目介绍与Leder选举实现）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hashicorp raft源码分析（一、项目介绍与Leder选举实现）">
+<meta property="og:url" content="https://blog.longpi1.com/2025/04/20/hashicorp-raft%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D%E4%B8%8ELeder%E9%80%89%E4%B8%BE%E5%AE%9E%E7%8E%B0%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="hashicorp raft源码分析（一、项目介绍与Leder选举实现）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://camo.githubusercontent.com/599752e5436aa974a0c5bc75de8702b5fec40b031098a8c2c14c196b0cacfd41/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323136323232333830312e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/80b72338e79667fbac7153d5243207cec88836c6ca85020c3dbdd30e254b403e/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f53616d706c65253230466c6f77636861727425323054656d706c6174652532302d322d2e6a7067">
+<meta property="article:published_time" content="2025-04-20T06:20:54.000Z">
+<meta property="article:modified_time" content="2025-04-20T13:27:51.865Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="raft">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/599752e5436aa974a0c5bc75de8702b5fec40b031098a8c2c14c196b0cacfd41/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323136323232333830312e706e67">
+  
+  
+  
+  <title>hashicorp raft源码分析（一、项目介绍与Leder选举实现） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="hashicorp raft源码分析（一、项目介绍与Leder选举实现）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-04-20 14:20" pubdate>
+          2025年4月20日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          38k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">hashicorp raft源码分析（一、项目介绍与Leder选举实现）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h2 id="hashicorp-raft源码分析（一、项目介绍与Leder选举实现）"><a href="#hashicorp-raft源码分析（一、项目介绍与Leder选举实现）" class="headerlink" title="hashicorp raft源码分析（一、项目介绍与Leder选举实现）"></a>hashicorp raft源码分析（一、项目介绍与Leder选举实现）</h2><blockquote>
+<p>本文基于 hashicorp&#x2F;raft <code>v1.7.3</code> 版本进行源码分析</p>
+<p>API手册：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pkg.go.dev/github.com/hashicorp/raft">https://pkg.go.dev/github.com/hashicorp/raft</a></p>
+<p>源码地址：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hashicorp/raft">hashicorp&#x2F;raft</a></p>
+<p>raft论文中文解读：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md">https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md</a></p>
+<p>在阅读文章前需要有一定的 raft 基础, 不然直接看源码会一头雾水.</p>
+</blockquote>
+<h2 id="一、项目背景：什么是-Raft？"><a href="#一、项目背景：什么是-Raft？" class="headerlink" title="一、项目背景：什么是 Raft？"></a>一、项目背景：什么是 Raft？</h2><p>在聊代码结构前，先简单回顾 Raft 算法的基本思想：</p>
+<ul>
+<li><p><strong>Raft</strong> 是一种<strong>分布式一致性算法</strong>（Consensus Algorithm），用于在分布式系统（如集群、多节点存储系统）中保证<strong>数据一致性</strong>和<strong>高可用性</strong>。</p>
+</li>
+<li><p>相比 Paxos 更</p>
+<p>易理解、易实现</p>
+<p>，Raft 将一致性问题分解为：</p>
+<ol>
+<li><strong>Leader 选举（Leader Election）</strong>：集群中选出一个 Leader 节点负责日志复制。</li>
+<li><strong>日志复制（Log Replication）</strong>：Leader 接收客户端写请求，记录到自己的日志，并<strong>同步</strong>到 Follower 节点。</li>
+<li><strong>安全性（Safety）</strong>：确保<strong>所有节点最终状态一致</strong>，防止脑裂、日志冲突。</li>
+</ol>
+</li>
+</ul>
+<p>Hashicorp 的 Raft 是 Raft 论文（<a target="_blank" rel="external nofollow noopener noreferrer" href="https://raft.github.io/raft.pdf">In Search of an Understandable Consensus Algorithm</a>）的<strong>Go语言实现</strong>，被广泛应用在：</p>
+<ul>
+<li>Hashicorp 的 <strong>Consul</strong>、<strong>Vault</strong>、<strong>Nomad</strong></li>
+<li>类似 <strong>etcd</strong>（另一个 Raft 实现）</li>
+</ul>
+<h2 id="二、项目结构"><a href="#二、项目结构" class="headerlink" title="二、项目结构"></a>二、项目结构</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs go">github.com/hashicorp/raft/ 相关核心目录与代码<br>├── fuzzy    <span class="hljs-comment">// 用来模拟测试 启动一个集群， 启动多个raftNode 节点。</span><br>├── bench    <span class="hljs-comment">// 包含基准测试，用于评估 Raft 的性能。</span><br>├── raft.<span class="hljs-keyword">go</span>         <span class="hljs-comment">// 【核心文件】Raft 状态机、主逻辑（选举、日志复制核心循环）</span><br>├── api.<span class="hljs-keyword">go</span>          <span class="hljs-comment">// 对外暴露的核心 API（Raft 接口定义）</span><br>├── config.<span class="hljs-keyword">go</span>       <span class="hljs-comment">// Raft 节点配置（超时、选举、日志等参数）</span><br>├── file_snapshot.<span class="hljs-keyword">go</span> <span class="hljs-comment">// 基于文件的快照（Snapshot）实现</span><br>├── fsm.<span class="hljs-keyword">go</span>          <span class="hljs-comment">// 有限状态机（Finite State Machine）接口定义</span><br>├── future.<span class="hljs-keyword">go</span>       <span class="hljs-comment">// 异步操作的 Future 模式实现（请求结果回调）</span><br>├── log.<span class="hljs-keyword">go</span>          <span class="hljs-comment">// Raft 日志结构（LogEntry、日志压缩等）</span><br>├── log_store.<span class="hljs-keyword">go</span>    <span class="hljs-comment">// 日志存储接口（BoltDB、内存存储、文件存储实现）</span><br>├── net_transport.<span class="hljs-keyword">go</span> <span class="hljs-comment">// 网络层抽象（TCP、TLS、Inmem 传输实现）</span><br>├── observer.<span class="hljs-keyword">go</span>     <span class="hljs-comment">// 事件监听器（观察者模式，监控集群状态变化）</span><br>├── raft_test.<span class="hljs-keyword">go</span>    <span class="hljs-comment">// 单元测试、集成测试（非常重要，覆盖所有场景）</span><br>├── snapshot.<span class="hljs-keyword">go</span>     <span class="hljs-comment">// 快照管理（压缩日志、持久化状态）</span><br>├── stable_store.<span class="hljs-keyword">go</span> <span class="hljs-comment">// 持久化存储接口（稳定存储 Raft 日志、任期等）</span><br>├── transport.<span class="hljs-keyword">go</span>    <span class="hljs-comment">// 网络传输接口定义（RPC 调用，消息传递）</span><br>└── util.<span class="hljs-keyword">go</span>         <span class="hljs-comment">// 辅助函数（随机数、时间戳、Debug 工具）</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>关键子目录&#x2F;文件说明：</strong></p>
+<ul>
+<li><code>raft.go</code>:<strong>核心</strong>！实现了Raft算法的主要逻辑，包括：<ul>
+<li>节点状态切换（成为候选人、领导者、跟随者）</li>
+<li>心跳机制（Leader发送心跳维持领导权）</li>
+<li>选举定时器（触发选举）</li>
+<li>日志复制（Leader向Follower同步日志）</li>
+<li>状态机应用（<code>FSM.Apply()</code>）</li>
+</ul>
+</li>
+<li><code>log.go</code> &amp; <code>log_store.go</code>: Raft日志的存储与管理：<ul>
+<li><code>Log</code>结构体（Index、Term、Command）</li>
+<li><code>LogStore</code>接口（持久化日志的<code>Append()</code>、<code>Get()</code>等）</li>
+<li>默认内存实现（<code>inmem_store.go</code>）和BoltDB实现（<code>raftboltdb/</code>）用于<strong>持久化</strong></li>
+</ul>
+</li>
+<li><code>fsm.go</code>:有限状态机接口，使用者需实现：<ul>
+<li><code>Apply(logEntry []byte) interface&#123;&#125;</code>（应用日志到状态机）</li>
+<li><code>Snapshot() (FSMSnapshot, error)</code>（创建快照）</li>
+<li><code>Restore(snapshot io.ReadCloser) error</code>（从快照恢复）</li>
+</ul>
+</li>
+<li><code>snapshot.go</code> &amp; <code>file_snapshot.go</code>: 快照的创建、传输、恢复逻辑：<ul>
+<li><code>SnapshotSink</code>（写快照到文件）</li>
+<li><code>SnapshotStore</code>接口（支持文件系统、内存快照）</li>
+</ul>
+</li>
+<li><code>transport.go</code> &amp; <code>net_transport.go</code>:网络通信层<ul>
+<li><code>Transport</code>接口（<code>AppendEntries()</code>、<code>RequestVote()</code>等RPC）</li>
+<li>基于TCP的默认实现（<code>NetTransport</code>），封装了<code>encoding/gob</code>序列化</li>
+</ul>
+</li>
+<li><code>future.go</code>: 异步操作机制：<ul>
+<li>提交日志(<code>raft.Apply()</code>)时返回<code>Future</code>对象</li>
+<li>可阻塞等待操作结果（成功&#x2F;失败）</li>
+</ul>
+</li>
+</ul>
+<p><strong>整体结构特点：</strong></p>
+<ol>
+<li><strong>接口与实现分离</strong>：如<code>LogStore</code>、<code>SnapshotStore</code>、<code>Transport</code>等关键组件均为接口，方便替换存储引擎（内存&#x2F;BoltDB）或网络层（TCP、自定义）</li>
+<li>分层清晰：<ul>
+<li>最底层：<code>StableStore</code>（任期、投票持久化）、<code>LogStore</code>（日志存储）</li>
+<li>中间层：<code>Raft</code>状态机（选举、日志复制）</li>
+<li>上层：<code>FSM</code>（业务状态机，由用户实现）</li>
+</ul>
+</li>
+<li>大量使用Go的<code>goroutine</code>+<code>channel</code>：<ul>
+<li>后台心跳&#x2F;选举定时器</li>
+<li>处理RPC调用</li>
+<li>日志异步复制</li>
+</ul>
+</li>
+</ol>
+<h2 id="三、Leader选举"><a href="#三、Leader选举" class="headerlink" title="三、Leader选举"></a>三、Leader选举</h2><p><img src="https://camo.githubusercontent.com/599752e5436aa974a0c5bc75de8702b5fec40b031098a8c2c14c196b0cacfd41/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323136323232333830312e706e67" srcset="/img/loading.gif" lazyload alt="img"></p>
+<p>在raft算法中，典型的领导者选举在本质上是节点状态的变更。具体到raft源码中，领导者选举的入口函数就是<code>run()</code>，在raft.go中以一个单独的协程运行，来实现节点状态的变更</p>
+<p>在下面的实现代码中，可以看到<code>Follower</code>、<code>Candidate</code>和<code>Leader</code><strong>3 种节点状态都有分别对应的功能函数</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> run() &#123;<br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-r.shutdownCh:<br>			r.setLeader(<span class="hljs-string">&quot;&quot;</span>)<br>			<span class="hljs-keyword">return</span><br>		<span class="hljs-keyword">default</span>:<br>		&#125;<br> <br>		<span class="hljs-keyword">switch</span> r.getState() &#123;<br>		<span class="hljs-keyword">case</span> Follower:<br>			r.runFollower()<br>		<span class="hljs-keyword">case</span> Candidate:<br>			r.runCandidate()<br>		<span class="hljs-keyword">case</span> Leader:<br>			r.runLeader()<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-1-follower跟随者运行逻辑"><a href="#1-1-follower跟随者运行逻辑" class="headerlink" title="1.1 follower跟随者运行逻辑"></a>1.1 follower跟随者运行逻辑</h3><h4 id="主要处理逻辑："><a href="#主要处理逻辑：" class="headerlink" title="主要处理逻辑："></a>主要处理逻辑：</h4><ul>
+<li><p><strong>接收 RPC 请求 (<code>&lt;-r.rpcCh</code>):</strong> 这是 Follower 接收外部通信的主要方式。当收到 RPC 时，将其交给 <code>r.processRPC</code> 方法处理。Follower 主要处理以下几种 RPC：</p>
+<ul>
+<li><code>AppendEntriesRequest</code>: 接收 Leader 发来的日志条目同步请求或心跳信号。</li>
+<li><code>RequestVoteRequest</code>: 接收 Candidate 发来的投票请求。</li>
+<li><code>RequestPreVoteRequest</code>: 接收 Candidate 发来的预投票请求（如果启用了 Pre-Vote 优化）。</li>
+<li><code>InstallSnapshotRequest</code>: 接收 Leader 发来的快照传输请求。</li>
+<li><code>TimeoutNowRequest</code>: 接收强制立即超时的请求。</li>
+</ul>
+</li>
+<li><p><strong>接收配置变更请求 (<code>&lt;-r.configurationChangeCh</code>):</strong> Follower 节点不能发起配置变更。因此，收到此类请求时，直接回复 <code>ErrNotLeader</code> 错误。</p>
+</li>
+<li><p><strong>接收日志应用请求 (<code>&lt;-r.applyCh</code>):</strong> Follower 节点不能直接处理外部的日志应用请求。日志的应用是由 Leader 驱动的 <code>commitIndex</code> 前进后，由 Raft 内部机制完成的。因此，收到此类请求时，也直接回复 <code>ErrNotLeader</code> 错误。</p>
+</li>
+<li><p><strong>心跳定时器超时 (<code>&lt;-heartbeatTimer</code>):</strong> 这是 Follower 检测 Leader 是否存活的关键机制。</p>
+<ul>
+<li><p>定时器超时后，首先<strong>重新启动</strong>一个新的随机化心跳定时器。</p>
+</li>
+<li><p>然后，检查距离<strong>最后一次与 Leader 成功通信</strong>的时间 (<code>r.LastContact()</code>) 是否超过了心跳超时时间。</p>
+</li>
+<li><p><strong>如果最近与 Leader 有过联系 (时间差小于超时时间):</strong> 说明 Leader 仍然活跃，这只是一个正常的定时器事件，Follower 继续保持 Follower 状态，循环继续。</p>
+</li>
+<li><p>如果最近与 Leader <strong>没有</strong>联系 (时间差大于等于超时时间):</p>
+</li>
+</ul>
+<p>  说明 Leader 可能已经失效或网络有问题，Follower 认为 Leader 失联。</p>
+<ul>
+<li><p>清空当前已知的 Leader 信息。</p>
+</li>
+<li><p>进行选举资格检查:</p>
+<p>在转换为 Candidate 发起选举之前，Follower 会检查自己是否有资格参与选举：</p>
+<ul>
+<li>检查是否有已知的配置 (<code>r.configurations.latestIndex == 0</code>)。如果没有，无法选举，记录警告并继续等待。</li>
+<li>检查当前节点是否在<strong>稳定</strong>的配置中拥有<strong>投票权</strong> (<code>!hasVote(r.configurations.latest, r.localID)</code>)。如果配置已稳定 (<code>latestIndex == committedIndex</code>) 但自己没有投票权，则不能发起选举，记录警告并继续等待。</li>
+</ul>
+</li>
+<li><p>如果通过选举资格检查 (有已知配置且自己有投票权):</p>
+<ul>
+<li>记录警告日志，表明心跳超时并即将开始选举。</li>
+<li>更新状态指标。</li>
+<li><strong>将节点状态设置为 Candidate</strong> (<code>r.setState(Candidate)</code>)。</li>
+<li><strong>退出 <code>runFollower</code> 函数</strong> (<code>return</code>)。这将导致外部调用者（通常是 Raft 的主协程）检测到状态变化，并调用处理 Candidate 状态的函数 (<code>runCandidate</code>)，开始新的选举流程。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>接收关闭信号 (<code>&lt;-r.shutdownCh</code>):</strong> 当 Raft 节点被要求关闭时，收到此信号，函数直接返回，结束主循环和 Follower 状态的运行。</p>
+</li>
+</ul>
+<h4 id="相关源码："><a href="#相关源码：" class="headerlink" title="相关源码："></a>相关源码：</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// runFollower 在 Follower 状态下运行主循环。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> runFollower() &#123;<br>    didWarn := <span class="hljs-literal">false</span>                                                  <span class="hljs-comment">// 是否已经发出警告（没有已知节点或不在配置中）</span><br>    leaderAddr, leaderID := r.LeaderWithID()                          <span class="hljs-comment">// 获取当前已知的 leader 地址和 ID</span><br>    r.logger.Info(<span class="hljs-string">&quot;entering follower state&quot;</span>, <span class="hljs-string">&quot;follower&quot;</span>, r, <span class="hljs-string">&quot;leader-address&quot;</span>, leaderAddr, <span class="hljs-string">&quot;leader-id&quot;</span>, leaderID) <span class="hljs-comment">// 记录进入 Follower 状态的日志</span><br>    metrics.IncrCounter([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;state&quot;</span>, <span class="hljs-string">&quot;follower&quot;</span>&#125;, <span class="hljs-number">1</span>)     <span class="hljs-comment">// 增加 Follower 状态的计数器</span><br><br>    <span class="hljs-comment">// 生成一个随机的心跳超时定时器。使用随机超时是为了防止所有 follower 同时超时并转换为 candidate。</span><br>    heartbeatTimer := randomTimeout(r.config().HeartbeatTimeout)<br><br>    <span class="hljs-comment">// 循环，直到节点不再是 Follower 状态</span><br>    <span class="hljs-keyword">for</span> r.getState() == Follower &#123;<br>       r.mainThreadSaturation.sleeping() <span class="hljs-comment">// 表示主线程当前处于空闲状态</span><br><br>       <span class="hljs-comment">// 使用 select 语句监听多个 channel</span><br>       <span class="hljs-keyword">select</span> &#123;<br>       <span class="hljs-keyword">case</span> rpc := &lt;-r.rpcCh:<br>          r.mainThreadSaturation.working() <span class="hljs-comment">// 表示主线程开始工作</span><br>          r.processRPC(rpc)                <span class="hljs-comment">// 处理 rpc 请求, 这里有投票、传输日志、传递快照的 RPC 请求</span><br><br>       <span class="hljs-keyword">case</span> c := &lt;-r.configurationChangeCh:<br>          r.mainThreadSaturation.working()<br>          <span class="hljs-comment">// 收到配置变更请求</span><br>          <span class="hljs-comment">// 因为不是 leader，拒绝所有操作</span><br>          c.respond(ErrNotLeader) <span class="hljs-comment">// 回复 &quot;不是 Leader&quot; 错误</span><br><br>       <span class="hljs-keyword">case</span> a := &lt;-r.applyCh:<br>          r.mainThreadSaturation.working()<br>          <span class="hljs-comment">// 收到日志应用请求</span><br>          <span class="hljs-comment">// 因为不是 leader，拒绝所有操作</span><br>          a.respond(ErrNotLeader) <span class="hljs-comment">// 回复 &quot;不是 Leader&quot; 错误</span><br>   <br>           <br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br><br><br>       <span class="hljs-keyword">case</span> &lt;-heartbeatTimer:<br>          r.mainThreadSaturation.working()<br>          <span class="hljs-comment">// 心跳超时</span><br>          <span class="hljs-comment">// 重新启动心跳定时器</span><br>          hbTimeout := r.config().HeartbeatTimeout  <span class="hljs-comment">// 获取配置的心跳超时时间</span><br>          heartbeatTimer = randomTimeout(hbTimeout) <span class="hljs-comment">// 生成新的随机超时定时器,randomTimeout 防止多个 Follower 同时超时发起选举，造成网络风暴（split vote）。</span><br><br>          <span class="hljs-comment">// 检查最近是否与 leader 有过成功联系</span><br>          lastContact := r.LastContact() <span class="hljs-comment">// 获取最后一次联系的时间</span><br>          <span class="hljs-keyword">if</span> time.Since(lastContact) &lt; hbTimeout &#123;<br>             <span class="hljs-comment">// 如果最后一次联系时间小于心跳超时时间，说明最近收到过 leader 的心跳，继续循环</span><br>             <span class="hljs-keyword">continue</span><br>          &#125;<br><br>          <span class="hljs-comment">// 心跳失败！转换为 Candidate 状态</span><br>          lastLeaderAddr, lastLeaderID := r.LeaderWithID() <span class="hljs-comment">// 获取最后已知的 leader 地址和 ID</span><br>          r.setLeader(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)                              <span class="hljs-comment">// 清空 leader 信息</span><br><br>          <span class="hljs-keyword">if</span> r.configurations.latestIndex == <span class="hljs-number">0</span> &#123;<br>             <span class="hljs-comment">// 如果最新的配置索引为 0，表示还没有任何已知的配置</span><br>             <span class="hljs-keyword">if</span> !didWarn &#123;<br>                r.logger.Warn(<span class="hljs-string">&quot;no known peers, aborting election&quot;</span>) <span class="hljs-comment">// 记录警告日志：没有已知的节点，中止选举</span><br>                didWarn = <span class="hljs-literal">true</span>                                     <span class="hljs-comment">// 设置警告标志，避免重复警告</span><br>             &#125;<br>          &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> r.configurations.latestIndex == r.configurations.committedIndex &amp;&amp;<br>             !hasVote(r.configurations.latest, r.localID) &#123;<br>             <span class="hljs-comment">// 如果最新的配置索引等于已提交的配置索引，并且当前节点在最新的配置中没有投票权</span><br>             <span class="hljs-keyword">if</span> !didWarn &#123;<br>                r.logger.Warn(<span class="hljs-string">&quot;not part of stable configuration, aborting election&quot;</span>) <span class="hljs-comment">// 记录警告日志：不在稳定的配置中，中止选举</span><br>                didWarn = <span class="hljs-literal">true</span>                                                       <span class="hljs-comment">// 设置警告标志，避免重复警告</span><br>             &#125;<br>          &#125; <span class="hljs-keyword">else</span> &#123;<br>             <span class="hljs-comment">// 满足选举条件</span><br>             metrics.IncrCounter([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;transition&quot;</span>, <span class="hljs-string">&quot;heartbeat_timeout&quot;</span>&#125;, <span class="hljs-number">1</span>) <span class="hljs-comment">// 增加心跳超时的计数器</span><br>             <span class="hljs-keyword">if</span> hasVote(r.configurations.latest, r.localID) &#123;<br>                <span class="hljs-comment">// 如果当前节点在最新的配置中有投票权</span><br>                r.logger.Warn(<span class="hljs-string">&quot;heartbeat timeout reached, starting election&quot;</span>, <span class="hljs-string">&quot;last-leader-addr&quot;</span>, lastLeaderAddr, <span class="hljs-string">&quot;last-leader-id&quot;</span>, lastLeaderID) <span class="hljs-comment">// 记录警告日志：心跳超时，开始选举</span><br>                r.setState(Candidate)                                                                                                             <span class="hljs-comment">// 设置节点状态为 Candidate</span><br>                <span class="hljs-keyword">return</span>                                                                                                                            <span class="hljs-comment">// 退出 runFollower 函数，开始选举流程</span><br>             &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> !didWarn &#123;<br>                <span class="hljs-comment">// 当前节点没有投票权，并且之前没有发出过警告</span><br>                r.logger.Warn(<span class="hljs-string">&quot;heartbeat timeout reached, not part of a stable configuration or a non-voter, not triggering a leader election&quot;</span>)<br>                didWarn = <span class="hljs-literal">true</span><br>             &#125;<br>          &#125;<br><br>       <span class="hljs-keyword">case</span> &lt;-r.shutdownCh:<br>          <span class="hljs-comment">// 收到关闭信号</span><br>          <span class="hljs-keyword">return</span> <span class="hljs-comment">// 退出 runFollower 函数</span><br>       &#125;<br>    &#125;<br>&#125;<br><br><br><span class="hljs-comment">// hasVote 检查给定的服务器 ID 在给定的配置中是否拥有投票权。</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 参数:</span><br><span class="hljs-comment">//   configuration: Configuration 类型，表示集群的配置。</span><br><span class="hljs-comment">//   id: ServerID 类型，表示要检查的服务器的 ID。</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// 返回值:</span><br><span class="hljs-comment">//   bool 类型，如果服务器拥有投票权则返回 true，否则返回 false。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">hasVote</span><span class="hljs-params">(configuration Configuration, id ServerID)</span></span> <span class="hljs-type">bool</span> &#123;<br>        <span class="hljs-comment">// 遍历配置中的所有服务器</span><br>        <span class="hljs-keyword">for</span> _, server := <span class="hljs-keyword">range</span> configuration.Servers &#123;<br>                <span class="hljs-comment">// 检查当前遍历到的服务器的 ID 是否与要查找的 ID 匹配</span><br>                <span class="hljs-keyword">if</span> server.ID == id &#123;<br>                        <span class="hljs-comment">// 如果 ID 匹配，则检查该服务器的投票权 (Suffrage) 是否为 Voter (投票者)</span><br>                        <span class="hljs-keyword">return</span> server.Suffrage == Voter <span class="hljs-comment">// 如果是 Voter，则返回 true</span><br>                &#125;<br>        &#125;<br>        <span class="hljs-comment">// 如果遍历完所有服务器都没有找到匹配的 ID，或者找到的服务器不是 Voter，则返回 false</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="processRPC-处理请求逻辑"><a href="#processRPC-处理请求逻辑" class="headerlink" title="processRPC 处理请求逻辑"></a>processRPC 处理请求逻辑</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> processRPC(rpc RPC) &#123;<br>	<span class="hljs-comment">// 检查RPC请求的头部信息，如果检查失败，则返回错误响应。</span><br>	<span class="hljs-keyword">if</span> err := r.checkRPCHeader(rpc); err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-comment">// 向RPC请求发送者返回错误响应。</span><br>		rpc.Respond(<span class="hljs-literal">nil</span>, err)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 根据RPC请求中的命令类型进行不同的处理。</span><br>	<span class="hljs-keyword">switch</span> cmd := rpc.Command.(<span class="hljs-keyword">type</span>) &#123;<br>	<span class="hljs-comment">// 处理追加日志条目请求。</span><br>	<span class="hljs-keyword">case</span> *AppendEntriesRequest:<br>		r.appendEntries(rpc, cmd)<br>	<span class="hljs-comment">// 处理请求投票请求。</span><br>	<span class="hljs-keyword">case</span> *RequestVoteRequest:<br>		r.requestVote(rpc, cmd)<br>	<span class="hljs-comment">// 处理请求预投票请求（预投票用于在节点成为候选人之前检查是否能获得多数投票）。</span><br>	<span class="hljs-keyword">case</span> *RequestPreVoteRequest:<br>		r.requestPreVote(rpc, cmd)<br>	<span class="hljs-comment">// 处理安装快照请求（用于将快照数据传输到其他节点）。</span><br>	<span class="hljs-keyword">case</span> *InstallSnapshotRequest:<br>		r.installSnapshot(rpc, cmd)<br>	<span class="hljs-comment">// 处理立即超时请求（用于触发节点的超时操作）。</span><br>	<span class="hljs-keyword">case</span> *TimeoutNowRequest:<br>		r.timeoutNow(rpc, cmd)<br>	<span class="hljs-comment">// 如果收到未知的命令类型，则记录错误日志并返回错误响应。</span><br>	<span class="hljs-keyword">default</span>:<br>		r.logger.Error(<span class="hljs-string">&quot;got unexpected command&quot;</span>,<br>			<span class="hljs-string">&quot;command&quot;</span>, hclog.Fmt(<span class="hljs-string">&quot;%#v&quot;</span>, rpc.Command))<br><br>		rpc.Respond(<span class="hljs-literal">nil</span>, fmt.Errorf(rpcUnexpectedCommandError))<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>hashicorp raft server&#x2F;client 是使用 msgpack on tcp 实现的 rpc 服务, 关于 hashcrop raft transport server&#x2F;client 的实现原理没什么可深入的, 请直接看代码实现. msgpack rpc 的协议报文格式如下.</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://camo.githubusercontent.com/80b72338e79667fbac7153d5243207cec88836c6ca85020c3dbdd30e254b403e/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f53616d706c65253230466c6f77636861727425323054656d706c6174652532302d322d2e6a7067"><img src="https://camo.githubusercontent.com/80b72338e79667fbac7153d5243207cec88836c6ca85020c3dbdd30e254b403e/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f53616d706c65253230466c6f77636861727425323054656d706c6174652532302d322d2e6a7067" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h5 id="appendEntries-同步日志"><a href="#appendEntries-同步日志" class="headerlink" title="appendEntries 同步日志"></a>appendEntries 同步日志</h5><p><code>appendEntries</code> 函数是 Raft 协议中 Follower 节点处理 Leader 发来的 <code>AppendEntriesRequest</code> 的核心方法。它的主要职责是根据 Leader 的请求更新 Follower 的状态、日志和提交索引。</p>
+<p><strong>核心流程:</strong></p>
+<ol>
+<li><strong>初始化响应:</strong> 创建一个 <code>AppendEntriesResponse</code> 并设置默认值（通常是失败），包含当前节点的 Term 和最后一个日志索引。使用 <code>defer</code> 确保函数退出时发送响应。</li>
+<li>Term 检查:<ul>
+<li>如果 Leader 的 Term 小于当前节点的 Term，则拒绝请求并返回（Follower 的 Term 在响应中）。</li>
+<li>如果 Leader 的 Term 大于当前节点的 Term，或者当前节点不是 Follower (且不是领导权转移中的 Candidate)，则更新当前节点的 Term 为 Leader 的 Term，并转换为 Follower 状态。</li>
+</ul>
+</li>
+<li>记录 Leader 信息: 保存 Leader 的地址和 ID。</li>
+<li>日志一致性检查:<ul>
+<li>如果请求包含 <code>PrevLogEntry</code> (&gt; 0)，则获取当前节点日志中相同索引条目的 Term。</li>
+<li>将获取到的 Term 与 Leader 请求中的 <code>PrevLogTerm</code> 进行比较。</li>
+<li>如果不匹配，说明日志发生分歧，拒绝请求，设置 <code>NoRetryBackoff</code> 为 true，并返回。</li>
+<li>如果无法获取到 <code>PrevLogEntry</code> 索引处的日志（例如索引越界或存储错误），也拒绝请求，设置 <code>NoRetryBackoff</code> 为 true，并返回。</li>
+</ul>
+</li>
+<li>处理新日志条目:<ul>
+<li>如果请求包含 <code>Entries</code>，遍历 Leader 发来的条目。</li>
+<li>查找与当前节点日志发生冲突或 Leader 独有的新条目的起始点。</li>
+<li>如果发现冲突（相同索引但 Term 不同），删除当前节点从冲突点开始的所有后续日志条目。如果在删除范围内的配置变更日志被移除，则回退最新的配置信息。</li>
+<li>将 Leader 发来的从冲突点或当前节点最后一个日志索引之后开始的条目视为新的，并将其追加到日志存储中。</li>
+<li>处理新追加的日志条目中的配置变更类型。</li>
+<li>更新当前节点的最后一个日志索引和 Term。</li>
+</ul>
+</li>
+<li>更新提交索引:<ul>
+<li>如果 Leader 的 <code>LeaderCommitIndex</code> 大于当前节点的 <code>CommitIndex</code>，则更新当前节点的 <code>CommitIndex</code> 为 <code>min(LeaderCommitIndex, 当前节点的最后一个日志索引)</code>。</li>
+<li>如果最新的配置变更日志索引小于等于新的提交索引，则将最新的配置提升为已提交配置。</li>
+<li>将已提交但尚未应用的日志条目应用到状态机， <strong><code>processLogs</code> 应用日志</strong>。</li>
+</ul>
+</li>
+<li>设置成功并更新最后联系时间: 如果所有检查和操作都成功完成，将响应的 <code>Success</code> 字段设置为 true，并更新记录最后一次与 Leader 成功联系的时间（用于重置选举定时器）。</li>
+</ol>
+<p>简单说 <code>appendEntries()</code> 同步日志是 leader 和 follower 不断调整位置再同步数据的过程.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br></pre></td><td class="code"><pre><code class="hljs GO"><span class="hljs-comment">// appendEntries 在收到AppendEntries RPC调用时被触发。</span><br><span class="hljs-comment">// 这个函数必须只在Raft的主线程（事件循环）中调用，以避免并发问题。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> appendEntries(rpc RPC, a *AppendEntriesRequest) &#123;<br>	<span class="hljs-comment">// 使用 metrics 记录 appendEntries RPC 处理的时间。</span><br>	<span class="hljs-keyword">defer</span> metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;rpc&quot;</span>, <span class="hljs-string">&quot;appendEntries&quot;</span>&#125;, time.Now())<br><br>	<span class="hljs-comment">// 初始化 AppendEntries 响应结构体。</span><br>	<span class="hljs-comment">// 默认设置为失败，并包含当前节点的Term和最后一个日志条目的索引。</span><br>	resp := &amp;AppendEntriesResponse&#123;<br>		RPCHeader:      r.getRPCHeader(),   <span class="hljs-comment">// 获取标准的RPC头部信息</span><br>		Term:           r.getCurrentTerm(), <span class="hljs-comment">// 响应中包含当前节点的Term</span><br>		LastLog:        r.getLastIndex(),   <span class="hljs-comment">// 响应中包含当前节点的最后一个日志索引</span><br>		Success:        <span class="hljs-literal">false</span>,              <span class="hljs-comment">// 初始设置为失败</span><br>		NoRetryBackoff: <span class="hljs-literal">false</span>,              <span class="hljs-comment">// 初始设置为允许重试退避</span><br>	&#125;<br>	<span class="hljs-keyword">var</span> rpcErr <span class="hljs-type">error</span> <span class="hljs-comment">// 用于存储处理过程中可能发生的错误</span><br><br>	<span class="hljs-comment">// 使用 defer 确保在函数退出前发送响应。</span><br>	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		rpc.Respond(resp, rpcErr)<br>	&#125;()<br><br>	<span class="hljs-comment">// 规则 1: 如果请求的Term小于当前节点的Term，则忽略该请求。</span><br>	<span class="hljs-comment">// Leader的Term比Follower旧，说明该Leader已失效。</span><br>	<span class="hljs-keyword">if</span> a.Term &lt; r.getCurrentTerm() &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-comment">// 直接返回，不处理旧Term的AppendEntries</span><br>	&#125;<br><br>	<span class="hljs-comment">// 规则 2: 如果请求的Term大于当前节点的Term，或者当前节点不是Follower且不是正在进行领导权转移的Candidate，则更新Term，并转换为Follower状态。</span><br>	<span class="hljs-comment">// 这是Raft的核心规则：看到更高的Term总是意味着过时，必须回退到Follower状态。</span><br>	<span class="hljs-keyword">if</span> a.Term &gt; r.getCurrentTerm() || (r.getState() != Follower &amp;&amp; !r.candidateFromLeadershipTransfer.Load()) &#123;<br>		r.setState(Follower)<br>		r.setCurrentTerm(a.Term)<br>		resp.Term = a.Term <span class="hljs-comment">// 更新响应中的Term为新的当前Term</span><br>	&#125;<br><br>	<span class="hljs-comment">// 记录Leader的地址和ID。</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(a.Addr) &gt; <span class="hljs-number">0</span> &#123;<br>		r.setLeader(r.trans.DecodePeer(a.Addr), ServerID(a.ID))<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		r.setLeader(r.trans.DecodePeer(a.Leader), ServerID(a.ID))<br>	&#125;<br><br>	<span class="hljs-comment">// 规则 3: 验证前一个日志条目的匹配性（Log Consistency Check）。</span><br>	<span class="hljs-comment">// Leader在AppendEntries请求中包含新条目紧前一个条目的索引(PrevLogEntry)和Term(PrevLogTerm)。</span><br>	<span class="hljs-comment">// Follower必须检查自己日志中对应索引的条目Term是否与Leader一致。</span><br>	<span class="hljs-keyword">if</span> a.PrevLogEntry &gt; <span class="hljs-number">0</span> &#123; <span class="hljs-comment">// PrevLogEntry == 0 表示这是第一个日志条目，不需要检查前一个</span><br>		lastIdx, lastTerm := r.getLastEntry() <span class="hljs-comment">// 获取当前节点的最后一个日志条目索引和Term</span><br><br>		<span class="hljs-keyword">var</span> prevLogTerm <span class="hljs-type">uint64</span> <span class="hljs-comment">// 用于存储当前节点 PrevLogEntry 索引处的日志条目的Term</span><br>		<span class="hljs-keyword">if</span> a.PrevLogEntry == lastIdx &#123;<br>			<span class="hljs-comment">// 如果 Leader 的 PrevLogEntry 恰好是当前节点的最后一个日志条目</span><br>			prevLogTerm = lastTerm <span class="hljs-comment">// 直接使用最后一个日志条目的Term</span><br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-comment">// 如果 Leader 的 PrevLogEntry 不是当前节点的最后一个日志条目，需要从日志存储中获取</span><br>			<span class="hljs-keyword">var</span> prevLog Log<br>			<span class="hljs-comment">// 尝试获取 PrevLogEntry 索引处的日志条目</span><br>			<span class="hljs-keyword">if</span> err := r.logs.GetLog(a.PrevLogEntry, &amp;prevLog); err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-comment">// 获取日志失败（例如：索引不存在、存储错误）</span><br>				r.logger.Warn(<span class="hljs-string">&quot;failed to get previous log&quot;</span>,<br>					<span class="hljs-string">&quot;previous-index&quot;</span>, a.PrevLogEntry, <span class="hljs-comment">// 记录 Leader 请求的前一个索引</span><br>					<span class="hljs-string">&quot;last-index&quot;</span>, lastIdx, <span class="hljs-comment">// 记录当前节点的最后一个索引</span><br>					<span class="hljs-string">&quot;error&quot;</span>, err) <span class="hljs-comment">// 记录错误信息</span><br>				<span class="hljs-comment">// 这种情况下，Leader应该回退并发送更早的日志，所以设置 NoRetryBackoff = true</span><br>				resp.NoRetryBackoff = <span class="hljs-literal">true</span><br>				<span class="hljs-keyword">return</span><br>			&#125;<br>			prevLogTerm = prevLog.Term <span class="hljs-comment">// 获取到日志条目，记录其Term</span><br>		&#125;<br><br>		<span class="hljs-comment">// 对比 Leader 的 PrevLogTerm 和当前节点 PrevLogEntry 索引处的日志条目的Term</span><br>		<span class="hljs-keyword">if</span> a.PrevLogTerm != prevLogTerm &#123;<br>			<span class="hljs-comment">// Term 不匹配，说明日志在 PrevLogEntry 处发生了分歧。</span><br>			r.logger.Warn(<span class="hljs-string">&quot;previous log term mis-match&quot;</span>,<br>				<span class="hljs-string">&quot;ours&quot;</span>, prevLogTerm, <span class="hljs-comment">// 记录当前节点的Term</span><br>				<span class="hljs-string">&quot;remote&quot;</span>, a.PrevLogTerm) <span class="hljs-comment">// 记录 Leader 发送的Term</span><br>			<span class="hljs-comment">// Term 不匹配时，Leader 需要回退并发送更早的日志，所以设置 NoRetryBackoff = true</span><br>			resp.NoRetryBackoff = <span class="hljs-literal">true</span><br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 规则 4: 处理新的日志条目。</span><br>	<span class="hljs-comment">// 如果请求中包含新的日志条目 (a.Entries)</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(a.Entries) &gt; <span class="hljs-number">0</span> &#123;<br>		start := time.Now() <span class="hljs-comment">// 记录开始处理日志条目的时间</span><br><br>		<span class="hljs-comment">// 删除任何冲突的条目，并跳过任何重复的条目。</span><br>		lastLogIdx, _ := r.getLastLog() <span class="hljs-comment">// 获取当前节点的最后一个日志索引 (可能与 getLastEntry 不同，取决于实现细节，这里用于比较)</span><br>		<span class="hljs-keyword">var</span> newEntries []*Log           <span class="hljs-comment">// 用于存放真正需要追加的新条目</span><br><br>		<span class="hljs-comment">// 遍历 Leader 发送的日志条目</span><br>		<span class="hljs-keyword">for</span> i, entry := <span class="hljs-keyword">range</span> a.Entries &#123;<br>			<span class="hljs-comment">// 如果当前 Leader 条目的索引大于当前节点的最后一个日志索引，</span><br>			<span class="hljs-comment">// 说明从这里开始的所有条目都是 Leader 新增的，可以直接追加。</span><br>			<span class="hljs-keyword">if</span> entry.Index &gt; lastLogIdx &#123;<br>				newEntries = a.Entries[i:] <span class="hljs-comment">// 将剩余的条目标记为需要追加的新条目</span><br>				<span class="hljs-keyword">break</span>                      <span class="hljs-comment">// 跳出循环，后续只处理 newEntries</span><br>			&#125;<br><br>			<span class="hljs-comment">// 如果 Leader 条目的索引不大于当前节点的最后一个日志索引，</span><br>			<span class="hljs-comment">// 说明当前节点可能已经有了这个索引的条目，需要检查是否冲突。</span><br>			<span class="hljs-keyword">var</span> storeEntry Log<br>			<span class="hljs-comment">// 尝试从存储中获取当前索引的日志条目</span><br>			<span class="hljs-keyword">if</span> err := r.logs.GetLog(entry.Index, &amp;storeEntry); err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-comment">// 获取日志失败 (这不应该发生，如果索引 &lt;= lastLogIdx 但获取失败，可能是存储问题或其他错误)</span><br>				r.logger.Warn(<span class="hljs-string">&quot;failed to get log entry&quot;</span>,<br>					<span class="hljs-string">&quot;index&quot;</span>, entry.Index, <span class="hljs-comment">// 记录尝试获取的索引</span><br>					<span class="hljs-string">&quot;error&quot;</span>, err) <span class="hljs-comment">// 记录错误信息</span><br>				<span class="hljs-keyword">return</span><br>			&#125;<br><br>			<span class="hljs-comment">// 对比 Leader 条目的Term和当前节点对应索引条目的Term</span><br>			<span class="hljs-keyword">if</span> entry.Term != storeEntry.Term &#123;<br>				<span class="hljs-comment">// 如果Term不匹配，说明从当前索引开始，日志发生了分歧。</span><br>				<span class="hljs-comment">// 规则：删除当前节点从该索引开始的所有后续条目。</span><br>				r.logger.Warn(<span class="hljs-string">&quot;clearing log suffix&quot;</span>, <span class="hljs-string">&quot;from&quot;</span>, entry.Index, <span class="hljs-string">&quot;to&quot;</span>, lastLogIdx)<br>				<span class="hljs-comment">// 删除从冲突索引到最后一个索引的日志范围</span><br>				<span class="hljs-keyword">if</span> err := r.logs.DeleteRange(entry.Index, lastLogIdx); err != <span class="hljs-literal">nil</span> &#123;<br>					<span class="hljs-comment">// 删除日志失败</span><br>					r.logger.Error(<span class="hljs-string">&quot;failed to clear log suffix&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>					<span class="hljs-keyword">return</span><br>				&#125;<br>				<span class="hljs-comment">// 如果被删除的范围包含最新的配置变更日志条目，需要回退最新的配置信息</span><br>				<span class="hljs-keyword">if</span> entry.Index &lt;= r.configurations.latestIndex &#123;<br>					<span class="hljs-comment">// 将最新的配置设置为已提交的配置，索引也回退到已提交的索引</span><br>					r.setLatestConfiguration(r.configurations.committed, r.configurations.committedIndex)<br>				&#125;<br>				<span class="hljs-comment">// 从当前冲突的条目开始，Leader 的所有条目都视为新的，需要追加。</span><br>				newEntries = a.Entries[i:]<br>				<span class="hljs-keyword">break</span> <span class="hljs-comment">// 跳出循环，后续只处理 newEntries</span><br>			&#125;<br>			<span class="hljs-comment">// 如果索引小于等于 lastLogIdx 且 Term 匹配，说明这个条目是重复的，已经被 Follower 拥有且一致。</span><br>			<span class="hljs-comment">// 继续循环检查下一个 Leader 条目。</span><br>		&#125;<br><br>		<span class="hljs-comment">// 如果有需要追加的新条目 (newEntries 列表不为空)</span><br>		<span class="hljs-keyword">if</span> n := <span class="hljs-built_in">len</span>(newEntries); n &gt; <span class="hljs-number">0</span> &#123;<br>			<span class="hljs-comment">// 将新条目追加到日志存储中。</span><br>			<span class="hljs-keyword">if</span> err := r.logs.StoreLogs(newEntries); err != <span class="hljs-literal">nil</span> &#123;<br>				r.logger.Error(<span class="hljs-string">&quot;failed to append to logs&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>				<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 如果上面发生了日志截断，而这里追加失败，r.getLastLog() 可能会处于错误的状态。</span><br>				<span class="hljs-keyword">return</span><br>			&#125;<br><br>			<span class="hljs-comment">// 处理任何新的配置变更日志条目。 需要在日志条目追加到存储后处理配置变更。</span><br>			<span class="hljs-keyword">for</span> _, newEntry := <span class="hljs-keyword">range</span> newEntries &#123;<br>				<span class="hljs-comment">// 对于每个新追加的条目，检查它是否是配置变更条目，并进行处理。</span><br>				<span class="hljs-keyword">if</span> err := r.processConfigurationLogEntry(newEntry); err != <span class="hljs-literal">nil</span> &#123;<br>					r.logger.Warn(<span class="hljs-string">&quot;failed to append entry&quot;</span>,<br>						<span class="hljs-string">&quot;index&quot;</span>, newEntry.Index, <span class="hljs-comment">// 记录处理失败的条目索引</span><br>						<span class="hljs-string">&quot;error&quot;</span>, err) <span class="hljs-comment">// 记录错误信息</span><br>					rpcErr = err <span class="hljs-comment">// 记录RPC错误</span><br>					<span class="hljs-keyword">return</span><br>				&#125;<br>			&#125;<br><br>			<span class="hljs-comment">// 更新当前节点的最后一个日志索引和Term，基于实际追加的最后一个条目。</span><br>			last := newEntries[n<span class="hljs-number">-1</span>]             <span class="hljs-comment">// 获取追加的最后一个条目</span><br>			r.setLastLog(last.Index, last.Term) <span class="hljs-comment">// 更新节点的 lastLog 状态</span><br>		&#125;<br><br>		<span class="hljs-comment">// 记录存储日志条目所花费的时间。</span><br>		metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;rpc&quot;</span>, <span class="hljs-string">&quot;appendEntries&quot;</span>, <span class="hljs-string">&quot;storeLogs&quot;</span>&#125;, start)<br>	&#125;<br><br>	<span class="hljs-comment">// 规则 5: 更新当前节点的提交索引 (Commit Index)。</span><br>	<span class="hljs-comment">// Leader 在 AppendEntries 请求中包含自己的提交索引 (LeaderCommitIndex)。</span><br>	<span class="hljs-comment">// Follower 必须将自己的提交索引更新为 min(Leader 的提交索引, 自己最后一个日志条目的索引)。</span><br>	<span class="hljs-keyword">if</span> a.LeaderCommitIndex &gt; <span class="hljs-number">0</span> &amp;&amp; a.LeaderCommitIndex &gt; r.getCommitIndex() &#123;<br>		start := time.Now() <span class="hljs-comment">// 记录开始处理提交的时间</span><br>		<span class="hljs-comment">// 计算新的提交索引：取 Leader 的提交索引和当前节点最后一个日志索引的最小值。</span><br>		idx := min(a.LeaderCommitIndex, r.getLastIndex())<br>		<span class="hljs-comment">// 更新当前节点的提交索引。</span><br>		r.setCommitIndex(idx)<br><br>		<span class="hljs-comment">// 如果最新的配置变更日志条目索引小于等于新的提交索引，则表示该配置变更已提交。</span><br>		<span class="hljs-keyword">if</span> r.configurations.latestIndex &lt;= idx &#123;<br>			<span class="hljs-comment">// 将最新的配置设置为已提交的配置，并更新已提交的索引。</span><br>			r.setCommittedConfiguration(r.configurations.latest, r.configurations.latestIndex)<br>		&#125;<br><br>		<span class="hljs-comment">// 将已提交的日志条目应用到状态机。</span><br>		<span class="hljs-comment">// 从旧的提交索引开始（或0）处理到新的提交索引 idx。</span><br>		r.processLogs(idx, <span class="hljs-literal">nil</span>) <span class="hljs-comment">// nil 表示应用到默认的状态机 (或这里没有特定的应用函数)</span><br><br>		<span class="hljs-comment">// 记录处理已提交日志所花费的时间。</span><br>		metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;rpc&quot;</span>, <span class="hljs-string">&quot;appendEntries&quot;</span>, <span class="hljs-string">&quot;processLogs&quot;</span>&#125;, start)<br>	&#125;<br><br>	<span class="hljs-comment">// 如果执行到这里没有返回错误或因为旧Term/日志不匹配而提前返回，说明 AppendEntries 成功。</span><br>	resp.Success = <span class="hljs-literal">true</span><br>	<span class="hljs-comment">// 记录最后一次与Leader成功通信的时间。这用于重置选举超时定时器。</span><br>	r.setLastContact()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id><a href="#" class="headerlink" title></a></h3><h5 id="处理-RequestVoteRequest-投票请求"><a href="#处理-RequestVoteRequest-投票请求" class="headerlink" title="处理 RequestVoteRequest 投票请求"></a>处理 RequestVoteRequest 投票请求</h5><p><code>requestVote</code> 函数处理来自其他 Raft 节点（候选者）的 RequestVote RPC 请求。其核心逻辑是根据 Raft 协议的选举规则决定是否授予投票。</p>
+<p>核心流程：</p>
+<ol>
+<li><p>前置检查：</p>
+<ul>
+<li>检查候选者是否在当前配置中（如果提供了 ID）。如果不在且配置不为空，拒绝投票。</li>
+<li>检查当前节点是否已知有其他领导者。如果已知且请求不是领导权转移，拒绝投票。</li>
+</ul>
+</li>
+<li><p>任期处理：</p>
+<ul>
+<li>如果请求的任期小于当前任期，忽略该请求（不授予投票）。</li>
+<li>如果请求的任期大于当前任期，更新当前节点的任期为请求任期，并转变为跟随者状态。更新响应中的任期。</li>
+</ul>
+</li>
+<li><p><strong>投票者检查：</strong> 检查候选者是否是当前配置中的投票者（如果提供了 ID）。如果不是投票者且配置不为空，拒绝投票。</p>
+</li>
+<li><p><strong>重复投票检查：</strong> 从持久化存储中获取上次投票的任期和候选者。如果在当前请求的任期内已经投过票，并且上次投票的候选者就是本次请求的候选者，则再次授予投票（处理幂等性）；否则（投给了其他候选者或任期不同），不授予投票。</p>
+</li>
+<li><p><strong>日志匹配检查</strong>：</p>
+<p>检查候选者的日志是否至少和本地日志一样新。</p>
+<ul>
+<li><strong>如果本地日志的最后任期大于候选者的，拒绝投票。</strong></li>
+<li><strong>如果本地日志的最后任期与候选者的相同，但本地日志的最后索引大于候选者的，拒绝投票。</strong></li>
+</ul>
+</li>
+<li><p><strong>授予投票</strong>：</p>
+<p>如果通过了所有前面的检查，表示可以授予投票。</p>
+<ul>
+<li><strong>关键步骤：</strong> 在授予投票 <em>之前</em>，将本次投票的任期和候选者 ID 持久化到稳定存储中，确保安全性。</li>
+<li>设置响应中的 <code>Granted</code> 字段为 true。</li>
+<li>更新本地的最后联系时间。</li>
+</ul>
+</li>
+<li><p><strong>返回：</strong> 函数结束，延迟函数发送包含投票结果的响应。</p>
+</li>
+</ol>
+<p>总的来说，<code>requestVote</code> 函数实现了 Raft 协议中跟随者（或其他状态节点）响应候选者投票请求的核心逻辑，包括任期处理、日志匹配检查、投票持久化以及处理配置变更和领导权转移等特殊情况。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><code class="hljs GO"><span class="hljs-comment">// requestVote 是当收到请求投票的 RPC 调用时被调用的函数。</span><br><span class="hljs-comment">// 该函数实现了 Raft 协议中处理投票请求的核心逻辑，包括检查候选人资格、更新状态、持久化投票信息等。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> requestVote(rpc RPC, req *RequestVoteRequest) &#123;<br>	<span class="hljs-comment">// 使用 defer 记录该函数的执行时间，用于性能监控</span><br>	<span class="hljs-keyword">defer</span> metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;rpc&quot;</span>, <span class="hljs-string">&quot;requestVote&quot;</span>&#125;, time.Now())<br>	<span class="hljs-comment">// 观察并记录请求，用于调试或监控</span><br>	r.observe(*req)<br><br>	<span class="hljs-comment">// 初始化投票响应结构体</span><br>	resp := &amp;RequestVoteResponse&#123;<br>		RPCHeader: r.getRPCHeader(), <span class="hljs-comment">// 设置 RPC 头部信息</span><br>		Term:      r.getCurrentTerm(), <span class="hljs-comment">// 设置当前节点的任期</span><br>		Granted:   <span class="hljs-literal">false</span>, <span class="hljs-comment">// 默认不授予投票</span><br>	&#125;<br>	<span class="hljs-keyword">var</span> rpcErr <span class="hljs-type">error</span> <span class="hljs-comment">// 用于存储 RPC 调用中的错误</span><br>	<span class="hljs-comment">// 使用 defer 确保在函数返回时发送响应（无论是否发生错误）</span><br>	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		rpc.Respond(resp, rpcErr)<br>	&#125;()<br><br>	<span class="hljs-comment">// 对于协议版本 &lt; 2 的老版本服务器，需要提供 peers 信息，否则会引发 panic。</span><br>	<span class="hljs-comment">// peers 信息仅用于生成警告信息。</span><br>	<span class="hljs-keyword">if</span> r.protocolVersion &lt; <span class="hljs-number">2</span> &#123;<br>		resp.Peers = encodePeers(r.configurations.latest, r.trans)<br>	&#125;<br><br>	<span class="hljs-comment">// 获取候选人的地址和 ID</span><br>	<span class="hljs-keyword">var</span> candidate ServerAddress<br>	<span class="hljs-keyword">var</span> candidateBytes []<span class="hljs-type">byte</span><br>    <br>	<span class="hljs-comment">// ........忽略非核心代码........</span><br><br>	<span class="hljs-comment">// 如果候选人的任期小于当前节点的任期，直接忽略请求</span><br>	<span class="hljs-keyword">if</span> req.Term &lt; r.getCurrentTerm() &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 如果候选人的任期大于当前节点的任期，则更新当前节点的任期，并转为 Follower 状态</span><br>	<span class="hljs-keyword">if</span> req.Term &gt; r.getCurrentTerm() &#123;<br>		<span class="hljs-comment">// 记录日志，说明因收到更高任期的投票请求而失去领导权</span><br>		r.logger.Debug(<span class="hljs-string">&quot;因收到更高任期的投票请求而失去领导权&quot;</span>)<br>		r.setState(Follower) <span class="hljs-comment">// 转为 Follower 状态</span><br>		r.setCurrentTerm(req.Term) <span class="hljs-comment">// 更新当前任期</span><br>		resp.Term = req.Term <span class="hljs-comment">// 更新响应中的任期</span><br>	&#125;<br><br>	<span class="hljs-comment">// 如果候选人是非投票节点（non-voter），且请求的任期高于当前任期，</span><br>	<span class="hljs-comment">// 则当前节点需要退化为 Follower 并更新任期，但拒绝投票请求。</span><br>	<span class="hljs-comment">// 这是为了在某些场景下（如节点从 voter 转为 non-voter）允许集群继续运行。</span><br>	<span class="hljs-comment">// 更多细节可参考 https://github.com/hashicorp/raft/pull/526</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(req.ID) &gt; <span class="hljs-number">0</span> &#123;<br>		candidateID := ServerID(req.ID)<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(r.configurations.latest.Servers) &gt; <span class="hljs-number">0</span> &amp;&amp; !hasVote(r.configurations.latest, candidateID) &#123;<br>			r.logger.Warn(<span class="hljs-string">&quot;拒绝投票请求，因为候选人是非投票节点&quot;</span>, <span class="hljs-string">&quot;from&quot;</span>, candidate)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 检查当前节点在本任期内是否已经投过票</span><br>	<span class="hljs-comment">// 从稳定存储中获取上一次投票的任期和候选人信息</span><br>	lastVoteTerm, err := r.stable.GetUint64(keyLastVoteTerm)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &amp;&amp; err.Error() != <span class="hljs-string">&quot;not found&quot;</span> &#123;<br>		r.logger.Error(<span class="hljs-string">&quot;获取上一次投票任期失败&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	lastVoteCandBytes, err := r.stable.Get(keyLastVoteCand)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &amp;&amp; err.Error() != <span class="hljs-string">&quot;not found&quot;</span> &#123;<br>		r.logger.Error(<span class="hljs-string">&quot;获取上一次投票候选人失败&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 如果在本任期内已经投过票，检查是否为同一候选人</span><br>	<span class="hljs-keyword">if</span> lastVoteTerm == req.Term &amp;&amp; lastVoteCandBytes != <span class="hljs-literal">nil</span> &#123;<br>		r.logger.Info(<span class="hljs-string">&quot;收到相同任期的重复投票请求&quot;</span>, <span class="hljs-string">&quot;term&quot;</span>, req.Term)<br>		<span class="hljs-comment">// 如果是同一候选人，则重复授予投票</span><br>		<span class="hljs-keyword">if</span> bytes.Equal(lastVoteCandBytes, candidateBytes) &#123;<br>			r.logger.Warn(<span class="hljs-string">&quot;收到重复的投票请求&quot;</span>, <span class="hljs-string">&quot;candidate&quot;</span>, candidate)<br>			resp.Granted = <span class="hljs-literal">true</span><br>		&#125;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 检查候选人的日志是否足够新</span><br>	<span class="hljs-comment">// 如果当前节点的最后日志条目的任期大于候选人的最后日志任期，则拒绝投票</span><br>	lastIdx, lastTerm := r.getLastEntry()<br>	<span class="hljs-keyword">if</span> lastTerm &gt; req.LastLogTerm &#123;<br>		r.logger.Warn(<span class="hljs-string">&quot;拒绝投票请求，因为本节点的最后日志任期更大&quot;</span>,<br>			<span class="hljs-string">&quot;candidate&quot;</span>, candidate,<br>			<span class="hljs-string">&quot;last-term&quot;</span>, lastTerm,<br>			<span class="hljs-string">&quot;last-candidate-term&quot;</span>, req.LastLogTerm)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 如果日志任期相同，但当前节点的最后日志索引大于候选人的最后日志索引，则拒绝投票</span><br>	<span class="hljs-keyword">if</span> lastTerm == req.LastLogTerm &amp;&amp; lastIdx &gt; req.LastLogIndex &#123;<br>		r.logger.Warn(<span class="hljs-string">&quot;拒绝投票请求，因为本节点的最后日志索引更大&quot;</span>,<br>			<span class="hljs-string">&quot;candidate&quot;</span>, candidate,<br>			<span class="hljs-string">&quot;last-index&quot;</span>, lastIdx,<br>			<span class="hljs-string">&quot;last-candidate-index&quot;</span>, req.LastLogIndex)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 如果所有检查都通过，则持久化投票信息以确保安全性</span><br>	<span class="hljs-keyword">if</span> err := r.persistVote(req.Term, candidateBytes); err != <span class="hljs-literal">nil</span> &#123;<br>		r.logger.Error(<span class="hljs-string">&quot;持久化投票信息失败&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 授予投票</span><br>	resp.Granted = <span class="hljs-literal">true</span><br>	<span class="hljs-comment">// 更新最后一次联系时间（用于检测领导者是否存活）</span><br>	r.setLastContact()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-2-candidate-候选者运行逻辑"><a href="#1-2-candidate-候选者运行逻辑" class="headerlink" title="1.2 candidate 候选者运行逻辑"></a>1.2 candidate 候选者运行逻辑</h3><p>主要流程步骤：</p>
+<ol>
+<li><strong>任期更新与初始化：</strong><ul>
+<li>节点将当前任期（Term）加一，进入新的任期进行选举。</li>
+<li>记录日志和更新监控指标，表明进入 Candidate 状态。</li>
+<li>计算赢得选举所需的多数派票数 (<code>votesNeeded</code>)。</li>
+</ul>
+</li>
+<li><strong>选举阶段选择（预投票 vs. 正式投票）：</strong><ul>
+<li>根据配置 (<code>preVoteDisabled</code>) 和是否为领导权转移 (<code>candidateFromLeadershipTransfer</code>) 决定是先进行 <strong>预投票 (Pre-Vote)</strong> 还是直接进行 **正式投票 (RequestVote)**。</li>
+<li>如果启用预投票且非领导权转移，调用 <code>preElectSelf()</code> 发起预投票 RPC，监听 <code>prevoteCh</code>。预投票不会改变任期，用于试探是否能获得多数支持。</li>
+<li>否则，调用 <code>electSelf()</code> 发起正式投票 RPC，监听 <code>voteCh</code>。正式投票会携带新的任期号。</li>
+</ul>
+</li>
+<li><strong>设置选举超时：</strong><ul>
+<li>设置一个随机化的选举超时定时器 (<code>electionTimer</code>)，防止多个 Candidate 同时超时并竞选，减少冲突。</li>
+</ul>
+</li>
+<li><strong>主循环与事件处理：</strong><ul>
+<li>进入一个循环，持续监听各种事件，直到节点状态不再是 Candidate。</li>
+<li>使用 select语句同时监听：<ul>
+<li>Incoming RPCs (<code>r.rpcCh</code>)： 处理来自其他节点的 RPC 请求（如 AppendEntries、RequestVote 等）。如果收到带有更高任期的 RPC，节点会立即转为 Follower 并更新任期，退出 Candidate 状态。</li>
+<li>预投票结果 (<code>prevoteCh</code>)：<ul>
+<li>如果收到带有更高任期的预投票响应，转为 Follower 并更新任期，退出 Candidate 状态。</li>
+<li>统计收到的预投票赞成&#x2F;反对票数。</li>
+<li>如果获得多数派预投票赞成，认为预投票成功，关闭预投票监听<strong>，</strong>发起正式投票 (<code>electSelf()</code>)，重置选举定时器，开始等待正式投票结果。</li>
+<li>如果被多数派预投票拒绝，预投票活动失败，继续等待当前的选举超时。</li>
+</ul>
+</li>
+<li>正式投票结果 (<code>voteCh</code>)：<ul>
+<li>如果收到带有更高任期的投票响应，转为 Follower 并更新任期，退出 Candidate 状态。</li>
+<li>统计收到的正式投票赞成票数。</li>
+<li>遍历配置中的 server 集合, 过滤出状态为 Voter 的 server, 最后通过 <code>n/2 + 1</code> 公式计算出法定投票数, 简单说就是绝大多数的节点数量.<strong>如果获得多数派正式投票赞成</strong>，<strong>赢得选举</strong>，转为 <strong>Leader</strong> 状态，设置自己为 Leader，退出 Candidate 状态。</li>
+</ul>
+</li>
+<li>配置变更请求 (<code>r.configurationChangeCh</code>)： 由于 Candidate 不是 Leader，拒绝此类请求并返回错误。</li>
+<li>选举超时 (<code>electionTimer</code>)：如果在超时时间内未能赢得选举（无论是在预投票阶段等待，还是在正式投票阶段等待），则认为本次选举失败，函数 <code>return</code>。由于外部调用 <code>runCandidate</code> 的逻辑通常在一个无限循环中，这将导致节点在新的任期中<strong>重新开始</strong>竞选过程。</li>
+<li>节点关闭 (<code>r.shutdownCh</code>)： 收到关闭信号，退出循环和函数。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>退出处理：</strong><ul>
+<li>无论通过哪种方式退出 <code>runCandidate</code> 函数（成为 Follower、成为 Leader、shutdown、选举超时），都会执行 <code>defer</code> 中设置的逻辑，将 <code>candidateFromLeadershipTransfer</code> 标志重置为 false，防止其影响后续的选举行为。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 在 Raft 算法中，当 Follower 心跳超时且满足选举条件时，会进入 Candidate 状态，尝试成为 Leader。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> runCandidate() &#123;<br>    <span class="hljs-comment">// 1. 更新当前任期（Term），Candidate 总是在新的任期中发起选举</span><br>    term := r.getCurrentTerm() + <span class="hljs-number">1</span><br><br>    <span class="hljs-comment">// 记录日志：节点进入 Candidate 状态，并附带当前节点信息和任期号</span><br>    r.logger.Info(<span class="hljs-string">&quot;entering candidate state&quot;</span>, <span class="hljs-string">&quot;node&quot;</span>, r, <span class="hljs-string">&quot;term&quot;</span>, term)<br><br>    <span class="hljs-comment">// 增加监控指标：记录节点进入 Candidate 状态的次数</span><br>    metrics.IncrCounter([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;state&quot;</span>, <span class="hljs-string">&quot;candidate&quot;</span>&#125;, <span class="hljs-number">1</span>)<br><br>    <span class="hljs-comment">// 2. 发起选举前的准备：决定是先进行预投票（Pre-Vote）还是直接正式投票（RequestVote）</span><br>    <span class="hljs-keyword">var</span> voteCh &lt;-<span class="hljs-keyword">chan</span> *voteResult       <span class="hljs-comment">// 正式投票结果通道</span><br>    <span class="hljs-keyword">var</span> prevoteCh &lt;-<span class="hljs-keyword">chan</span> *preVoteResult <span class="hljs-comment">// 预投票结果通道</span><br><br>    <span class="hljs-comment">// 检查是否启用预投票机制（pre-vote），并且当前 Candidate 状态不是由领导权转移（Leadership Transfer）触发的</span><br>    <span class="hljs-comment">// 领导权转移场景下，Raft 协议规定跳过预投票，直接请求投票（避免额外的延迟）</span><br>    <span class="hljs-keyword">if</span> !r.preVoteDisabled &amp;&amp; !r.candidateFromLeadershipTransfer.Load() &#123;<br>       <span class="hljs-comment">// 发起预投票（Pre-Vote）：询问其他节点是否同意在新任期中投票给自己</span><br>       <span class="hljs-comment">// 预投票不会真正增加任期号，只是试探能不能赢得选举，避免无效的 Term 增长</span><br>       prevoteCh = r.preElectSelf()<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>       <span class="hljs-comment">// 直接发起正式投票（RequestVote）：向其他节点请求在新任期中投票</span><br>       voteCh = r.electSelf()<br>    &#125;<br><br>    <span class="hljs-comment">// 3. 确保领导权转移标志（candidateFromLeadershipTransfer）在函数退出时重置</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; r.candidateFromLeadershipTransfer.Store(<span class="hljs-literal">false</span>) &#125;()<br><br>    <span class="hljs-comment">// 4. 设置选举超时时间（ElectionTimeout），随机化防止多个 Candidate 同时发起选举</span><br>    electionTimeout := r.config().ElectionTimeout<br>    electionTimer := randomTimeout(electionTimeout)<br><br>    <span class="hljs-comment">// 5. 初始化投票计数器</span><br>    preVoteGrantedVotes := <span class="hljs-number">0</span>      <span class="hljs-comment">// 预投票中获得的赞同票数</span><br>    preVoteRefusedVotes := <span class="hljs-number">0</span>      <span class="hljs-comment">// 预投票中获得的反对票数</span><br>    grantedVotes := <span class="hljs-number">0</span>             <span class="hljs-comment">// 正式投票中获得的赞同票数</span><br>    votesNeeded := r.quorumSize() <span class="hljs-comment">// 计算当选所需的最小票数（多数派，N/2 + 1）</span><br><br>    <span class="hljs-comment">// 打印调试日志：显示当前任期需要的最少票数</span><br>    r.logger.Debug(<span class="hljs-string">&quot;calculated votes needed&quot;</span>, <span class="hljs-string">&quot;needed&quot;</span>, votesNeeded, <span class="hljs-string">&quot;term&quot;</span>, term)<br><br>    <span class="hljs-comment">// 6. 主循环：持续处理事件，直到状态不再是 Candidate</span><br>    <span class="hljs-keyword">for</span> r.getState() == Candidate &#123;<br>       <span class="hljs-comment">// 标记主线程当前处于休眠（等待事件）状态，用于监控线程忙碌程度</span><br>       r.mainThreadSaturation.sleeping()<br><br>       <span class="hljs-comment">// 通过 select 监听多个通道，处理不同事件</span><br>       <span class="hljs-keyword">select</span> &#123;<br>       <span class="hljs-comment">// 7.1 处理来自其他节点的 RPC 请求（可能是投票响应、日志复制、心跳等）</span><br>       <span class="hljs-keyword">case</span> rpc := &lt;-r.rpcCh:<br>          r.mainThreadSaturation.working() <span class="hljs-comment">// 标记线程从休眠中醒来，开始工作</span><br>          r.processRPC(rpc)                <span class="hljs-comment">// 处理 RPC 请求（如 AppendEntries、RequestVote 等）</span><br><br>       <span class="hljs-comment">// 7.2 处理预投票（Pre-Vote）结果监听 prevoteCh 通道，处理预投票结果。</span><br>       <span class="hljs-comment">//   如果预投票返回的任期高于当前任期，说明有更新的 Leader，节点退回 Follower 状态并更新任期。</span><br>       <span class="hljs-comment">//   统计预投票的赞同票和反对票：</span><br>       <span class="hljs-comment">//   如果赞同票达到多数派（preVoteGrantedVotes &gt;= votesNeeded），预投票成功，进入正式投票阶段（发起 electSelf）。</span><br>       <span class="hljs-comment">//   如果反对票达到多数派（preVoteRefusedVotes &gt;= votesNeeded），预投票失败，等待选举超时后重试。</span><br>       <span class="hljs-keyword">case</span> preVote := &lt;-prevoteCh:<br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br><br>       <span class="hljs-comment">// 7.3 处理正式投票（RequestVote）结果</span><br>       <span class="hljs-keyword">case</span> vote := &lt;-voteCh:<br>          r.mainThreadSaturation.working()<br>          <span class="hljs-comment">// 7.3.1 如果对方返回更高的任期，说明已有新 Leader，Candidate 放弃竞选，退回 Follower</span><br>          <span class="hljs-keyword">if</span> vote.Term &gt; r.getCurrentTerm() &#123;<br>             r.logger.Debug(<span class="hljs-string">&quot;newer term discovered, fallback to follower&quot;</span>, <span class="hljs-string">&quot;term&quot;</span>, vote.Term)<br>             r.setState(Follower)<br>             r.setCurrentTerm(vote.Term)<br>             <span class="hljs-keyword">return</span><br>          &#125;<br><br>          <span class="hljs-comment">// 7.3.2 统计正式投票结果</span><br>          <span class="hljs-keyword">if</span> vote.Granted &#123;<br>             grantedVotes++ <span class="hljs-comment">// 赞成票 +1</span><br>             r.logger.Debug(<span class="hljs-string">&quot;vote granted&quot;</span>, <span class="hljs-string">&quot;from&quot;</span>, vote.voterID, <span class="hljs-string">&quot;term&quot;</span>, vote.Term, <span class="hljs-string">&quot;tally&quot;</span>, grantedVotes)<br>          &#125;<br><br>          <span class="hljs-comment">// 7.3.3 检查是否赢得选举（获得多数派投票）</span><br>          <span class="hljs-keyword">if</span> grantedVotes &gt;= votesNeeded &#123;<br>             <span class="hljs-comment">// 赢得选举！成为 Leader</span><br>             r.logger.Info(<span class="hljs-string">&quot;election won&quot;</span>, <span class="hljs-string">&quot;term&quot;</span>, vote.Term, <span class="hljs-string">&quot;tally&quot;</span>, grantedVotes)<br>             r.setState(Leader)                  <span class="hljs-comment">// 状态切换为 Leader</span><br>             r.setLeader(r.localAddr, r.localID) <span class="hljs-comment">// 设置自己为 Leader</span><br>             <span class="hljs-keyword">return</span>                              <span class="hljs-comment">// 退出 Candidate 循环，进入 Leader 逻辑</span><br>          &#125;<br><br>       <span class="hljs-comment">// 7.4 以下 case 都是拒绝非 Leader 请求，因为 Candidate 还不是 Leader</span><br>       <span class="hljs-keyword">case</span> c := &lt;-r.configurationChangeCh: <span class="hljs-comment">// 集群配置变更请求</span><br>          r.mainThreadSaturation.working()<br>          c.respond(ErrNotLeader) <span class="hljs-comment">// 返回错误：当前不是 Leader</span><br>          <span class="hljs-comment">// .....忽略非核心代码......</span><br><br><br>       <span class="hljs-keyword">case</span> &lt;-electionTimer:<br>           <span class="hljs-comment">// 选举超时</span><br>          r.mainThreadSaturation.working()<br>          <span class="hljs-comment">// Election failed! Restart the election. We simply return,</span><br>          <span class="hljs-comment">// which will kick us back into runCandidate</span><br>          r.logger.Warn(<span class="hljs-string">&quot;Election timeout reached, restarting election&quot;</span>)<br>          <span class="hljs-keyword">return</span><br><br>       <span class="hljs-keyword">case</span> &lt;-r.shutdownCh:<br>          <span class="hljs-keyword">return</span><br>       &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-3-leader-领导者运行逻辑"><a href="#1-3-leader-领导者运行逻辑" class="headerlink" title="1.3 leader 领导者运行逻辑"></a>1.3 leader 领导者运行逻辑</h3><p><code>runLeader</code> 为 leader 领导者的核心处理方法. 进入该函数说明当前节点为 leader.</p>
+<ol>
+<li><strong><code>startStopReplication</code> 启动各个 follower 的 replication, 开启心跳 heartbeat 和同步 replicate 协程.</strong></li>
+<li>构建一个 LogNoop 空日志, 然后通过 <code>dispatchLogs</code> 方法发给所有的 follower 副本. 这里的空日志用来向 follower 通知确认 leader, 并获取各 follower 的一些日志元信息.</li>
+<li><code>leaderLoop</code> 为 leader 的主调度循环.<strong>响应 Follower 的复制进度、处理新的客户端请求、复制日志、管理集群配置变更、处理领导权转移、定期验证自身的 Leader 身份，并在需要时触发降级。</strong></li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// runLeader 运行 Raft 节点处于 Leader（领导者）状态时的主逻辑。</span><br><span class="hljs-comment">// 它首先进行 Leader 状态的初始化设置，然后进入 leaderLoop 循环，持续处理集群管理工作。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> runLeader() &#123;<br>   <span class="hljs-comment">// 1. 日志记录：节点进入 Leader 状态，并附带当前 Leader 实例信息</span><br>    r.logger.Info(<span class="hljs-string">&quot;entering leader state&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>, r)<br>	<span class="hljs-comment">// 2. 增加监控指标：统计进入 Leader 状态的次数</span><br>    metrics.IncrCounter([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;state&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>&#125;, <span class="hljs-number">1</span>)<br><br>    <span class="hljs-comment">// 3. 通知外部监听者：当前节点已成为 Leader</span><br>    <span class="hljs-comment">// 通过 leaderCh 管道通知状态变更，overrideNotifyBool 会确保只有 true 值能被推送（防止重复通知）</span><br>    overrideNotifyBool(r.leaderCh, <span class="hljs-literal">true</span>)<br><br>    <span class="hljs-comment">// 4. 获取配置中的通知通道（NotifyCh），用于向外部应用发送 Leader 变化通知</span><br>    <span class="hljs-comment">// 这个 NotifyCh 是由用户创建并传入 Raft 配置的，用于监听 Leader 切换事件</span><br>    notify := r.config().NotifyCh<br><br>    <span class="hljs-comment">// 5. 如果配置了 NotifyCh，立即推送 Leader=true 信号</span><br>    <span class="hljs-keyword">if</span> notify != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-keyword">select</span> &#123;<br>            <span class="hljs-keyword">case</span> notify &lt;- <span class="hljs-literal">true</span>: <span class="hljs-comment">// 尝试推送通知</span><br>            <span class="hljs-keyword">case</span> &lt;-r.shutdownCh: <span class="hljs-comment">// 如果收到关闭信号，确保推送通知（但不阻塞）</span><br>                    <span class="hljs-keyword">select</span> &#123;<br>                    <span class="hljs-keyword">case</span> notify &lt;- <span class="hljs-literal">true</span>: <span class="hljs-comment">// 再次尝试推送</span><br>                    <span class="hljs-keyword">default</span>: <span class="hljs-comment">// 无法推送时忽略（防止阻塞 shutdown）</span><br>                    &#125;<br>            &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// 6. 初始化 Leader 状态结构体（leaderState），包含：</span><br>    <span class="hljs-comment">//   - commitCh：用于通知日志提交事件</span><br>    <span class="hljs-comment">//   - inflight：待提交的日志队列</span><br>    <span class="hljs-comment">//   - replState：每个 Follower 的复制状态机</span><br>    <span class="hljs-comment">//   - notify：待验证请求的回调队列</span><br>    r.setupLeaderState()<br><br>    <span class="hljs-comment">// 7. 启动后台协程，定期汇报日志存储的年龄（最老日志的时间戳），用于监控日志堆积情况</span><br>    stopCh := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;)<br>    <span class="hljs-keyword">go</span> emitLogStoreMetrics(r.logs, []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>&#125;, oldestLogGaugeInterval, stopCh)<br><br>    <span class="hljs-comment">// 8. 定义 defer 清理逻辑，当 Leader 降级（step down）时执行，停止相关任务，通知降级</span><br>    <span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>           <br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br>    &#125;()<br><br>    <span class="hljs-comment">// 9. 启动日志复制机制：启动各个 follower 的 replication, 开启心跳 heartbeat 和同步 replicate 协程.</span><br>    <span class="hljs-comment">// 这些协程会定期向 Follower 发送 AppendEntries RPC，保持日志同步</span><br>    r.startStopReplication()<br><br>    <span class="hljs-comment">// 10. 构建一个 LogNoop 空日志, 然后通过 dispatchLogs 方法发给所有的 follower 副本. 这里的空日志用来向 follower 通知确认 leader, 并获取各 follower 的一些日志元信息.</span><br>    noop := &amp;logFuture&#123;log: Log&#123;Type: LogNoop&#125;&#125; <span class="hljs-comment">// 构造空日志条目</span><br>    r.dispatchLogs([]*logFuture&#123;noop&#125;)           <span class="hljs-comment">// 分发日志，触发复制流程</span><br><br>    <span class="hljs-comment">// 11. 进入 Leader 主循环（leaderLoop）：持续处理日志复制、心跳、成员管理等核心逻辑</span><br>    <span class="hljs-comment">// 直到因选举超时、收到更高 Term RPC 等原因降级（step down）</span><br>    r.leaderLoop()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="startStopReplication"><a href="#startStopReplication" class="headerlink" title="startStopReplication"></a>startStopReplication</h4><p>启动日志复制机制：启动各个 follower 的 replication, 开启心跳 heartbeat 和同步日志.</p>
+<p>为什么需要 leader 给 follower 发送心跳 ? raft 论文里有说明, 当 follower 在一段时间内收不到 leader 的心跳请求时, 则判定 leader 有异常, 切换到 candidate 进行选举 election.</p>
+<p>关于replicate 如何进行日志复制，将在下一篇文章介绍</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> startStopReplication() &#123;<br>	<span class="hljs-keyword">for</span> _, server := <span class="hljs-keyword">range</span> r.configurations.latest.Servers &#123;<br>		<span class="hljs-comment">// server 为本实例无需启动 replication 复制副本.</span><br>		<span class="hljs-keyword">if</span> server.ID == r.localID &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		s, ok := r.leaderState.replState[server.ID]<br>		<span class="hljs-keyword">if</span> !ok &#123;<br>			s = &amp;followerReplication&#123;<br>				...<br>			&#125;<br><br>			r.leaderState.replState[server.ID] = s<br><br>			<span class="hljs-comment">// 启动 replication 复制副本</span><br>			r.goFunc(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; r.replicate(s) &#125;)<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> replicate(s *followerReplication) &#123;<br>	...<br><br>	<span class="hljs-comment">// 启动一个 heartbeat 心跳协程</span><br>	r.goFunc(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; r.heartbeat(s, stopHeartbeat) &#125;)<br>	...<br>	...<br>&#125;<br><span class="hljs-comment">// replicate 是一个长期运行的 goroutine，负责心跳机制和将日志条目（log entries）复制到 单个 follower 节点。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> replicate(s *followerReplication) &#123;<br>	<span class="hljs-comment">// 步骤 1：启动异步心跳线程</span><br>	<span class="hljs-comment">// 创建一个停止信号通道，用于终止心跳 goroutine</span><br>	stopHeartbeat := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;)<br>	<span class="hljs-comment">// 函数结束时关闭该通道，确保心跳 goroutine 退出</span><br>	<span class="hljs-keyword">defer</span> <span class="hljs-built_in">close</span>(stopHeartbeat)<br><br>	<span class="hljs-comment">// 启动一个 heartbeat 心跳协程</span><br>	<span class="hljs-comment">// 心跳用于维持 Leader 身份、避免选举超时，但不携带日志数据</span><br>	r.goFunc(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-comment">// 调用 r.heartbeat 函数，定期发送 AppendEntries RPC（空日志）</span><br>		r.heartbeat(s, stopHeartbeat)<br>	&#125;)<br><br>	<span class="hljs-comment">// RPC 模式（标准复制模式）</span><br>	<span class="hljs-comment">// 在此模式下，Leader 逐条确认（Stop-and-Wait） follower 的日志复制结果</span><br>RPC:<br>	<span class="hljs-comment">// 控制变量：标记是否应该停止复制循环</span><br>	shouldStop := <span class="hljs-literal">false</span><br>	<span class="hljs-keyword">for</span> !shouldStop &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br>            <br>		<span class="hljs-comment">// 情况 3：收到主动触发信号（立即同步日志）</span><br>		<span class="hljs-keyword">case</span> &lt;-s.triggerCh:<br>			<span class="hljs-comment">// 获取最新日志索引</span><br>			lastLogIdx, _ := r.getLastLog()<br>			<span class="hljs-comment">// 调用 replicateTo 同步日志到最新位置</span><br>			shouldStop = r.replicateTo(s, lastLogIdx)<br><br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br><br>		<span class="hljs-comment">// 性能优化判断：是否切换到 Pipeline 模式？</span><br>		<span class="hljs-comment">// 1. 当前复制 未出错（!shouldStop）</span><br>		<span class="hljs-comment">// 2. 允许 Pipeline 模式（s.allowPipeline=true）</span><br>		<span class="hljs-keyword">if</span> !shouldStop &amp;&amp; s.allowPipeline &#123;<br>			<span class="hljs-comment">// 跳转到 PIPELINE 标签处，进入流式复制逻辑</span><br>			<span class="hljs-keyword">goto</span> PIPELINE<br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">// 如果循环退出（shouldStop=true），直接结束 replicate 函数</span><br>	<span class="hljs-keyword">return</span><br><br>	<span class="hljs-comment">// PIPELINE 模式（流式复制，高性能）</span><br>	<span class="hljs-comment">// 在此模式下，Leader 连续发送日志、不等待确认（类似 TCP 滑动窗口）</span><br>PIPELINE:<br><br>	s.allowPipeline = <span class="hljs-literal">false</span><br><br>	<span class="hljs-comment">// 进入 pipelineReplicate 函数：</span><br>	<span class="hljs-comment">// 它会：</span><br>	<span class="hljs-comment">// 1. 持续发送 AppendEntries RPC **不等待响应**</span><br>	<span class="hljs-comment">// 2. 通过 TCP 连接批量流式发送日志，提高吞吐量</span><br>	<span class="hljs-comment">// 注意：此模式 **无法优雅处理错误**，一旦出错就回退到 RPC 模式</span><br>	<span class="hljs-keyword">if</span> err := r.pipelineReplicate(s); err != <span class="hljs-literal">nil</span> &#123;<br>      <span class="hljs-comment">// .....忽略非核心代码......</span><br>	&#125;<br><br>	<span class="hljs-comment">// 无论成功与否，Pipeline 失败后都回到 RPC 模式</span><br>	<span class="hljs-comment">// 即：重新启用逐条确认机制，确保健壮性</span><br>	<span class="hljs-keyword">goto</span> RPC<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="leaderLoop"><a href="#leaderLoop" class="headerlink" title="leaderLoop"></a><strong>leaderLoop</strong></h4><p><code>leaderLoop</code> 是 Leader 状态下的大脑，它不断监听和处理各种事件，核心职责包括：<strong>响应 Follower 的复制进度、处理新的客户端请求、复制日志、管理集群配置变更、处理领导权转移、定期验证自身的 Leader 身份，并在需要时触发降级。</strong></p>
+<ol>
+<li><p><strong>初始化:</strong></p>
+<ul>
+<li>设置一个 <code>stepDown</code> 标志，用于标记 Leader 是否因配置变更（尤其是移除自身）等原因需要降级。</li>
+<li>初始化 Leader Lease（租约）计时器，用于定期验证 Leader 身份。</li>
+</ul>
+</li>
+<li><p><strong>进入主循环:</strong></p>
+<ul>
+<li>节点进入一个无限循环，只要其状态保持为 <code>Leader</code> 就会持续运行。</li>
+</ul>
+</li>
+<li><p><strong>事件驱动处理:</strong> 在循环中，通过 <code>select</code> 语句监听多个通道，处理来自外部或内部的各种事件：</p>
+<ul>
+<li><p>接收 RPC 请求 (<code>rpcCh</code>):</p>
+<p>处理来自其他节点的 RPC，包括：</p>
+<ul>
+<li>Follower 对 Leader 发送的 AppendEntries RPC 的响应（确认日志复制进度）。</li>
+<li>来自其他节点的 RequestVote RPC（如果发现更高任期，Leader 会立即降级为 Follower）。</li>
+<li>其他可能的 RPC。</li>
+</ul>
+</li>
+<li><p>内部降级信号 (<code>leaderState.stepDown</code>): 收到信号后，Leader 立即转为 Follower 状态，并退出循环。</p>
+</li>
+<li><p>领导权转移请求 (<code>leadershipTransferCh</code>):</p>
+<ul>
+<li>处理手动触发的领导权转移请求。</li>
+<li>检查是否已有转移正在进行。</li>
+<li>选择或确认目标 Follower。</li>
+<li>启动一个后台协程来执行转移逻辑（通常涉及等待日志同步并向目标 Follower 发送 TimeoutNow RPC）。</li>
+<li>设置标志防止并行转移，并处理超时或 Leader 自身降级的情况。</li>
+</ul>
+</li>
+<li><p>日志提交通知 (<code>leaderState.commitCh</code>):</p>
+<ul>
+<li>当有日志条目被多数节点复制成功（达到可提交状态）时收到此通知。</li>
+<li>更新 Leader 的 <code>commitIndex</code>（已提交日志的最大索引）。</li>
+<li>检查是否有新的配置变更日志被提交，如果 Leader 自己被移除，则设置 <code>stepDown</code> 标志。</li>
+<li>从待提交队列 (<code>inflight</code>) 中找出所有已落后于 <code>commitIndex</code> 的日志。</li>
+<li><strong>批量应用日志:</strong> 将这些已提交的日志批量应用到状态机 (FSM - State Machine)，处理其副作用（如配置变更执行）。</li>
+<li>清理已应用的日志。</li>
+<li>如果 <code>stepDown</code> 标志被设置，根据配置选择关闭节点或降级为 Follower。</li>
+</ul>
+</li>
+<li><p>Leader 验证请求 (<code>verifyCh</code>):</p>
+<ul>
+<li>这是 Leader Lease 机制的一部分。Leader 定期向 Follower 发送验证请求。</li>
+<li>处理来自验证请求的响应。如果未能获得多数节点的确认，说明可能已有新的 Leader 出现，当前 Leader 降级为 Follower。</li>
+</ul>
+</li>
+<li><p><strong>用户快照恢复请求 (<code>userRestoreCh</code>):</strong> 处理从用户提供的快照恢复状态的请求。</p>
+</li>
+<li><p><strong>获取配置请求 (<code>configurationsCh</code>):</strong> 处理客户端获取当前集群配置的请求。</p>
+</li>
+<li><p>配置变更请求 (<code>configurationChangeChIfStable()</code>):</p>
+<ul>
+<li>处理添加或移除节点等集群配置变更请求。</li>
+<li>将配置变更作为特殊的日志条目追加到 Raft 日志中，并像普通日志一样复制和提交。</li>
+</ul>
+</li>
+<li><p><strong>引导请求 (<code>bootstrapCh</code>):</strong> 拒绝运行时的引导请求，因为 Raft 只在初始状态允许引导。</p>
+</li>
+<li><p>新日志条目请求 (<code>applyCh</code>):</p>
+<ul>
+<li>处理来自客户端的新的命令或数据请求。</li>
+<li><strong>批量提交优化:</strong> 尝试从通道中一次性读取多个待处理的客户端请求，进行批量处理。</li>
+<li>如果 <code>stepDown</code> 标志已设置，拒绝新的日志请求。</li>
+<li>将这些新的请求封装成日志条目，追加到 Leader 的日志中。</li>
+<li><strong>分发日志:</strong> 将这些新日志条目分发（通过 AppendEntries RPC）给所有 Follower，驱动日志复制过程。</li>
+</ul>
+</li>
+<li><p>Leader Lease 计时器超时 (<code>lease</code>):</p>
+<ul>
+<li>定期触发 Leader Lease 检查。</li>
+<li>调用 <code>checkLeaderLease</code> 方法验证 Leader 身份。</li>
+<li>根据检查结果调整下一个租约检查的间隔，并重置计时器。</li>
+<li>如果租约验证失败，也可能触发降级。</li>
+</ul>
+</li>
+<li><p><strong>通知通道 (<code>leaderNotifyCh</code>, <code>followerNotifyCh</code>):</strong> 用于唤醒等待特定事件的内部协程。</p>
+</li>
+<li><p><strong>关机信号 (<code>shutdownCh</code>):</strong> 收到信号后，Leader 退出循环并停止运行。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>退出:</strong> 循环在以下情况下退出：</p>
+<ul>
+<li>Leader 状态改变为 Follower（因发现更高任期、收到降级信号、Leader Lease 验证失败或自身被移除）。</li>
+<li>节点收到关机信号。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// leaderLoop 是 Leader 状态下的核心循环。</span><br><span class="hljs-comment">// 它在 Leader 所有初始化设置完成后被调用，负责处理日志复制、心跳、成员管理等核心逻辑。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> leaderLoop() &#123;<br>	<span class="hljs-comment">// 1. stepDown 标志：用于判断是否有正在进行的日志操作会导致 Leader 降级</span><br>	<span class="hljs-comment">// 典型场景：Leader 收到移除自己（RemovePeer）的日志请求，此时不能并行处理其他日志，</span><br>	<span class="hljs-comment">// 否则提交判断只依赖单个节点（自己），复制目标也不明确（未知的 Peer 集合）。</span><br>	stepDown := <span class="hljs-literal">false</span><br><br>	<span class="hljs-comment">// 2. 初始化 Leader Lease（租约）计时器，用于检查 Leader 是否仍然有效</span><br>	lease := time.After(r.config().LeaderLeaseTimeout)<br><br>	<span class="hljs-comment">// 3. Leader 主循环：持续运行，直到状态不再是 Leader</span><br>	<span class="hljs-keyword">for</span> r.getState() == Leader &#123;<br>		<span class="hljs-comment">// 标记主线程当前处于休眠（等待事件）状态，用于监控线程忙碌程度</span><br>		r.mainThreadSaturation.sleeping()<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-comment">// 4.1 处理来自其他节点的 RPC 请求（可能是投票、日志复制、心跳响应等）</span><br>		<span class="hljs-keyword">case</span> rpc := &lt;-r.rpcCh:<br>			r.mainThreadSaturation.working() <span class="hljs-comment">// 标记线程从休眠中醒来，开始工作</span><br>			r.processRPC(rpc)                <span class="hljs-comment">// 处理 RPC 请求（如 AppendEntriesResponse、RequestVote 等）</span><br><br>		<span class="hljs-comment">// 4.2 收到降级信号（通常是配置变更导致 Leader 需要下台）</span><br>		<span class="hljs-keyword">case</span> &lt;-r.leaderState.stepDown:<br>			r.mainThreadSaturation.working()<br>			<span class="hljs-comment">// 立即降级为 Follower，退出 Leader 循环</span><br>			r.setState(Follower)<br><br>		<span class="hljs-comment">// 4.3 处理领导权转移（Leadership Transfer）请求：手动切换 Leader</span><br>		<span class="hljs-keyword">case</span> future := &lt;-r.leadershipTransferCh:<br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br><br><br>		<span class="hljs-comment">// 4.4 处理日志提交事件（commitCh）：有新日志被多数派确认</span><br>		<span class="hljs-keyword">case</span> &lt;-r.leaderState.commitCh:<br>			r.mainThreadSaturation.working()<br>			<span class="hljs-comment">// 4.4.1 更新本地 commitIndex（已提交日志的最大索引）</span><br>			oldCommitIndex := r.getCommitIndex()<br>			commitIndex := r.leaderState.commitment.getCommitIndex()<br>			r.setCommitIndex(commitIndex)<br><br>			<span class="hljs-comment">// 4.4.2 检查新提交的配置日志（Configuration Entry）</span><br>			<span class="hljs-keyword">if</span> r.configurations.latestIndex &gt; oldCommitIndex &amp;&amp;<br>				r.configurations.latestIndex &lt;= commitIndex &#123;<br>				<span class="hljs-comment">// 新配置已提交，更新 committedConfiguration</span><br>				r.setCommittedConfiguration(r.configurations.latest, r.configurations.latestIndex)<br>				<span class="hljs-comment">// 如果 Leader 发现自己被移除了（不再是 Voter），标记 stepDown</span><br>				<span class="hljs-keyword">if</span> !hasVote(r.configurations.committed, r.localID) &#123;<br>					stepDown = <span class="hljs-literal">true</span><br>				&#125;<br>			&#125;<br><br>			<span class="hljs-comment">// 4.4.3 批量处理已提交的日志（Group Commit）</span><br>			start := time.Now()<br>			<span class="hljs-keyword">var</span> groupReady []*list.Element              <span class="hljs-comment">// 待处理的已提交日志队列</span><br>			groupFutures := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">uint64</span>]*logFuture) <span class="hljs-comment">// 日志索引 -&gt; logFuture 映射</span><br>			<span class="hljs-keyword">var</span> lastIdxInGroup <span class="hljs-type">uint64</span>                   <span class="hljs-comment">// 最后一个日志的索引</span><br><br>			<span class="hljs-comment">// 遍历 inflight（待提交日志队列），找出所有已达到 commitIndex 的日志</span><br>			<span class="hljs-keyword">for</span> e := r.leaderState.inflight.Front(); e != <span class="hljs-literal">nil</span>; e = e.Next() &#123;<br>				commitLog := e.Value.(*logFuture)<br>				idx := commitLog.log.Index<br>				<span class="hljs-keyword">if</span> idx &gt; commitIndex &#123; <span class="hljs-comment">// 超过 commitIndex 的日志跳过</span><br>					<span class="hljs-keyword">break</span><br>				&#125;<br>				<span class="hljs-comment">// 统计日志提交延迟（从分发到提交的时间）</span><br>				metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;commitTime&quot;</span>&#125;, commitLog.dispatch)<br>				<span class="hljs-comment">// 加入待处理队列</span><br>				groupReady = <span class="hljs-built_in">append</span>(groupReady, e)<br>				groupFutures[idx] = commitLog<br>				lastIdxInGroup = idx<br>			&#125;<br><br>			<span class="hljs-comment">// 4.4.4 批量应用已提交日志到状态机（FSM）</span><br>			<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(groupReady) != <span class="hljs-number">0</span> &#123;<br>				r.processLogs(lastIdxInGroup, groupFutures)<br><br>				<span class="hljs-comment">// 清理已处理的日志，防止重复提交</span><br>				<span class="hljs-keyword">for</span> _, e := <span class="hljs-keyword">range</span> groupReady &#123;<br>					r.leaderState.inflight.Remove(e)<br>				&#125;<br>			&#125;<br><br>			<span class="hljs-comment">// 统计日志入队耗时（FSM 应用延迟）</span><br>			metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;fsm&quot;</span>, <span class="hljs-string">&quot;enqueue&quot;</span>&#125;, start)<br>			<span class="hljs-comment">// 统计本次提交的日志数量</span><br>			metrics.SetGauge([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;commitNumLogs&quot;</span>&#125;, <span class="hljs-type">float32</span>(<span class="hljs-built_in">len</span>(groupReady)))<br><br>			<span class="hljs-comment">// 4.4.5 如果 Leader 发现自己被移除了（stepDown=true）</span><br>			<span class="hljs-keyword">if</span> stepDown &#123;<br>				<span class="hljs-keyword">if</span> r.config().ShutdownOnRemove &#123;<br>					<span class="hljs-comment">// 配置要求移除时关闭节点，优雅退出</span><br>					r.logger.Info(<span class="hljs-string">&quot;removed ourself, shutting down&quot;</span>)<br>					r.Shutdown()<br>				&#125; <span class="hljs-keyword">else</span> &#123;<br>					<span class="hljs-comment">// 否则降级为 Follower</span><br>					r.logger.Info(<span class="hljs-string">&quot;removed ourself, transitioning to follower&quot;</span>)<br>					r.setState(Follower)<br>				&#125;<br>			&#125;<br><br>		<span class="hljs-comment">// 4.5 处理成员验证请求（verifyCh）：检查 Leader 是否仍然有效</span><br>		<span class="hljs-keyword">case</span> v := &lt;-r.verifyCh:<br>                    <span class="hljs-comment">// .....忽略非核心代码......</span><br>        <span class="hljs-comment">// .....忽略非核心代码......</span><br>		<span class="hljs-keyword">case</span> &lt;-r.shutdownCh:<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="dispatchLogs-日志调度派发"><a href="#dispatchLogs-日志调度派发" class="headerlink" title="dispatchLogs 日志调度派发"></a>dispatchLogs 日志调度派发</h4><p><code>dispatchLogs</code> 用来记录本地日志以及派发日志给所有的 follower. 数据来源主要通过leedloop中的applyCh实现新的日志信息</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-comment">// 处理客户端提交的日志条目（新命令）</span><br><span class="hljs-keyword">case</span> <span class="hljs-keyword">new</span><span class="hljs-type">Log</span> :<span class="hljs-type"></span>= &lt;-r.applyCh:<span class="hljs-type"></span><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>日志持久化</strong>：<ul>
+<li>将日志写入本地磁盘，确保日志的持久化。如果写入失败，Leader 节点会降级为 Follower 节点，并通知调用者操作失败。</li>
+</ul>
+</li>
+<li><strong>状态更新</strong>：<ul>
+<li>commitment.match 来计算各个 server 的 matchIndex, 计算出 commit 提交索引.</li>
+<li>更新 Leader 节点的匹配索引（<code>match index</code>），表示本地节点已成功存储日志。</li>
+<li>更新 Leader 节点的最后日志索引和任期信息。</li>
+</ul>
+</li>
+<li><strong>触发日志复制</strong>：<ul>
+<li>异步通知所有 Follower 节点的复制器，触发日志复制流程，确保日志被同步到集群中的其他节点。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// dispatchLogs 是 Raft 协议中 Leader 节点用于处理日志分发的核心方法，</span><br><span class="hljs-comment">// 它的主要功能是将一批待应用的日志写入本地磁盘，标记这些日志为“飞行中”（inflight），</span><br><span class="hljs-comment">// 并开始将这些日志复制到 Follower 节点。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> dispatchLogs(applyLogs []*logFuture) &#123;<br>        <span class="hljs-comment">// 记录方法开始执行的时间，用于后续性能指标的统计</span><br>        now := time.Now()<br>        <span class="hljs-comment">// 使用 defer 延迟执行性能指标的统计，计算方法执行的总耗时</span><br>        <span class="hljs-keyword">defer</span> metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>, <span class="hljs-string">&quot;dispatchLog&quot;</span>&#125;, now)<br><br>        <span class="hljs-comment">// 获取当前 Leader 的任期（term），用于标记新日志的任期信息</span><br>        term := r.getCurrentTerm()<br>        <span class="hljs-comment">// 获取当前日志的最后索引（lastIndex），用于为新日志分配连续的索引号</span><br>        lastIndex := r.getLastIndex()<br><br>        n := <span class="hljs-built_in">len</span>(applyLogs)        <span class="hljs-comment">// 获取待分发的日志数量</span><br>        logs := <span class="hljs-built_in">make</span>([]*Log, n)        <span class="hljs-comment">// 创建一个日志切片，用于存储待写入磁盘的日志条目</span><br>        <span class="hljs-comment">// 设置性能指标：记录当前分发的日志数量</span><br>        metrics.SetGauge([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>, <span class="hljs-string">&quot;dispatchNumLogs&quot;</span>&#125;, <span class="hljs-type">float32</span>(n))<br><br>        <span class="hljs-comment">// 遍历待分发的日志，为每条日志设置索引、任期和时间戳，并标记为“飞行中”</span><br>        <span class="hljs-keyword">for</span> idx, applyLog := <span class="hljs-keyword">range</span> applyLogs &#123;<br>                applyLog.dispatch = now                <span class="hljs-comment">// 设置日志的调度时间戳，表示日志开始被分发的时间</span><br>                lastIndex++                <span class="hljs-comment">// 为日志分配新的索引号，递增 lastIndex</span><br>                applyLog.log.Index = lastIndex                <span class="hljs-comment">// 设置日志的索引号</span><br>                applyLog.log.Term = term                <span class="hljs-comment">// 设置日志的任期号为当前 Leader 的任期</span><br>                applyLog.log.AppendedAt = now               <span class="hljs-comment">// 设置日志的追加时间戳，表示日志被追加到日志存储的时间</span><br>                logs[idx] = &amp;applyLog.log                <span class="hljs-comment">// 将日志条目存储到 logs 切片中，准备写入磁盘</span><br>                r.leaderState.inflight.PushBack(applyLog)                <span class="hljs-comment">// 将日志标记为“飞行中”，表示该日志正在被处理（尚未被所有节点确认）</span><br>        &#125;<br><br>        <span class="hljs-comment">// 将日志条目写入本地磁盘，确保日志持久化</span><br>        <span class="hljs-keyword">if</span> err := r.logs.StoreLogs(logs); err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-comment">// 如果写入失败，记录错误日志</span><br>                r.logger.Error(<span class="hljs-string">&quot;failed to commit logs&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>                <span class="hljs-comment">// 遍历所有待分发的日志，通知调用者写入失败</span><br>                <span class="hljs-keyword">for</span> _, applyLog := <span class="hljs-keyword">range</span> applyLogs &#123;<br>                        applyLog.respond(err)<br>                &#125;<br>                <span class="hljs-comment">// 如果日志写入失败，Leader 节点主动降级为 Follower 节点，避免继续处理请求</span><br>                r.setState(Follower)<br>                <span class="hljs-keyword">return</span><br>        &#125;<br>        <span class="hljs-comment">// 如果日志成功写入本地磁盘，更新 Leader 节点的匹配索引（match index），</span><br>        <span class="hljs-comment">// 表示本地节点已经成功存储了这些日志</span><br>        r.leaderState.commitment.match(r.localID, lastIndex)<br><br>        <span class="hljs-comment">// 更新 Leader 节点的最后日志索引和任期信息，表示最新的日志状态</span><br>        r.setLastLog(lastIndex, term)<br><br>        <span class="hljs-comment">// 通知所有 Follower 节点的复制器（replicator），触发日志复制</span><br>        <span class="hljs-comment">// 遍历 Leader 节点维护的每个 Follower 节点的复制状态</span><br>        <span class="hljs-keyword">for</span> _, f := <span class="hljs-keyword">range</span> r.leaderState.replState &#123;<br>                <span class="hljs-comment">// 异步通知复制器的触发通道（triggerCh），启动日志复制流程</span><br>                asyncNotifyCh(f.triggerCh)<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="四、问题"><a href="#四、问题" class="headerlink" title="四、问题"></a>四、问题</h2><ul>
+<li><strong>问题 1：Raft 如何处理网络分区？</strong><ul>
+<li>解答：Raft 通过领导人选举和多数派机制来处理网络分区。<ul>
+<li><strong>分区形成：</strong> 当网络分区发生时，集群可能分裂成多个部分，每个部分都无法与多数节点通信。</li>
+<li><strong>选举：</strong> 在每个分区中，如果 Follower 节点在选举超时时间内没有收到 Leader 的心跳，它们会发起选举。</li>
+<li><strong>多数派：</strong> 只有包含多数节点的分区才能选出新的 Leader。少数派分区中的节点无法赢得选举，因为它们无法获得多数票。</li>
+<li><strong>旧 Leader：</strong> 如果旧 Leader 位于少数派分区，它会因为无法与多数节点通信而退位成 Follower。</li>
+<li><strong>数据一致性：</strong> Raft 保证，即使在网络分区的情况下，也只有一个分区能够提交新的日志条目，从而保证数据一致性。</li>
+<li><strong>分区恢复：</strong> 当网络分区恢复后，少数派分区中的节点会重新加入集群，并从新 Leader 那里同步最新的日志。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题 2：Raft 如何保证数据一致性？</strong><ul>
+<li>解答：Raft 通过以下机制保证数据一致性：<ul>
+<li><strong>强领导者：</strong> 只有 Leader 才能接受客户端请求并生成新的日志条目。</li>
+<li><strong>日志复制：</strong> Leader 将日志条目复制到所有 Follower。只有当多数 Follower 确认收到日志条目后，Leader 才会提交该条目。</li>
+<li><strong>仅追加日志：</strong> 日志条目只能追加到日志末尾，不能修改或删除。</li>
+<li><strong>选举限制：</strong> 只有拥有最新日志的节点才能成为 Leader。</li>
+<li><strong>提交限制：</strong> 只有 Leader 才能推进 <code>commitIndex</code>，且 <code>commitIndex</code> 只会单调递增。</li>
+<li><strong>状态机：</strong> 所有节点按照相同的顺序应用已提交的日志条目到状态机，保证状态机状态一致。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题 3：Raft 中的 <code>commitIndex</code> 和 <code>lastApplied</code> 有什么区别？</strong><ul>
+<li>解答：<ul>
+<li><strong><code>commitIndex</code>：</strong> 表示已知已提交的最高日志条目的索引。这意味着索引小于或等于 <code>commitIndex</code> 的所有日志条目都已安全地复制到多数节点，可以应用到状态机。</li>
+<li><strong><code>lastApplied</code>：</strong> 表示已应用到状态机的最高日志条目的索引。每个节点独立维护自己的 <code>lastApplied</code>。</li>
+<li><strong>关系：</strong> <code>lastApplied</code> 通常小于或等于 <code>commitIndex</code>。当 <code>lastApplied</code> 小于 <code>commitIndex</code> 时，表示节点正在将已提交的日志条目应用到状态机。当两者相等时，表示状态机是最新的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题 4：Raft 如何处理客户端请求的幂等性？</strong><ul>
+<li>解答：Raft 本身不直接处理客户端请求的幂等性。幂等性通常需要在客户端或应用层实现。一种常见的做法是：<ul>
+<li><strong>客户端生成唯一 ID：</strong> 客户端为每个请求生成一个唯一的 ID（例如 UUID）。</li>
+<li><strong>服务器跟踪 ID：</strong> 服务器跟踪已处理的请求 ID。如果收到具有相同 ID 的重复请求，服务器可以直接返回之前的结果，而无需重新执行操作。</li>
+<li><strong>状态机：</strong> 在应用层，状态机可以记录已执行的请求 ID，以避免重复执行。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="五、参考链接"><a href="#五、参考链接" class="headerlink" title="五、参考链接"></a>五、参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/aganippe/p/16292050.html">Hashicorp Raft实现和API分析</a></p>
+<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://qiankunli.github.io/2020/05/17/hashicorp_raft.html">hashicorp raft源码学习</a></p>
+<p>3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/rfyiamcool/notes/blob/main/hashicorp_raft_replication_code.md#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-hashicorp-raft-replication-%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">源码分析 hashicorp raft replication 日志复制的实现原理</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" class="category-chain-item">分布式</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">#分布式</a>
+      
+        <a href="/tags/raft/">#raft</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>hashicorp raft源码分析（一、项目介绍与Leder选举实现）</div>
+      <div>https://blog.longpi1.com/2025/04/20/hashicorp-raft源码分析（一、项目介绍与Leder选举实现）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/14/14-Golang-%E8%B0%83%E5%BA%A6%E5%99%A8%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E8%B0%83%E5%BA%A6%E5%BE%AA%E7%8E%AF%E3%80%81%E8%A7%A6%E5%8F%91%E8%B0%83%E5%BA%A6%E3%80%81%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86%EF%BC%89/" title="14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理）">
+                        <span class="hidden-mobile">14.Golang 调度器源码分析（二、调度循环、触发调度、线程管理）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
