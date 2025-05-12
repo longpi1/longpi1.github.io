@@ -1,0 +1,890 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="hashicorp raft源码分析（二、日志复制与安全性实现） 本文基于 hashicorp&#x2F;raft v1.7.3 版本进行源码分析 API手册：https:&#x2F;&#x2F;pkg.go.dev&#x2F;github.com&#x2F;hashicorp&#x2F;raft 源码地址：hashicorp&#x2F;raft raft论文中文解读：https:&#x2F;&#x2F;github.com&#x2F;maemual&#x2F;raft-zh_cn&#x2F;b">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hashicorp raft源码分析（二、日志复制与安全性实现）">
+<meta property="og:url" content="https://blog.longpi1.com/2025/05/12/hashicorp-raft%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6%E4%B8%8E%E5%AE%89%E5%85%A8%E6%80%A7%E5%AE%9E%E7%8E%B0%EF%BC%89/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="hashicorp raft源码分析（二、日志复制与安全性实现） 本文基于 hashicorp&#x2F;raft v1.7.3 版本进行源码分析 API手册：https:&#x2F;&#x2F;pkg.go.dev&#x2F;github.com&#x2F;hashicorp&#x2F;raft 源码地址：hashicorp&#x2F;raft raft论文中文解读：https:&#x2F;&#x2F;github.com&#x2F;maemual&#x2F;raft-zh_cn&#x2F;b">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2025/05/10/sKTCthOB3Xbji5y.png">
+<meta property="og:image" content="https://camo.githubusercontent.com/5be1209b9e876958cd1317c9507e77d9c8d7595d4e3f89cfca72d3b2a38ce7c8/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313630313335322e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/963d7130465f8f26613813bef426b30b1c71651fbb4a3e7be9bfa4b81c6fad78/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313534343038392e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/7e9108c0009535750a76a347a04f5a6040c3d5ec33c0a9addbbee08fde5f1599/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313535333431302e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/b8efb4338cc5b8bacdd4a629dbca60819434fcaad58679ddd9be1f3c9648ac96/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323137313734323239302e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/80b72338e79667fbac7153d5243207cec88836c6ca85020c3dbdd30e254b403e/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f53616d706c65253230466c6f77636861727425323054656d706c6174652532302d322d2e6a7067">
+<meta property="article:published_time" content="2025-05-12T13:32:52.000Z">
+<meta property="article:modified_time" content="2025-05-12T13:33:40.777Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="raft">
+<meta property="article:tag" content="源码分析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2025/05/10/sKTCthOB3Xbji5y.png">
+  
+  
+  
+  <title>hashicorp raft源码分析（二、日志复制与安全性实现） - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="hashicorp raft源码分析（二、日志复制与安全性实现）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-05-12 21:32" pubdate>
+          2025年5月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          28k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">hashicorp raft源码分析（二、日志复制与安全性实现）</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="hashicorp-raft源码分析（二、日志复制与安全性实现）"><a href="#hashicorp-raft源码分析（二、日志复制与安全性实现）" class="headerlink" title="hashicorp raft源码分析（二、日志复制与安全性实现）"></a>hashicorp raft源码分析（二、日志复制与安全性实现）</h1><blockquote>
+<p>本文基于 hashicorp&#x2F;raft <code>v1.7.3</code> 版本进行源码分析</p>
+<p>API手册：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://pkg.go.dev/github.com/hashicorp/raft">https://pkg.go.dev/github.com/hashicorp/raft</a></p>
+<p>源码地址：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/hashicorp/raft">hashicorp&#x2F;raft</a></p>
+<p>raft论文中文解读：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md">https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md</a></p>
+<p>在阅读文章前需要有一定的 raft 基础, 不然直接看源码会一头雾水.</p>
+<p>上一篇文章：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/Reading-notes/blob/main/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/Golang/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93/hashicorp%20raft%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D%E4%B8%8ELeder%E9%80%89%E4%B8%BE%E5%AE%9E%E7%8E%B0%EF%BC%89.md">hashicorp raft源码分析（一、项目介绍与Leder选举实现）</a></p>
+</blockquote>
+<h2 id="一、日志复制（Log-Replication）"><a href="#一、日志复制（Log-Replication）" class="headerlink" title="一、日志复制（Log Replication）"></a>一、日志复制（Log Replication）</h2><p>本文按照下面流程分析 raft 日志复制的实现原理.</p>
+<ol>
+<li>调用上层 Apply 接口写数据.</li>
+<li>leader 向 follower 同步日志.</li>
+<li>follower 接收日志.</li>
+<li>leader 确认提交日志, 并且应用到状态机.</li>
+<li>follower 确认提交日志.</li>
+</ol>
+<p><img src="https://s2.loli.net/2025/05/10/sKTCthOB3Xbji5y.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="Apply-方法应用日志，写入applyCh通道中"><a href="#Apply-方法应用日志，写入applyCh通道中" class="headerlink" title="Apply 方法应用日志，写入applyCh通道中"></a>Apply 方法应用日志，写入applyCh通道中</h3><p><code>Apply</code> 是 hashicorp raft 提供的给上层写数据的入口, 当使用 hashicorp&#x2F;raft 构建分布式系统时, 作为 leader 节点承担了写操作, 这里写就是调用 api 里的 Apply 方法.</p>
+<p><code>Apply</code> 入参的 cmd 为业务需要写的数据, 只支持 <code>[]byte</code>, 如是 struct 对象则需要序列化为 <code>[]byte</code>, timeout 为写超时, 这里的写超时只是把 logFuture 插入 applyCh 的超时时间, 而不是推到 follower 的时间.</p>
+<p><code>Apply</code> 其内部流程是先实例化一个定时器, 然后把业务数据构建成 logFuture 对象, 然后推到 applyCh 队列. applyCh 缓冲队列的大小跟 raft 的并发吞吐有关系的, hashicorp raft 里 applyCh 默认长度为 64.</p>
+<p>代码位置: <code>github.com/hashicorp/raft/api.go</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 写日志</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> Apply(cmd []<span class="hljs-type">byte</span>, timeout time.Duration) ApplyFuture &#123;<br>	<span class="hljs-keyword">return</span> r.ApplyLog(Log&#123;Data: cmd&#125;, timeout)<br>&#125;<br><br><span class="hljs-comment">// ApplyLog 直接接收一个 Log 结构并执行 Apply 操作,最终写入applyCh通道中。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> ApplyLog(log Log, timeout time.Duration) ApplyFuture &#123;<br>        <span class="hljs-comment">// 定义一个定时器通道，用于实现超时机制</span><br>        <span class="hljs-keyword">var</span> timer &lt;-<span class="hljs-keyword">chan</span> time.Time<br>        <span class="hljs-comment">// 如果调用者设置了超时时间（timeout &gt; 0），则创建一个定时器</span><br>        <span class="hljs-comment">// 当超过指定时间后，timer 通道会接收到一个时间值，表示超时</span><br>        <span class="hljs-keyword">if</span> timeout &gt; <span class="hljs-number">0</span> &#123;<br>                timer = time.After(timeout)<br>        &#125;<br><br>        <span class="hljs-comment">// 创建一个日志的 Future 对象，用于异步跟踪日志应用的执行状态</span><br>        <span class="hljs-comment">// 此时日志的索引（Index）和任期（Term）尚未设置，因此为空</span><br>        logFuture := &amp;logFuture&#123;<br>                log: Log&#123;<br>                        Type:       LogCommand,        <span class="hljs-comment">// 日志类型设置为命令日志，表示这是一个用户提交的命令</span><br>                        Data:       log.Data,          <span class="hljs-comment">// 从传入的 Log 中提取数据字段</span><br>                        Extensions: log.Extensions,    <span class="hljs-comment">// 从传入的 Log 中提取扩展字段</span><br>                &#125;,<br>        &#125;<br>        logFuture.init()<br><br>        <span class="hljs-keyword">select</span> &#123;<br>        <span class="hljs-keyword">case</span> &lt;-timer:<br>                <span class="hljs-comment">// 如果定时器通道接收到值，说明超时时间已到</span><br>                <span class="hljs-keyword">return</span> errorFuture&#123;ErrEnqueueTimeout&#125;<br>        <span class="hljs-keyword">case</span> &lt;-r.shutdownCh:<br>                <span class="hljs-comment">// 如果 Raft 实例的关闭通道被触发，说明 Raft 节点正在关闭</span><br>                <span class="hljs-keyword">return</span> errorFuture&#123;ErrRaftShutdown&#125;<br>        <span class="hljs-keyword">case</span> r.applyCh &lt;- logFuture:<br>                <span class="hljs-comment">// 如果成功将 logFuture 发送到 Raft 的应用通道（applyCh）</span><br>                <span class="hljs-comment">// 表示日志应用请求已被接受，返回 logFuture 以供调用者跟踪执行结果</span><br>                <span class="hljs-keyword">return</span> logFuture<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="监听-applyCh-并调度通知日志"><a href="#监听-applyCh-并调度通知日志" class="headerlink" title="监听 applyCh 并调度通知日志"></a>监听 applyCh 并调度通知日志</h3><p><code>leaderLoop</code> 会监听 applyCh 管道, 该管道的数据是由 hashicorp&#x2F;raft api 层的 Apply 方法推入, leaderLoop 在收到 apply 日志后, 调用 <code>dispatchLogs</code> 来给 <code>replication</code> 调度通知日志.</p>
+<p>代码位置: <code>github.com/hashicorp/raft/raft.go</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> leaderLoop() &#123;<br>	<span class="hljs-keyword">for</span> r.getState() == Leader &#123;<br><br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> ...:<br><br>		<span class="hljs-keyword">case</span> newLog := &lt;-r.applyCh:<br>			<span class="hljs-comment">// ...</span><br><br>			<span class="hljs-comment">// 日志的组提交, 所谓的组提交就是日志按批次提交, 这是 raft 工程上优化.</span><br>			ready := []*logFuture&#123;newLog&#125;<br>		GROUP_COMMIT_LOOP:<br>			<span class="hljs-comment">// 尝试凑齐 MaxAppendEntries 数量的日志</span><br>			<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; r.config().MaxAppendEntries; i++ &#123;<br>				<span class="hljs-keyword">select</span> &#123;<br>				<span class="hljs-keyword">case</span> newLog := &lt;-r.applyCh:<br>					ready = <span class="hljs-built_in">append</span>(ready, newLog)<br>				<span class="hljs-keyword">default</span>:<br>					<span class="hljs-comment">// applyCh 为空, 中断循环.</span><br>					<span class="hljs-keyword">break</span> GROUP_COMMIT_LOOP<br>				&#125;<br>			&#125;<br><br>			<span class="hljs-comment">// ...</span><br><br>			<span class="hljs-comment">// 派发日志, 批量发.</span><br>			r.dispatchLogs(ready)<br>		<span class="hljs-keyword">case</span> ...:<br><br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>dispatchLogs 是 Raft 协议中 Leader 节点用于处理日志分发的核心方法</p>
+<ol>
+<li><strong>日志持久化</strong>：<ul>
+<li>将日志写入本地磁盘，确保日志的持久化。如果写入失败，Leader 节点会降级为 Follower 节点，并通知调用者操作失败。</li>
+</ul>
+</li>
+<li><strong>状态更新</strong>：<ul>
+<li>commitment.match 来计算各个 server 的 matchIndex, 计算出 commit 提交索引.</li>
+<li>更新 Leader 节点的匹配索引（<code>match index</code>），表示本地节点已成功存储日志。</li>
+<li>更新 Leader 节点的最后日志索引和任期信息。</li>
+</ul>
+</li>
+<li><strong>触发日志复制</strong>：<ul>
+<li>异步通知所有 Follower 节点的复制器，触发日志复制流程，确保日志被同步到集群中的其他节点。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// dispatchLogs 是 Raft 协议中 Leader 节点用于处理日志分发的核心方法，</span><br><span class="hljs-comment">// 它的主要功能是将一批待应用的日志写入本地磁盘，标记这些日志为“inflight”（inflight），</span><br><span class="hljs-comment">//  如果日志成功写入本地磁盘，更新 Leader 节点的匹配索引（match index），</span><br><span class="hljs-comment">// 更新 Leader 节点的最后日志索引和任期信息，表示最新的日志状态</span><br><span class="hljs-comment">// 并开始将这些日志复制到 Follower 节点。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> dispatchLogs(applyLogs []*logFuture) &#123;<br>        <span class="hljs-comment">// 记录方法开始执行的时间，用于后续性能指标的统计</span><br>        now := time.Now()<br>        <span class="hljs-comment">// 使用 defer 延迟执行性能指标的统计，计算方法执行的总耗时</span><br>        <span class="hljs-keyword">defer</span> metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>, <span class="hljs-string">&quot;dispatchLog&quot;</span>&#125;, now)<br><br>        <span class="hljs-comment">// 获取当前 Leader 的任期（term），用于标记新日志的任期信息</span><br>        term := r.getCurrentTerm()<br>        <span class="hljs-comment">// 获取当前日志的最后索引（lastIndex），用于为新日志分配连续的索引号</span><br>        lastIndex := r.getLastIndex()<br><br>        n := <span class="hljs-built_in">len</span>(applyLogs)        <span class="hljs-comment">// 获取待分发的日志数量</span><br>        logs := <span class="hljs-built_in">make</span>([]*Log, n)        <span class="hljs-comment">// 创建一个日志切片，用于存储待写入磁盘的日志条目</span><br>        <span class="hljs-comment">// 设置性能指标：记录当前分发的日志数量</span><br>        metrics.SetGauge([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;leader&quot;</span>, <span class="hljs-string">&quot;dispatchNumLogs&quot;</span>&#125;, <span class="hljs-type">float32</span>(n))<br><br>        <span class="hljs-comment">// 遍历待分发的日志，为每条日志设置索引、任期和时间戳，并标记为“inflight”</span><br>        <span class="hljs-keyword">for</span> idx, applyLog := <span class="hljs-keyword">range</span> applyLogs &#123;<br>                applyLog.dispatch = now                <span class="hljs-comment">// 设置日志的调度时间戳，表示日志开始被分发的时间</span><br>                lastIndex++                <span class="hljs-comment">// 为日志分配新的索引号，递增 lastIndex</span><br>                applyLog.log.Index = lastIndex                <span class="hljs-comment">// 设置日志的索引号</span><br>                applyLog.log.Term = term                <span class="hljs-comment">// 设置日志的任期号为当前 Leader 的任期</span><br>                applyLog.log.AppendedAt = now               <span class="hljs-comment">// 设置日志的追加时间戳，表示日志被追加到日志存储的时间</span><br>                logs[idx] = &amp;applyLog.log                <span class="hljs-comment">// 将日志条目存储到 logs 切片中，准备写入磁盘</span><br>                r.leaderState.inflight.PushBack(applyLog)                <span class="hljs-comment">// 将日志标记为“飞行中”，表示该日志正在被处理（尚未被所有节点确认）</span><br>        &#125;<br><br>        <span class="hljs-comment">// 将日志条目写入本地磁盘，确保日志持久化</span><br>        <span class="hljs-keyword">if</span> err := r.logs.StoreLogs(logs); err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-comment">// 如果写入失败，记录错误日志</span><br>                r.logger.Error(<span class="hljs-string">&quot;failed to commit logs&quot;</span>, <span class="hljs-string">&quot;error&quot;</span>, err)<br>                <span class="hljs-comment">// 遍历所有待分发的日志，通知调用者写入失败</span><br>                <span class="hljs-keyword">for</span> _, applyLog := <span class="hljs-keyword">range</span> applyLogs &#123;<br>                        applyLog.respond(err)<br>                &#125;<br>                <span class="hljs-comment">// 如果日志写入失败，Leader 节点主动降级为 Follower 节点，避免继续处理请求</span><br>                r.setState(Follower)<br>                <span class="hljs-keyword">return</span><br>        &#125;<br>        <span class="hljs-comment">// 如果日志成功写入本地磁盘，更新 Leader 节点的匹配索引（match index），</span><br>        <span class="hljs-comment">// 表示本地节点已经成功存储了这些日志</span><br>        r.leaderState.commitment.match(r.localID, lastIndex)<br><br>        <span class="hljs-comment">// 更新 Leader 节点的最后日志索引和任期信息，表示最新的日志状态</span><br>        r.setLastLog(lastIndex, term)<br><br>        <span class="hljs-comment">// 通知所有 Follower 节点的复制器（replicator），触发日志复制</span><br>        <span class="hljs-comment">// 遍历 Leader 节点维护的每个 Follower 节点的复制状态</span><br>        <span class="hljs-keyword">for</span> _, f := <span class="hljs-keyword">range</span> r.leaderState.replState &#123;<br>                <span class="hljs-comment">// 异步通知复制器的触发通道（triggerCh），启动日志复制流程</span><br>                asyncNotifyCh(f.triggerCh)<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="replicate-同步日志"><a href="#replicate-同步日志" class="headerlink" title="replicate 同步日志"></a>replicate 同步日志</h3><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://camo.githubusercontent.com/5be1209b9e876958cd1317c9507e77d9c8d7595d4e3f89cfca72d3b2a38ce7c8/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313630313335322e706e67"><img src="https://camo.githubusercontent.com/5be1209b9e876958cd1317c9507e77d9c8d7595d4e3f89cfca72d3b2a38ce7c8/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313630313335322e706e67" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>当节点确认成为 leader 时, 会为每个 follower 启动 replication 对象, 并启动两个协程 replicate 和 heartbeat.</p>
+<p><code>replicate</code> 其内部监听 triggerCh 有无发生通知时, 当有日志需要同步给 follower 调用 <code>replicateTo</code>. 另外 replicate 每次还会创建一个随机 50ms - 100ms 的定时器, 当定时器触发时, 也会尝试同步日志, 主要用来同步 commitIndex 提交索引.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// replicate 是一个长期运行的 goroutine，负责将日志条目（log entries）复制到 **单个 follower 节点**。</span><br><span class="hljs-comment">// 它实现了 Raft 的 **日志复制（Log Replication）** 机制，确保 follower 与 Leader 的日志保持一致。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> replicate(s *followerReplication) &#123;<br>	stopHeartbeat := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;)<br><br>	<span class="hljs-keyword">defer</span> <span class="hljs-built_in">close</span>(stopHeartbeat)<br><br>	<span class="hljs-comment">// 启动 **独立的心跳发送 goroutine**（heartbeat）</span><br>	<span class="hljs-comment">// 心跳用于维持 Leader 身份、避免选举超时，但不携带日志数据</span><br>	r.goFunc(<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-comment">// 调用 r.heartbeat 函数，定期发送 AppendEntries RPC（空日志）</span><br>		r.heartbeat(s, stopHeartbeat)<br>	&#125;)<br><br>	<span class="hljs-comment">// RPC 模式（标准复制模式）</span><br>	<span class="hljs-comment">// 在此模式下，Leader **逐条确认（Stop-and-Wait）** follower 的日志复制结果</span><br>RPC:<br>	<span class="hljs-comment">// 控制变量：标记是否应该停止复制循环</span><br>	shouldStop := <span class="hljs-literal">false</span><br>	<span class="hljs-keyword">for</span> !shouldStop &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-comment">// **情况 1：收到停止信号（优雅退出）**</span><br>		<span class="hljs-keyword">case</span> maxIndex := &lt;-s.stopCh:<br>			<span class="hljs-comment">// ...</span><br><br>		<span class="hljs-comment">// **情况 2：延迟错误处理（触发一次强制同步）**</span><br>		<span class="hljs-keyword">case</span> deferErr := &lt;-s.triggerDeferErrorCh:<br>			<span class="hljs-comment">// ...</span><br><br>		<span class="hljs-comment">// **情况 3：收到主动触发信号（立即同步日志），监听 triggerCh 有无发生通知**</span><br>		<span class="hljs-keyword">case</span> &lt;-s.triggerCh:<br>			<span class="hljs-comment">// 获取最新日志索引</span><br>			lastLogIdx, _ := r.getLastLog()<br>			<span class="hljs-comment">// 调用 replicateTo 同步日志到最新位置</span><br>			shouldStop = r.replicateTo(s, lastLogIdx)<br><br>		<span class="hljs-comment">// **情况 4：定时强制同步（CommitTimeout 机制）**</span><br>		<span class="hljs-comment">// 这 **不是传统心跳**，而是确保 follower 及时得知 Leader 的 **已提交索引（commit index）**</span><br>		<span class="hljs-comment">// 见 https://github.com/hashicorp/raft/issues/282</span><br>		<span class="hljs-comment">// 场景：当 Raft 日志自然流动停止时（空闲期），强制同步一次 commitIndex</span><br>		<span class="hljs-keyword">case</span> &lt;-randomTimeout(r.config().CommitTimeout):<br>			<span class="hljs-comment">// 获取最新日志索引</span><br>			lastLogIdx, _ := r.getLastLog()<br>			<span class="hljs-comment">// 同步日志到最新索引</span><br>			shouldStop = r.replicateTo(s, lastLogIdx)<br>		&#125;<br><br>		<span class="hljs-comment">// **性能优化判断：是否切换到 Pipeline 模式？**</span><br>		<span class="hljs-comment">// 如果：</span><br>		<span class="hljs-comment">// 1. 当前复制 **未出错（!shouldStop）**</span><br>		<span class="hljs-comment">// 2. **允许 Pipeline 模式（s.allowPipeline=true）**</span><br>		<span class="hljs-comment">// 则尝试 **切换到高性能的 Pipeline 模式**</span><br>		<span class="hljs-keyword">if</span> !shouldStop &amp;&amp; s.allowPipeline &#123;<br>			<span class="hljs-comment">// 跳转到 PIPELINE 标签处，进入流式复制逻辑</span><br>			<span class="hljs-keyword">goto</span> PIPELINE<br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">// 如果循环退出（shouldStop=true），直接结束 replicate 函数</span><br>	<span class="hljs-keyword">return</span><br><br>	<span class="hljs-comment">// PIPELINE 模式（流式复制，高性能）</span><br>	<span class="hljs-comment">// 在此模式下，Leader **连续发送日志、不等待确认**（类似 TCP 滑动窗口）</span><br>PIPELINE:<br>	s.allowPipeline = <span class="hljs-literal">false</span><br><br>	<span class="hljs-comment">// **进入 pipelineReplicate 函数**：</span><br>	<span class="hljs-comment">// 它会：</span><br>	<span class="hljs-comment">// 1. 持续发送 AppendEntries RPC **不等待响应**</span><br>	<span class="hljs-comment">// 2. 通过 TCP 连接批量流式发送日志，提高吞吐量</span><br>	<span class="hljs-comment">// 注意：此模式 **无法优雅处理错误**，一旦出错就回退到 RPC 模式</span><br>	<span class="hljs-keyword">if</span> err := r.pipelineReplicate(s); err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-comment">// **特殊情况：follower 不支持 Pipeline（如旧版本 Raft）**</span><br>		<span class="hljs-keyword">if</span> err != ErrPipelineReplicationNotSupported &#123;<br>			<span class="hljs-comment">// 加锁读取 follower 的节点 ID（peer）</span><br>			s.peerLock.RLock()<br>			peer := s.peer<br>			s.peerLock.RUnlock()<br>			<span class="hljs-comment">// 记录错误日志：Pipeline 模式失败，fallback 到 RPC 模式</span><br>			r.logger.Error(<span class="hljs-string">&quot;failed to start pipeline replication to&quot;</span>, <span class="hljs-string">&quot;peer&quot;</span>, peer, <span class="hljs-string">&quot;error&quot;</span>, err)<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 无论成功与否，Pipeline 失败后都回到 RPC 模式</span><br>	<span class="hljs-keyword">goto</span> RPC<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://camo.githubusercontent.com/963d7130465f8f26613813bef426b30b1c71651fbb4a3e7be9bfa4b81c6fad78/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313534343038392e706e67"><img src="https://camo.githubusercontent.com/963d7130465f8f26613813bef426b30b1c71651fbb4a3e7be9bfa4b81c6fad78/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313534343038392e706e67" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>replicateTo 用来真正的把日志数据同步给 follower.</p>
+<ol>
+<li>首先调用 <code>setupAppendEntries</code> 装载请求同步的日志, 这里需要装载上一条日志及增量日志.</li>
+<li>然后使用 transport 给 follower 发送请求, 之后更新状态.</li>
+<li>如果装载日志时, 发现 log index 不存在, 则需要发送快照文件.</li>
+<li>在发完快照文件后, 需要判断是否继续发送快照点之后的增量日志, 如含有增量则 goto 切到 1.</li>
+</ol>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://camo.githubusercontent.com/7e9108c0009535750a76a347a04f5a6040c3d5ec33c0a9addbbee08fde5f1599/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313535333431302e706e67"><img src="https://camo.githubusercontent.com/7e9108c0009535750a76a347a04f5a6040c3d5ec33c0a9addbbee08fde5f1599/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323230313535333431302e706e67" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h4 id="replicateTo"><a href="#replicateTo" class="headerlink" title="replicateTo"></a>replicateTo</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// replicateTo 是 replicate() 的辅助函数，用于将日志复制到指定的最后索引位置。</span><br><span class="hljs-comment">// 如果跟随者的日志落后，我们会小心地让它们保持最新。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> replicateTo(s *followerReplication, lastIndex <span class="hljs-type">uint64</span>) (shouldStop <span class="hljs-type">bool</span>) &#123;<br>        <span class="hljs-comment">// 创建基本的请求和响应结构体</span><br>        <span class="hljs-keyword">var</span> req AppendEntriesRequest<br>        <span class="hljs-keyword">var</span> resp AppendEntriesResponse<br>        <span class="hljs-keyword">var</span> start time.Time<br>        <span class="hljs-keyword">var</span> peer Server<br><br>START:<br>        <span class="hljs-comment">// 防止在错误发生时进行过多的重试，通过退避机制控制重试频率</span><br>        <span class="hljs-keyword">if</span> s.failures &gt; <span class="hljs-number">0</span> &#123;<br>                <span class="hljs-keyword">select</span> &#123;<br>                <span class="hljs-keyword">case</span> &lt;-time.After(backoff(failureWait, s.failures, maxFailureScale)): <span class="hljs-comment">// 使用退避算法等待一段时间</span><br>                <span class="hljs-keyword">case</span> &lt;-r.shutdownCh: <span class="hljs-comment">// 如果 Raft 实例正在关闭，则退出</span><br>                &#125;<br>        &#125;<br><br>        <span class="hljs-comment">// 获取当前跟随者的信息（加锁以确保线程安全）</span><br>        s.peerLock.RLock()<br>        peer = s.peer<br>        s.peerLock.RUnlock()<br><br>        <span class="hljs-comment">// 设置 AppendEntries 请求的内容，包括日志条目等</span><br>        <span class="hljs-comment">// 如果日志未找到（ErrLogNotFound），则跳转到发送快照的逻辑</span><br>        <span class="hljs-keyword">if</span> err := r.setupAppendEntries(s, &amp;req, atomic.LoadUint64(&amp;s.nextIndex), lastIndex); err == ErrLogNotFound &#123;<br>                <span class="hljs-keyword">goto</span> SEND_SNAP<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123; <span class="hljs-comment">// 如果发生其他错误，直接返回</span><br>                <span class="hljs-keyword">return</span><br>        &#125;<br><br>        <span class="hljs-comment">// 执行 RPC 调用，向跟随者发送 AppendEntries 请求</span><br>        start = time.Now()<br>        <span class="hljs-keyword">if</span> err := r.trans.AppendEntries(peer.ID, peer.Address, &amp;req, &amp;resp); err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-comment">// 如果 RPC 调用失败，记录错误日志并增加失败计数</span><br>                r.logger.Error(<span class="hljs-string">&quot;failed to appendEntries to&quot;</span>, <span class="hljs-string">&quot;peer&quot;</span>, peer, <span class="hljs-string">&quot;error&quot;</span>, err)<br>                s.failures++<br>                <span class="hljs-keyword">return</span><br>        &#125;<br>        <span class="hljs-comment">// 记录统计信息，例如日志条目数量和调用耗时（用于监控和调试）</span><br>        appendStats(<span class="hljs-type">string</span>(peer.ID), start, <span class="hljs-type">float32</span>(<span class="hljs-built_in">len</span>(req.Entries)), r.noLegacyTelemetry)<br><br>        <span class="hljs-comment">// 检查跟随者的任期是否比当前领导者的任期更新，如果是，则说明当前领导者已过时</span><br>        <span class="hljs-keyword">if</span> resp.Term &gt; req.Term &#123;<br>                r.handleStaleTerm(s) <span class="hljs-comment">// 处理过时任期的情况（通常会触发重新选举）</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-comment">// 返回 true 表示停止复制</span><br>        &#125;<br><br>        <span class="hljs-comment">// 更新最后一次联系时间（用于心跳检测等）</span><br>        s.setLastContact()<br><br>        <span class="hljs-comment">// 根据 RPC 调用的响应结果更新状态</span><br>        <span class="hljs-keyword">if</span> resp.Success &#123;<br>                <span class="hljs-comment">// 如果跟随者成功接收并应用了日志条目</span><br>                <span class="hljs-comment">// 更新复制状态，例如下一个要发送的日志索引</span><br>                updateLastAppended(s, &amp;req)<br><br>                <span class="hljs-comment">// 清空失败计数，并允许流水线复制（提高性能）</span><br>                s.failures = <span class="hljs-number">0</span><br>                s.allowPipeline = <span class="hljs-literal">true</span><br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-comment">// 如果跟随者拒绝了日志条目（可能是因为日志不匹配）</span><br>                <span class="hljs-comment">// 调整下一个要发送的日志索引（回退到更早的日志位置）</span><br>                atomic.StoreUint64(&amp;s.nextIndex, max(min(s.nextIndex<span class="hljs-number">-1</span>, resp.LastLog+<span class="hljs-number">1</span>), <span class="hljs-number">1</span>))<br>                <span class="hljs-keyword">if</span> resp.NoRetryBackoff &#123;<br>                        <span class="hljs-comment">// 如果跟随者明确表示无需退避（例如日志匹配但未应用），清空失败计数</span><br>                        s.failures = <span class="hljs-number">0</span><br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                        <span class="hljs-comment">// 否则增加失败计数，可能触发退避</span><br>                        s.failures++<br>                &#125;<br>                <span class="hljs-comment">// 记录警告日志，提示正在尝试发送更早的日志</span><br>                r.logger.Warn(<span class="hljs-string">&quot;appendEntries rejected, sending older logs&quot;</span>, <span class="hljs-string">&quot;peer&quot;</span>, peer, <span class="hljs-string">&quot;next&quot;</span>, atomic.LoadUint64(&amp;s.nextIndex))<br>        &#125;<br><br>CHECK_MORE:<br>        <span class="hljs-comment">// 在循环中检查停止信号，以确保在以下情况下及时退出：</span><br>        <span class="hljs-comment">// 1. 被要求停止复制（例如领导者下台）</span><br>        <span class="hljs-comment">// 2. Raft 实例正在关闭</span><br>        <span class="hljs-comment">// 即使在尽力复制到指定索引后，也应避免向即将离开集群的落后节点发送过多日志</span><br>        <span class="hljs-keyword">select</span> &#123;<br>        <span class="hljs-keyword">case</span> &lt;-s.stopCh: <span class="hljs-comment">// 如果收到停止信号，返回 true 表示停止复制</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>        <span class="hljs-keyword">default</span>:<br>        &#125;<br><br>        <span class="hljs-comment">// 检查是否还有更多日志需要复制</span><br>        <span class="hljs-comment">// 如果下一个要发送的日志索引小于等于目标索引，则继续循环</span><br>        <span class="hljs-keyword">if</span> atomic.LoadUint64(&amp;s.nextIndex) &lt;= lastIndex &#123;<br>                <span class="hljs-keyword">goto</span> START<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-comment">// 如果没有更多日志需要复制，返回 false 表示正常完成</span><br><br>        <span class="hljs-comment">// SEND_SNAP 用于处理日志未找到的情况，通常是因为跟随者日志落后太多，</span><br>        <span class="hljs-comment">// 需要发送快照来代替日志条目</span><br>SEND_SNAP:<br>        <span class="hljs-comment">// 尝试发送最新的快照给跟随者</span><br>        <span class="hljs-keyword">if</span> stop, err := r.sendLatestSnapshot(s); stop &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span> <span class="hljs-comment">// 如果发送快照过程中要求停止，返回 true</span><br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>                <span class="hljs-comment">// 如果发送快照失败，记录错误日志</span><br>                r.logger.Error(<span class="hljs-string">&quot;failed to send snapshot to&quot;</span>, <span class="hljs-string">&quot;peer&quot;</span>, peer, <span class="hljs-string">&quot;error&quot;</span>, err)<br>                <span class="hljs-keyword">return</span><br>        &#125;<br><br>        <span class="hljs-comment">// 检查是否还有更多日志需要复制（发送快照后可能需要继续发送日志）</span><br>        <span class="hljs-keyword">goto</span> CHECK_MORE<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="setupAppendEntries"><a href="#setupAppendEntries" class="headerlink" title="setupAppendEntries"></a>setupAppendEntries</h4><p><code>setupAppendEntries</code> 方法会把日志数据和其他元数据装载到 <code>AppendEntriesRequest</code> 对象里.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> AppendEntriesRequest <span class="hljs-keyword">struct</span> &#123;<br>	<span class="hljs-comment">// rpc proto 和 leader 信息.</span><br>	RPCHeader<br><br>	<span class="hljs-comment">// 当前 leader 的日志索引值.</span><br>	Term <span class="hljs-type">uint64</span><br><br>	<span class="hljs-comment">// 上一条 log 值的 index 和 term, follower 会利用这两个值校验缺失和冲突.</span><br>	PrevLogEntry <span class="hljs-type">uint64</span><br>	PrevLogTerm  <span class="hljs-type">uint64</span><br><br>	<span class="hljs-comment">// 同步给 follower 的增量的日志</span><br>	Entries []*Log<br><br>	<span class="hljs-comment">// 已经在 leader 提交的日志索引值</span><br>	LeaderCommitIndex <span class="hljs-type">uint64</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>setupAppendEntries</code> 用来构建 <code>AppendEntriesRequest</code> 对象, 这里不仅当前节点的最新 log 信息, 还有 follower nextIndex 的上一条 log 日志数据, 还有新增的 log 日志数据.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// setupAppendEntries is used to setup an append entries request.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> setupAppendEntries(s *followerReplication, req *AppendEntriesRequest, nextIndex, lastIndex <span class="hljs-type">uint64</span>) <span class="hljs-type">error</span> &#123;<br>	req.RPCHeader = r.getRPCHeader()<br>	<span class="hljs-comment">// 赋值当前的 term 任期号</span><br>	req.Term = s.currentTerm<br>	<span class="hljs-comment">// 赋值 leader 信息 </span><br>	req.Leader = r.trans.EncodePeer(r.localID, r.localAddr)<br>	<span class="hljs-comment">// 赋值 commit index 提交索引值</span><br>	req.LeaderCommitIndex = r.getCommitIndex()<br><br>	<span class="hljs-comment">// 获取 nextIndex 之前的 log term 和 index.</span><br>	<span class="hljs-keyword">if</span> err := r.setPreviousLog(req, nextIndex); err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-comment">// 错误则跳出, 如果 ErrLogNotFound 错误, 走发送快照逻辑</span><br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	<span class="hljs-comment">// 获取 nextIndex 到 lastIndex 之间的增量数据, 最大超过 MaxAppendEntries 个.</span><br>	<span class="hljs-keyword">if</span> err := r.setNewLogs(req, nextIndex, lastIndex); err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>setPreviousLog</code> 用来获取 follower 的 nextIndex 的上一条数据, 如果在快照临界点, 则使用快照记录的 index 和 term, 否则其他情况调用 LogStore 存储的 GetLog 获取上一条日志.</p>
+<p><strong>需要注意一下, 如果上一条数据的 index 在 logStore 不存在, 那么就需要返回错误, 后面走发送快照逻辑了.</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> setPreviousLog(req *AppendEntriesRequest, nextIndex <span class="hljs-type">uint64</span>) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-comment">// 获取快照文件中最大日志的 index 和 term.</span><br>	lastSnapIdx, lastSnapTerm := r.getLastSnapshot()<br><br>	<span class="hljs-comment">// 如果 nextIndex 等于 1, 那么 prev 必然为 0.</span><br>	<span class="hljs-keyword">if</span> nextIndex == <span class="hljs-number">1</span> &#123;<br>		req.PrevLogEntry = <span class="hljs-number">0</span><br>		req.PrevLogTerm = <span class="hljs-number">0</span><br><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (nextIndex - <span class="hljs-number">1</span>) == lastSnapIdx &#123;<br>		<span class="hljs-comment">// 如果 -1 等于 快照数据的最大 index, 则 prev 使用快照的值.</span><br>		req.PrevLogEntry = lastSnapIdx<br>		req.PrevLogTerm = lastSnapTerm<br><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">var</span> l Log<br>		<span class="hljs-comment">// 从 LogStore 存储获取上一条日志数据.</span><br>		<span class="hljs-keyword">if</span> err := r.logs.GetLog(nextIndex<span class="hljs-number">-1</span>, &amp;l); err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-comment">// 如果日志不存在, 说明是在 snapshot 快照文件中.</span><br>			<span class="hljs-keyword">return</span> err<br>		&#125;<br><br>		<span class="hljs-comment">// 进行赋值.</span><br>		req.PrevLogEntry = l.Index<br>		req.PrevLogTerm = l.Term<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>setNewLogs</code> 用来获取 nextIndex 到 lastIndex 之间的增量数据, 为避免一次传递太多的数据, 这里限定单次不能超过 MaxAppendEntries 条日志.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// setNewLogs is used to setup the logs which should be appended for a request.</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> setNewLogs(req *AppendEntriesRequest, nextIndex, lastIndex <span class="hljs-type">uint64</span>) <span class="hljs-type">error</span> &#123;<br>	maxAppendEntries := r.config().MaxAppendEntries<br>	req.Entries = <span class="hljs-built_in">make</span>([]*Log, <span class="hljs-number">0</span>, maxAppendEntries)<br><br>	<span class="hljs-comment">// 单词批量发送不能超过 maxAppendEntries 条的日志.</span><br>	<span class="hljs-comment">// 如果增量的数据不到 maxAppendEntries, 那么就发送 nextIndex &gt; lastIndex 之间的数据.</span><br>	maxIndex := min(nextIndex+<span class="hljs-type">uint64</span>(maxAppendEntries)<span class="hljs-number">-1</span>, lastIndex)<br>	<span class="hljs-keyword">for</span> i := nextIndex; i &lt;= maxIndex; i++ &#123;<br>		oldLog := <span class="hljs-built_in">new</span>(Log)<br>		<span class="hljs-keyword">if</span> err := r.logs.GetLog(i, oldLog); err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> err<br>		&#125;<br>		req.Entries = <span class="hljs-built_in">append</span>(req.Entries, oldLog)<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="updateLastAppended"><a href="#updateLastAppended" class="headerlink" title="updateLastAppended"></a>updateLastAppended</h4><p><code>updateLastAppended</code> 用来更新记录 follower 的 nextIndex 值, 另外还会调用 <code>commitment.match</code> 改变 commit 记录, 并通知让状态机应用.</p>
+<p>每个 follower 在同步完数据后, 都需要调用一次 <code>updateLastAppended</code>, 不仅更新 follower nextIndex, 更重要的是更新 commitIndex 提交索引值, <strong><code>commitment.match</code> 内部检测到 commit 发生变动时, 向 commitCh 提交通知, 最后由 leaderLoop 检测到 commit 通知, 并调用状态机 fsm 应用.</strong></p>
+<p>在本地提交后, 当下次 replicate 同步数据时, 自然会携带更新后的 commitIndex, 在 follower 收到且经过判断对比后, 把数据更新自身的状态机里.</p>
+<figure class="highlight roboconf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs roboconf">func updateLastAppended(s *followerReplication, req *AppendEntriesRequest) &#123;<br>	// <span class="hljs-attribute">Mark any inflight logs as committed</span><br><span class="hljs-attribute">	if logs</span> := req<span class="hljs-variable">.Entries</span>; <span class="hljs-attribute">len(logs) &gt; 0 &#123;</span><br><span class="hljs-attribute">		last</span> := logs[len(logs)-1]<br>		atomic<span class="hljs-variable">.StoreUint</span>64(&amp;s<span class="hljs-variable">.nextIndex</span>, last<span class="hljs-variable">.Index</span>+1)<br>		s<span class="hljs-variable">.commitment</span><span class="hljs-variable">.match</span>(s<span class="hljs-variable">.peer</span><span class="hljs-variable">.ID</span>, last<span class="hljs-variable">.Index</span>)<br>	&#125;<br><br>	// Notify still leader<br>	s<span class="hljs-variable">.notifyAll</span>(true)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>🔥 重点:</p>
+<p>在 leader 里找到绝大数 follower 都满足的 Index 作为 commitIndex 进行提交, 先本地提交, 随着下次 replicate 同步日志时, 通知其他 follower 也提交日志到本地.</p>
+<h4 id="计算并提交-commitIndex"><a href="#计算并提交-commitIndex" class="headerlink" title="计算并提交 commitIndex"></a>计算并提交 commitIndex</h4><p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://camo.githubusercontent.com/b8efb4338cc5b8bacdd4a629dbca60819434fcaad58679ddd9be1f3c9648ac96/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323137313734323239302e706e67"><img src="https://camo.githubusercontent.com/b8efb4338cc5b8bacdd4a629dbca60819434fcaad58679ddd9be1f3c9648ac96/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f3230323330323137313734323239302e706e67" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p><code>match</code> 通过计算各个 server 的 matchIndex 计算出 commitIndex. commitIndex 可以理解为法定的提交索引值. 对所有 server 的 matchIndex 进行排序, 然后使用 <code>matched[(len(matched)-1)/2]</code> 值作为 commitIndex. 这样比 commitIndex 小的 log index 会被推到 commitCh 管道里. 后面由 leaderLoop 进行消费, 然后调用 fsm 状态机进行应用日志.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commitment)</span></span> match(server ServerID, matchIndex <span class="hljs-type">uint64</span>) &#123;<br>	c.Lock()<br>	<span class="hljs-keyword">defer</span> c.Unlock()<br>	<span class="hljs-comment">// 如果传入的 server 已投票, 另外 index 大于上一个记录的 index, 则更新 matchIndex.</span><br>	<span class="hljs-keyword">if</span> prev, hasVote := c.matchIndexes[server]; hasVote &amp;&amp; matchIndex &gt; prev &#123;<br>		c.matchIndexes[server] = matchIndex<br><br>		<span class="hljs-comment">// 重新计算</span><br>		c.recalculate()<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(c *commitment)</span></span> recalculate() &#123;<br>	<span class="hljs-comment">// 需要重计算, 但还未初始化 matchIndex 数据时, 直接退出.</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(c.matchIndexes) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 构建一个容器存放各个 server 的 index.</span><br>	matched := <span class="hljs-built_in">make</span>([]<span class="hljs-type">uint64</span>, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(c.matchIndexes))<br>	<span class="hljs-keyword">for</span> _, idx := <span class="hljs-keyword">range</span> c.matchIndexes &#123;<br>		matched = <span class="hljs-built_in">append</span>(matched, idx)<br>	&#125;<br><br>	<span class="hljs-comment">// 对整数切片进行排序, 从小到大正序排序</span><br>	sort.Sort(uint64Slice(matched))<br><br>	<span class="hljs-comment">// 找到 quorum match index 点. 比如 [1 2 3 4 5], 那么 2 为 quorumMatchIndex 法定判断点.</span><br>	quorumMatchIndex := matched[(<span class="hljs-built_in">len</span>(matched)<span class="hljs-number">-1</span>)/<span class="hljs-number">2</span>]<br><br>	<span class="hljs-comment">// 如果法定判断点大于当前的提交点, 并且法定点大于 first index, 则更新 commitIndex 和通知 commitCh.</span><br>	<span class="hljs-keyword">if</span> quorumMatchIndex &gt; c.commitIndex &amp;&amp; quorumMatchIndex &gt;= c.startIndex &#123;<br>		c.commitIndex = quorumMatchIndex<br><br>		<span class="hljs-comment">// 给 commitCh 发送通知, 该 chan 由 leaderLoop 来监听处理.</span><br>		asyncNotifyCh(c.commitCh)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="raft-transport-网络层"><a href="#raft-transport-网络层" class="headerlink" title="raft transport 网络层"></a>raft transport 网络层</h3><p>hashicorp transport 层是使用 msgpack rpc 实现的, 其实现原理没什么可说的.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(n *NetworkTransport)</span></span> AppendEntries(id ServerID, target ServerAddress, args *AppendEntriesRequest, resp *AppendEntriesResponse) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-keyword">return</span> n.genericRPC(id, target, rpcAppendEntries, args, resp)<br>&#125;<br><br><span class="hljs-comment">// genericRPC 为通用的 rpc 请求方法</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(n *NetworkTransport)</span></span> genericRPC(id ServerID, target ServerAddress, rpcType <span class="hljs-type">uint8</span>, args <span class="hljs-keyword">interface</span>&#123;&#125;, resp <span class="hljs-keyword">interface</span>&#123;&#125;) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-comment">// 获取连接对象</span><br>	conn, err := n.getConnFromAddressProvider(id, target)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br><br>	<span class="hljs-comment">// 配置超时</span><br>	<span class="hljs-keyword">if</span> n.timeout &gt; <span class="hljs-number">0</span> &#123;<br>		conn.conn.SetDeadline(time.Now().Add(n.timeout))<br>	&#125;<br><br>	<span class="hljs-comment">// 封装请求报文, 发送请求</span><br>	<span class="hljs-keyword">if</span> err = sendRPC(conn, rpcType, args); err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br><br>	<span class="hljs-comment">// decode 数据到 resp 结构对象中</span><br>	canReturn, err := decodeResponse(conn, resp)<br>	<span class="hljs-keyword">if</span> canReturn &#123;<br>		n.returnConn(conn)<br>	&#125;<br>	<span class="hljs-keyword">return</span> err<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>msgpack rpc 的协议报文格式如下:</p>
+<p><a target="_blank" rel="external nofollow noopener noreferrer" href="https://camo.githubusercontent.com/80b72338e79667fbac7153d5243207cec88836c6ca85020c3dbdd30e254b403e/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f53616d706c65253230466c6f77636861727425323054656d706c6174652532302d322d2e6a7067"><img src="https://camo.githubusercontent.com/80b72338e79667fbac7153d5243207cec88836c6ca85020c3dbdd30e254b403e/68747470733a2f2f7869616f7275692d63632e6f73732d636e2d68616e677a686f752e616c6979756e63732e636f6d2f696d616765732f3230323330322f53616d706c65253230466c6f77636861727425323054656d706c6174652532302d322d2e6a7067" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h3 id="follower-处理-appendEntries-日志同步"><a href="#follower-处理-appendEntries-日志同步" class="headerlink" title="follower 处理 appendEntries 日志同步"></a>follower 处理 appendEntries 日志同步</h3><p><code>appendEntries()</code> 是用来处理来自 leader 发起的 appendEntries 请求. 其内部首先判断请求的日志是否可以用, 能用则保存日志到本地**, 然后调用 <code>processLogs</code> 来通知 fsm 状态机应用日志.**</p>
+<p>如果请求的上条日志跟本实例最新日志不一致, 则返回失败. 而 leader 会根据 follower 返回结果, 获取 follower 最新的 log term 及 index, 然后再同步给 follower 缺失的日志. 另外当 follower 发现冲突日志时, 也会以 leader 的日志为准来覆盖修复产生冲突的日志.</p>
+<p>简单说 <code>appendEntries()</code> 同步日志是 leader 和 follower 不断调整位置再同步数据的过程.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// appendEntries 在收到AppendEntries RPC调用时被触发。</span><br><span class="hljs-comment">// 这个函数必须只在Raft的主线程（事件循环）中调用，以避免并发问题。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> appendEntries(rpc RPC, a *AppendEntriesRequest) &#123;<br>	<span class="hljs-comment">// 使用 metrics 记录 appendEntries RPC 处理的时间。</span><br>	<span class="hljs-keyword">defer</span> metrics.MeasureSince([]<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;raft&quot;</span>, <span class="hljs-string">&quot;rpc&quot;</span>, <span class="hljs-string">&quot;appendEntries&quot;</span>&#125;, time.Now())<br><br>	<span class="hljs-comment">// 初始化 AppendEntries 响应结构体。</span><br>	<span class="hljs-comment">// 默认设置为失败，并包含当前节点的Term和最后一个日志条目的索引。</span><br>	resp := &amp;AppendEntriesResponse&#123;<br>		RPCHeader:      r.getRPCHeader(),   <span class="hljs-comment">// 获取标准的RPC头部信息</span><br>		Term:           r.getCurrentTerm(), <span class="hljs-comment">// 响应中包含当前节点的Term</span><br>		LastLog:        r.getLastIndex(),   <span class="hljs-comment">// 响应中包含当前节点的最后一个日志索引</span><br>		Success:        <span class="hljs-literal">false</span>,              <span class="hljs-comment">// 初始设置为失败</span><br>		NoRetryBackoff: <span class="hljs-literal">false</span>,              <span class="hljs-comment">// 初始设置为允许重试退避</span><br>	&#125;<br>	<span class="hljs-keyword">var</span> rpcErr <span class="hljs-type">error</span> <span class="hljs-comment">// 用于存储处理过程中可能发生的错误</span><br><br>	<span class="hljs-comment">// 使用 defer 确保在函数退出前发送响应。</span><br>	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		rpc.Respond(resp, rpcErr)<br>	&#125;()<br><br>	<span class="hljs-comment">// 规则 1: 如果请求的Term小于当前节点的Term，则忽略该请求。</span><br>	<span class="hljs-comment">// Leader的Term比Follower旧，说明该Leader已失效。</span><br>	<span class="hljs-keyword">if</span> a.Term &lt; r.getCurrentTerm() &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-comment">// 直接返回，不处理旧Term的AppendEntries</span><br>	&#125;<br><br>	<span class="hljs-comment">// 规则 2: 如果请求的Term大于当前节点的Term，或者当前节点不是Follower且不是正在进行领导权转移的Candidate，则更新Term，并转换为Follower状态。</span><br>	<span class="hljs-comment">// 这是Raft的核心规则：看到更高的Term总是意味着过时，必须回退到Follower状态。</span><br>	<span class="hljs-keyword">if</span> a.Term &gt; r.getCurrentTerm() || (r.getState() != Follower &amp;&amp; !r.candidateFromLeadershipTransfer.Load()) &#123;<br>		r.setState(Follower)<br>		r.setCurrentTerm(a.Term)<br>		resp.Term = a.Term <span class="hljs-comment">// 更新响应中的Term为新的当前Term</span><br>	&#125;<br><br>	<span class="hljs-comment">// 记录Leader的地址和ID。</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(a.Addr) &gt; <span class="hljs-number">0</span> &#123;<br>		r.setLeader(r.trans.DecodePeer(a.Addr), ServerID(a.ID))<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		r.setLeader(r.trans.DecodePeer(a.Leader), ServerID(a.ID))<br>	&#125;<br><br>	<span class="hljs-comment">// 规则 3: 验证前一个日志条目的匹配性（Log Consistency Check）。</span><br>	<span class="hljs-comment">// Leader在AppendEntries请求中包含新条目紧前一个条目的索引(PrevLogEntry)和Term(PrevLogTerm)。</span><br>	<span class="hljs-comment">// Follower必须检查自己日志中对应索引的条目Term是否与Leader一致。</span><br>	<span class="hljs-keyword">if</span> a.PrevLogEntry &gt; <span class="hljs-number">0</span> &#123; <span class="hljs-comment">// PrevLogEntry == 0 表示这是第一个日志条目，不需要检查前一个</span><br>		lastIdx, lastTerm := r.getLastEntry() <span class="hljs-comment">// 获取当前节点的最后一个日志条目索引和Term</span><br><br>		<span class="hljs-keyword">var</span> prevLogTerm <span class="hljs-type">uint64</span> <span class="hljs-comment">// 用于存储当前节点 PrevLogEntry 索引处的日志条目的Term</span><br>		<span class="hljs-keyword">if</span> a.PrevLogEntry == lastIdx &#123;<br>			<span class="hljs-comment">// 如果 Leader 的 PrevLogEntry 恰好是当前节点的最后一个日志条目</span><br>			prevLogTerm = lastTerm <span class="hljs-comment">// 直接使用最后一个日志条目的Term</span><br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-comment">// 如果 Leader 的 PrevLogEntry 不是当前节点的最后一个日志条目，需要从日志存储中获取</span><br>			<span class="hljs-keyword">var</span> prevLog Log<br>			<span class="hljs-comment">// 尝试获取 PrevLogEntry 索引处的日志条目</span><br>			<span class="hljs-keyword">if</span> err := r.logs.GetLog(a.PrevLogEntry, &amp;prevLog); err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-comment">// 这种情况下，Leader应该回退并发送更早的日志，所以设置 NoRetryBackoff = true</span><br>				resp.NoRetryBackoff = <span class="hljs-literal">true</span><br>				<span class="hljs-keyword">return</span><br>			&#125;<br>			prevLogTerm = prevLog.Term <span class="hljs-comment">// 获取到日志条目，记录其Term</span><br>		&#125;<br><br>		<span class="hljs-comment">// 如果请求体中上次 term 跟当前 term 不一致, 则直接写失败.</span><br>		<span class="hljs-keyword">if</span> a.PrevLogTerm != prevLogTerm &#123;<br>			<span class="hljs-comment">// Term 不匹配时，Leader 需要回退并发送更早的日志，所以设置 NoRetryBackoff = true</span><br>			resp.NoRetryBackoff = <span class="hljs-literal">true</span><br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 规则 4: 处理新的日志条目。</span><br>	<span class="hljs-comment">// 如果请求中包含新的日志条目 (a.Entries)</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(a.Entries) &gt; <span class="hljs-number">0</span> &#123;<br>		start := time.Now() <span class="hljs-comment">// 记录开始处理日志条目的时间</span><br><br>		<span class="hljs-comment">// 删除任何冲突的条目，并跳过任何重复的条目。</span><br>		lastLogIdx, _ := r.getLastLog() <span class="hljs-comment">// 获取当前节点的最后一个日志索引 (可能与 getLastEntry 不同，取决于实现细节，这里用于比较)</span><br>		<span class="hljs-keyword">var</span> newEntries []*Log           <span class="hljs-comment">// 用于存放真正需要追加的新条目</span><br><br>		<span class="hljs-comment">// 遍历 Leader 发送的日志条目</span><br>		<span class="hljs-keyword">for</span> i, entry := <span class="hljs-keyword">range</span> a.Entries &#123;<br>			<span class="hljs-comment">// 如果当前 Leader 条目的索引大于当前节点的最后一个日志索引，</span><br>			<span class="hljs-comment">// 说明从这里开始的所有条目都是 Leader 新增的，可以直接追加。</span><br>			<span class="hljs-keyword">if</span> entry.Index &gt; lastLogIdx &#123;<br>				newEntries = a.Entries[i:] <span class="hljs-comment">// 将剩余的条目标记为需要追加的新条目</span><br>				<span class="hljs-keyword">break</span>                      <span class="hljs-comment">// 跳出循环，后续只处理 newEntries</span><br>			&#125;<br><br>			<span class="hljs-comment">// 如果 Leader 条目的索引不大于当前节点的最后一个日志索引，</span><br>			<span class="hljs-comment">// 说明当前节点可能已经有了这个索引的条目，需要检查是否冲突。</span><br>			<span class="hljs-keyword">var</span> storeEntry Log<br>			<span class="hljs-comment">// 尝试从存储中获取当前索引的日志条目</span><br>			<span class="hljs-keyword">if</span> err := r.logs.GetLog(entry.Index, &amp;storeEntry); err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-keyword">return</span><br>			&#125;<br><br>			<span class="hljs-comment">// 对比 Leader 条目的Term和当前节点对应索引条目的Term</span><br>			<span class="hljs-keyword">if</span> entry.Term != storeEntry.Term &#123;<br>				<span class="hljs-comment">// 删除从冲突索引到最后一个索引的日志范围</span><br>				<span class="hljs-keyword">if</span> err := r.logs.DeleteRange(entry.Index, lastLogIdx); err != <span class="hljs-literal">nil</span> &#123;<br>					<span class="hljs-comment">// 删除日志失					r.logger.Error(&quot;failed to clear log suffix&quot;, &quot;error&quot;, err)</span><br>					<span class="hljs-keyword">return</span><br>				&#125;<br>				<span class="hljs-comment">// 如果被删除的范围包含最新的配置变更日志条目，需要回退最新的配置信息</span><br>				<span class="hljs-keyword">if</span> entry.Index &lt;= r.configurations.latestIndex &#123;<br>					<span class="hljs-comment">// 将最新的配置设置为已提交的配置，索引也回退到已提交的索引</span><br>					r.setLatestConfiguration(r.configurations.committed, r.configurations.committedIndex)<br>				&#125;<br>				<span class="hljs-comment">// 从当前冲突的条目开始，Leader 的所有条目都视为新的，需要追加。</span><br>				newEntries = a.Entries[i:]<br>				<span class="hljs-keyword">break</span> <span class="hljs-comment">// 跳出循环，后续只处理 newEntries</span><br>			&#125;<br>			<span class="hljs-comment">// 如果索引小于等于 lastLogIdx 且 Term 匹配，说明这个条目是重复的，已经被 Follower 拥有且一致。</span><br>			<span class="hljs-comment">// 继续循环检查下一个 Leader 条目。</span><br>		&#125;<br><br>		<span class="hljs-comment">// 如果有需要追加的新条目 (newEntries 列表不为空)</span><br>		<span class="hljs-keyword">if</span> n := <span class="hljs-built_in">len</span>(newEntries); n &gt; <span class="hljs-number">0</span> &#123;<br>			<span class="hljs-comment">// 将新条目追加到日志存储中。</span><br>			<span class="hljs-keyword">if</span> err := r.logs.StoreLogs(newEntries); err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-keyword">return</span><br>			&#125;<br><br>			<span class="hljs-comment">// 处理任何新的配置变更日志条目。 需要在日志条目追加到存储后处理配置变更。</span><br>			<span class="hljs-keyword">for</span> _, newEntry := <span class="hljs-keyword">range</span> newEntries &#123;<br>				<span class="hljs-comment">// 对于每个新追加的条目，检查它是否是配置变更条目，并进行处理。</span><br>				<span class="hljs-keyword">if</span> err := r.processConfigurationLogEntry(newEntry); err != <span class="hljs-literal">nil</span> &#123;<br>					rpcErr = err <span class="hljs-comment">// 记录RPC错误</span><br>					<span class="hljs-keyword">return</span><br>				&#125;<br>			&#125;<br><br>			<span class="hljs-comment">// 更新当前节点的最后一个日志索引和Term，基于实际追加的最后一个条目。</span><br>			last := newEntries[n<span class="hljs-number">-1</span>]             <span class="hljs-comment">// 获取追加的最后一个条目</span><br>			r.setLastLog(last.Index, last.Term) <span class="hljs-comment">// 更新节点的 lastLog 状态</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 规则 5: 更新当前节点的提交索引 (Commit Index)。</span><br>	<span class="hljs-comment">// Leader 在 AppendEntries 请求中包含自己的提交索引 (LeaderCommitIndex)。</span><br>	<span class="hljs-comment">// Follower 必须将自己的提交索引更新为 min(Leader 的提交索引, 自己最后一个日志条目的索引)。</span><br>	<span class="hljs-keyword">if</span> a.LeaderCommitIndex &gt; <span class="hljs-number">0</span> &amp;&amp; a.LeaderCommitIndex &gt; r.getCommitIndex() &#123;<br>		start := time.Now() <span class="hljs-comment">// 记录开始处理提交的时间</span><br>		<span class="hljs-comment">// 计算新的提交索引：取 Leader 的提交索引和当前节点最后一个日志索引的最小值。</span><br>		idx := min(a.LeaderCommitIndex, r.getLastIndex())<br>		<span class="hljs-comment">// 更新当前节点的提交索引。</span><br>		r.setCommitIndex(idx)<br><br>		<span class="hljs-comment">// 如果最新的配置变更日志条目索引小于等于新的提交索引，则表示该配置变更已提交。</span><br>		<span class="hljs-keyword">if</span> r.configurations.latestIndex &lt;= idx &#123;<br>			<span class="hljs-comment">// 将最新的配置设置为已提交的配置，并更新已提交的索引。</span><br>			r.setCommittedConfiguration(r.configurations.latest, r.configurations.latestIndex)<br>		&#125;<br><br>		<span class="hljs-comment">// 重点把 commitIndex 之前的日志提交到状态机 FSM 进行应用日志.。</span><br>		<span class="hljs-comment">// 从旧的提交索引开始（或0）处理到新的提交索引 idx。</span><br>		r.processLogs(idx, <span class="hljs-literal">nil</span>) <span class="hljs-comment">// nil 表示应用到默认的状态机 (或这里没有特定的应用函数)</span><br>	&#125;<br><br>	<span class="hljs-comment">// 如果执行到这里没有返回错误或因为旧Term/日志不匹配而提前返回，说明 AppendEntries 成功。</span><br>	resp.Success = <span class="hljs-literal">true</span><br>	<span class="hljs-comment">// 记录最后一次与Leader成功通信的时间。这用于重置选举超时定时器。</span><br>	r.setLastContact()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="状态机-FSM-应用日志"><a href="#状态机-FSM-应用日志" class="headerlink" title="状态机 FSM 应用日志"></a>状态机 FSM 应用日志</h3><p>不管是 Leader 和 Follower 都会调用状态机 FSM 来应用日志. 其流程是先调用 <code>processLogs</code> 来打包批量日志, 然后将日志推到 <code>fsmMutateCh</code> 管道里, 最后由 <code>runFSM</code> 协程来监听该管道, 并把日志应用到状态机里面.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// processLogs 用于应用所有尚未应用的已提交日志条目，直到给定的索引上限。</span><br><span class="hljs-comment">// 该方法可以被领导者（Leader）和跟随者（Follower）调用。</span><br><span class="hljs-comment">// 1. 跟随者通过 AppendEntries 方法调用此函数，一次处理 n 条日志条目，且总是传递 futures=nil。</span><br><span class="hljs-comment">// 2. 领导者在日志条目被提交时调用此函数，并传递来自任何正在处理中的日志的 futures。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> processLogs(index <span class="hljs-type">uint64</span>, futures <span class="hljs-keyword">map</span>[<span class="hljs-type">uint64</span>]*logFuture) &#123;<br>	<span class="hljs-comment">// 获取当前已经应用的最后一个日志条目的索引</span><br>	lastApplied := r.getLastApplied()<br><br>	<span class="hljs-comment">// 如果传入的索引小于或等于已应用的最后一个索引，说明这些日志已经被应用，跳过处理</span><br>	<span class="hljs-keyword">if</span> index &lt;= lastApplied &#123;<br>		<span class="hljs-comment">// 记录警告日志，表示正在跳过已应用的旧日志</span><br>		r.logger.Warn(<span class="hljs-string">&quot;skipping application of old log&quot;</span>, <span class="hljs-string">&quot;index&quot;</span>, index)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 定义 applyBatch 函数，用于将一批日志条目提交给状态机（FSM）进行处理</span><br>	applyBatch := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(batch []*commitTuple)</span></span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> r.fsmMutateCh &lt;- batch:<br>			<span class="hljs-comment">// 将批次日志发送到状态机的通道中，由状态机负责实际应用这些日志</span><br>		<span class="hljs-keyword">case</span> &lt;-r.shutdownCh:<br>			<span class="hljs-comment">// 如果 Raft 实例正在关闭，则遍历批次中的每个日志条目</span><br>			<span class="hljs-keyword">for</span> _, cl := <span class="hljs-keyword">range</span> batch &#123;<br>				<span class="hljs-comment">// 如果该日志条目有关联的 future（即异步操作的回调），则通知其 Raft 已关闭</span><br>				<span class="hljs-keyword">if</span> cl.future != <span class="hljs-literal">nil</span> &#123;<br>					cl.future.respond(ErrRaftShutdown)<br>				&#125;<br>			&#125;<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 获取配置中的 MaxAppendEntries 参数，表示一次最多可以处理的日志条目数量</span><br>	maxAppendEntries := r.config().MaxAppendEntries<br><br>	<span class="hljs-comment">// 创建一个批次容器，用于存储待提交给状态机的日志条目</span><br>	batch := <span class="hljs-built_in">make</span>([]*commitTuple, <span class="hljs-number">0</span>, maxAppendEntries)<br><br>	<span class="hljs-comment">// 遍历从 lastApplied+1 到 index 的所有日志条目，逐一处理</span><br>	<span class="hljs-keyword">for</span> idx := lastApplied + <span class="hljs-number">1</span>; idx &lt;= index; idx++ &#123;<br>		<span class="hljs-keyword">var</span> preparedLog *commitTuple<br>		<span class="hljs-comment">// 检查是否存在与当前索引对应的 future（即领导者传递的正在处理的日志条目）</span><br>		future, futureOk := futures[idx]<br>		<span class="hljs-keyword">if</span> futureOk &#123;<br>			<span class="hljs-comment">// 如果存在 future，则从 future 中提取日志条目并进行预处理</span><br>			<span class="hljs-comment">// prepareLog 方法会将日志条目封装为 commitTuple 结构，供状态机处理</span><br>			preparedLog = r.prepareLog(&amp;future.log, future)<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-comment">// 如果没有 future，则从日志存储（log store）中获取对应索引的日志条目</span><br>			l := <span class="hljs-built_in">new</span>(Log)<br>			<span class="hljs-keyword">if</span> err := r.logs.GetLog(idx, l); err != <span class="hljs-literal">nil</span> &#123;<br>				<span class="hljs-comment">// 如果获取日志失败，记录错误日志并触发 panic，因为这通常表示系统状态不一致</span><br>				r.logger.Error(<span class="hljs-string">&quot;failed to get log&quot;</span>, <span class="hljs-string">&quot;index&quot;</span>, idx, <span class="hljs-string">&quot;error&quot;</span>, err)<br>				<span class="hljs-built_in">panic</span>(err)<br>			&#125;<br>			<span class="hljs-comment">// 对从日志存储中获取的日志条目进行预处理，注意这里没有 future</span><br>			preparedLog = r.prepareLog(l, <span class="hljs-literal">nil</span>)<br>		&#125;<br><br>		<span class="hljs-comment">// 根据预处理结果进行不同的处理</span><br>		<span class="hljs-keyword">switch</span> &#123;<br>		<span class="hljs-keyword">case</span> preparedLog != <span class="hljs-literal">nil</span>:<br>			<span class="hljs-comment">// 如果日志条目已经成功预处理（即 preparedLog 不为空），则将其加入批次容器</span><br>			<span class="hljs-comment">// 该日志条目将被发送到状态机线程进行处理，状态机会负责调用 future 的回调</span><br>			batch = <span class="hljs-built_in">append</span>(batch, preparedLog)<br><br>			<span class="hljs-comment">// 如果当前批次的大小达到或超过 maxAppendEntries，则提交该批次</span><br>			<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(batch) &gt;= maxAppendEntries &#123;<br>				applyBatch(batch)<br>				<span class="hljs-comment">// 提交后清空批次容器，并重新分配容量为 maxAppendEntries 的新容器</span><br>				batch = <span class="hljs-built_in">make</span>([]*commitTuple, <span class="hljs-number">0</span>, maxAppendEntries)<br>			&#125;<br><br>		<span class="hljs-keyword">case</span> futureOk:<br>			<span class="hljs-comment">// 如果存在 future 但 preparedLog 为空，说明该日志条目无需应用到状态机</span><br>			<span class="hljs-comment">// 直接调用 future 的回调函数通知操作完成（通常用于某些特殊类型的日志，如配置变更）</span><br>			future.respond(<span class="hljs-literal">nil</span>)<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 如果循环结束后批次容器中仍有未提交的日志条目，则提交剩余的批次</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(batch) != <span class="hljs-number">0</span> &#123;<br>		applyBatch(batch)<br>	&#125;<br><br>	<span class="hljs-comment">// 更新 lastApplied 索引，表示所有日志条目已应用到给定的 index</span><br>	r.setLastApplied(index)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="runFSM"><a href="#runFSM" class="headerlink" title="runFSM"></a>runFSM</h4><p><strong>主要作用 (Main Purpose):</strong></p>
+<p><code>runFSM</code> 是一个长期运行的 goroutine（协程），它 **专门负责将已提交的日志条目应用到用户提供的有限状态机 (FSM)**。它还负责处理 FSM 的快照创建和恢复操作。<br>其核心设计目的是将 FSM 的操作（可能是耗时的 I&#x2F;O 操作或复杂计算）与 Raft 核心的共识逻辑 <strong>异步隔离</strong> 开来。这样做可以防止 FSM 的潜在阻塞影响 Raft 内部的及时性和性能，例如心跳、选举、日志复制等关键操作。</p>
+<p><code>runFSM</code> 方法的核心逻辑是一个无限循环，通过 <code>select</code> 监听多个通道，处理不同类型的请求。以下是其主要流程的分解：</p>
+<ol>
+<li><p><strong>初始化和准备</strong></p>
+<ul>
+<li>定义 <code>lastIndex</code> 和 <code>lastTerm</code>，用于跟踪状态机已应用的最后一个日志条目的索引和任期。</li>
+<li>检查状态机是否支持批处理（<code>BatchingFSM</code> 接口）和配置存储（<code>ConfigurationStore</code> 接口），以决定后续处理方式。</li>
+</ul>
+</li>
+<li><p><strong>定义核心处理函数</strong><br>方法内部定义了几个关键的处理函数，用于处理不同的请求类型：</p>
+<ul>
+<li><p><code>applySingle</code></p>
+<p>：处理单个日志条目。</p>
+<ul>
+<li>判断日志类型（<code>LogCommand</code> 或 <code>LogConfiguration</code>），分别调用状态机的 <code>Apply</code> 或 <code>StoreConfiguration</code> 方法。</li>
+<li>更新 <code>lastIndex</code> 和 <code>lastTerm</code>。</li>
+<li>如果日志条目有关联的 <code>future</code>，则通过 <code>future</code> 返回响应。</li>
+</ul>
+</li>
+<li><p><code>applyBatch</code></p>
+<p>：处理一批日志条目。</p>
+<ul>
+<li>如果状态机支持批处理（<code>BatchingFSM</code>），则过滤出需要发送的日志条目（仅 <code>LogCommand</code> 和 <code>LogConfiguration</code> 类型），批量调用 <code>ApplyBatch</code>。</li>
+<li>如果状态机不支持批处理，则逐个调用 <code>applySingle</code>。</li>
+<li>更新 <code>lastIndex</code> 和 <code>lastTerm</code>。</li>
+<li>为每个日志条目关联的 <code>future</code> 返回响应。</li>
+</ul>
+</li>
+<li><p><code>restore</code></p>
+<p>：从快照恢复状态机。</p>
+<ul>
+<li>打开指定的快照文件，读取元数据和内容。</li>
+<li>调用状态机的恢复方法（<code>Restore</code>），将快照数据加载到状态机。</li>
+<li>更新 <code>lastIndex</code> 和 <code>lastTerm</code>。</li>
+<li>通过 <code>future</code> 返回操作结果。</li>
+</ul>
+</li>
+<li><p><code>snapshot</code></p>
+<p>：生成状态机快照。</p>
+<ul>
+<li>检查是否有新的日志需要快照（如果 <code>lastIndex</code> 为 0，则返回错误）。</li>
+<li>调用状态机的 <code>Snapshot</code> 方法生成快照。</li>
+<li>通过 <code>future</code> 返回快照对象和操作结果。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>主循环监听通道</strong><br>主循环通过 <code>select</code> 监听以下通道，处理不同的请求：</p>
+<ul>
+<li><p><code>r.fsmMutateCh</code></p>
+<p>：处理日志应用或状态机恢复请求。</p>
+<ul>
+<li>如果收到的是 <code>[]*commitTuple</code>，则调用 <code>applyBatch</code> 批量应用日志。</li>
+<li>如果收到的是 <code>restoreFuture</code>，则调用 <code>restore</code> 从快照恢复状态机。</li>
+</ul>
+</li>
+<li><p><code>r.fsmSnapshotCh</code></p>
+<p>：处理快照生成请求。</p>
+<ul>
+<li>调用 <code>snapshot</code> 生成状态机快照。</li>
+</ul>
+</li>
+<li><p><code>r.shutdownCh</code></p>
+<p>：监听 Raft 关闭信号。</p>
+<ul>
+<li>如果收到关闭信号，则退出 goroutine。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> runFSM() &#123;<br>	<span class="hljs-keyword">var</span> lastIndex, lastTerm <span class="hljs-type">uint64</span><br><br>	batchingFSM, batchingEnabled := r.fsm.(BatchingFSM)<br>	configStore, configStoreEnabled := r.fsm.(ConfigurationStore)<br>	<span class="hljs-comment">// 处理单个日志条目。</span><br>	applySingle := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(req *commitTuple)</span></span> &#123;<br>		<span class="hljs-keyword">var</span> resp <span class="hljs-keyword">interface</span>&#123;&#125;<br>		...<br><br>		<span class="hljs-keyword">switch</span> req.log.Type &#123;<br>		<span class="hljs-keyword">case</span> LogCommand:<br>			<span class="hljs-comment">// 调用 fsm 接口进行提交.</span><br>			resp = r.fsm.Apply(req.log)<br><br>		<span class="hljs-keyword">case</span> LogConfiguration:<br>			<span class="hljs-comment">// 更新配置</span><br>			configStore.StoreConfiguration(req.log.Index, DecodeConfiguration(req.log.Data))<br>		&#125;<br><br>		<span class="hljs-comment">// 更新 index 和 term</span><br>		lastIndex = req.log.Index<br>		lastTerm = req.log.Term<br>	&#125;<br><span class="hljs-comment">// 处理一批日志条目。</span><br>	applyBatch := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(reqs []*commitTuple)</span></span> &#123;<br>		<span class="hljs-comment">// 如果用户实现了 BatchingFSM 接口, 则说明允许批量应用日志.</span><br>		<span class="hljs-comment">// 没实现, 则说明没开启该功能.</span><br>		<span class="hljs-keyword">if</span> !batchingEnabled &#123;<br>			<span class="hljs-keyword">for</span> _, ct := <span class="hljs-keyword">range</span> reqs &#123;<br>				<span class="hljs-comment">// 只用单次接口调用状态机应用日志</span><br>				applySingle(ct)<br>			&#125;<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		<span class="hljs-keyword">var</span> lastBatchIndex, lastBatchTerm <span class="hljs-type">uint64</span><br>		sendLogs := <span class="hljs-built_in">make</span>([]*Log, <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(reqs))<br>		<span class="hljs-keyword">for</span> _, req := <span class="hljs-keyword">range</span> reqs &#123;<br>			<span class="hljs-comment">// 批量打包</span><br>		&#125;<br><br>		<span class="hljs-keyword">var</span> responses []<span class="hljs-keyword">interface</span>&#123;&#125;<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(sendLogs) &gt; <span class="hljs-number">0</span> &#123;<br>			start := time.Now()<br>			<span class="hljs-comment">// 调用 fsm 批量应用接口</span><br>			responses = batchingFSM.ApplyBatch(sendLogs)<br>			<span class="hljs-comment">// ...</span><br>		&#125;<br><br>		<span class="hljs-comment">// 更新 index.</span><br>		lastIndex = lastBatchIndex<br>		lastTerm = lastBatchTerm<br><br>		<span class="hljs-keyword">for</span> _, req := <span class="hljs-keyword">range</span> reqs &#123;<br>			<span class="hljs-comment">// 返回通知</span><br>			<span class="hljs-keyword">if</span> req.future != <span class="hljs-literal">nil</span> &#123;<br>				req.future.response = resp<br>				req.future.respond(<span class="hljs-literal">nil</span>)<br>			&#125;<br>			<span class="hljs-comment">// ...</span><br>		&#125;<br>	&#125;<br><span class="hljs-comment">// 从快照恢复状态机</span><br>	restore := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(req *restoreFuture)</span></span> &#123;<br>		<span class="hljs-comment">// 根据 request id 获取已保存本地的快照文件</span><br>		meta, source, err := r.snapshots.Open(req.ID)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>		<span class="hljs-keyword">defer</span> source.Close()<br><br>		<span class="hljs-comment">// 尝试恢复快照数据</span><br>		<span class="hljs-keyword">if</span> err := fsmRestoreAndMeasure(snapLogger, r.fsm, source, meta.Size); err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		<span class="hljs-comment">// Update the last index and term</span><br>		<span class="hljs-comment">// 更新当前最近的日志的 index 和 term.</span><br>		lastIndex = meta.Index<br>		lastTerm = meta.Term<br>		req.respond(<span class="hljs-literal">nil</span>)<br>	&#125;<br>	<span class="hljs-comment">// 生成状态机快照。</span><br>	snapshot := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(req *reqSnapshotFuture)</span></span> &#123;<br>		<span class="hljs-comment">// ...</span><br>	&#125;<br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> ptr := &lt;-r.fsmMutateCh:<br>			<span class="hljs-keyword">switch</span> req := ptr.(<span class="hljs-keyword">type</span>) &#123;<br>			<span class="hljs-keyword">case</span> []*commitTuple:<br>				<span class="hljs-comment">// 进行状态机提交</span><br>				applyBatch(req)<br><br>			<span class="hljs-keyword">case</span> *restoreFuture:<br>				<span class="hljs-comment">// 恢复 snapshot 快照文件</span><br>				restore(req)<br><br>			<span class="hljs-keyword">default</span>:<br>				<span class="hljs-comment">// 其他情况直接 panic</span><br>				<span class="hljs-built_in">panic</span>(fmt.Errorf(<span class="hljs-string">&quot;bad type passed to fsmMutateCh: %#v&quot;</span>, ptr))<br>			&#125;<br><br>		<span class="hljs-keyword">case</span> req := &lt;-r.fsmSnapshotCh:<br>			snapshot(req)<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="二、总结"><a href="#二、总结" class="headerlink" title="二、总结"></a>二、总结</h2><p>上述过程简单来说就是, 上层写日志, leader 同步日志, follower 接收日志, leader 确认提交日志, follower 跟着提交日志.</p>
+<h2 id="三、问题"><a href="#三、问题" class="headerlink" title="三、问题"></a>三、问题</h2><ul>
+<li><strong>问题 1：Raft 如何处理网络分区？</strong><ul>
+<li>解答：Raft 通过领导人选举和多数派机制来处理网络分区。<ul>
+<li><strong>分区形成：</strong> 当网络分区发生时，集群可能分裂成多个部分，每个部分都无法与多数节点通信。</li>
+<li><strong>选举：</strong> 在每个分区中，如果 Follower 节点在选举超时时间内没有收到 Leader 的心跳，它们会发起选举。</li>
+<li><strong>多数派：</strong> 只有包含多数节点的分区才能选出新的 Leader。少数派分区中的节点无法赢得选举，因为它们无法获得多数票。</li>
+<li><strong>旧 Leader：</strong> 如果旧 Leader 位于少数派分区，它会因为无法与多数节点通信而退位成 Follower。</li>
+<li><strong>数据一致性：</strong> Raft 保证，即使在网络分区的情况下，也只有一个分区能够提交新的日志条目，从而保证数据一致性。</li>
+<li><strong>分区恢复：</strong> 当网络分区恢复后，少数派分区中的节点会重新加入集群，并从新 Leader 那里同步最新的日志。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题 2：Raft 如何保证数据一致性？</strong><ul>
+<li>解答：Raft 通过以下机制保证数据一致性：<ul>
+<li><strong>强领导者：</strong> 只有 Leader 才能接受客户端请求并生成新的日志条目。</li>
+<li><strong>日志复制：</strong> Leader 将日志条目复制到所有 Follower。只有当多数 Follower 确认收到日志条目后，Leader 才会提交该条目。</li>
+<li><strong>仅追加日志：</strong> 日志条目只能追加到日志末尾，不能修改或删除。</li>
+<li><strong>选举限制：</strong> 只有拥有最新日志的节点才能成为 Leader。</li>
+<li><strong>提交限制：</strong> 只有 Leader 才能推进 <code>commitIndex</code>，且 <code>commitIndex</code> 只会单调递增。</li>
+<li><strong>状态机：</strong> 所有节点按照相同的顺序应用已提交的日志条目到状态机，保证状态机状态一致。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题 3：Raft 中的 <code>commitIndex</code> 和 <code>lastApplied</code> 有什么区别？</strong><ul>
+<li>解答：<ul>
+<li><strong><code>commitIndex</code>：</strong> 表示已知已提交的最高日志条目的索引。这意味着索引小于或等于 <code>commitIndex</code> 的所有日志条目都已安全地复制到多数节点，可以应用到状态机。</li>
+<li><strong><code>lastApplied</code>：</strong> 表示已应用到状态机的最高日志条目的索引。每个节点独立维护自己的 <code>lastApplied</code>。</li>
+<li><strong>关系：</strong> <code>lastApplied</code> 通常小于或等于 <code>commitIndex</code>。当 <code>lastApplied</code> 小于 <code>commitIndex</code> 时，表示节点正在将已提交的日志条目应用到状态机。当两者相等时，表示状态机是最新的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题 4：Raft 如何处理客户端请求的幂等性？</strong><ul>
+<li>解答：Raft 本身不直接处理客户端请求的幂等性。幂等性通常需要在客户端或应用层实现。一种常见的做法是：<ul>
+<li><strong>客户端生成唯一 ID：</strong> 客户端为每个请求生成一个唯一的 ID（例如 UUID）。</li>
+<li><strong>服务器跟踪 ID：</strong> 服务器跟踪已处理的请求 ID。如果收到具有相同 ID 的重复请求，服务器可以直接返回之前的结果，而无需重新执行操作。</li>
+<li><strong>状态机：</strong> 在应用层，状态机可以记录已执行的请求 ID，以避免重复执行。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="四、参考链接"><a href="#四、参考链接" class="headerlink" title="四、参考链接"></a>四、参考链接</h2><p>1.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://www.cnblogs.com/aganippe/p/16292050.html">Hashicorp Raft实现和API分析</a></p>
+<p>2.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://qiankunli.github.io/2020/05/17/hashicorp_raft.html">hashicorp raft源码学习</a></p>
+<p>3.<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/rfyiamcool/notes/blob/main/hashicorp_raft_replication_code.md#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-hashicorp-raft-replication-%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">源码分析 hashicorp raft replication 日志复制的实现原理</a></p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" class="category-chain-item">分布式</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">#分布式</a>
+      
+        <a href="/tags/raft/">#raft</a>
+      
+        <a href="/tags/%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">#源码分析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>hashicorp raft源码分析（二、日志复制与安全性实现）</div>
+      <div>https://blog.longpi1.com/2025/05/12/hashicorp-raft源码分析（二、日志复制与安全性实现）/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/05/11/Deepwiki-Github%E7%9A%84%E7%99%BE%E7%A7%91%E5%85%A8%E4%B9%A6/" title="DeepWiki:  Github的百科全书">
+                        <span class="hidden-mobile">DeepWiki:  Github的百科全书</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
