@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="算法专题：回溯（Backtracking） 相关数据结构实现用go语言实现 相关代码做题合集：https:&#x2F;&#x2F;github.com&#x2F;longpi1&#x2F;algorithm-pattern  1. 引言在计算机科学中，回溯（Backtracking）是一种常用的算法范式，用于在所有（或部分）可能的解中搜索问题的解。它是一种通过尝试所有可能路径来找到解决方案的系统化方法。当遇到死路或者发现当前路径不可能通">
+<meta property="og:type" content="article">
+<meta property="og:title" content="06.算法——回溯">
+<meta property="og:url" content="https://blog.longpi1.com/2025/06/18/06-%E7%AE%97%E6%B3%95%E5%9B%9E%E6%BA%AF/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="算法专题：回溯（Backtracking） 相关数据结构实现用go语言实现 相关代码做题合集：https:&#x2F;&#x2F;github.com&#x2F;longpi1&#x2F;algorithm-pattern  1. 引言在计算机科学中，回溯（Backtracking）是一种常用的算法范式，用于在所有（或部分）可能的解中搜索问题的解。它是一种通过尝试所有可能路径来找到解决方案的系统化方法。当遇到死路或者发现当前路径不可能通">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-06-18T14:35:32.000Z">
+<meta property="article:modified_time" content="2025-06-18T14:37:02.959Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="数据结构">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>06.算法——回溯 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="06.算法——回溯"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-18 22:35" pubdate>
+          2025年6月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">06.算法——回溯</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h2 id="算法专题：回溯（Backtracking）"><a href="#算法专题：回溯（Backtracking）" class="headerlink" title="算法专题：回溯（Backtracking）"></a>算法专题：回溯（Backtracking）</h2><blockquote>
+<p>相关数据结构实现用go语言实现</p>
+<p>相关代码做题合集：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/algorithm-pattern">https://github.com/longpi1/algorithm-pattern</a></p>
+</blockquote>
+<h3 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h3><p>在计算机科学中，回溯（Backtracking）是一种常用的算法范式，用于在所有（或部分）可能的解中搜索问题的解。它是一种通过尝试所有可能路径来找到解决方案的系统化方法。当遇到死路或者发现当前路径不可能通向有效解时，算法会“回溯”到上一个决策点，并尝试另一条路径。</p>
+<p>回溯算法本质上是一种深度优先搜索（DFS），它在问题的解空间树（State-Space Tree）中进行搜索。</p>
+<h3 id="2-回溯的核心思想"><a href="#2-回溯的核心思想" class="headerlink" title="2. 回溯的核心思想"></a>2. 回溯的核心思想</h3><p>回溯算法的核心思想可以概括为“试探”和“撤销”：</p>
+<ol>
+<li><strong>选择（Choose）</strong>：在当前状态下，选择一个可能的下一步。</li>
+<li><strong>探索（Explore）</strong>：基于这个选择，进入新的状态。</li>
+<li>判断（Judge）：<ul>
+<li>如果新状态满足问题的解条件，则找到了一个解。</li>
+<li>如果新状态无法继续（即进入死路）或者已经不符合约束条件（即此路不通），则放弃此路径。</li>
+</ul>
+</li>
+<li><strong>回溯（Unchoose&#x2F;Backtrack）</strong>：撤销上一步的选择，返回到上一个状态，尝试另一个不同的选择。</li>
+</ol>
+<p>这个过程就像在一个迷宫中寻找出口：你选择一条路走，如果走不通就退回来，再尝试另一条路，直到找到出口或者尝试完所有路径。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go">回溯法（backtrack）常用于遍历列表所有子集，是 DFS 深度搜索一种，一般用于全排列，穷尽所有可能，遍历的过程实际上是一个决策树的遍历过程。时间复杂度一般 O(N!)，它不像动态规划存在重叠子问题可以优化，回溯算法就是纯暴力穷举，复杂度一般都很高。<br><br>## 模板<br><br><span class="hljs-string">``</span><span class="hljs-string">`go</span><br><span class="hljs-string">result = []</span><br><span class="hljs-string">func backtrack(选择列表,路径):</span><br><span class="hljs-string">    if 满足结束条件:</span><br><span class="hljs-string">        result.add(路径)</span><br><span class="hljs-string">        return</span><br><span class="hljs-string">    for 选择 in 选择列表:</span><br><span class="hljs-string">        做选择</span><br><span class="hljs-string">        backtrack(选择列表,路径)</span><br><span class="hljs-string">        撤销选择</span><br><span class="hljs-string">`</span><span class="hljs-string">``</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-回溯算法的特点"><a href="#3-回溯算法的特点" class="headerlink" title="3. 回溯算法的特点"></a>3. 回溯算法的特点</h3><ul>
+<li><strong>递归实现</strong>：通常通过递归函数实现，函数参数代表当前状态。</li>
+<li><strong>状态管理</strong>：在每次选择时修改当前状态，在回溯时恢复状态。这是回溯算法的关键。</li>
+<li><strong>剪枝（Pruning）</strong>：在搜索过程中，如果发现当前路径不可能通向有效解，就立即停止对该路径的进一步探索，从而大大减少搜索空间，提高效率。</li>
+<li><strong>解空间树</strong>：问题的所有可能解形成一个树形结构，回溯算法就是在这个树上进行深度优先遍历。</li>
+</ul>
+<h3 id="4-适用场景"><a href="#4-适用场景" class="headerlink" title="4. 适用场景"></a>4. 适用场景</h3><p>回溯算法常用于解决以下类型的问题：</p>
+<ul>
+<li><strong>组合问题</strong>：从给定集合中找出所有满足条件的组合（如子集、组合总和）。</li>
+<li><strong>排列问题</strong>：从给定集合中找出所有可能的排列。</li>
+<li><strong>子集问题</strong>：找出给定集合的所有子集。</li>
+<li><strong>棋盘游戏</strong>：如N皇后问题、数独。</li>
+<li><strong>路径搜索</strong>：如迷宫问题、旅行商问题（决策版本）。</li>
+</ul>
+<h3 id="5-回溯算法通用模板-Go语言实现"><a href="#5-回溯算法通用模板-Go语言实现" class="headerlink" title="5. 回溯算法通用模板 (Go语言实现)"></a>5. 回溯算法通用模板 (Go语言实现)</h3><p>一个典型的回溯函数通常包含以下几个部分：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// result 存储所有找到的有效解</span><br><span class="hljs-keyword">var</span> result [][]<span class="hljs-type">int</span> <span class="hljs-comment">// 或者 []string, [][]string 等，取决于问题的解类型</span><br><br><span class="hljs-comment">// backtrack 是回溯函数的核心</span><br><span class="hljs-comment">// 参数根据具体问题而定，通常包含：</span><br><span class="hljs-comment">// - currentPath: 当前正在构建的解（路径）</span><br><span class="hljs-comment">// - choices: 可供选择的元素集合</span><br><span class="hljs-comment">// - startIndex/index: 当前处理到 choices 的哪个位置</span><br><span class="hljs-comment">// - ... 其他可能需要的状态信息或约束条件</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">backtrack</span><span class="hljs-params">(currentPath []<span class="hljs-type">int</span>, choices []<span class="hljs-type">int</span>, startIndex <span class="hljs-type">int</span> /* ...其他参数 */)</span></span> &#123;<br>    <span class="hljs-comment">// 1. 终止条件 / 找到解的条件</span><br>    <span class="hljs-comment">// 如果 currentPath 满足了问题的解条件，则将其加入 result</span><br>    <span class="hljs-comment">// 注意：需要对 currentPath 进行深拷贝，因为它是共享的，后续会修改</span><br>    <span class="hljs-keyword">if</span> isSolution(currentPath <span class="hljs-comment">/* ... */</span>) &#123;<br>        temp := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-built_in">len</span>(currentPath))<br>        <span class="hljs-built_in">copy</span>(temp, currentPath)<br>        result = <span class="hljs-built_in">append</span>(result, temp)<br>        <span class="hljs-comment">// 如果只需要一个解，可以在这里 return</span><br>        <span class="hljs-comment">// return</span><br>    &#125;<br><br>    <span class="hljs-comment">// 2. 剪枝条件 (可选)</span><br>    <span class="hljs-comment">// 如果当前路径已经不符合约束条件，或者不可能通向有效解，则直接返回</span><br>    <span class="hljs-keyword">if</span> shouldPrune(currentPath <span class="hljs-comment">/* ... */</span>) &#123;<br>        <span class="hljs-keyword">return</span><br>    &#125;<br><br>    <span class="hljs-comment">// 3. 遍历所有可能的选择</span><br>    <span class="hljs-comment">// 通常从 startIndex 开始，避免重复选择（针对组合问题）或已用过的选择</span><br>    <span class="hljs-keyword">for</span> i := startIndex; i &lt; <span class="hljs-built_in">len</span>(choices); i++ &#123;<br>        <span class="hljs-comment">// 4. 做选择 (做出决策)</span><br>        <span class="hljs-comment">// 将 choices[i] 加入 currentPath</span><br>        <span class="hljs-comment">// 同时更新其他状态，例如标记 choices[i] 为已使用</span><br>        currentPath = <span class="hljs-built_in">append</span>(currentPath, choices[i])<br>        <span class="hljs-comment">// updateOtherStates(choices[i]) // 例如，N皇后问题中标记行列对角线被占用</span><br><br>        <span class="hljs-comment">// 5. 递归调用，进入下一层决策</span><br>        <span class="hljs-comment">// startIndex 传入 i+1 通常用于组合问题，确保不重复选择</span><br>        <span class="hljs-comment">// index 传入 i （或者其他形式）用于排列问题，下次从头遍历</span><br>        backtrack(currentPath, choices, i+<span class="hljs-number">1</span> <span class="hljs-comment">/* ... */</span>)<br><br>        <span class="hljs-comment">// 6. 撤销选择 (回溯)</span><br>        <span class="hljs-comment">// 将 choices[i] 从 currentPath 移除</span><br>        <span class="hljs-comment">// 恢复之前更新的其他状态，回到上一个决策点</span><br>        currentPath = currentPath[:<span class="hljs-built_in">len</span>(currentPath)<span class="hljs-number">-1</span>]<br>        <span class="hljs-comment">// revertOtherStates(choices[i])</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 辅助函数，判断是否是有效解 (根据具体问题实现)</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">isSolution</span><span class="hljs-params">(path []<span class="hljs-type">int</span> /* ... */)</span></span> <span class="hljs-type">bool</span> &#123;<br>    <span class="hljs-comment">// 示例：如果path的长度达到某个值，则认为是解</span><br>    <span class="hljs-comment">// return len(path) == targetLength</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> <span class="hljs-comment">// 占位符</span><br>&#125;<br><br><span class="hljs-comment">// 辅助函数，判断是否需要剪枝 (根据具体问题实现)</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">shouldPrune</span><span class="hljs-params">(path []<span class="hljs-type">int</span> /* ... */)</span></span> <span class="hljs-type">bool</span> &#123;<br>    <span class="hljs-comment">// 示例：如果path的和超过某个值，则剪枝</span><br>    <span class="hljs-comment">// sum := 0</span><br>    <span class="hljs-comment">// for _, v := range path &#123; sum += v &#125;</span><br>    <span class="hljs-comment">// return sum &gt; maxSum</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span> <span class="hljs-comment">// 占位符</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意事项：</strong></p>
+<ul>
+<li><code>currentPath</code> 是一个切片，在 Go 中切片是引用类型。在将 <code>currentPath</code> 添加到 <code>result</code> 时，必须进行深拷贝，否则 <code>result</code> 中的所有元素最终都将指向同一个被修改的切片，导致结果不正确。</li>
+<li>startIndex 的使用在组合问题和排列问题中有所不同。<ul>
+<li><strong>组合问题</strong>：<code>startIndex</code> 通常在递归调用中传递 <code>i+1</code>，以确保每个元素只被考虑一次，并且避免生成重复的组合。</li>
+<li><strong>排列问题</strong>：通常需要一个布尔数组 <code>used</code> 来标记哪些元素已被使用，每次从 <code>0</code> 到 <code>len(choices)-1</code> 遍历，跳过 <code>used</code> 为 <code>true</code> 的元素。</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-经典示例"><a href="#6-经典示例" class="headerlink" title="6. 经典示例"></a>6. 经典示例</h3><h4 id="示例1：子集（Subsets）"><a href="#示例1：子集（Subsets）" class="headerlink" title="示例1：子集（Subsets）"></a>示例1：子集（Subsets）</h4><p><strong>问题描述</strong>：给定一组不含重复元素的整数 <code>nums</code>，返回其所有可能的子集（幂集）。解集不能包含重复的子集。</p>
+<p>例如：<code>nums = [1, 2, 3]</code>，返回 <code>[[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]]</code>。</p>
+<p><strong>思路</strong>：对于 <code>nums</code> 中的每个元素，我们有两个选择：包含它，或者不包含它。回溯函数需要记录当前考虑的索引 <code>start</code> 和当前构建的子集 <code>currentSubset</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-keyword">var</span> subsetsResult [][]<span class="hljs-type">int</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">subsets</span><span class="hljs-params">(nums []<span class="hljs-type">int</span>)</span></span> [][]<span class="hljs-type">int</span> &#123;<br>    subsetsResult = [][]<span class="hljs-type">int</span>&#123;&#125; <span class="hljs-comment">// 重置全局变量</span><br>    backtrackSubsets([]<span class="hljs-type">int</span>&#123;&#125;, nums, <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> subsetsResult<br>&#125;<br><br><span class="hljs-comment">// backtrackSubsets</span><br><span class="hljs-comment">// currentSubset: 当前构建的子集</span><br><span class="hljs-comment">// nums: 原始数组</span><br><span class="hljs-comment">// startIndex: 当前从 nums 的哪个位置开始考虑</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">backtrackSubsets</span><span class="hljs-params">(currentSubset []<span class="hljs-type">int</span>, nums []<span class="hljs-type">int</span>, startIndex <span class="hljs-type">int</span>)</span></span> &#123;<br>    <span class="hljs-comment">// 1. 终止条件 / 找到解的条件</span><br>    <span class="hljs-comment">// 每次递归调用时，currentSubset 都是一个有效的子集，将其加入结果</span><br>    temp := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-built_in">len</span>(currentSubset))<br>    <span class="hljs-built_in">copy</span>(temp, currentSubset)<br>    subsetsResult = <span class="hljs-built_in">append</span>(subsetsResult, temp)<br><br>    <span class="hljs-comment">// 2. 剪枝条件 (这里没有明确的剪枝，因为所有路径都是有效的子集)</span><br>    <span class="hljs-comment">// 但可以理解为：如果 startIndex 已经超出 nums 范围，for 循环自然不会执行，从而终止</span><br><br>    <span class="hljs-comment">// 3. 遍历所有可能的选择</span><br>    <span class="hljs-comment">// 从 startIndex 开始，避免重复（例如 [1,2] 和 [2,1] 算作同一个子集）</span><br>    <span class="hljs-keyword">for</span> i := startIndex; i &lt; <span class="hljs-built_in">len</span>(nums); i++ &#123;<br>        <span class="hljs-comment">// 4. 做选择</span><br>        currentSubset = <span class="hljs-built_in">append</span>(currentSubset, nums[i])<br><br>        <span class="hljs-comment">// 5. 递归调用，进入下一层决策</span><br>        <span class="hljs-comment">// 下一次从 i+1 开始考虑，确保不会选择重复的元素</span><br>        backtrackSubsets(currentSubset, nums, i+<span class="hljs-number">1</span>)<br><br>        <span class="hljs-comment">// 6. 撤销选择 (回溯)</span><br>        currentSubset = currentSubset[:<span class="hljs-built_in">len</span>(currentSubset)<span class="hljs-number">-1</span>]<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fmt.Println(<span class="hljs-string">&quot;Subsets for [1, 2, 3]:&quot;</span>, subsets([]<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;))<br>    <span class="hljs-comment">// Output: Subsets for [1, 2, 3]: [[], [1], [1 2], [1 2 3], [1 3], [2], [2 3], [3]]</span><br>    fmt.Println(<span class="hljs-string">&quot;Subsets for []:&quot;</span>, subsets([]<span class="hljs-type">int</span>&#123;&#125;))<br>    <span class="hljs-comment">// Output: Subsets for []: [[]]</span><br>    fmt.Println(<span class="hljs-string">&quot;Subsets for [0]:&quot;</span>, subsets([]<span class="hljs-type">int</span>&#123;<span class="hljs-number">0</span>&#125;))<br>    <span class="hljs-comment">// Output: Subsets for [0]: [[], [0]]</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例2：全排列（Permutations）"><a href="#示例2：全排列（Permutations）" class="headerlink" title="示例2：全排列（Permutations）"></a>示例2：全排列（Permutations）</h4><p><strong>问题描述</strong>：给定一个不含重复数字的数组 <code>nums</code>，返回其所有可能的全排列。</p>
+<p>例如：<code>nums = [1, 2, 3]</code>，返回 <code>[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]</code>。</p>
+<p><strong>思路</strong>：每次选择一个尚未使用的数字添加到当前排列中，直到排列的长度等于 <code>nums</code> 的长度。需要一个布尔数组 <code>used</code> 来跟踪哪些数字已被使用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-keyword">var</span> permuteResult [][]<span class="hljs-type">int</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">permute</span><span class="hljs-params">(nums []<span class="hljs-type">int</span>)</span></span> [][]<span class="hljs-type">int</span> &#123;<br>    permuteResult = [][]<span class="hljs-type">int</span>&#123;&#125; <span class="hljs-comment">// 重置全局变量</span><br>    used := <span class="hljs-built_in">make</span>([]<span class="hljs-type">bool</span>, <span class="hljs-built_in">len</span>(nums)) <span class="hljs-comment">// 记录元素是否已被使用</span><br>    backtrackPermute([]<span class="hljs-type">int</span>&#123;&#125;, nums, used)<br>    <span class="hljs-keyword">return</span> permuteResult<br>&#125;<br><br><span class="hljs-comment">// backtrackPermute</span><br><span class="hljs-comment">// currentPermute: 当前构建的排列</span><br><span class="hljs-comment">// nums: 原始数组</span><br><span class="hljs-comment">// used: 记录 nums 中每个元素是否已被使用</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">backtrackPermute</span><span class="hljs-params">(currentPermute []<span class="hljs-type">int</span>, nums []<span class="hljs-type">int</span>, used []<span class="hljs-type">bool</span>)</span></span> &#123;<br>    <span class="hljs-comment">// 1. 终止条件 / 找到解的条件</span><br>    <span class="hljs-comment">// 当当前排列的长度等于原始数组的长度时，找到一个有效排列</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(currentPermute) == <span class="hljs-built_in">len</span>(nums) &#123;<br>        temp := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-built_in">len</span>(currentPermute))<br>        <span class="hljs-built_in">copy</span>(temp, currentPermute)<br>        permuteResult = <span class="hljs-built_in">append</span>(permuteResult, temp)<br>        <span class="hljs-keyword">return</span> <span class="hljs-comment">// 找到一个解后，当前分支结束</span><br>    &#125;<br><br>    <span class="hljs-comment">// 2. 遍历所有可能的选择</span><br>    <span class="hljs-comment">// 从头开始遍历 nums，因为排列中元素的位置很重要</span><br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(nums); i++ &#123;<br>        <span class="hljs-comment">// 3. 剪枝条件</span><br>        <span class="hljs-comment">// 如果 nums[i] 已经被使用过，则跳过</span><br>        <span class="hljs-keyword">if</span> used[i] &#123;<br>            <span class="hljs-keyword">continue</span><br>        &#125;<br><br>        <span class="hljs-comment">// 4. 做选择</span><br>        currentPermute = <span class="hljs-built_in">append</span>(currentPermute, nums[i])<br>        used[i] = <span class="hljs-literal">true</span> <span class="hljs-comment">// 标记 nums[i] 已被使用</span><br><br>        <span class="hljs-comment">// 5. 递归调用</span><br>        backtrackPermute(currentPermute, nums, used)<br><br>        <span class="hljs-comment">// 6. 撤销选择 (回溯)</span><br>        used[i] = <span class="hljs-literal">false</span> <span class="hljs-comment">// 恢复 nums[i] 的使用状态</span><br>        currentPermute = currentPermute[:<span class="hljs-built_in">len</span>(currentPermute)<span class="hljs-number">-1</span>] <span class="hljs-comment">// 从排列中移除</span><br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fmt.Println(<span class="hljs-string">&quot;Permutations for [1, 2, 3]:&quot;</span>, permute([]<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;))<br>    <span class="hljs-comment">// Output: Permutations for [1, 2, 3]: [[1 2 3] [1 3 2] [2 1 3] [2 3 1] [3 1 2] [3 2 1]]</span><br>    fmt.Println(<span class="hljs-string">&quot;Permutations for [0, 1]:&quot;</span>, permute([]<span class="hljs-type">int</span>&#123;<span class="hljs-number">0</span>, <span class="hljs-number">1</span>&#125;))<br>    <span class="hljs-comment">// Output: Permutations for [0, 1]: [[0 1] [1 0]]</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例3：N皇后（N-Queens）"><a href="#示例3：N皇后（N-Queens）" class="headerlink" title="示例3：N皇后（N-Queens）"></a>示例3：N皇后（N-Queens）</h4><p><strong>问题描述</strong>：N皇后问题是在 N×N 的国际象棋棋盘上放置 N 个皇后，使得任何两个皇后都不能互相攻击。一个皇后可以攻击同一行、同一列或同一对角线上的其他皇后。返回所有不同的 N 皇后问题的解决方案。</p>
+<p><strong>思路</strong>：逐行放置皇后。对于每一行，尝试在所有列中放置皇后。放置前检查该位置是否与已放置的皇后冲突（即是否在同一列或对角线）。如果冲突，则跳过；如果不冲突，则放置皇后并进入下一行。放置后，需要标记该列和两条对角线为已占用。回溯时，撤销标记。</p>
+<p><strong>冲突检查：</strong> 假设当前在 <code>(row, col)</code> 放置皇后：</p>
+<ul>
+<li><strong>同列</strong>：检查 <code>col</code> 列是否已有皇后。</li>
+<li><strong>主对角线</strong>（从左上到右下）：<code>row - col</code> 的值是常数。</li>
+<li><strong>副对角线</strong>（从右上到左下）：<code>row + col</code> 的值是常数。 为了方便处理，可以维护三个布尔数组：<code>colUsed</code>、<code>diag1Used</code> (主对角线)、<code>diag2Used</code> (副对角线)。 <code>diag1Used</code> 的索引为 <code>row - col + n - 1</code> （加 <code>n-1</code> 是为了保证索引非负）。 <code>diag2Used</code> 的索引为 <code>row + col</code>。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;strings&quot;</span><br><br><span class="hljs-keyword">var</span> nQueensResult [][]<span class="hljs-type">string</span><br><span class="hljs-keyword">var</span> nQueensN <span class="hljs-type">int</span><br><span class="hljs-keyword">var</span> colUsed []<span class="hljs-type">bool</span>    <span class="hljs-comment">// 记录列是否被占用</span><br><span class="hljs-keyword">var</span> diag1Used []<span class="hljs-type">bool</span>  <span class="hljs-comment">// 记录主对角线 (row - col) 是否被占用</span><br><span class="hljs-keyword">var</span> diag2Used []<span class="hljs-type">bool</span>  <span class="hljs-comment">// 记录副对角线 (row + col) 是否被占用</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">solveNQueens</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> [][]<span class="hljs-type">string</span> &#123;<br>    nQueensResult = [][]<span class="hljs-type">string</span>&#123;&#125; <span class="hljs-comment">// 重置全局变量</span><br>    nQueensN = n<br>    colUsed = <span class="hljs-built_in">make</span>([]<span class="hljs-type">bool</span>, n)<br>    diag1Used = <span class="hljs-built_in">make</span>([]<span class="hljs-type">bool</span>, <span class="hljs-number">2</span>*n<span class="hljs-number">-1</span>) <span class="hljs-comment">// 主对角线有 2*n-1 条</span><br>    diag2Used = <span class="hljs-built_in">make</span>([]<span class="hljs-type">bool</span>, <span class="hljs-number">2</span>*n<span class="hljs-number">-1</span>) <span class="hljs-comment">// 副对角线有 2*n-1 条</span><br><br>    <span class="hljs-comment">// 初始化棋盘</span><br>    board := <span class="hljs-built_in">make</span>([]<span class="hljs-type">string</span>, n)<br>    <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; n; i++ &#123;<br>        board[i] = strings.Repeat(<span class="hljs-string">&quot;.&quot;</span>, n)<br>    &#125;<br><br>    backtrackNQueens(<span class="hljs-number">0</span>, board) <span class="hljs-comment">// 从第0行开始放置皇后</span><br>    <span class="hljs-keyword">return</span> nQueensResult<br>&#125;<br><br><span class="hljs-comment">// backtrackNQueens</span><br><span class="hljs-comment">// row: 当前尝试放置皇后的行</span><br><span class="hljs-comment">// board: 当前的棋盘状态</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">backtrackNQueens</span><span class="hljs-params">(row <span class="hljs-type">int</span>, board []<span class="hljs-type">string</span>)</span></span> &#123;<br>    <span class="hljs-comment">// 1. 终止条件 / 找到解的条件</span><br>    <span class="hljs-comment">// 如果所有行都已放置皇后，则找到一个解</span><br>    <span class="hljs-keyword">if</span> row == nQueensN &#123;<br>        tempBoard := <span class="hljs-built_in">make</span>([]<span class="hljs-type">string</span>, nQueensN)<br>        <span class="hljs-built_in">copy</span>(tempBoard, board) <span class="hljs-comment">// 深拷贝棋盘状态</span><br>        nQueensResult = <span class="hljs-built_in">append</span>(nQueensResult, tempBoard)<br>        <span class="hljs-keyword">return</span><br>    &#125;<br><br>    <span class="hljs-comment">// 2. 遍历当前行的所有列，尝试放置皇后</span><br>    <span class="hljs-keyword">for</span> col := <span class="hljs-number">0</span>; col &lt; nQueensN; col++ &#123;<br>        <span class="hljs-comment">// 3. 剪枝条件 (冲突检查)</span><br>        <span class="hljs-comment">// 如果当前位置 (row, col) 所在列、主对角线或副对角线已被占用，则跳过</span><br>        <span class="hljs-keyword">if</span> colUsed[col] || diag1Used[row-col+nQueensN<span class="hljs-number">-1</span>] || diag2Used[row+col] &#123;<br>            <span class="hljs-keyword">continue</span><br>        &#125;<br><br>        <span class="hljs-comment">// 4. 做选择 (放置皇后)</span><br>        <span class="hljs-comment">// 更新棋盘</span><br>        rowChars := []<span class="hljs-type">byte</span>(board[row])<br>        rowChars[col] = <span class="hljs-string">&#x27;Q&#x27;</span><br>        board[row] = <span class="hljs-type">string</span>(rowChars)<br><br>        <span class="hljs-comment">// 标记列和对角线为已占用</span><br>        colUsed[col] = <span class="hljs-literal">true</span><br>        diag1Used[row-col+nQueensN<span class="hljs-number">-1</span>] = <span class="hljs-literal">true</span><br>        diag2Used[row+col] = <span class="hljs-literal">true</span><br><br>        <span class="hljs-comment">// 5. 递归调用，进入下一行</span><br>        backtrackNQueens(row+<span class="hljs-number">1</span>, board)<br><br>        <span class="hljs-comment">// 6. 撤销选择 (回溯)</span><br>        <span class="hljs-comment">// 恢复棋盘</span><br>        rowChars[col] = <span class="hljs-string">&#x27;.&#x27;</span><br>        board[row] = <span class="hljs-type">string</span>(rowChars)<br><br>        <span class="hljs-comment">// 恢复列和对角线的使用状态</span><br>        colUsed[col] = <span class="hljs-literal">false</span><br>        diag1Used[row-col+nQueensN<span class="hljs-number">-1</span>] = <span class="hljs-literal">false</span><br>        diag2Used[row+col] = <span class="hljs-literal">false</span><br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    fmt.Println(<span class="hljs-string">&quot;Solutions for N=4 Queens:&quot;</span>)<br>    solutions4 := solveNQueens(<span class="hljs-number">4</span>)<br>    <span class="hljs-keyword">for</span> _, sol := <span class="hljs-keyword">range</span> solutions4 &#123;<br>        <span class="hljs-keyword">for</span> _, r := <span class="hljs-keyword">range</span> sol &#123;<br>            fmt.Println(r)<br>        &#125;<br>        fmt.Println()<br>    &#125;<br>    <span class="hljs-comment">// Output will be:</span><br>    <span class="hljs-comment">// .Q..</span><br>    <span class="hljs-comment">// ...Q</span><br>    <span class="hljs-comment">// Q...</span><br>    <span class="hljs-comment">// ..Q.</span><br>    <span class="hljs-comment">//</span><br>    <span class="hljs-comment">// ..Q.</span><br>    <span class="hljs-comment">// Q...</span><br>    <span class="hljs-comment">// ...Q</span><br>    <span class="hljs-comment">// .Q..</span><br><br>    fmt.Println(<span class="hljs-string">&quot;Solutions for N=1 Queens:&quot;</span>)<br>    solutions1 := solveNQueens(<span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">for</span> _, sol := <span class="hljs-keyword">range</span> solutions1 &#123;<br>        <span class="hljs-keyword">for</span> _, r := <span class="hljs-keyword">range</span> sol &#123;<br>            fmt.Println(r)<br>        &#125;<br>        fmt.Println()<br>    &#125;<br>    <span class="hljs-comment">// Output:</span><br>    <span class="hljs-comment">// Q</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-剪枝去重方式"><a href="#7-剪枝去重方式" class="headerlink" title="7.剪枝去重方式"></a>7.剪枝去重方式</h3><p>在回溯算法中，当输入数据包含重复元素时，如果不进行特殊处理，往往会生成重复的结果。去重的目标是确保最终的结果集中不包含相同的组合或排列。</p>
+<p>去重策略通常有两种：</p>
+<ol>
+<li>**树层去重 (Level-wise Pruning)**：<ul>
+<li><strong>目标</strong>：防止在同一层递归中，因为选择相同的值而产生重复的组合&#x2F;排列。</li>
+<li><strong>何时使用</strong>：主要用于<strong>组合问题</strong>（如子集、组合总和），确保生成的组合是唯一的。它也用于<strong>排列问题</strong>，避免同一层中选择重复的元素导致重复的排列。</li>
+<li><strong>核心思想</strong>：在 <code>for</code> 循环遍历选择时，如果当前要选择的元素与<strong>同一层中前一个被考虑的元素</strong>值相同，并且前一个元素已经被跳过，那么当前元素也跳过。</li>
+<li>实现方式：<ul>
+<li>前提：<strong>输入数组必须先排序</strong>。</li>
+<li>条件：<code>if i &gt; startIndex &amp;&amp; nums[i] == nums[i-1] &#123; continue &#125;</code> (对于组合问题)</li>
+<li>条件：<code>if i &gt; 0 &amp;&amp; nums[i] == nums[i-1] &amp;&amp; !used[i-1] &#123; continue &#125;</code> (对于排列问题，因为排列不需要index，所有元素都需要拿)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>**树枝去重 (Branch-wise Pruning)**：<ul>
+<li><strong>目标</strong>：防止在同一条递归路径上（即，一个正在构建的组合或排列中），重复使用同一个原始索引位置的元素。</li>
+<li><strong>何时使用</strong>：主要用于<strong>全排列问题</strong>，因为每个元素（按其原始索引）在一次排列中只能使用一次。</li>
+<li><strong>核心思想</strong>：维护一个 <code>used</code> 数组（或哈希表）来记录 <code>nums</code> 数组中每个元素是否已经在当前路径上被选中。</li>
+<li>实现方式：<ul>
+<li>条件：<code>if used[i] &#123; continue &#125;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结区别："><a href="#总结区别：" class="headerlink" title="总结区别："></a>总结区别：</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">树层去重 (Level-wise Pruning)</th>
+<th align="left">树枝去重 (Branch-wise Pruning)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>目标</strong></td>
+<td align="left">避免在<strong>同一层</strong>递归中，因选择值相同的元素而产生重复结果</td>
+<td align="left">避免在<strong>同一条路径</strong>上，重复使用同一个原始索引的元素</td>
+</tr>
+<tr>
+<td align="left"><strong>应用</strong></td>
+<td align="left"><strong>组合问题</strong> (如 Subsets II, Combination Sum II)</td>
+<td align="left"><strong>全排列问题</strong> (如 Permutations I、 II)</td>
+</tr>
+<tr>
+<td align="left"><strong>关键</strong></td>
+<td align="left">依靠<strong>排序</strong>和 <code>if i &gt; startIndex &amp;&amp; nums[i] == nums[i-1]</code> 或者&#96;if i &gt; 0 &amp;&amp; nums[i] &#x3D;&#x3D; nums[i-1] &amp;&amp; !used[i-1]</td>
+<td align="left">依靠 <code>used</code> 数组和 <code>if used[i]</code></td>
+</tr>
+<tr>
+<td align="left"><strong>时机</strong></td>
+<td align="left">在 <code>for</code> 循环内部，<code>append</code> 之前，基于前一个<strong>同层</strong>元素</td>
+<td align="left">在 <code>for</code> 循环内部，<code>append</code> 之前，基于 <code>used</code> 数组</td>
+</tr>
+<tr>
+<td align="left"><strong>理解</strong></td>
+<td align="left"><code>continue</code> 掉当前 <code>for</code> 循环的 <code>i</code> 次迭代</td>
+<td align="left"><code>continue</code> 掉当前 <code>for</code> 循环的 <code>i</code> 次迭代</td>
+</tr>
+<tr>
+<td align="left"><strong>组合应用</strong></td>
+<td align="left">全排列II 中同时需要这两种去重，<code>if i &gt; 0 &amp;&amp; nums[i] == nums[i-1] &amp;&amp; !used[i-1]</code> 便是树层去重在排列问题中的体现</td>
+<td align="left">几乎所有全排列问题都需要树枝去重 (<code>used</code> 数组)</td>
+</tr>
+</tbody></table>
+<h3 id="8-总结"><a href="#8-总结" class="headerlink" title="8. 总结"></a>8. 总结</h3><p>回溯算法是一种强大的暴力搜索技术，尤其适用于解决组合优化问题。它的核心在于“试探”、“探索”、“判断”和“撤销”。理解并掌握回溯算法的通用模板和剪枝技巧，是解决许多复杂算法问题的关键。在Go语言中，需要特别注意切片作为引用类型的特性，在将中间结果添加到最终结果集时进行深拷贝，以避免意外的修改。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+      
+        <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>06.算法——回溯</div>
+      <div>https://blog.longpi1.com/2025/06/18/06-算法回溯/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/14/05-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%BA%8C%E5%8F%89%E6%A0%91/" title="05.数据结构——二叉树">
+                        <span class="hidden-mobile">05.数据结构——二叉树</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
