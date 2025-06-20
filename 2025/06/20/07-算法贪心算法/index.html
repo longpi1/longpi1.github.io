@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="算法专题：贪心算法 (Greedy Algorithm) 相关数据结构实现用go语言实现 相关代码做题合集：https:&#x2F;&#x2F;github.com&#x2F;longpi1&#x2F;algorithm-pattern  1. 引言在计算机科学中，贪心算法（Greedy Algorithm）是一种在每一步选择中都采取在当前状态下最好或最优（即最有利）的选择，从而希望导致结果是全局最好或最优的算法策略。它不从整体最优上加">
+<meta property="og:type" content="article">
+<meta property="og:title" content="07.算法——贪心算法">
+<meta property="og:url" content="https://blog.longpi1.com/2025/06/20/07-%E7%AE%97%E6%B3%95%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="算法专题：贪心算法 (Greedy Algorithm) 相关数据结构实现用go语言实现 相关代码做题合集：https:&#x2F;&#x2F;github.com&#x2F;longpi1&#x2F;algorithm-pattern  1. 引言在计算机科学中，贪心算法（Greedy Algorithm）是一种在每一步选择中都采取在当前状态下最好或最优（即最有利）的选择，从而希望导致结果是全局最好或最优的算法策略。它不从整体最优上加">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-06-20T11:05:29.000Z">
+<meta property="article:modified_time" content="2025-06-20T11:06:00.564Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="数据结构">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>07.算法——贪心算法 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="07.算法——贪心算法"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-20 19:05" pubdate>
+          2025年6月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.2k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">07.算法——贪心算法</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h2 id="算法专题：贪心算法-Greedy-Algorithm"><a href="#算法专题：贪心算法-Greedy-Algorithm" class="headerlink" title="算法专题：贪心算法 (Greedy Algorithm)"></a>算法专题：贪心算法 (Greedy Algorithm)</h2><blockquote>
+<p>相关数据结构实现用go语言实现</p>
+<p>相关代码做题合集：<a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1/algorithm-pattern">https://github.com/longpi1/algorithm-pattern</a></p>
+</blockquote>
+<h3 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h3><p>在计算机科学中，贪心算法（Greedy Algorithm）是一种在每一步选择中都采取在当前状态下最好或最优（即最有利）的选择，从而希望导致结果是全局最好或最优的算法策略。它不从整体最优上加以考虑，而是只关注局部最优解。</p>
+<p>简单来说，贪心算法就像一个“鼠目寸光”的决策者：它只看眼前的利益，做出当下看起来最划算的选择，并希望通过一系列这样的局部最优选择，最终能达到一个全局最优解。</p>
+<h3 id="2-核心思想与基本原理"><a href="#2-核心思想与基本原理" class="headerlink" title="2. 核心思想与基本原理"></a>2. 核心思想与基本原理</h3><p>贪心算法的核心思想可以用两个字概括：<strong>“局部最优推导出全局最优”</strong>。</p>
+<p>它在每一步做出选择时，都会遵循以下原则：</p>
+<ol>
+<li>**做出当下看起来最优的选择 (Greedy Choice)**：不考虑未来的后果，只选择当前状态下能带来最大收益或最小成本的选项。</li>
+<li>**不回溯 (No Backtracking)**：一旦做出选择，就永远不会改变。这是贪心算法与动态规划（通常会考虑所有子问题，并可能回溯）的最大区别。</li>
+</ol>
+<h3 id="3-贪心算法的特性"><a href="#3-贪心算法的特性" class="headerlink" title="3. 贪心算法的特性"></a>3. 贪心算法的特性</h3><p>一个问题能够用贪心算法解决，通常需要满足以下两个关键性质：</p>
+<h4 id="3-1-贪心选择性质-Greedy-Choice-Property"><a href="#3-1-贪心选择性质-Greedy-Choice-Property" class="headerlink" title="3.1 贪心选择性质 (Greedy Choice Property)"></a>3.1 贪心选择性质 (Greedy Choice Property)</h4><ul>
+<li><strong>定义</strong>：一个全局最优解可以通过一系列局部最优（贪心）选择来达到。这意味着每一步的局部最优选择，最终都会成为全局最优解的一部分。</li>
+<li><strong>重要性</strong>：这是贪心算法能够成功的核心前提。如果一个问题的最优解不能通过贪心选择来构建，那么贪心算法就不适用。</li>
+</ul>
+<h4 id="3-2-最优子结构性质-Optimal-Substructure"><a href="#3-2-最优子结构性质-Optimal-Substructure" class="headerlink" title="3.2 最优子结构性质 (Optimal Substructure)"></a>3.2 最优子结构性质 (Optimal Substructure)</h4><ul>
+<li><strong>定义</strong>：一个问题的最优解包含其子问题的最优解。</li>
+<li><strong>重要性</strong>：这个性质与动态规划所要求的性质相同。它表示问题的规模可以通过最优选择不断缩小，并且缩小后的子问题仍然具有最优解。</li>
+</ul>
+<p><strong>注意</strong>：证明一个贪心算法的正确性是至关重要的，通常采用<strong>反证法</strong>或<strong>归纳法</strong>。因为“局部最优不一定能推导出全局最优”是贪心算法最常见的陷阱。</p>
+<h3 id="4-贪心算法的适用场景"><a href="#4-贪心算法的适用场景" class="headerlink" title="4. 贪心算法的适用场景"></a>4. 贪心算法的适用场景</h3><p>贪心算法通常用于解决优化问题，即在给定约束条件下找到最大或最小的某个值。它广泛应用于以下领域：</p>
+<ul>
+<li><strong>调度问题</strong>：如活动选择问题、任务调度。</li>
+<li><strong>图算法</strong>：如最小生成树（Prim算法、Kruskal算法）、最短路径（Dijkstra算法）。</li>
+<li><strong>背包问题</strong>：分数背包问题（0&#x2F;1背包问题通常不能用贪心）。</li>
+<li><strong>货币找零问题</strong>（在标准币值下）。</li>
+</ul>
+<h3 id="5-贪心算法的局限性"><a href="#5-贪心算法的局限性" class="headerlink" title="5. 贪心算法的局限性"></a>5. 贪心算法的局限性</h3><p>贪心算法的最大局限性在于其<strong>“短视”</strong>。它只关注当前局部最优，不考虑未来的影响，这可能导致最终结果并非全局最优。</p>
+<p><strong>经典反例：</strong></p>
+<ul>
+<li><strong>非标准币值下的找零问题</strong>：假设我们有币值 <code>[1, 3, 4]</code>，要找零 <code>6</code>。<ul>
+<li>贪心策略：总是选择面值最大的硬币。</li>
+<li>过程：选择 <code>4</code>，剩余 <code>2</code>。再选择 <code>1</code>，剩余 <code>1</code>。再选择 <code>1</code>，剩余 <code>0</code>。总共使用了 <code>3</code> 枚硬币 <code>(4, 1, 1)</code>。</li>
+<li>最优解：选择 <code>3</code>，剩余 <code>3</code>。再选择 <code>3</code>，剩余 <code>0</code>。总共使用了 <code>2</code> 枚硬币 <code>(3, 3)</code>。</li>
+<li>结论：贪心算法在这里失败了。</li>
+</ul>
+</li>
+<li><strong>0&#x2F;1 背包问题</strong>：物品不能被分割。<ul>
+<li>贪心策略：按价值密度（价值&#x2F;重量）排序，优先选择价值密度高的。</li>
+<li>反例：背包容量10。物品A(价值60, 重量10, 密度6)，物品B(价值100, 重量20, 密度5)，物品C(价值120, 重量30, 密度4)。<ul>
+<li>贪心会选择A (价值60)，然后背包满了。总价值60。</li>
+<li>最优解：B和C都不能单独装。但如果物品可以被分割，则贪心有效（见下文分数背包）。对于0&#x2F;1背包，这是动态规划的经典问题。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-贪心算法与其它算法范式的区别"><a href="#6-贪心算法与其它算法范式的区别" class="headerlink" title="6. 贪心算法与其它算法范式的区别"></a>6. 贪心算法与其它算法范式的区别</h3><ul>
+<li>**与动态规划 (Dynamic Programming)**：<ul>
+<li><strong>相似点</strong>：都利用最优子结构性质。</li>
+<li>不同点：<ul>
+<li><strong>选择方式</strong>：贪心每一步只做一个最优选择，不回头。动态规划会尝试所有可能的子问题，并存储中间结果，从子问题的最优解构建原问题的最优解。</li>
+<li><strong>适用范围</strong>：贪心适用范围更窄，要求具有贪心选择性质。动态规划适用范围更广，只要有重叠子问题和最优子结构即可。</li>
+<li><strong>效率</strong>：贪心算法通常比动态规划更简单、更高效（时间复杂度更低），因为它无需考虑所有可能，但前提是它能给出正确解。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>**与分治法 (Divide and Conquer)**：<ul>
+<li><strong>相似点</strong>：都将问题分解为子问题。</li>
+<li>不同点：<ul>
+<li><strong>子问题关系</strong>：分治法的子问题是独立的，互不影响。贪心算法的每一步选择会影响到后续子问题的输入。</li>
+<li><strong>合并</strong>：分治法需要将子问题的解合并，而贪心法通过一系列选择直接构建最终解。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-贪心算法的通用步骤"><a href="#7-贪心算法的通用步骤" class="headerlink" title="7. 贪心算法的通用步骤"></a>7. 贪心算法的通用步骤</h3><ol>
+<li><strong>明确目标</strong>：确定要最大化或最小化的目标。</li>
+<li><strong>定义贪心选择</strong>：确定在每一步中要做出什么“局部最优”的选择。</li>
+<li><strong>证明正确性</strong>：这是最关键的，证明局部最优选择能够导出全局最优解。这通常是最难的部分。</li>
+<li><strong>实现</strong>：根据定义的贪心策略编写代码。通常涉及排序和迭代。</li>
+</ol>
+<h3 id="8-Go-语言实现示例"><a href="#8-Go-语言实现示例" class="headerlink" title="8. Go 语言实现示例"></a>8. Go 语言实现示例</h3><h4 id="示例1：活动选择问题-Activity-Selection-Problem"><a href="#示例1：活动选择问题-Activity-Selection-Problem" class="headerlink" title="示例1：活动选择问题 (Activity Selection Problem)"></a>示例1：活动选择问题 (Activity Selection Problem)</h4><p><strong>问题描述</strong>：假设有一个教室，可以进行多项活动。每项活动都有开始时间 <code>s</code> 和结束时间 <code>f</code>。你的目标是选择尽可能多的活动，使得这些活动都可以在这个教室进行，即它们的时间互不重叠。</p>
+<p><strong>贪心策略</strong>：总是选择<strong>结束时间最早</strong>的活动。</p>
+<p><strong>证明（直观）</strong>：选择结束时间最早的活动，可以尽快地释放教室，为后续的活动留下最大的时间空间，从而使得能安排的活动数量最多。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-comment">// Activity 定义活动结构体</span><br><span class="hljs-keyword">type</span> Activity <span class="hljs-keyword">struct</span> &#123;<br>	Start <span class="hljs-type">int</span><br>	End   <span class="hljs-type">int</span><br>&#125;<br><br><span class="hljs-comment">// ByEndTime 实现了 sort.Interface 接口，用于按结束时间排序</span><br><span class="hljs-keyword">type</span> ByEndTime []Activity<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ByEndTime)</span></span> Len() <span class="hljs-type">int</span>           &#123; <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(a) &#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ByEndTime)</span></span> Swap(i, j <span class="hljs-type">int</span>)      &#123; a[i], a[j] = a[j], a[i] &#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ByEndTime)</span></span> Less(i, j <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> &#123; <span class="hljs-keyword">return</span> a[i].End &lt; a[j].End &#125;<br><br><span class="hljs-comment">// activitySelection 使用贪心算法解决活动选择问题</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">activitySelection</span><span class="hljs-params">(activities []Activity)</span></span> []Activity &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(activities) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>	&#125;<br><br>	<span class="hljs-comment">// 1. 贪心选择：按活动结束时间进行排序</span><br>	sort.Sort(ByEndTime(activities))<br><br>	<span class="hljs-comment">// 结果集，第一个选定的活动总是结束时间最早的</span><br>	selectedActivities := []Activity&#123;activities[<span class="hljs-number">0</span>]&#125;<br>	lastFinishTime := activities[<span class="hljs-number">0</span>].End<br><br>	<span class="hljs-comment">// 2. 迭代选择：从第二个活动开始遍历</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; i &lt; <span class="hljs-built_in">len</span>(activities); i++ &#123;<br>		<span class="hljs-comment">// 如果当前活动的开始时间晚于或等于上一个选定活动的结束时间</span><br>		<span class="hljs-comment">// 那么它们不冲突，可以选择当前活动</span><br>		<span class="hljs-keyword">if</span> activities[i].Start &gt;= lastFinishTime &#123;<br>			selectedActivities = <span class="hljs-built_in">append</span>(selectedActivities, activities[i])<br>			lastFinishTime = activities[i].End <span class="hljs-comment">// 更新最新活动的结束时间</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> selectedActivities<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	activities := []Activity&#123;<br>		&#123;Start: <span class="hljs-number">1</span>, End: <span class="hljs-number">4</span>&#125;,<br>		&#123;Start: <span class="hljs-number">3</span>, End: <span class="hljs-number">5</span>&#125;,<br>		&#123;Start: <span class="hljs-number">0</span>, End: <span class="hljs-number">6</span>&#125;,<br>		&#123;Start: <span class="hljs-number">5</span>, End: <span class="hljs-number">7</span>&#125;,<br>		&#123;Start: <span class="hljs-number">3</span>, End: <span class="hljs-number">8</span>&#125;,<br>		&#123;Start: <span class="hljs-number">5</span>, End: <span class="hljs-number">9</span>&#125;,<br>		&#123;Start: <span class="hljs-number">6</span>, End: <span class="hljs-number">10</span>&#125;,<br>		&#123;Start: <span class="hljs-number">8</span>, End: <span class="hljs-number">11</span>&#125;,<br>		&#123;Start: <span class="hljs-number">8</span>, End: <span class="hljs-number">12</span>&#125;,<br>		&#123;Start: <span class="hljs-number">2</span>, End: <span class="hljs-number">13</span>&#125;,<br>		&#123;Start: <span class="hljs-number">12</span>, End: <span class="hljs-number">14</span>&#125;,<br>	&#125;<br><br>	fmt.Println(<span class="hljs-string">&quot;原始活动列表:&quot;</span>)<br>	<span class="hljs-keyword">for</span> _, a := <span class="hljs-keyword">range</span> activities &#123;<br>		fmt.Printf(<span class="hljs-string">&quot;  [%d, %d]\n&quot;</span>, a.Start, a.End)<br>	&#125;<br><br>	selected := activitySelection(activities)<br>	fmt.Println(<span class="hljs-string">&quot;\n选择的活动 (贪心算法):&quot;</span>)<br>	<span class="hljs-keyword">for</span> _, a := <span class="hljs-keyword">range</span> selected &#123;<br>		fmt.Printf(<span class="hljs-string">&quot;  [%d, %d]\n&quot;</span>, a.Start, a.End)<br>	&#125;<br>	<span class="hljs-comment">// 期望输出 (可能因排序实现而异，但数量应为4): [1,4], [5,7], [8,11], [12,14]</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例2：货币找零问题-Coin-Change-Problem-贪心失效的例子"><a href="#示例2：货币找零问题-Coin-Change-Problem-贪心失效的例子" class="headerlink" title="示例2：货币找零问题 (Coin Change Problem) - 贪心失效的例子"></a>示例2：货币找零问题 (Coin Change Problem) - 贪心失效的例子</h4><p><strong>问题描述</strong>：给定一些不同面额的硬币 <code>denominations</code> 和一个总金额 <code>amount</code>，找出凑成该金额所需的最少硬币数量。</p>
+<p><strong>贪心策略</strong>：总是选择当前剩余金额下能用的<strong>最大面额</strong>硬币。</p>
+<p><strong>证明（标准币值）</strong>：对于像 <code>[1, 5, 10, 25]</code> 这样的标准美元或人民币币值，这个贪心策略是有效的。这是因为大面额硬币的价值与小面额硬币之间存在特殊的倍数关系，使得局部最优推导全局最优。</p>
+<p><strong>反例演示</strong>：然而，如果币值不标准，贪心策略就会失效。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-comment">// coinChangeGreedy 尝试用贪心算法解决货币找零问题</span><br><span class="hljs-comment">// 注意：此函数在某些非标准币值下可能无法给出最优解。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">coinChangeGreedy</span><span class="hljs-params">(denominations []<span class="hljs-type">int</span>, amount <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">if</span> amount &lt; <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span> <span class="hljs-comment">// 无效金额</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> amount == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span> <span class="hljs-comment">// 金额为0，不需要硬币</span><br>	&#125;<br><br>	<span class="hljs-comment">// 1. 贪心选择：将硬币面额从大到小排序</span><br>	sort.Sort(sort.Reverse(sort.IntSlice(denominations)))<br><br>	count := <span class="hljs-number">0</span> <span class="hljs-comment">// 硬币数量</span><br>	remainingAmount := amount<br><br>	<span class="hljs-comment">// 2. 迭代选择：尽可能多地使用当前最大面额的硬币</span><br>	<span class="hljs-keyword">for</span> _, coin := <span class="hljs-keyword">range</span> denominations &#123;<br>		<span class="hljs-keyword">for</span> remainingAmount &gt;= coin &#123;<br>			remainingAmount -= coin<br>			count++<br>			fmt.Printf(<span class="hljs-string">&quot;  选择硬币 %d, 剩余金额 %d, 硬币数量 %d\n&quot;</span>, coin, remainingAmount, count)<br>		&#125;<br>		<span class="hljs-keyword">if</span> remainingAmount == <span class="hljs-number">0</span> &#123;<br>			<span class="hljs-keyword">break</span> <span class="hljs-comment">// 已经找零完毕</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">if</span> remainingAmount == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> count<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span> <span class="hljs-comment">// 无法凑出指定金额</span><br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	<span class="hljs-comment">// 示例1：标准币值，贪心有效</span><br>	denominations1 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">10</span>, <span class="hljs-number">25</span>&#125;<br>	amount1 := <span class="hljs-number">63</span><br>	fmt.Printf(<span class="hljs-string">&quot;--- 标准币值找零 (贪心有效) ---\n&quot;</span>)<br>	fmt.Printf(<span class="hljs-string">&quot;面额: %v, 金额: %d\n&quot;</span>, denominations1, amount1)<br>	result1 := coinChangeGreedy(denominations1, amount1)<br>	fmt.Printf(<span class="hljs-string">&quot;所需最少硬币数量 (贪心): %d\n&quot;</span>, result1) <span class="hljs-comment">// 期望: 63 = 2*25 + 1*10 + 3*1 = 2+1+3 = 6</span><br><br>	fmt.Println(<span class="hljs-string">&quot;\n--- 非标准币值找零 (贪心失效) ---&quot;</span>)<br>	<span class="hljs-comment">// 示例2：非标准币值，贪心失效</span><br>	<span class="hljs-comment">// 最优解是 3 + 3 = 6 (2枚硬币)</span><br>	<span class="hljs-comment">// 贪心解是 4 + 1 + 1 = 6 (3枚硬币)</span><br>	denominations2 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;<br>	amount2 := <span class="hljs-number">6</span><br>	fmt.Printf(<span class="hljs-string">&quot;面额: %v, 金额: %d\n&quot;</span>, denominations2, amount2)<br>	result2 := coinChangeGreedy(denominations2, amount2)<br>	fmt.Printf(<span class="hljs-string">&quot;所需最少硬币数量 (贪心): %d\n&quot;</span>, result2) <span class="hljs-comment">// 期望: 3 (但最优是2)</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例3：分数背包问题-Fractional-Knapsack-Problem"><a href="#示例3：分数背包问题-Fractional-Knapsack-Problem" class="headerlink" title="示例3：分数背包问题 (Fractional Knapsack Problem)"></a>示例3：分数背包问题 (Fractional Knapsack Problem)</h4><p><strong>问题描述</strong>：你有一个背包，最大载重为 <code>capacity</code>。有 N 件物品，每件物品有其价值 <code>value</code> 和重量 <code>weight</code>。你可以选择拿走物品的<strong>一部分</strong>。目标是最大化你带走物品的总价值。</p>
+<p><strong>贪心策略</strong>：总是优先选择<strong>单位重量价值最高</strong>的物品（即价值&#x2F;重量 比值最大的物品）。</p>
+<p><strong>证明（直观）</strong>：如果你能分割物品，那么单位重量价值高的物品意味着你在有限的重量限制下，能获得更多的价值。优先填满这些“高密度”价值的物品，将最大化总价值。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;sort&quot;</span><br>)<br><br><span class="hljs-comment">// Item 定义物品结构体</span><br><span class="hljs-keyword">type</span> Item <span class="hljs-keyword">struct</span> &#123;<br>	Value  <span class="hljs-type">float64</span><br>	Weight <span class="hljs-type">float64</span><br>	Ratio  <span class="hljs-type">float64</span> <span class="hljs-comment">// 单位重量价值比</span><br>&#125;<br><br><span class="hljs-comment">// ByRatio 实现了 sort.Interface 接口，用于按单位重量价值比降序排序</span><br><span class="hljs-keyword">type</span> ByRatio []Item<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ByRatio)</span></span> Len() <span class="hljs-type">int</span>      &#123; <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(a) &#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ByRatio)</span></span> Swap(i, j <span class="hljs-type">int</span>) &#123; a[i], a[j] = a[j], a[i] &#125;<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a ByRatio)</span></span> Less(i, j <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> &#123;<br>	<span class="hljs-comment">// 降序排序：Ratio 越大，Less 返回 true</span><br>	<span class="hljs-keyword">return</span> a[i].Ratio &gt; a[j].Ratio<br>&#125;<br><br><span class="hljs-comment">// fractionalKnapsack 使用贪心算法解决分数背包问题</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fractionalKnapsack</span><span class="hljs-params">(items []Item, capacity <span class="hljs-type">float64</span>)</span></span> <span class="hljs-type">float64</span> &#123;<br>	<span class="hljs-keyword">if</span> capacity &lt;= <span class="hljs-number">0</span> || <span class="hljs-built_in">len</span>(items) == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br>	&#125;<br><br>	<span class="hljs-comment">// 1. 计算每个物品的单位重量价值比</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-keyword">range</span> items &#123;<br>		<span class="hljs-keyword">if</span> items[i].Weight &gt; <span class="hljs-number">0</span> &#123;<br>			items[i].Ratio = items[i].Value / items[i].Weight<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			items[i].Ratio = <span class="hljs-number">0</span> <span class="hljs-comment">// 或者处理为无穷大，取决于问题定义</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 2. 贪心选择：按单位重量价值比降序排序物品</span><br>	sort.Sort(ByRatio(items))<br><br>	totalValue := <span class="hljs-number">0.0</span><br>	currentWeight := <span class="hljs-number">0.0</span><br><br>	<span class="hljs-comment">// 3. 迭代选择：遍历排序后的物品</span><br>	<span class="hljs-keyword">for</span> _, item := <span class="hljs-keyword">range</span> items &#123;<br>		<span class="hljs-keyword">if</span> currentWeight+item.Weight &lt;= capacity &#123;<br>			<span class="hljs-comment">// 如果背包还能完整装下当前物品，则完整装入</span><br>			totalValue += item.Value<br>			currentWeight += item.Weight<br>			fmt.Printf(<span class="hljs-string">&quot;  装入整个物品: 价值 %.2f, 重量 %.2f. 当前总价值: %.2f, 剩余容量: %.2f\n&quot;</span>,<br>				item.Value, item.Weight, totalValue, capacity-currentWeight)<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-comment">// 如果背包不能完整装下，则装入一部分</span><br>			remainingCapacity := capacity - currentWeight<br>			fraction := remainingCapacity / item.Weight<br>			totalValue += item.Value * fraction<br>			currentWeight += remainingCapacity<br>			fmt.Printf(<span class="hljs-string">&quot;  装入部分物品: 价值 %.2f, 重量 %.2f (占比 %.2f). 当前总价值: %.2f, 剩余容量: %.2f\n&quot;</span>,<br>				item.Value*fraction, remainingCapacity, fraction, capacity-currentWeight)<br>			<span class="hljs-keyword">break</span> <span class="hljs-comment">// 背包已满</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> totalValue<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	items := []Item&#123;<br>		&#123;Value: <span class="hljs-number">60</span>, Weight: <span class="hljs-number">10</span>&#125;,<br>		&#123;Value: <span class="hljs-number">100</span>, Weight: <span class="hljs-number">20</span>&#125;,<br>		&#123;Value: <span class="hljs-number">120</span>, Weight: <span class="hljs-number">30</span>&#125;,<br>	&#125;<br>	capacity := <span class="hljs-number">50.0</span><br><br>	fmt.Println(<span class="hljs-string">&quot;--- 分数背包问题 ---&quot;</span>)<br>	fmt.Printf(<span class="hljs-string">&quot;背包容量: %.2f\n&quot;</span>, capacity)<br>	fmt.Println(<span class="hljs-string">&quot;物品列表:&quot;</span>)<br>	<span class="hljs-keyword">for</span> _, item := <span class="hljs-keyword">range</span> items &#123;<br>		fmt.Printf(<span class="hljs-string">&quot;  价值: %.2f, 重量: %.2f\n&quot;</span>, item.Value, item.Weight)<br>	&#125;<br><br>	maxValue := fractionalKnapsack(items, capacity)<br>	fmt.Printf(<span class="hljs-string">&quot;\n背包中可获得的最大价值: %.2f\n&quot;</span>, maxValue)<br>	<span class="hljs-comment">// 期望输出 (根据价值密度排序: (60/10=6), (100/20=5), (120/30=4))</span><br>	<span class="hljs-comment">// 会先拿价值密度最高的 (60,10)，剩余容量40</span><br>	<span class="hljs-comment">// 再拿价值密度次高 (100,20)，剩余容量20</span><br>	<span class="hljs-comment">// 拿 (120,30) 的 20/30 部分 -&gt; 120 * (20/30) = 80</span><br>	<span class="hljs-comment">// 总价值 = 60 + 100 + 80 = 240</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="9-结论"><a href="#9-结论" class="headerlink" title="9. 结论"></a>9. 结论</h3><p>贪心算法是一种简单直观、高效的算法设计策略，但它的适用性相对有限。成功的贪心算法通常需要严格的数学证明来保证其局部最优选择能够导出全局最优解。在面对一个新问题时，首先尝试设计贪心策略，然后尝试证明或寻找反例，如果贪心不奏效，再考虑动态规划等更通用的方法。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+      
+        <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>07.算法——贪心算法</div>
+      <div>https://blog.longpi1.com/2025/06/20/07-算法贪心算法/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/18/06-%E7%AE%97%E6%B3%95%E5%9B%9E%E6%BA%AF/" title="06.算法——回溯">
+                        <span class="hidden-mobile">06.算法——回溯</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
