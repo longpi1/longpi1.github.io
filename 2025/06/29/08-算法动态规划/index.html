@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="算法专题：动态规划 (Dynamic Programming)1. 引言在计算机科学和数学中，动态规划（Dynamic Programming，简称 DP）是一种通过把原问题分解为相对简单的子问题的方式来求解复杂问题的方法。它通常用于优化问题，即在给定约束条件下，找到最大或最小的某个值。 动态规划的核心思想是，如果一个问题可以被分解成相互重叠的子问题，并且这些子问题的最优解可以组合成原问题的最优解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="08.算法——动态规划">
+<meta property="og:url" content="https://blog.longpi1.com/2025/06/29/08-%E7%AE%97%E6%B3%95%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="算法专题：动态规划 (Dynamic Programming)1. 引言在计算机科学和数学中，动态规划（Dynamic Programming，简称 DP）是一种通过把原问题分解为相对简单的子问题的方式来求解复杂问题的方法。它通常用于优化问题，即在给定约束条件下，找到最大或最小的某个值。 动态规划的核心思想是，如果一个问题可以被分解成相互重叠的子问题，并且这些子问题的最优解可以组合成原问题的最优解">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-06-29T06:26:43.000Z">
+<meta property="article:modified_time" content="2025-06-29T06:27:17.185Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="数据结构">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>08.算法——动态规划 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="08.算法——动态规划"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-29 14:26" pubdate>
+          2025年6月29日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">08.算法——动态规划</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h2 id="算法专题：动态规划-Dynamic-Programming"><a href="#算法专题：动态规划-Dynamic-Programming" class="headerlink" title="算法专题：动态规划 (Dynamic Programming)"></a>算法专题：动态规划 (Dynamic Programming)</h2><h3 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h3><p>在计算机科学和数学中，动态规划（Dynamic Programming，简称 DP）是一种通过把原问题分解为相对简单的子问题的方式来求解复杂问题的方法。它通常用于优化问题，即在给定约束条件下，找到最大或最小的某个值。</p>
+<p>动态规划的核心思想是，如果一个问题可以被分解成相互重叠的子问题，并且这些子问题的最优解可以组合成原问题的最优解（即具有最优子结构），那么就可以使用动态规划。通过存储和重用子问题的解，DP 算法避免了重复计算，从而显著提高了效率，通常将指数级的暴力搜索优化到多项式时间。</p>
+<h3 id="2-动态规划的两个核心特性"><a href="#2-动态规划的两个核心特性" class="headerlink" title="2. 动态规划的两个核心特性"></a>2. 动态规划的两个核心特性</h3><p>一个问题能够用动态规划解决，通常需要满足以下两个关键性质：</p>
+<h4 id="2-1-最优子结构-Optimal-Substructure"><a href="#2-1-最优子结构-Optimal-Substructure" class="headerlink" title="2.1 最优子结构 (Optimal Substructure)"></a>2.1 最优子结构 (Optimal Substructure)</h4><ul>
+<li><strong>定义</strong>：一个问题的最优解包含其子问题的最优解。</li>
+<li><strong>理解</strong>：这意味着如果你找到了解决一个大问题的最佳方法，那么这个方法所涉及的每个小步骤（子问题）也必须是以最佳方式解决的。</li>
+<li><strong>例子</strong>：如果最短路径问题中从 A 到 B 的最短路径经过 C，那么从 A 到 C 的路径以及从 C 到 B 的路径也必须是各自的最短路径。</li>
+</ul>
+<h4 id="2-2-重叠子问题-Overlapping-Subproblems"><a href="#2-2-重叠子问题-Overlapping-Subproblems" class="headerlink" title="2.2 重叠子问题 (Overlapping Subproblems)"></a>2.2 重叠子问题 (Overlapping Subproblems)</h4><ul>
+<li><strong>定义</strong>：在解决问题的过程中，会多次遇到相同的子问题。</li>
+<li><strong>理解</strong>：如果子问题是独立的（比如快速排序），那么用分治法就足够了；但如果子问题会被多次计算，那么就可以通过存储子问题的解来避免重复计算，这就是动态规划的优势所在。</li>
+<li><strong>例子</strong>：计算斐波那契数列 <code>F(n)</code>，<code>F(n) = F(n-1) + F(n-2)</code>。计算 <code>F(5)</code> 需要 <code>F(4)</code> 和 <code>F(3)</code>，而 <code>F(4)</code> 又需要 <code>F(3)</code> 和 <code>F(2)</code>，<code>F(3)</code> 被计算了多次。</li>
+</ul>
+<h3 id="3-动态规划的两种实现方式"><a href="#3-动态规划的两种实现方式" class="headerlink" title="3. 动态规划的两种实现方式"></a>3. 动态规划的两种实现方式</h3><p>动态规划通常有两种主要的实现方式：</p>
+<h4 id="3-1-记忆化搜索-Memoization-x2F-Top-down-DP"><a href="#3-1-记忆化搜索-Memoization-x2F-Top-down-DP" class="headerlink" title="3.1 记忆化搜索 (Memoization &#x2F; Top-down DP)"></a>3.1 记忆化搜索 (Memoization &#x2F; Top-down DP)</h4><ul>
+<li><strong>思想</strong>：自顶向下，递归地解决问题。在计算子问题时，将结果存储起来（通常在数组或哈希表中）。下次再遇到相同的子问题时，直接从存储中读取，而不是重新计算。</li>
+<li>优点：<ul>
+<li>更接近直觉的递归思路，容易编写。</li>
+<li>只计算真正需要的子问题。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>递归调用可能导致栈溢出。</li>
+<li>有函数调用的额外开销。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-2-列表法-x2F-递推-Tabulation-x2F-Bottom-up-DP"><a href="#3-2-列表法-x2F-递推-Tabulation-x2F-Bottom-up-DP" class="headerlink" title="3.2 列表法 &#x2F; 递推 (Tabulation &#x2F; Bottom-up DP)"></a>3.2 列表法 &#x2F; 递推 (Tabulation &#x2F; Bottom-up DP)</h4><ul>
+<li><strong>思想</strong>：自底向上，迭代地解决问题。从最小的子问题开始，逐步计算并填充一个表格（通常是数组），直到计算出原问题的解。</li>
+<li>优点：<ul>
+<li>没有递归开销，通常更高效。</li>
+<li>避免栈溢出。</li>
+<li>更容易进行空间优化。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>需要确定正确的计算顺序。</li>
+<li>可能需要计算所有子问题，即使某些子问题对最终解没有贡献。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-解决动态规划问题的通用步骤"><a href="#4-解决动态规划问题的通用步骤" class="headerlink" title="4. 解决动态规划问题的通用步骤"></a>4. 解决动态规划问题的通用步骤</h3><ol>
+<li>**定义状态 (State)**：确定 <code>dp</code> 数组的含义，即 <code>dp[i]</code> 或 <code>dp[i][j]</code> 代表什么。</li>
+<li>**初始化 (Initialization)**：确定 <code>dp</code> 数组的初始值（边界条件）。</li>
+<li>**确定状态转移方程 (Recurrence Relation)**：找出如何从已知的子问题的解推导出当前问题的解。</li>
+<li>**确定遍历顺序 (Iteration Order)**：保证在计算 <code>dp[i]</code> 或 <code>dp[i][j]</code> 时，其依赖的子问题已经被计算过。</li>
+<li>**打印遍历与确定返回值 (Result)**：如果存在疑惑可打印输出，以便于确定最终答案在 <code>dp</code> 数组中的位置。</li>
+</ol>
+<h3 id="5-动态规划与贪心算法-x2F-回溯算法的区别"><a href="#5-动态规划与贪心算法-x2F-回溯算法的区别" class="headerlink" title="5. 动态规划与贪心算法&#x2F;回溯算法的区别"></a>5. 动态规划与贪心算法&#x2F;回溯算法的区别</h3><ul>
+<li><strong>与贪心算法</strong>：<ul>
+<li><strong>贪心</strong>：每一步都做出局部最优选择，不考虑全局影响，且不回溯。要求问题具有“贪心选择性质”。通常更简单高效，但适用范围窄。</li>
+<li><strong>DP</strong>：考虑所有子问题的最优解，通过组合子问题解来得到全局最优，可能会在计算过程中探索多个路径。要求问题具有“最优子结构”和“重叠子问题”。适用范围更广。</li>
+</ul>
+</li>
+<li><strong>与回溯算法</strong>：<ul>
+<li><strong>回溯</strong>：一种暴力搜索，通过尝试所有可能的路径来找到解，当遇到死路或不满足条件时回溯。通常会进行剪枝来优化。</li>
+<li><strong>DP</strong>：在回溯的基础上，通过存储和重用重叠子问题的解来避免重复计算，从而将指数级复杂度降低到多项式级。可以看作是带有记忆化的回溯，或者说是“去掉了重复计算的回溯”。</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-Go-语言实现示例"><a href="#6-Go-语言实现示例" class="headerlink" title="6. Go 语言实现示例"></a>6. Go 语言实现示例</h3><h4 id="示例1：斐波那契数列-Fibonacci-Number"><a href="#示例1：斐波那契数列-Fibonacci-Number" class="headerlink" title="示例1：斐波那契数列 (Fibonacci Number)"></a>示例1：斐波那契数列 (Fibonacci Number)</h4><p><strong>问题</strong>：计算第 <code>n</code> 个斐波那契数。<code>F(0) = 0, F(1) = 1, F(n) = F(n-1) + F(n-2)</code>。</p>
+<p><strong>1. 记忆化搜索 (Top-down)</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-keyword">var</span> memo <span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>]<span class="hljs-type">int</span> <span class="hljs-comment">// 用于存储已计算的斐波那契数</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fibMemo</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-comment">// 初始化 memo 맵</span><br>	<span class="hljs-keyword">if</span> memo == <span class="hljs-literal">nil</span> &#123;<br>		memo = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>]<span class="hljs-type">int</span>)<br>	&#125;<br><br>	<span class="hljs-comment">// 1. 基本情况 (Base Cases)</span><br>	<span class="hljs-keyword">if</span> n &lt;= <span class="hljs-number">1</span> &#123;<br>		<span class="hljs-keyword">return</span> n<br>	&#125;<br><br>	<span class="hljs-comment">// 2. 检查是否已计算 (重叠子问题)</span><br>	<span class="hljs-keyword">if</span> val, ok := memo[n]; ok &#123;<br>		<span class="hljs-keyword">return</span> val<br>	&#125;<br><br>	<span class="hljs-comment">// 3. 状态转移方程 (递推关系)</span><br>	<span class="hljs-comment">// fibMemo(n) = fibMemo(n-1) + fibMemo(n-2)</span><br>	res := fibMemo(n<span class="hljs-number">-1</span>) + fibMemo(n<span class="hljs-number">-2</span>)<br><br>	<span class="hljs-comment">// 4. 存储结果</span><br>	memo[n] = res<br>	<span class="hljs-keyword">return</span> res<br>&#125;<br><br><span class="hljs-comment">// 清除 memo 供多次测试</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">resetMemo</span><span class="hljs-params">()</span></span> &#123;<br>	memo = <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	fmt.Println(<span class="hljs-string">&quot;--- 斐波那契数列 (记忆化搜索) ---&quot;</span>)<br>	resetMemo() <span class="hljs-comment">// 清除之前的记忆</span><br>	fmt.Printf(<span class="hljs-string">&quot;F(10) = %d\n&quot;</span>, fibMemo(<span class="hljs-number">10</span>)) <span class="hljs-comment">// 55</span><br>	resetMemo()<br>	fmt.Printf(<span class="hljs-string">&quot;F(20) = %d\n&quot;</span>, fibMemo(<span class="hljs-number">20</span>)) <span class="hljs-comment">// 6765</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 列表法 (Bottom-up)</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">fibTabulation</span><span class="hljs-params">(n <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-comment">// 1. 基本情况 (Base Cases)</span><br>	<span class="hljs-keyword">if</span> n &lt;= <span class="hljs-number">1</span> &#123;<br>		<span class="hljs-keyword">return</span> n<br>	&#125;<br><br>	<span class="hljs-comment">// 2. 定义 DP 状态: dp[i] 表示第 i 个斐波那契数</span><br>	dp := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, n+<span class="hljs-number">1</span>) <span class="hljs-comment">// dp 数组大小为 n+1，索引 0 到 n</span><br><br>	<span class="hljs-comment">// 初始化基本情况</span><br>	dp[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span><br>	dp[<span class="hljs-number">1</span>] = <span class="hljs-number">1</span><br><br>	<span class="hljs-comment">// 3. 确定计算顺序并推导状态转移方程</span><br>	<span class="hljs-comment">// 从小到大计算，确保 dp[i-1] 和 dp[i-2] 已计算</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">2</span>; i &lt;= n; i++ &#123;<br>		dp[i] = dp[i<span class="hljs-number">-1</span>] + dp[i<span class="hljs-number">-2</span>]<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> dp[n]<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	fmt.Println(<span class="hljs-string">&quot;\n--- 斐波那契数列 (列表法) ---&quot;</span>)<br>	fmt.Printf(<span class="hljs-string">&quot;F(10) = %d\n&quot;</span>, fibTabulation(<span class="hljs-number">10</span>)) <span class="hljs-comment">// 55</span><br>	fmt.Printf(<span class="hljs-string">&quot;F(20) = %d\n&quot;</span>, fibTabulation(<span class="hljs-number">20</span>)) <span class="hljs-comment">// 6765</span><br>	fmt.Printf(<span class="hljs-string">&quot;F(0) = %d\n&quot;</span>, fibTabulation(<span class="hljs-number">0</span>))   <span class="hljs-comment">// 0</span><br>	fmt.Printf(<span class="hljs-string">&quot;F(1) = %d\n&quot;</span>, fibTabulation(<span class="hljs-number">1</span>))   <span class="hljs-comment">// 1</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例2：凑零钱问题-Coin-Change"><a href="#示例2：凑零钱问题-Coin-Change" class="headerlink" title="示例2：凑零钱问题 (Coin Change)"></a>示例2：凑零钱问题 (Coin Change)</h4><figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs inform7">322. 零钱兑换<br>给你一个整数数组 coins ，表示不同面额的硬币；以及一个整数 amount ，表示总金额。<br><br>计算并返回可以凑成总金额所需的 最少的硬币个数 。如果没有任何一种硬币组合能组成总金额，返回 -1 。<br><br>你可以认为每种硬币的数量是无限的。<br><br>示例 1：<br><br>输入：coins = <span class="hljs-comment">[1, 2, 5]</span>, amount = 11<br>输出：3<br>解释：11 = 5 + 5 + 1<br>示例 2：<br><br>输入：coins = <span class="hljs-comment">[2]</span>, amount = 3<br>输出：-1<br>示例 3：<br><br>输入：coins = <span class="hljs-comment">[1]</span>, amount = 0<br>输出：0<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 完全背包问题思路</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">coinChange</span><span class="hljs-params">(coins []<span class="hljs-type">int</span>, amount <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	n := <span class="hljs-built_in">len</span>(coins)<br>	dp := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, amount+<span class="hljs-number">1</span>)<br>	dp[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; i &lt; <span class="hljs-built_in">len</span>(dp); i++ &#123;<br>		dp[i] = math.MaxInt64<br>	&#125;<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; n; i++ &#123;<br>		<span class="hljs-keyword">for</span> j := coins[i]; j &lt;= amount; j++ &#123;<br>			<span class="hljs-keyword">if</span> dp[j-coins[i]] != math.MaxInt64 &#123;<br>				dp[j] = min(dp[j], dp[j-coins[i]]+<span class="hljs-number">1</span>)<br>			&#125;<br><br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">// 没找到能装满背包的, 就返回-1</span><br>	<span class="hljs-keyword">if</span> dp[amount] == math.MaxInt64 &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> dp[amount]<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例3：最长公共子序列-Longest-Common-Subsequence-LCS"><a href="#示例3：最长公共子序列-Longest-Common-Subsequence-LCS" class="headerlink" title="示例3：最长公共子序列 (Longest Common Subsequence, LCS)"></a>示例3：最长公共子序列 (Longest Common Subsequence, LCS)</h4><p><strong>问题</strong>：给定两个字符串 <code>text1</code> 和 <code>text2</code>，找出这两个字符串的最长公共子序列的长度。子序列是指一个字符串通过删除一些（或不删除）字符而不改变剩余字符的相对顺序得到的新字符串。 <strong>核心思想</strong>：二维 DP。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;strings&quot;</span> <span class="hljs-comment">// 引入 strings 包</span><br><br><span class="hljs-comment">// max 辅助函数</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">max</span><span class="hljs-params">(a, b <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">if</span> a &gt; b &#123;<br>		<span class="hljs-keyword">return</span> a<br>	&#125;<br>	<span class="hljs-keyword">return</span> b<br>&#125;<br><br><span class="hljs-comment">// longestCommonSubsequence 最长公共子序列</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">longestCommonSubsequence</span><span class="hljs-params">(text1 <span class="hljs-type">string</span>, text2 <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	m, n := <span class="hljs-built_in">len</span>(text1), <span class="hljs-built_in">len</span>(text2)<br><br>	<span class="hljs-comment">// 1. 定义 DP 状态: dp[i][j] 表示 text1 的前 i 个字符和 text2 的前 j 个字符的最长公共子序列的长度。</span><br>	<span class="hljs-comment">// (为了方便处理边界情况，dp 数组通常会多一行一列)</span><br>	dp := <span class="hljs-built_in">make</span>([][]<span class="hljs-type">int</span>, m+<span class="hljs-number">1</span>)<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-keyword">range</span> dp &#123;<br>		dp[i] = <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, n+<span class="hljs-number">1</span>)<br>	&#125;<br><br>	<span class="hljs-comment">// 2. 基本情况 (Base Cases):</span><br>	<span class="hljs-comment">// dp[0][j] = 0 (text1 空字符串)</span><br>	<span class="hljs-comment">// dp[i][0] = 0 (text2 空字符串)</span><br>	<span class="hljs-comment">// Go 语言中 int 数组默认初始化为 0，所以这里无需显式设置</span><br><br>	<span class="hljs-comment">// 3. 确定计算顺序并推导状态转移方程</span><br>	<span class="hljs-comment">// 从左上到右下，逐行逐列计算</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; i &lt;= m; i++ &#123;<br>		<span class="hljs-keyword">for</span> j := <span class="hljs-number">1</span>; j &lt;= n; j++ &#123;<br>			<span class="hljs-comment">// 如果当前字符匹配</span><br>			<span class="hljs-keyword">if</span> text1[i<span class="hljs-number">-1</span>] == text2[j<span class="hljs-number">-1</span>] &#123; <span class="hljs-comment">// 注意：字符串索引从 0 开始，所以是 i-1 和 j-1</span><br>				<span class="hljs-comment">// 状态转移方程 1: 如果当前字符相同，则 LCS 长度加 1，来源于左上角对角线的值</span><br>				dp[i][j] = dp[i<span class="hljs-number">-1</span>][j<span class="hljs-number">-1</span>] + <span class="hljs-number">1</span><br>			&#125; <span class="hljs-keyword">else</span> &#123;<br>				<span class="hljs-comment">// 如果当前字符不匹配</span><br>				<span class="hljs-comment">// 状态转移方程 2: LCS 长度等于 (text1 往前一个字符的 LCS) 和 (text2 往前一个字符的 LCS) 中的较大值</span><br>				dp[i][j] = max(dp[i<span class="hljs-number">-1</span>][j], dp[i][j<span class="hljs-number">-1</span>])<br>			&#125;<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 4. 返回结果</span><br>	<span class="hljs-keyword">return</span> dp[m][n] <span class="hljs-comment">// dp[m][n] 即为 text1 和 text2 的 LCS 长度</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	fmt.Println(<span class="hljs-string">&quot;\n--- 最长公共子序列 ---&quot;</span>)<br>	text1_1 := <span class="hljs-string">&quot;abcde&quot;</span><br>	text2_1 := <span class="hljs-string">&quot;ace&quot;</span><br>	fmt.Printf(<span class="hljs-string">&quot;Text1: \&quot;%s\&quot;, Text2: \&quot;%s\&quot; -&gt; LCS Length: %d\n&quot;</span>, text1_1, text2_1, longestCommonSubsequence(text1_1, text2_1)) <span class="hljs-comment">// 期望: 3 (&quot;ace&quot;)</span><br><br>	text1_2 := <span class="hljs-string">&quot;abc&quot;</span><br>	text2_2 := <span class="hljs-string">&quot;abc&quot;</span><br>	fmt.Printf(<span class="hljs-string">&quot;Text1: \&quot;%s\&quot;, Text2: \&quot;%s\&quot; -&gt; LCS Length: %d\n&quot;</span>, text1_2, text2_2, longestCommonSubsequence(text1_2, text2_2)) <span class="hljs-comment">// 期望: 3 (&quot;abc&quot;)</span><br><br>	text1_3 := <span class="hljs-string">&quot;abc&quot;</span><br>	text2_3 := <span class="hljs-string">&quot;def&quot;</span><br>	fmt.Printf(<span class="hljs-string">&quot;Text1: \&quot;%s\&quot;, Text2: \&quot;%s\&quot; -&gt; LCS Length: %d\n&quot;</span>, text1_3, text2_3, longestCommonSubsequence(text1_3, text2_3)) <span class="hljs-comment">// 期望: 0</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="示例4：0-x2F-1-背包问题-0-x2F-1-Knapsack-Problem"><a href="#示例4：0-x2F-1-背包问题-0-x2F-1-Knapsack-Problem" class="headerlink" title="示例4：0&#x2F;1 背包问题 (0&#x2F;1 Knapsack Problem)"></a>示例4：0&#x2F;1 背包问题 (0&#x2F;1 Knapsack Problem)</h4><p><strong>问题</strong>：给定 <code>n</code> 件物品和一个容量为 <code>W</code> 的背包。每件物品有其价值 <code>value[i]</code> 和重量 <code>weight[i]</code>。每件物品只能选择一次（0&#x2F;1），问在不超过背包容量的前提下，如何使得背包中物品的总价值最大。 <strong>核心思想</strong>：二维 DP。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-comment">// knapsack01 解决 0/1 背包问题</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">knapsack01</span><span class="hljs-params">(weights []<span class="hljs-type">int</span>, values []<span class="hljs-type">int</span>, W <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	n := <span class="hljs-built_in">len</span>(weights) <span class="hljs-comment">// 物品数量</span><br><br>	<span class="hljs-comment">// 1. 定义 DP 状态: dp[i][w] 表示从前 i 件物品中选择，在背包容量为 w 的情况下，所能获得的最大总价值。</span><br>	<span class="hljs-comment">// dp 数组大小为 (n+1) * (W+1)，索引从 0 开始</span><br>	dp := <span class="hljs-built_in">make</span>([][]<span class="hljs-type">int</span>, n+<span class="hljs-number">1</span>)<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-keyword">range</span> dp &#123;<br>		dp[i] = <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, W+<span class="hljs-number">1</span>)<br>	&#125;<br><br>	<span class="hljs-comment">// 2. 基本情况 (Base Cases):</span><br>	<span class="hljs-comment">// dp[0][w] = 0 (没有物品可选时，价值为 0)</span><br>	<span class="hljs-comment">// dp[i][0] = 0 (背包容量为 0 时，价值为 0)</span><br>	<span class="hljs-comment">// Go 语言中 int 数组默认初始化为 0，所以这里无需显式设置</span><br><br>	<span class="hljs-comment">// 3. 确定计算顺序并推导状态转移方程</span><br>	<span class="hljs-comment">// 遍历物品 (从 1 到 n)</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; i &lt;= n; i++ &#123;<br>		<span class="hljs-comment">// 遍历背包容量 (从 1 到 W)</span><br>		<span class="hljs-keyword">for</span> w := <span class="hljs-number">1</span>; w &lt;= W; w++ &#123;<br>			<span class="hljs-comment">// 当前物品的重量和价值 (注意：物品索引是 i-1)</span><br>			currentWeight := weights[i<span class="hljs-number">-1</span>]<br>			currentValue := values[i<span class="hljs-number">-1</span>]<br><br>			<span class="hljs-comment">// 如果当前物品的重量大于当前背包容量 w</span><br>			<span class="hljs-keyword">if</span> currentWeight &gt; w &#123;<br>				<span class="hljs-comment">// 状态转移方程 1: 无法放入当前物品，最大价值等于不放入当前物品时的价值</span><br>				dp[i][w] = dp[i<span class="hljs-number">-1</span>][w]<br>			&#125; <span class="hljs-keyword">else</span> &#123;<br>				<span class="hljs-comment">// 如果可以放入当前物品，有两种选择：</span><br>				<span class="hljs-comment">// 状态转移方程 2: max(不放入当前物品, 放入当前物品)</span><br>				<span class="hljs-comment">// 不放入：dp[i-1][w] (即当前物品的价值为 0)</span><br>				<span class="hljs-comment">// 放入：dp[i-1][w - currentWeight] + currentValue</span><br>				<span class="hljs-comment">// (即：放入当前物品后，背包容量减少 currentWeight，剩余容量的最大价值加上当前物品的价值)</span><br>				dp[i][w] = max(dp[i<span class="hljs-number">-1</span>][w], dp[i<span class="hljs-number">-1</span>][w-currentWeight]+currentValue)<br>			&#125;<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 4. 返回结果</span><br>	<span class="hljs-keyword">return</span> dp[n][W] <span class="hljs-comment">// dp[n][W] 即为所有物品在容量 W 下的最大总价值</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	fmt.Println(<span class="hljs-string">&quot;\n--- 0/1 背包问题 ---&quot;</span>)<br>	<span class="hljs-comment">// 物品：价值, 重量</span><br>	<span class="hljs-comment">// Item 1: (60, 10)</span><br>	<span class="hljs-comment">// Item 2: (100, 20)</span><br>	<span class="hljs-comment">// Item 3: (120, 30)</span><br><br>	weights1 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>&#125;<br>	values1 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">60</span>, <span class="hljs-number">100</span>, <span class="hljs-number">120</span>&#125;<br>	capacity1 := <span class="hljs-number">50</span><br>	fmt.Printf(<span class="hljs-string">&quot;Weights: %v, Values: %v, Capacity: %d -&gt; Max Value: %d\n&quot;</span>, weights1, values1, capacity1, knapsack01(weights1, values1, capacity1))<br>	<span class="hljs-comment">// 期望: 220 (选择物品2和物品3: 100+120=220, 重量20+30=50)</span><br><br>	weights2 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;<br>	values2 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>&#125;<br>	capacity2 := <span class="hljs-number">5</span><br>	fmt.Printf(<span class="hljs-string">&quot;Weights: %v, Values: %v, Capacity: %d -&gt; Max Value: %d\n&quot;</span>, weights2, values2, capacity2, knapsack01(weights2, values2, capacity2))<br>	<span class="hljs-comment">// 期望: 7 (选择物品2和物品3: 3+4=7, 重量2+3=5)</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="示例5：完全-背包问题"><a href="#示例5：完全-背包问题" class="headerlink" title="示例5：完全 背包问题"></a>示例5：完全 背包问题</h4><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>有 <code>N</code> 种物品和一个容量为 <code>W</code> 的背包。第 <code>i</code> 种物品的重量是 <code>weights[i]</code>，价值是 <code>values[i]</code>。求解将哪些物品装入背包，可使这些物品的重量总和不超过背包容量，且价值总和最大。 <strong>特点</strong>：每种物品都有无限件可用。</p>
+<h3 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h3><p>与0&#x2F;1背包非常相似，主要区别在于每种物品可以选取多次。</p>
+<ol>
+<li><p><strong>定义状态</strong>：</p>
+<ul>
+<li><strong>二维 DP</strong>：<code>dp[i][j]</code> 表示从前 <code>i</code> 种物品中任意选择（每种可选多次），放入容量为 <code>j</code> 的背包中所能获得的最大价值。</li>
+</ul>
+</li>
+<li><p><strong>状态转移方程</strong>： 对于第 <code>i</code> 种物品（对应索引 <code>i-1</code>）：</p>
+<ul>
+<li><p><strong>不选择第 <code>i</code> 种物品</strong>：<code>dp[i-1][j]</code></p>
+</li>
+<li><p>**选择第 <code>i</code> 种物品（前提j &gt;&#x3D; weights[i-1]**）：由于可以选多次，当我们为容量j 考虑第i 种物品时，我们可能已经为容量j - weights[i-1] 的背包选择了第i种物品。所以价值是</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs inform7">dp<span class="hljs-comment">[i]</span><span class="hljs-comment">[j - weights<span class="hljs-comment">[i-1]</span>]</span> + values<span class="hljs-comment">[i-1]</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>注意</strong>：<strong>这里是 <code>dp[i][...]</code> 而不是 <code>dp[i-1][...]</code>。这表示在考虑容量 <code>j - weights[i-1]</code> 时，仍然可以继续选择第 <code>i</code> 种物品。</strong></li>
+</ul>
+</li>
+</ul>
+<p>综合： <code>dp[i][j] = max(dp[i-1][j], dp[i][j - weights[i-1]] + values[i-1])</code> (当 <code>j &gt;= weights[i-1]</code> 时) <code>dp[i][j] = dp[i-1][j]</code> (当 <code>j &lt; weights[i-1]</code> 时)</p>
+<p>另一种等价的思考方式是枚举第 <code>i</code> 种物品选 <code>k</code> 件： <code>dp[i][j] = max(dp[i-1][j - k*weights[i-1]] + k*values[i-1])</code> for <code>k*weights[i-1] &lt;= j</code>。 这个可以通过数学归纳证明与上面的转移方程等价。</p>
+</li>
+<li><p><strong>初始化</strong>： 同0&#x2F;1背包，<code>dp</code> 表格初始化为 0。</p>
+</li>
+<li><p><strong>遍历顺序</strong>：</p>
+<ul>
+<li>外层循环遍历物品种类（<code>i</code> 从 1 到 <code>N</code>）。</li>
+<li>内层循环遍历背包容量（<code>j</code> 从 0 到 <code>W</code>）。</li>
+</ul>
+</li>
+<li><p><strong>返回值</strong>： <code>dp[N][W]</code></p>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main <span class="hljs-comment">// Assuming it&#x27;s in the same package for the main_complete function</span><br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span><br><br><span class="hljs-comment">// (max function is already defined above if in the same file)</span><br><br><span class="hljs-comment">// CompleteKnapsack2D 使用二维DP解决完全背包问题</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">CompleteKnapsack2D</span><span class="hljs-params">(weights []<span class="hljs-type">int</span>, values []<span class="hljs-type">int</span>, capacity <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	numItemTypes := <span class="hljs-built_in">len</span>(weights)<br>	<span class="hljs-keyword">if</span> numItemTypes == <span class="hljs-number">0</span> || capacity == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br>	&#125;<br><br>	<span class="hljs-comment">// dp[i][j] 表示从前 i 种物品中选取 (每种可多次)，放入容量为 j 的背包中的最大价值</span><br>	dp := <span class="hljs-built_in">make</span>([][]<span class="hljs-type">int</span>, numItemTypes+<span class="hljs-number">1</span>)<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-keyword">range</span> dp &#123;<br>		dp[i] = <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, capacity+<span class="hljs-number">1</span>)<br>	&#125;<br><br>	<span class="hljs-comment">// 遍历物品种类</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">1</span>; i &lt;= numItemTypes; i++ &#123; <span class="hljs-comment">// i 代表考虑第 i 种物品 (对应数组索引 i-1)</span><br>		weight := weights[i<span class="hljs-number">-1</span>]<br>		value := values[i<span class="hljs-number">-1</span>]<br>		<span class="hljs-comment">// 遍历背包容量</span><br>		<span class="hljs-keyword">for</span> j := <span class="hljs-number">0</span>; j &lt;= capacity; j++ &#123;<br>			<span class="hljs-keyword">if</span> j &lt; weight &#123;<br>				<span class="hljs-comment">// 当前背包容量装不下这一个第 i 种物品</span><br>				dp[i][j] = dp[i<span class="hljs-number">-1</span>][j]<br>			&#125; <span class="hljs-keyword">else</span> &#123;<br>				<span class="hljs-comment">// 可以选择不加入这种物品，或者加入至少一个这种物品</span><br>				<span class="hljs-comment">// 不加入: dp[i-1][j]</span><br>				<span class="hljs-comment">// 加入 (至少一个): dp[i][j-weight] + value</span><br>				<span class="hljs-comment">// dp[i][j-weight] 已经考虑了第 i 种物品，所以这是正确的</span><br>				dp[i][j] = max(dp[i<span class="hljs-number">-1</span>][j], dp[i][j-weight]+value)<br>			&#125;<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> dp[numItemTypes][capacity]<br>&#125;<br><br><span class="hljs-comment">// CompleteKnapsack1D 使用一维DP (空间优化) 解决完全背包问题</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">CompleteKnapsack1D</span><span class="hljs-params">(weights []<span class="hljs-type">int</span>, values []<span class="hljs-type">int</span>, capacity <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	numItemTypes := <span class="hljs-built_in">len</span>(weights)<br>	<span class="hljs-keyword">if</span> numItemTypes == <span class="hljs-number">0</span> || capacity == <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br>	&#125;<br><br>	<span class="hljs-comment">// dp[j] 表示容量为 j 的背包能获得的最大价值</span><br>	dp := <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, capacity+<span class="hljs-number">1</span>)<br><br>	<span class="hljs-comment">// 遍历物品种类</span><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; numItemTypes; i++ &#123;<br>		weight := weights[i]<br>		value := values[i]<br>		<span class="hljs-comment">// 遍历背包容量 (必须正序)</span><br>		<span class="hljs-comment">// 确保物品 i 可以被多次放入。</span><br>		<span class="hljs-comment">// 当计算 dp[j] 时，dp[j-weight] 可能已经包含了物品 i，</span><br>		<span class="hljs-comment">// dp[j-weight] + value 意味着再多放一个物品 i。</span><br>		<span class="hljs-keyword">for</span> j := weight; j &lt;= capacity; j++ &#123;<br>			dp[j] = max(dp[j], dp[j-weight]+value)<br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> dp[capacity]<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123; <span class="hljs-comment">// Combined main</span><br>	<span class="hljs-comment">// --- 0/1 Knapsack Example ---</span><br>	weights01 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;<br>	values01 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">15</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>&#125;<br>	capacity01 := <span class="hljs-number">4</span><br><br>	fmt.Println(<span class="hljs-string">&quot;--- 0/1 Knapsack ---&quot;</span>)<br>	fmt.Println(<span class="hljs-string">&quot;0/1 Knapsack (2D DP):&quot;</span>)<br>	maxValue2D_01 := ZeroOneKnapsack2D(weights01, values01, capacity01)<br>	fmt.Printf(<span class="hljs-string">&quot;Max value: %d\n&quot;</span>, maxValue2D_01) <span class="hljs-comment">// Expected: 35</span><br><br>	fmt.Println(<span class="hljs-string">&quot;\n0/1 Knapsack (1D DP - Space Optimized):&quot;</span>)<br>	maxValue1D_01 := ZeroOneKnapsack1D(weights01, values01, capacity01)<br>	fmt.Printf(<span class="hljs-string">&quot;Max value: %d\n&quot;</span>, maxValue1D_01) <span class="hljs-comment">// Expected: 35</span><br>	fmt.Println(<span class="hljs-string">&quot;----------------------&quot;</span>)<br><br><br>	<span class="hljs-comment">// --- Complete Knapsack Example ---</span><br>	weightsComplete := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;    <span class="hljs-comment">// 物品重量</span><br>	valuesComplete := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">15</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>&#125; <span class="hljs-comment">// 物品价值</span><br>	capacityComplete := <span class="hljs-number">4</span>               <span class="hljs-comment">// 背包容量</span><br><br>	fmt.Println(<span class="hljs-string">&quot;\n--- Complete Knapsack ---&quot;</span>)<br>	fmt.Println(<span class="hljs-string">&quot;Complete Knapsack (2D DP):&quot;</span>)<br>	maxValue2DComplete := CompleteKnapsack2D(weightsComplete, valuesComplete, capacityComplete)<br>	<span class="hljs-comment">// Possible combinations for capacity 4:</span><br>	<span class="hljs-comment">// - 4x item1 (weight 1, value 15) -&gt; total value 4*15 = 60</span><br>	<span class="hljs-comment">// - 1x item2 (weight 3, value 20) + 1x item1 (weight 1, value 15) -&gt; total value 20 + 15 = 35</span><br>	<span class="hljs-comment">// - 1x item3 (weight 4, value 30) -&gt; total value 30</span><br>	fmt.Printf(<span class="hljs-string">&quot;Max value: %d\n&quot;</span>, maxValue2DComplete) <span class="hljs-comment">// Expected: 60 (4 * item1)</span><br><br>	fmt.Println(<span class="hljs-string">&quot;\nComplete Knapsack (1D DP - Space Optimized):&quot;</span>)<br>	maxValue1DComplete := CompleteKnapsack1D(weightsComplete, valuesComplete, capacityComplete)<br>	fmt.Printf(<span class="hljs-string">&quot;Max value: %d\n&quot;</span>, maxValue1DComplete) <span class="hljs-comment">// Expected: 60</span><br>	fmt.Println(<span class="hljs-string">&quot;-------------------------&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h4 id="背包问题总结与关键区别"><a href="#背包问题总结与关键区别" class="headerlink" title="背包问题总结与关键区别"></a>背包问题总结与关键区别</h4><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">0&#x2F;1 背包</th>
+<th align="left">完全背包</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">物品限制</td>
+<td align="left">每件物品最多选1次</td>
+<td align="left">每种物品可选无限次</td>
+</tr>
+<tr>
+<td align="left"><strong>二维DP状态转移</strong></td>
+<td align="left"><code>dp[i][j] = max(dp[i-1][j], dp[i-1][j-w]+v)</code></td>
+<td align="left"><code>dp[i][j] = max(dp[i-1][j], dp[i][j-w]+v)</code></td>
+</tr>
+<tr>
+<td align="left"><strong>一维DP内循环</strong></td>
+<td align="left"><strong>倒序</strong>遍历背包容量 <code>j</code></td>
+<td align="left"><strong>正序</strong>遍历背包容量 <code>j</code></td>
+</tr>
+<tr>
+<td align="left">核心差异原因</td>
+<td align="left">倒序保证 <code>dp[j-w]</code> 是上一轮（不含当前物品）的状态</td>
+<td align="left">正序允许 <code>dp[j-w]</code> 是本轮（已含当前物品）的状态</td>
+</tr>
+</tbody></table>
+<h3 id="7-结论"><a href="#7-结论" class="headerlink" title="7. 结论"></a>7. 结论</h3><p>动态规划是一种强大而通用的算法设计范式，它通过识别问题的最优子结构和重叠子问题，并运用记忆化或列表法来避免重复计算，从而高效地解决许多复杂的优化问题。掌握 DP 的核心思想、通用步骤和常见题型，是提升算法能力的基石。虽然它的概念可能初看起来有些抽象，但通过大量的练习和 Go 语言的清晰实现，你会逐渐领悟其精妙之处。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+      
+        <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>08.算法——动态规划</div>
+      <div>https://blog.longpi1.com/2025/06/29/08-算法动态规划/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/20/07-%E7%AE%97%E6%B3%95%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95/" title="07.算法——贪心算法">
+                        <span class="hidden-mobile">07.算法——贪心算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
