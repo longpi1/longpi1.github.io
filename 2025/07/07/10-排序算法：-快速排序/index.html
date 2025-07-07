@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="排序算法： 快速排序在计算机科学的璀璨星空中，排序算法是其中最亮眼的星辰之一。它们是编程世界的基石，也是面试官钟爱的考点。在众多排序算法中，快速排序（Quicksort）以其卓越的平均性能和优雅的“分而治之”思想，脱颖而出，成为工业界应用最广泛的排序算法之一。 本文将带你深入探索快速排序的奥秘，不仅会详细阐述其工作原理，还将使用 Go 语言提供两种实现方式：经典的递归版本和挑战性的非递归版本。 一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10.排序算法： 快速排序">
+<meta property="og:url" content="https://blog.longpi1.com/2025/07/07/10-%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%9A-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="排序算法： 快速排序在计算机科学的璀璨星空中，排序算法是其中最亮眼的星辰之一。它们是编程世界的基石，也是面试官钟爱的考点。在众多排序算法中，快速排序（Quicksort）以其卓越的平均性能和优雅的“分而治之”思想，脱颖而出，成为工业界应用最广泛的排序算法之一。 本文将带你深入探索快速排序的奥秘，不仅会详细阐述其工作原理，还将使用 Go 语言提供两种实现方式：经典的递归版本和挑战性的非递归版本。 一">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-07T14:32:39.000Z">
+<meta property="article:modified_time" content="2025-07-07T14:35:10.914Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="数据结构">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>10.排序算法： 快速排序 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="10.排序算法： 快速排序"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-07-07 22:32" pubdate>
+          2025年7月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">10.排序算法： 快速排序</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="排序算法：-快速排序"><a href="#排序算法：-快速排序" class="headerlink" title="排序算法： 快速排序"></a>排序算法： 快速排序</h1><p>在计算机科学的璀璨星空中，排序算法是其中最亮眼的星辰之一。它们是编程世界的基石，也是面试官钟爱的考点。在众多排序算法中，快速排序（Quicksort）以其卓越的平均性能和优雅的“分而治之”思想，脱颖而出，成为工业界应用最广泛的排序算法之一。</p>
+<p>本文将带你深入探索快速排序的奥秘，不仅会详细阐述其工作原理，还将使用 Go 语言提供两种实现方式：经典的<strong>递归版本</strong>和挑战性的<strong>非递归版本</strong>。</p>
+<h2 id="一、什么是快速排序？"><a href="#一、什么是快速排序？" class="headerlink" title="一、什么是快速排序？"></a>一、什么是快速排序？</h2><p>快速排序由计算机科学家托尼·霍尔（Tony Hoare）在1960年发明。它的核心策略是<strong>分而治之（Divide and Conquer）</strong>。想象一下，要整理一书架凌乱的图书，你可能会这样做：</p>
+<ol>
+<li><strong>挑选基准（Pick a Pivot）</strong>：随便抽出一本书（比如《算法导论》）作为“基准”。</li>
+<li><strong>分区（Partition）</strong>：将书架上的书分为两部分：所有书名按字典序排在《算法导论》之前的放左边，排在之后的放右边。完成这一步后，《算法导论》这本书就找到了它最终应该在的位置。</li>
+<li><strong>递归处理（Recur）</strong>：对左边那堆书和右边那堆书，分别重复上述过程，直到每堆书只剩一本或没有书为止。</li>
+</ol>
+<p>当所有小堆都整理好后，整个书架的图书也就自然有序了。这就是快速排序的精髓。</p>
+<p><em>(图片来源: Wikipedia)</em></p>
+<h2 id="二、经典递归实现"><a href="#二、经典递归实现" class="headerlink" title="二、经典递归实现"></a>二、经典递归实现</h2><p>递归是实现快速排序最自然、最直观的方式。代码结构清晰地反映了“分而治之”的三个步骤。</p>
+<h3 id="1-分区（Partition）函数"><a href="#1-分区（Partition）函数" class="headerlink" title="1. 分区（Partition）函数"></a>1. 分区（Partition）函数</h3><p>这是快速排序的心脏。它的任务是接收一个数组（或子数组）和基准值，然后将数组重新排列，并返回基准值最终所在的索引位置。一个常见的实现（Lomuto partition scheme）如下：</p>
+<ul>
+<li>选择数组最后一个元素作为基准值。</li>
+<li>维护一个指针 <code>i</code>，指向“小于基准区域”的边界。</li>
+<li>遍历数组，如果发现一个元素小于或等于基准值，就将其与 <code>i</code> 指向的下一个位置的元素交换，并移动 <code>i</code>。</li>
+<li>遍历结束后，将基准值与 <code>i</code> 指向的下一个位置的元素交换，完成分区。</li>
+</ul>
+<h3 id="2-Go-代码实现-递归版"><a href="#2-Go-代码实现-递归版" class="headerlink" title="2. Go 代码实现 (递归版)"></a>2. Go 代码实现 (递归版)</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;math/rand&quot;</span><br>	<span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-comment">// quickSort 函数接受一个整数切片 arr 作为参数，用于对切片进行快速排序。</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">quickSort</span><span class="hljs-params">(arr []<span class="hljs-type">int</span>)</span></span> []<span class="hljs-type">int</span> &#123;<br>	<span class="hljs-comment">// 如果切片长度小于等于 1，表示已经排序好了，直接返回原切片。</span><br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(arr) &lt;= <span class="hljs-number">1</span> &#123;<br>		<span class="hljs-keyword">return</span> arr<br>	&#125;<br><br>	<span class="hljs-comment">// 选择第一个元素作为基准值（pivot）。</span><br>	pivot := arr[<span class="hljs-number">0</span>]<br>	<span class="hljs-comment">// 创建两个空切片，用于存放比基准值小的元素和比基准值大的元素。</span><br>	<span class="hljs-keyword">var</span> left, right []<span class="hljs-type">int</span><br><br>	<span class="hljs-comment">// 遍历切片中除基准值外的元素。</span><br>	<span class="hljs-keyword">for</span> _, v := <span class="hljs-keyword">range</span> arr[<span class="hljs-number">1</span>:] &#123;<br>		<span class="hljs-comment">// 如果元素小于等于基准值，将其加入 left 切片。</span><br>		<span class="hljs-keyword">if</span> v &lt;= pivot &#123;<br>			left = <span class="hljs-built_in">append</span>(left, v)<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-comment">// 否则，将其加入 right 切片。</span><br>			right = <span class="hljs-built_in">append</span>(right, v)<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 递归对 left 和 right 切片进行快速排序。</span><br>	left = quickSort(left)<br>	right = quickSort(right)<br><br>	<span class="hljs-comment">// 将 left 切片、基准值和 right 切片合并成一个有序切片，并返回。</span><br>	<span class="hljs-keyword">return</span> <span class="hljs-built_in">append</span>(<span class="hljs-built_in">append</span>(left, pivot), right...)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	nums := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">9</span>, <span class="hljs-number">2</span>, <span class="hljs-number">7</span>, <span class="hljs-number">5</span>, <span class="hljs-number">1</span>, <span class="hljs-number">8</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>&#125;<br>	fmt.Println(<span class="hljs-string">&quot;Original (Recursive):&quot;</span>, nums)<br>	quickSort(nums)<br>	fmt.Println(<span class="hljs-string">&quot;Sorted (Recursive):  &quot;</span>, nums)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="三、非递归实现"><a href="#三、非递归实现" class="headerlink" title="三、非递归实现"></a>三、非递归实现</h2><p>虽然递归实现优雅，但它也有潜在问题：如果递归深度过大，可能会导致<strong>栈溢出（Stack Overflow）</strong>。对于海量数据，这是一个必须考虑的风险。</p>
+<p>我们可以用一个<strong>栈（Stack）</strong>来手动模拟递归过程，从而实现一个非递归（迭代）版本的快速排序。</p>
+<p><strong>思路如下</strong>：</p>
+<ol>
+<li>创建一个栈，用来存储待排序子数组的起止索引 <code>(low, high)</code>。</li>
+<li>首先将整个数组的 <code>(0, len-1)</code> 推入栈中。</li>
+<li>当栈不为空时，循环执行以下操作： a. 从栈中弹出一对 <code>(low, high)</code>。 b. 对这个范围执行 <code>partition</code> 操作，得到基准点索引 <code>pivotIndex</code>。 c. 如果基准点左侧的子数组有元素，将其范围 <code>(low, pivotIndex-1)</code> 推入栈中。 d. 如果基准点右侧的子数组有元素，将其范围 <code>(pivotIndex+1, high)</code> 推入栈中。</li>
+</ol>
+<p>这个过程本质上是将递归调用转换为了栈的 push 和 pop 操作，有效避免了系统调用栈的溢出风险。</p>
+<h3 id="Go-代码实现-非递归版"><a href="#Go-代码实现-非递归版" class="headerlink" title="Go 代码实现 (非递归版)"></a>Go 代码实现 (非递归版)</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;fmt&quot;</span><br>)<br><br><span class="hljs-comment">// QuickSortIterative 是非递归（迭代）版本的快速排序</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">QuickSortIterative</span><span class="hljs-params">(nums []<span class="hljs-type">int</span>)</span></span> &#123;<br>	<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(nums) &lt; <span class="hljs-number">2</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-comment">// 数组为空或只有一个元素，无需排序</span><br>	&#125;<br><br>	<span class="hljs-comment">// 1. 创建我们的“任务清单”（用切片模拟栈）</span><br>	<span class="hljs-comment">// 栈里存放的是一个个任务，每个任务是一个 [2]int 数组，代表 [low, high]</span><br>	taskStack := <span class="hljs-built_in">make</span>([][<span class="hljs-number">2</span>]<span class="hljs-type">int</span>, <span class="hljs-number">0</span>)<br><br>	<span class="hljs-comment">// 2. 将第一个、也是最大的任务（排序整个数组）放入清单</span><br>	taskStack = <span class="hljs-built_in">append</span>(taskStack, [<span class="hljs-number">2</span>]<span class="hljs-type">int</span>&#123;<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(nums) - <span class="hljs-number">1</span>&#125;)<br><br>	<span class="hljs-comment">// 3. 只要清单不为空，就持续处理任务</span><br>	<span class="hljs-keyword">for</span> <span class="hljs-built_in">len</span>(taskStack) &gt; <span class="hljs-number">0</span> &#123;<br>		<span class="hljs-comment">// 3.1 取出清单顶部的任务</span><br>		n := <span class="hljs-built_in">len</span>(taskStack) - <span class="hljs-number">1</span> <span class="hljs-comment">// 获取栈顶索引</span><br>		task := taskStack[n]   <span class="hljs-comment">// 获取任务</span><br>		taskStack = taskStack[:n] <span class="hljs-comment">// 从清单中移除该任务 (Pop)</span><br><br>		low, high := task[<span class="hljs-number">0</span>], task[<span class="hljs-number">1</span>]<br><br>		<span class="hljs-comment">// 3.2 对当前任务范围进行分区</span><br>		<span class="hljs-comment">// partition 函数和递归版本完全一样</span><br>		pivotIndex := partition(nums, low, high)<br><br>		<span class="hljs-comment">// 3.3 检查是否产生了新的子任务，并加入清单</span><br>		<span class="hljs-comment">// 如果基准点左边至少还有两个元素，说明它是一个有效的新任务</span><br>		<span class="hljs-keyword">if</span> pivotIndex<span class="hljs-number">-1</span> &gt; low &#123;<br>			taskStack = <span class="hljs-built_in">append</span>(taskStack, [<span class="hljs-number">2</span>]<span class="hljs-type">int</span>&#123;low, pivotIndex - <span class="hljs-number">1</span>&#125;)<br>		&#125;<br><br>		<span class="hljs-comment">// 如果基准点右边至少还有两个元素，也是一个有效的新任务</span><br>		<span class="hljs-keyword">if</span> pivotIndex+<span class="hljs-number">1</span> &lt; high &#123;<br>			taskStack = <span class="hljs-built_in">append</span>(taskStack, [<span class="hljs-number">2</span>]<span class="hljs-type">int</span>&#123;pivotIndex + <span class="hljs-number">1</span>, high&#125;)<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// partition 函数和递归版本完全一样，无需任何改动</span><br><span class="hljs-comment">// 它的职责就是：选一个基准，把小的放左边，大的放右边，然后返回基准的最终位置</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">partition</span><span class="hljs-params">(nums []<span class="hljs-type">int</span>, low, high <span class="hljs-type">int</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	pivotValue := nums[high]<br>	i := low - <span class="hljs-number">1</span><br>	<span class="hljs-keyword">for</span> j := low; j &lt; high; j++ &#123;<br>		<span class="hljs-keyword">if</span> nums[j] &lt;= pivotValue &#123;<br>			i++<br>			nums[i], nums[j] = nums[j], nums[i]<br>		&#125;<br>	&#125;<br>	nums[i+<span class="hljs-number">1</span>], nums[high] = nums[high], nums[i+<span class="hljs-number">1</span>]<br>	<span class="hljs-keyword">return</span> i + <span class="hljs-number">1</span><br>&#125;<br><br><span class="hljs-comment">// ---- 测试代码 ----</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	nums := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">9</span>, <span class="hljs-number">2</span>, <span class="hljs-number">7</span>, <span class="hljs-number">5</span>, <span class="hljs-number">1</span>, <span class="hljs-number">8</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>&#125;<br>	fmt.Println(<span class="hljs-string">&quot;原始数组:&quot;</span>, nums)<br><br>	QuickSortIterative(nums)<br><br>	fmt.Println(<span class="hljs-string">&quot;排序后数组:&quot;</span>, nums)<br><br>	nums2 := []<span class="hljs-type">int</span>&#123;<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">2</span>, <span class="hljs-number">8</span>, <span class="hljs-number">4</span>, <span class="hljs-number">7</span>, <span class="hljs-number">9</span>, <span class="hljs-number">0</span>&#125;<br>	fmt.Println(<span class="hljs-string">&quot;\n原始数组:&quot;</span>, nums2)<br><br>	QuickSortIterative(nums2)<br><br>	fmt.Println(<span class="hljs-string">&quot;排序后数组:&quot;</span>, nums2)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="四、性能与特性分析"><a href="#四、性能与特性分析" class="headerlink" title="四、性能与特性分析"></a>四、性能与特性分析</h2><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>时间复杂度</strong></td>
+<td align="left">**平均情况：O(n log n)**。这是快速排序的常态，表现非常出色。<br>**最坏情况：O(n²)**。当数组已有序或逆序，且基准选择不佳时发生。随机化是避免此问题的关键。<br>**最好情况：O(n log n)**。每次分区都完美平分数组。</td>
+</tr>
+<tr>
+<td align="left"><strong>空间复杂度</strong></td>
+<td align="left">**O(log n)**。主要由递归（或模拟递归的栈）的深度决定。平均情况下，递归深度为 O(log n)。</td>
+</tr>
+<tr>
+<td align="left"><strong>稳定性</strong></td>
+<td align="left"><strong>不稳定</strong>。快速排序不保证相等元素的原始相对顺序。例如，对 <code>(5, &quot;a&quot;), (3, &quot;b&quot;), (5, &quot;c&quot;)</code> 按数字排序，<code> (5, &quot;a&quot;)</code> 和 <code>(5, &quot;c&quot;)</code> 的相对位置可能会改变。</td>
+</tr>
+</tbody></table>
+<h2 id="五、结论：为何快排如此流行？"><a href="#五、结论：为何快排如此流行？" class="headerlink" title="五、结论：为何快排如此流行？"></a>五、结论：为何快排如此流行？</h2><p>尽管存在不稳定的特性和理论上的最坏情况，快速排序依然是最受欢迎的排序算法之一，原因在于：</p>
+<ol>
+<li><strong>极高的平均性能</strong>：O(n log n) 的时间复杂度，并且其内部循环的常数因子非常小，使得它在实践中通常比其他 O(n log n) 算法（如归并排序、堆排序）更快。</li>
+<li><strong>原地排序</strong>：它只需要 O(log n) 的辅助空间，空间效率非常高，适合处理大规模数据。</li>
+<li><strong>可优化性</strong>：可以通过“三数取中法”选择基准、随机化、在小数组时切换到插入排序等多种方式进行优化，使其在各种场景下都能表现稳健。</li>
+</ol>
+<p>掌握快速排序，不仅仅是学会了一个排序算法，更是对“分而治之”这一强大编程思想的深刻领悟。无论是准备面试，还是在实际工程中处理数据，它都是你工具箱中不可或缺的利器。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+      
+        <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>10.排序算法： 快速排序</div>
+      <div>https://blog.longpi1.com/2025/07/07/10-排序算法：-快速排序/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/29/08-%E7%AE%97%E6%B3%95%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" title="08.算法——动态规划">
+                        <span class="hidden-mobile">08.算法——动态规划</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
