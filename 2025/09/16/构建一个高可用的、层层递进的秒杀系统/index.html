@@ -1,0 +1,850 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="构建一个高可用的、层层递进的秒杀系统层次一：用户交互层 (Browser&#x2F;App) - 体验与防御的起点目标：在用户端完成极致的体验优化和初级流量过滤。  **动态CDN与边缘计算 (Edge Computing)**：  页面静态化：商品详情页、活动规则页等静态资源，全部推送到全球CDN节点，利用用户本地DNS实现最优线路访问。  边缘节点动态逻辑：  权威时间服务：通过 CDN 的边">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构建一个高可用的、层层递进的秒杀系统">
+<meta property="og:url" content="https://blog.longpi1.com/2025/09/16/%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%AB%98%E5%8F%AF%E7%94%A8%E7%9A%84%E3%80%81%E5%B1%82%E5%B1%82%E9%80%92%E8%BF%9B%E7%9A%84%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="构建一个高可用的、层层递进的秒杀系统层次一：用户交互层 (Browser&#x2F;App) - 体验与防御的起点目标：在用户端完成极致的体验优化和初级流量过滤。  **动态CDN与边缘计算 (Edge Computing)**：  页面静态化：商品详情页、活动规则页等静态资源，全部推送到全球CDN节点，利用用户本地DNS实现最优线路访问。  边缘节点动态逻辑：  权威时间服务：通过 CDN 的边">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-16T11:03:00.000Z">
+<meta property="article:modified_time" content="2025-09-16T11:04:58.329Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>构建一个高可用的、层层递进的秒杀系统 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="构建一个高可用的、层层递进的秒杀系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-09-16 19:03" pubdate>
+          2025年9月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.8k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">构建一个高可用的、层层递进的秒杀系统</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="构建一个高可用的、层层递进的秒杀系统"><a href="#构建一个高可用的、层层递进的秒杀系统" class="headerlink" title="构建一个高可用的、层层递进的秒杀系统"></a><strong>构建一个高可用的、层层递进的秒杀系统</strong></h1><h3 id="层次一：用户交互层-Browser-x2F-App-体验与防御的起点"><a href="#层次一：用户交互层-Browser-x2F-App-体验与防御的起点" class="headerlink" title="层次一：用户交互层 (Browser&#x2F;App) - 体验与防御的起点"></a><strong>层次一：用户交互层 (Browser&#x2F;App) - 体验与防御的起点</strong></h3><p><strong>目标：在用户端完成极致的体验优化和初级流量过滤。</strong></p>
+<ol>
+<li><p>**动态CDN与边缘计算 (Edge Computing)**：</p>
+<ul>
+<li><p><strong>页面静态化</strong>：商品详情页、活动规则页等静态资源，全部推送到<strong>全球CDN节点</strong>，利用用户本地DNS实现最优线路访问。</p>
+</li>
+<li><p>边缘节点动态逻辑：</p>
+<ul>
+<li><strong>权威时间服务</strong>：通过 CDN 的边缘节点（如 Cloudflare Workers, AWS Lambda@Edge）提供一个全球同步的、低延迟的权威时间接口，供客户端校准倒计时。</li>
+<li><strong>动态Token下发</strong>：秒杀开始的瞬间，由<strong>边缘节点</strong>直接下发访问令牌（JWT），而不是所有请求都回源到中心机房。这能将第一波流量洪峰分散到全球。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>客户端智能</strong>：</p>
+<ul>
+<li><strong>人机验证</strong>：引入<strong>无感知的滑动验证、设备指纹、行为分析</strong>等高级人机验证手段，而不是简单的图形验证码，在不牺牲体验的前提下，精准识别并拦截机器人流量。</li>
+<li><strong>精细化防抖</strong>：按钮点击后，不仅是简单置灰，还会启动一个<strong>本地的、带状态的请求控制器</strong>。它负责管理Token的获取、使用，并以指数退避策略处理“排队中”、“已售罄”等状态，避免客户端进行无效的轮询。</li>
+<li><strong>答案隐藏</strong>：秒杀的核心接口地址或参数，在秒杀开始前是加密或隐藏的，通过上述动态Token下发时一并返回，增加脚本破解难度。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="层次二：接入与负载均衡层-Gateway-x2F-SLB-流量的“海关”"><a href="#层次二：接入与负载均衡层-Gateway-x2F-SLB-流量的“海关”" class="headerlink" title="层次二：接入与负载均衡层 (Gateway&#x2F;SLB) - 流量的“海关”"></a><strong>层次二：接入与负载均衡层 (Gateway&#x2F;SLB) - 流量的“海关”</strong></h3><p><strong>目标：承载全部入口流量，进行全局性的安全防护和流量调度。</strong></p>
+<ol>
+<li><strong>超大带宽的 Anti-DDoS 服务</strong>：<ul>
+<li>在所有流量入口部署云厂商或专业厂商的 Anti-DDoS 服务，能够清洗 T 级别（Tbps）的流量攻击。</li>
+</ul>
+</li>
+<li>**API 网关 &#x2F; L7 负载均衡 (Nginx&#x2F;APISIX)**：<ul>
+<li>**WAF (Web Application Firewall)**：在网关层部署 WAF，过滤 SQL 注入、XSS 等应用层攻击。</li>
+<li><strong>全局限流与熔断</strong>：基于 <strong>IP、设备ID、用户等级</strong> 等维度，进行精细化的全局限流。例如，一个 IP 在 1 秒内只能发起 3 次秒杀请求。</li>
+<li><strong>动态Token校验</strong>：对来自客户端的动态Token进行第一道校验，无效或过期的Token直接在此层拦截。</li>
+<li><strong>蓝绿&#x2F;金丝雀发布支持</strong>：为后续的应用层服务发布提供流量切分能力。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="层次三：应用集群层-Application-Cluster-核心逻辑与流量整形"><a href="#层次三：应用集群层-Application-Cluster-核心逻辑与流量整形" class="headerlink" title="层次三：应用集群层 (Application Cluster) - 核心逻辑与流量整形"></a><strong>层次三：应用集群层 (Application Cluster) - 核心逻辑与流量整形</strong></h3><p><strong>目标：无状态、可无限水平扩展，完成核心的业务校验和流量削峰。</strong></p>
+<ol>
+<li><p><strong>流量整形：分布式排队系统</strong></p>
+<ul>
+<li><p><strong>问题</strong>：即使经过接入层限流，到达应用集群的流量依然是巨大的脉冲。</p>
+</li>
+<li><p>方案：在应用层实现一个轻量级的分布式排队系统</p>
+<p>。</p>
+<ul>
+<li>当请求进入Go服务集群时，首先去一个<strong>全局的Redis计数器</strong>（使用<code>INCR</code>）获取一个“排队号”。</li>
+<li>只允许排队号在一定范围内的请求（例如，库存的 3-5 倍）进入后续的核心逻辑。</li>
+<li>超出范围的请求，直接返回“您正在排队中，请稍候…”，并附带一个预计等待时间，引导客户端进行智能轮询。</li>
+</ul>
+</li>
+<li><p><strong>效果</strong>：将千万级的瞬时请求，精确地“筛选”成十万或百万级的有效请求，进入下一环节。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>多级缓存校验与库存预扣减</strong></p>
+<ul>
+<li><p><strong>本地缓存 (In-Memory Cache - BigCache&#x2F;FreeCache)<strong>：在每个Go服务实例中，用本地缓存存储</strong>“商品已售罄”</strong>的标志位（1-2秒过期）。这是最快的一道防线，可以避免对Redis的无效请求。</p>
+</li>
+<li><p>分布式缓存 (Redis Cluster)：</p>
+<ul>
+<li><p><strong>库存分桶&#x2F;分片 (Stock Sharding)<strong>：这是应对</strong>单品超高并发</strong>的“核武器”。将 1 万件库存，分散到 100 个 Redis Key 中（<code>stock:pid:shard_1</code> … <code>stock:pid:shard_100</code>），每个 Key 存 100 件。用户请求被哈希到随机一个分片进行扣减。这能将单个热点 Key 的写压力<strong>分散 100 倍</strong>。</p>
+</li>
+<li><p>原子化校验 (Lua 脚本)：使用 Lua 脚本将“风控校验 + 限购检查 + 库存分片扣减”封装成一个原子操作。脚本会更复杂，可能包含：</p>
+<ol>
+<li>从风控Set中检查用户&#x2F;设备是否被临时封禁。</li>
+<li>从已购用户Set中检查是否重复购买。</li>
+<li>随机选择一个库存分片。</li>
+<li>检查分片库存并扣减。如果该分片已空，则<strong>重试</strong>几次其他分片。</li>
+<li>记录用户到已购Set。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>异步下单 (高可靠消息队列)</strong></p>
+<ul>
+<li>抢购成功的请求，封装成包含<strong>幂等性Token</strong>的消息，发送到高可靠的 <strong>Kafka &#x2F; Pulsar</strong> 集群。</li>
+<li><strong>指定 Partition Key</strong>：必须使用 <code>user_id</code> 作为消息的 Partition Key，保证同一个用户的多次（可能重复的）请求被顺序处理。</li>
+<li><strong>消息发送确认</strong>：使用生产端的 <code>acks=all</code> (Kafka) 或类似机制，确保消息被多个Broker副本确认后再返回成功，保证消息不丢失。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="层次四：后台核心服务层-最终一致性与履约"><a href="#层次四：后台核心服务层-最终一致性与履约" class="headerlink" title="层次四：后台核心服务层 - 最终一致性与履约"></a><strong>层次四：后台核心服务层 - 最终一致性与履约</strong></h3><p><strong>目标：稳定、可靠地处理已成功的请求，完成交易闭环。</strong></p>
+<ol>
+<li><p>**订单消费者服务 (Order Consumer)**：</p>
+<ul>
+<li><p>采用<strong>消费者组</strong>模式，可以水平扩展实例来提升消费速度。</p>
+</li>
+<li><p><strong>批量消费</strong>：一次拉取一批消息进行处理，提升吞吐量。</p>
+</li>
+<li><p><strong>幂等性保证</strong>：在创建订单前，先检查本次操作的<strong>幂等性Token</strong>是否已被处理过，防止因MQ重试导致重复下单。</p>
+</li>
+<li><p>分布式事务：创建订单和扣减数据库库存，如果涉及跨库操作，必须引入分布式事务方案。可靠消息最终一致性是这里的常用模式：</p>
+<ol>
+<li>先创建订单，状态为“待出库”。</li>
+<li>成功后，再发送一条“订单已创建”的消息。</li>
+<li>由库存服务消费该消息，去扣减数据库库存。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p><strong>死信队列与自动化补偿</strong>：</p>
+<ul>
+<li>为订单主题配置**死信队列 (DLQ)**。</li>
+<li>一个独立的、低速的<strong>补偿服务</strong>会消费DLQ中的消息，进行<strong>梯度退避重试</strong>。</li>
+<li>多次重试仍失败的，记录到“异常订单表”，并触发P1级告警，通知人工介入。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="层次五：数据与运维保障体系"><a href="#层次五：数据与运维保障体系" class="headerlink" title="层次五：数据与运维保障体系"></a><strong>层次五：数据与运维保障体系</strong></h3><p><strong>目标：保证数据的最终准确性，并为整个系统提供可观测性和韧性。</strong></p>
+<ol>
+<li>**数据核对 (Reconciliation)**：<ul>
+<li>一个<strong>离线的、基于大数据平台 (Spark&#x2F;Flink)</strong> 的对账系统。</li>
+<li>在秒杀结束后，它会 T+1 地对比 <strong>Redis 成功记录数</strong>、<strong>MQ 消息数</strong>、<strong>数据库订单数</strong>、<strong>数据库库存流水</strong>，确保所有数字完全吻合，并自动修复微小差异。</li>
+</ul>
+</li>
+<li>**全链路可观测性 (Observability)**：<ul>
+<li><strong>监控与告警</strong>：一个<strong>实时的秒杀大盘</strong>，展示从前端到数据库所有关键节点的性能指标（QPS, Latency, Error Rate）、业务指标（下单成功率）和资源指标（CPU, Mem）。</li>
+<li>**分布式链路追踪 (Tracing)**：使用 Jaeger&#x2F;SkyWalking 等，可以追踪任何一个请求的全生命周期，快速定位性能瓶颈和错误根源。</li>
+<li>**日志聚合 (Logging)**：使用 ELK&#x2F;Loki 等，集中管理所有服务的日志。</li>
+</ul>
+</li>
+<li>**预案与混沌工程 (Resilience)**：<ul>
+<li>所有关键组件（Redis, MQ, DB）都有<strong>跨机房&#x2F;跨可用区</strong>的容灾部署。</li>
+<li>所有外部依赖调用，都必须有<strong>熔断、降级、超时</strong>配置，并通过<strong>配置中心</strong>动态调整。</li>
+<li><strong>定期进行混沌工程演练</strong>：主动地在预发布或生产环境中注入故障（如模拟Redis节点宕机、网络延迟），来验证系统的自动故障转移和降级预案是否有效。</li>
+</ul>
+</li>
+</ol>
+<h3 id="QPS-承载能力估算"><a href="#QPS-承载能力估算" class="headerlink" title="QPS 承载能力估算"></a><strong>QPS 承载能力估算</strong></h3><blockquote>
+<p>“这套极致优化的系统，其<strong>瓶颈被设计在了前端接入层的带宽和CPU，以及Redis集群的整体吞吐能力上</strong>。”</p>
+<p>“通过<strong>库存分片</strong>，我们将单个热点商品的写压力分散到了整个Redis集群。假设我们使用一个有10个主节点的Redis集群，每个节点能承载4万QPS的Lua脚本执行，那么仅Redis层，我们就能支撑<strong>40万</strong>的秒杀请求QPS。”</p>
+<p>“同时，应用层的Go服务集群可以<strong>线性扩展</strong>。假设单机处理能力为2万QPS，部署一个<strong>50台</strong>机器的集群，就能承载<strong>100万QPS</strong>的入口流量。前端的分布式排队系统和本地缓存，能确保只有有效流量会穿透到Redis。”</p>
+<p>“因此，这套架构在经过充分的压力测试和容量规划后，<strong>稳定支撑单品秒杀的百万级QPS是完全可行的</strong>。系统的可扩展性允许我们在未来通过增加机器来应对更高的流量挑战。”</p>
+</blockquote>
+<h3 id="可完善的细节与思考点"><a href="#可完善的细节与思考点" class="headerlink" title="可完善的细节与思考点"></a><strong>可完善的细节与思考点</strong></h3><h4 id="1-接入层-x2F-应用层：进一步提升韧性与安全性"><a href="#1-接入层-x2F-应用层：进一步提升韧性与安全性" class="headerlink" title="1. 接入层&#x2F;应用层：进一步提升韧性与安全性"></a>1. 接入层&#x2F;应用层：进一步提升韧性与安全性</h4><p><strong>现有方案</strong>：内存排队、本地缓存、Redis Lua、库存分片。<br><strong>完善点</strong>：</p>
+<ul>
+<li><strong>对“内存排队系统”的深化思考</strong>：<ul>
+<li><strong>公平性问题</strong>：简单的内存队列是先进先出（FIFO），可能会让一些响应快的“机器人”抢占所有名额。可以引入<strong>分桶的用户优先级队列</strong>，例如，为首次参与秒杀的用户或高等级会员设置一个独立的、优先级更高的队列，以实现业务上的公平性。</li>
+<li><strong>分布式问题</strong>：单机内存队列在集群环境下会导致请求只在本机排队。可以引入<strong>分布式排队</strong>的思路，例如，在 Nginx+Lua 层使用 <code>lua-resty-lock</code> 实现一个轻量级的分布式锁或计数器，来控制进入后端应用层的总流量，让全局排队更有序。</li>
+</ul>
+</li>
+<li><strong>对“库存分片”的补充说明</strong>：<ul>
+<li><strong>分片库存的回滚问题</strong>：如果某个用户在一个分片上扣减成功，但后续因为风控等原因下单失败，这个分片的库存需要<strong>回滚</strong>。如何将这个回滚的库存<strong>公平地</strong>补充回去？是直接加回原分片（可能导致该分片热点持续），还是将其放入一个“补充池”再慢慢分配给其他分片？这是一个需要权衡的细节。</li>
+</ul>
+</li>
+<li><strong>增强安全性：风控前置</strong><ul>
+<li><strong>问题</strong>：当前的校验（限购）是业务逻辑层面的。对于恶意攻击者，他可以用大量不同（或伪造）的 <code>user_id</code> 来发起请求。</li>
+<li><strong>完善</strong>：在流量进入业务逻辑（甚至内存队列）之前，应该先经过一个<strong>实时的风控引擎</strong>。这个引擎可以基于用户的设备指纹、IP画像、历史行为等，快速判断出“机器人”或“黄牛”流量，并直接在网关层或接入层就将其拦截。这能进一步减少无效请求对核心系统的消耗。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-消息队列层：提升可靠性"><a href="#2-消息队列层：提升可靠性" class="headerlink" title="2. 消息队列层：提升可靠性"></a>2. 消息队列层：提升可靠性</h4><p><strong>现有方案</strong>：异步下单。<br><strong>完善点</strong>：</p>
+<ul>
+<li><strong>消息的顺序性与用户体验</strong>：<ul>
+<li><strong>问题</strong>：如果一个用户手速极快，连续点击了两次秒杀（假设第一次因网络原因前端没置灰），可能会产生两个请求。如果 MQ 的 Topic 有多个分区，这两个消息可能被路由到不同分区，导致消费时出现乱序。</li>
+<li><strong>完善</strong>：在发送消息到 MQ 时，必须<strong>指定 <code>partition key</code> 为 <code>user_id</code><strong>。这能保证</strong>同一个用户</strong>的所有请求消息，都会被发送到<strong>同一个分区</strong>中，从而保证了消费的顺序性，避免了因乱序导致的重复下单等问题。</li>
+</ul>
+</li>
+<li><strong>死信队列（DLQ）的自动化处理</strong>：<ul>
+<li><strong>问题</strong>：方案提到了死信队列和人工介入，但可以更自动化。</li>
+<li><strong>完善</strong>：为死信队列配置一个<strong>独立的、低速的消费者</strong>。这个消费者可以尝试对死信进行<strong>多次、梯度退避</strong>的重试（例如，1分钟后、5分钟后、30分钟后…）。对于某些可恢复的错误（如数据库瞬时抖动），这样可以自动“治愈”大部分失败的订单。只有当多次重试后仍然失败的消息，才最终进入“需要人工干预”的告警流程。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-后台服务与数据库层：明确一致性边界"><a href="#3-后台服务与数据库层：明确一致性边界" class="headerlink" title="3. 后台服务与数据库层：明确一致性边界"></a>3. 后台服务与数据库层：明确一致性边界</h4><p><strong>现有方案</strong>：乐观锁、数据核对。<br><strong>完善点</strong>：</p>
+<ul>
+<li>数据库事务粒度的讨论：<ul>
+<li><strong>问题</strong>：消费者服务中，“扣减数据库库存”和“创建订单”是在一个事务里。如果订单表和商品库存表<strong>被分到了不同的数据库实例</strong>（这是非常常见的），如何保证事务性？</li>
+<li>完善：明确指出这里需要引入分布式事务解决方案。<ul>
+<li>**TCC (Try-Confirm-Cancel)**：性能好，但对业务代码侵入性强。</li>
+<li>**SAGA (长事务)**：通过一系列本地事务和补偿操作来实现，对业务侵入小，但一致性稍弱。</li>
+<li><strong>可靠消息最终一致性</strong>：这是最常用的。消费者先成功创建订单（状态：处理中），再发送一条“订单已创建”的消息，由库存服务消费来扣减库存。整个流程是最终一致的。需要根据业务对一致性的要求来选择方案。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-整体架构的非功能性完善"><a href="#4-整体架构的非功能性完善" class="headerlink" title="4. 整体架构的非功能性完善"></a>4. 整体架构的非功能性完善</h4><p>这是让方案从“优秀”走向“卓越”的关键。</p>
+<ul>
+<li><strong>全链路压测与容量规划</strong>：<ul>
+<li>“在上线前，我们会对整个系统进行<strong>全链路压力测试</strong>，从前端模拟真实用户请求，一直压到数据库层。通过压测，我们可以精确地找到系统的<strong>瓶颈点</strong>，并进行<strong>容量规划</strong>，确定在目标QPS下，每个服务（Nginx, Go应用, Redis, MQ）需要部署多少个实例。”</li>
+</ul>
+</li>
+<li><strong>可观测性 (Observability) 的具体化</strong>：<ul>
+<li>“我们会构建一个<strong>实时的秒杀大盘</strong>。这个大盘通过 <strong>Prometheus</strong> 和 <strong>Grafana</strong> 展示所有关键指标：前端请求数、Nginx拦截数、应用层排队数、Redis命中&#x2F;失败数、MQ积压数、订单创建成功&#x2F;失败数、各环节延迟等。通过**分布式链路追踪 (Jaeger)**，我们可以快速定位任何一个慢请求或错误请求的根源。”</li>
+</ul>
+</li>
+<li>**预案与演练 (Contingency Plan &amp; Drills)**：<ul>
+<li>“我们设计了详细的<strong>降级、熔断和限流预案</strong>，并通过<strong>配置中心</strong>实现动态开关。例如，可以一键降级，跳过复杂的风控和排队逻辑，直接进入Redis层；或者在Redis集群故障时，<strong>一键切换</strong>到备用集群或降级到数据库。所有这些预案，我们都会定期进行<strong>混沌工程演练</strong>，确保在真实故障发生时，预案是有效的。”</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="完善后的项目能够抗多少-QPS？"><a href="#完善后的项目能够抗多少-QPS？" class="headerlink" title="完善后的项目能够抗多少 QPS？"></a><strong>完善后的项目能够抗多少 QPS？</strong></h3><p>这个问题的回答方式，关键在于展示你的<strong>分析过程和对瓶颈的理解</strong>，而不是给出一个固定的数字。</p>
+<p><strong>回答模板：</strong></p>
+<blockquote>
+<p>“这套经过深度优化的系统，其<strong>最终的QPS瓶颈取决于承担核心原子操作的Redis集群的性能，以及前端接入层服务器集群的总处理能力</strong>。”</p>
+<p><strong>1. 瓶颈分析：</strong><br>“经过层层过滤，数据库已不再是瓶颈。核心压力点在于<strong>应用层的Redis Lua脚本执行</strong>。一个高性能的Redis实例，处理我们设计的这个包含<code>SISMEMBER</code>、<code>GET</code>、<code>DECR</code>、<code>SADD</code>的Lua脚本，保守估计其QPS可以在 <strong>4-5万</strong> 左右。这是<strong>单个热点商品</strong>的理论瓶颈。”</p>
+<p><strong>2. 水平扩展能力：</strong><br>“这套架构的真正威力在于其<strong>极佳的水平扩展能力</strong>。</p>
+<ul>
+<li><ul>
+<li><strong>应用层</strong>：是无状态的，可以通过增加机器数量<strong>线性地扩展</strong>。如果我们部署20台应用服务器，整个应用集群就能轻松处理<strong>数十万甚至上百万</strong>的入口QPS。</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<ul>
+<li><p>Redis层：</p>
+<blockquote>
+<ul>
+<li><strong>对于多商品秒杀</strong>：我们可以将不同的秒杀商品通过 <strong>Hash Tag</strong> 分配到Redis集群的不同节点上，实现并发处理多个秒杀活动，总QPS就是<strong>集群中节点数 * 单节点QPS</strong>。</li>
+<li><strong>对于单商品超高并发秒杀</strong>：我们会启用<strong>库存分片</strong>策略。将1000件库存分散到10个Redis节点上，每个节点负责100件。这样，<strong>单个商品的QPS瓶颈就被放大了10倍</strong>，理论上可以达到 <strong>40-50万</strong>。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p><strong>3. 最终结论：</strong><br>“综上所述，通过合理的容量规划和水平扩展：</p>
+<ul>
+<li>对于<strong>单个热点商品</strong>的秒杀，通过库存分片，这套架构可以稳定支撑 <strong>数十万级别（例如30-50万）的有效秒杀QPS</strong>。</li>
+<li>对于<strong>平台级的多商品同时秒杀</strong>，通过横向扩展应用服务器和Redis集群，整个系统的QPS承载能力可以轻松<strong>扩展到百万级别</strong>。”</li>
+</ul>
+</blockquote>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">#系统设计</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>构建一个高可用的、层层递进的秒杀系统</div>
+      <div>https://blog.longpi1.com/2025/09/16/构建一个高可用的、层层递进的秒杀系统/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/07/07/10-%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%9A-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/" title="10.排序算法： 快速排序">
+                        <span class="hidden-mobile">10.排序算法： 快速排序</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
