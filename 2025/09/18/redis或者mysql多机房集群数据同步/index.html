@@ -1,0 +1,811 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="redis或者mysql多机房集群数据同步构建“异地多活”或“两地三中心”等顶级高可用体系的核心。多机房集群的容灾切换和数据同步，其复杂性远超单机房内的 HA（高可用）。 我们将分别探讨 MySQL 和 Redis 在这种跨地域场景下的挑战、方案和实践。  一、核心挑战：跨地域的“魔鬼”——网络延迟在讨论任何方案之前，我们必须正视一个物理定律：光速是有限的。  北京到上海的物理距离约 1200 公">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis或者mysql多机房集群数据同步">
+<meta property="og:url" content="https://blog.longpi1.com/2025/09/18/redis%E6%88%96%E8%80%85mysql%E5%A4%9A%E6%9C%BA%E6%88%BF%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="redis或者mysql多机房集群数据同步构建“异地多活”或“两地三中心”等顶级高可用体系的核心。多机房集群的容灾切换和数据同步，其复杂性远超单机房内的 HA（高可用）。 我们将分别探讨 MySQL 和 Redis 在这种跨地域场景下的挑战、方案和实践。  一、核心挑战：跨地域的“魔鬼”——网络延迟在讨论任何方案之前，我们必须正视一个物理定律：光速是有限的。  北京到上海的物理距离约 1200 公">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-18T11:27:45.000Z">
+<meta property="article:modified_time" content="2025-09-18T11:28:36.458Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>redis或者mysql多机房集群数据同步 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="redis或者mysql多机房集群数据同步"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-09-18 19:27" pubdate>
+          2025年9月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.2k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">redis或者mysql多机房集群数据同步</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="redis或者mysql多机房集群数据同步"><a href="#redis或者mysql多机房集群数据同步" class="headerlink" title="redis或者mysql多机房集群数据同步"></a>redis或者mysql多机房集群数据同步</h1><p>构建“<strong>异地多活</strong>”或“<strong>两地三中心</strong>”等顶级高可用体系的核心。多机房集群的容灾切换和数据同步，其复杂性远超单机房内的 HA（高可用）。</p>
+<p>我们将分别探讨 MySQL 和 Redis 在这种跨地域场景下的挑战、方案和实践。</p>
+<hr>
+<h3 id="一、核心挑战：跨地域的“魔鬼”——网络延迟"><a href="#一、核心挑战：跨地域的“魔鬼”——网络延迟" class="headerlink" title="一、核心挑战：跨地域的“魔鬼”——网络延迟"></a>一、核心挑战：跨地域的“魔鬼”——网络延迟</h3><p>在讨论任何方案之前，我们必须正视一个物理定律：<strong>光速是有限的</strong>。</p>
+<ul>
+<li>北京到上海的物理距离约 1200 公里，光纤中的光速约为真空光速的 2&#x2F;3。</li>
+<li><strong>理论上的网络往返时间（RTT）</strong> &#x3D; <code>(1200 km * 2) / (200,000 km/s) = 12ms</code>。</li>
+<li>在实际网络中，加上路由、交换、抖动等，一个跨城机房的 RTT 通常在 <strong>20ms - 50ms</strong> 甚至更高。</li>
+</ul>
+<p>这个几十毫秒的延迟，对于<strong>同步复制</strong>来说是<strong>致命的</strong>。它会直接叠加到每一次写操作的耗时上，导致系统性能急剧下降。</p>
+<p>因此，<strong>绝大多数多机房架构都必须基于异步复制，并接受最终一致性。</strong></p>
+<hr>
+<h3 id="二、MySQL-多机房集群容灾"><a href="#二、MySQL-多机房集群容灾" class="headerlink" title="二、MySQL 多机房集群容灾"></a>二、MySQL 多机房集群容灾</h3><h4 id="1-数据写入与同步方案"><a href="#1-数据写入与同步方案" class="headerlink" title="1. 数据写入与同步方案"></a>1. 数据写入与同步方案</h4><h5 id="方案-A-主从异步复制（最常见）"><a href="#方案-A-主从异步复制（最常见）" class="headerlink" title="方案 A: 主从异步复制（最常见）"></a>方案 A: 主从异步复制（最常见）</h5><ul>
+<li><strong>架构</strong>：<ul>
+<li><strong>主数据中心（IDC A）</strong>：部署一个完整的 MySQL 主从集群（一主多从）。所有的<strong>写操作</strong>都路由到这个主库。</li>
+<li><strong>灾备数据中心（IDC B）</strong>：部署一个或多个 MySQL 实例，作为 IDC A 主库的<strong>跨地域从库</strong>。</li>
+<li><strong>同步方式</strong>：IDC A 的主库产生的 binlog，通过专线网络<strong>异步地</strong>传输到 IDC B 的从库，并在从库上重放（replay）。</li>
+</ul>
+</li>
+<li><strong>优点</strong>：<ul>
+<li>对主中心的写性能<strong>无影响</strong>。</li>
+<li>架构相对简单，易于理解和运维。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li><strong>RPO &gt; 0</strong>：存在数据丢失风险。如果 IDC A 突发灾难，那些还未同步到 IDC B 的 binlog 就会丢失。RPO 的大小等于复制延迟。</li>
+<li><strong>RTO 较高</strong>：需要人工或复杂的脚本介入进行切换。</li>
+</ul>
+</li>
+</ul>
+<h5 id="方案-B-基于共识协议的金融级方案-MGR-x2F-X-DB-x2F-原生分布式DB"><a href="#方案-B-基于共识协议的金融级方案-MGR-x2F-X-DB-x2F-原生分布式DB" class="headerlink" title="方案 B: 基于共识协议的金融级方案 (MGR&#x2F;X-DB&#x2F;原生分布式DB)"></a>方案 B: 基于共识协议的金融级方案 (MGR&#x2F;X-DB&#x2F;原生分布式DB)</h5><ul>
+<li><p><strong>架构</strong>：使用支持 Paxos&#x2F;Raft 协议的数据库集群，并将副本<strong>跨机房部署</strong>。</p>
+<ul>
+<li>**MySQL Group Replication (MGR)**：可以将集群的多个节点部署在不同机房。</li>
+<li>**原生分布式数据库 (TiDB, OceanBase)**：可以将 TiKV&#x2F;OBServer 节点直接部署在多个机房。</li>
+</ul>
+</li>
+<li><p><strong>同步方式</strong>：<strong>半同步或类同步</strong>。写操作需要获得<strong>多数派（Quorum）</strong>节点的确认。</p>
+<ul>
+<li><p>典型部署（两地三中心）：北京机房（2个副本），上海机房（1个副本）。Quorum &#x3D; 2。</p>
+<ul>
+<li>写操作在北京发起，只需要获得北京的两个副本确认即可返回成功，性能较高。数据会<strong>异步地</strong>复制到上海。</li>
+<li>如果北京的单个副本挂了，不影响服务。</li>
+<li>如果整个北京机房挂了，上海的副本因为无法构成多数派，<strong>集群会变为只读</strong>，保证了数据一致性，但牺牲了可用性。</li>
+</ul>
+</li>
+<li><p>典型部署（三地五中心）：北京（2副本），上海（2副本），广州（1副本）。Quorum &#x3D; 3。</p>
+<ul>
+<li>写操作需要跨地域获得至少一个其他机房的确认，<strong>写延迟会显著增加</strong>，但<strong>可以容忍任意一个机房的整体故障</strong>，实现<strong>自动故障转移</strong>和 RPO&#x3D;0。这是金融级的最高标准。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>优点</strong>：</p>
+<ul>
+<li><strong>RPO ≈ 0</strong>：可以实现数据零丢失。</li>
+<li><strong>RTO 低</strong>：可以实现自动故障切换。</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+<ul>
+<li><strong>写性能受网络延迟影响大</strong>。</li>
+<li>架构复杂，运维成本高。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-容灾切换流程（以主从异步复制为例）"><a href="#2-容灾切换流程（以主从异步复制为例）" class="headerlink" title="2. 容灾切换流程（以主从异步复制为例）"></a>2. 容灾切换流程（以主从异步复制为例）</h4><p>当主数据中心 IDC A 发生灾难时：</p>
+<ol>
+<li><strong>确认灾难与决策</strong>：<ul>
+<li>监控系统发出 IDC A 整体失联的告警。</li>
+<li><strong>人工决策层</strong>（由核心SRE、架构师、业务负责人组成）确认是灾难性故障，无法在短时间内恢复，并正式决定启动<strong>机房切换预案</strong>。</li>
+</ul>
+</li>
+<li><strong>数据校验与同步</strong>：<ul>
+<li>在灾备中心 IDC B，检查从库的数据同步状态。通过 <code>SHOW SLAVE STATUS</code> 查看 <code>Seconds_Behind_Master</code> 和 <code>Exec_Master_Log_Pos</code> 等信息，评估可能丢失的数据量（RPO）。</li>
+<li>将这个信息通报给业务方。</li>
+</ul>
+</li>
+<li><strong>提升从库为主库</strong>：<ul>
+<li>在 IDC B 的从库上执行 <code>STOP SLAVE</code>，然后执行 <code>RESET MASTER</code>。现在它成为了一个新的主库。</li>
+</ul>
+</li>
+<li><strong>流量切换（核心）</strong>：<ul>
+<li>通过<strong>全局流量管理器 (GTM)</strong> 或<strong>修改 DNS 解析</strong>，将指向 IDC A 的域名（如 <code>db.master.example.com</code>）解析到 IDC B 新主库的 VIP（虚拟IP）或负载均衡器地址上。</li>
+<li>DNS 切换有生效延迟，GTM 更快。</li>
+</ul>
+</li>
+<li><strong>应用重启与验证</strong>：<ul>
+<li>可能需要重启 IDC B 的应用服务，使其连接到新的数据库地址。</li>
+<li>业务方和测试人员介入，验证核心功能是否正常。</li>
+</ul>
+</li>
+<li>**灾后恢复 (Failback)**：<ul>
+<li>当 IDC A 恢复后，不能直接上线。需要将原来的 IDC A 集群，配置为 IDC B 新主库的从库，进行<strong>反向数据同步</strong>。</li>
+<li>待数据完全追平后，再在一个计划好的维护窗口，执行一次<strong>反向的切换流程</strong>，将主中心切回 IDC A。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="三、Redis-多机房集群容灾"><a href="#三、Redis-多机房集群容灾" class="headerlink" title="三、Redis 多机房集群容灾"></a>三、Redis 多机房集群容灾</h3><p>Redis 是内存数据库，对网络延迟更敏感，且多机房方案通常由社区或云厂商提供解决方案。</p>
+<h4 id="1-数据写入与同步方案-1"><a href="#1-数据写入与同步方案-1" class="headerlink" title="1. 数据写入与同步方案"></a>1. 数据写入与同步方案</h4><h5 id="方案-A-客户端双写-x2F-多写"><a href="#方案-A-客户端双写-x2F-多写" class="headerlink" title="方案 A: 客户端双写&#x2F;多写"></a>方案 A: 客户端双写&#x2F;多写</h5><ul>
+<li><strong>架构</strong>：应用层在写入数据时，<strong>同时向两个或多个机房的 Redis 集群写入</strong>。读取时，可以只从主机房读取，或从就近机房读取。</li>
+<li>优点：<ul>
+<li>实现相对主动，可以控制写入逻辑。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li><strong>一致性差</strong>：有很大概率出现一个机房写入成功，另一个失败的情况，需要复杂的补偿和对账机制来修复。</li>
+<li><strong>应用层耦合严重</strong>：业务代码需要处理复杂的多写逻辑。</li>
+</ul>
+</li>
+</ul>
+<h5 id="方案-B-基于代理的异步复制-如-Twemproxy-custom-script"><a href="#方案-B-基于代理的异步复制-如-Twemproxy-custom-script" class="headerlink" title="方案 B: 基于代理的异步复制 (如 Twemproxy + custom script)"></a>方案 B: 基于代理的异步复制 (如 Twemproxy + custom script)</h5><ul>
+<li><strong>架构</strong>：在每个机房部署一套 Redis 主从&#x2F;Sentinel 集群。通过修改 Redis 源码或使用像 <code>redis-shake</code> 这样的工具，实现跨机房的<strong>增量数据异步复制</strong>。</li>
+</ul>
+<h5 id="方案-C-Redis-Enterprise-x2F-云厂商的全球分布式缓存"><a href="#方案-C-Redis-Enterprise-x2F-云厂商的全球分布式缓存" class="headerlink" title="方案 C: Redis Enterprise &#x2F; 云厂商的全球分布式缓存"></a>方案 C: Redis Enterprise &#x2F; 云厂商的全球分布式缓存</h5><ul>
+<li><strong>架构</strong>：这是最成熟、最可靠的方案。像 Redis Enterprise 或 AWS ElastiCache for Redis Global Datastore 这样的商业产品，提供了<strong>原生的跨地域复制</strong>能力。</li>
+<li><strong>同步方式</strong>：通常是<strong>异步复制</strong>。它们在底层实现了高效、可靠的跨机房数据同步协议。</li>
+<li>工作原理：<ol>
+<li>你创建一个<strong>全局数据库 (Global Database)<strong>，它由一个</strong>主集群</strong>（Primary Cluster）和多个<strong>从集群</strong>（Secondary Clusters）组成。</li>
+<li>写操作只能在主集群上进行。</li>
+<li>主集群会自动地将数据<strong>异步地、低延迟地</strong>复制到所有从集群。</li>
+<li>从集群是只读的，可以承载就近的读流量。</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-容灾切换流程（以云厂商方案为例）"><a href="#2-容灾切换流程（以云厂商方案为例）" class="headerlink" title="2. 容灾切换流程（以云厂商方案为例）"></a>2. 容灾切换流程（以云厂商方案为例）</h4><ol>
+<li><strong>确认灾难与决策</strong>：同 MySQL。</li>
+<li>执行提升 (Promote)：<ul>
+<li>在云厂商的管理控制台上，选择一个灾备机房的<strong>从集群</strong>。</li>
+<li>执行“**提升为主集群 (Promote to Primary)**”的操作。</li>
+<li>这个操作是<strong>一键式</strong>的，云平台会自动处理所有底层的复制链路变更。它会断开被提升集群与其他所有集群的复制关系，并使其变为可写。</li>
+</ul>
+</li>
+<li>流量切换：<ul>
+<li>将应用的写流量，通过 DNS 或应用配置，指向新的主集群的 Endpoint 地址。</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结与对比"><a href="#总结与对比" class="headerlink" title="总结与对比"></a>总结与对比</h3><table>
+<thead>
+<tr>
+<th align="left">存储系统</th>
+<th align="left">核心同步方式</th>
+<th align="left">RPO (数据丢失)</th>
+<th align="left">RTO (恢复时间)</th>
+<th align="left">切换复杂度</th>
+<th align="left">推荐方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>MySQL</strong></td>
+<td align="left"><strong>异步复制</strong> (主流)</td>
+<td align="left">分钟级 (取决于延迟)</td>
+<td align="left">小时级 (需人工)</td>
+<td align="left">复杂</td>
+<td align="left"><strong>主从异步复制</strong> (通用) <br> <strong>订阅Binlog</strong> (更解耦)</td>
+</tr>
+<tr>
+<td align="left"><strong>MySQL</strong></td>
+<td align="left"><strong>基于共识</strong> (金融级)</td>
+<td align="left"><strong>0</strong></td>
+<td align="left">秒级 (自动)</td>
+<td align="left">高</td>
+<td align="left"><strong>原生分布式数据库 (TiDB)</strong> 或 <strong>MGR三地五中心</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>Redis</strong></td>
+<td align="left"><strong>客户端双写</strong></td>
+<td align="left">不确定，一致性差</td>
+<td align="left">依赖应用</td>
+<td align="left">极高</td>
+<td align="left">不推荐</td>
+</tr>
+<tr>
+<td align="left"><strong>Redis</strong></td>
+<td align="left"><strong>企业版&#x2F;云方案</strong></td>
+<td align="left"><strong>异步复制</strong> (秒&#x2F;分钟级)</td>
+<td align="left">分钟级 (半自动)</td>
+<td align="left">简单</td>
+<td align="left"><strong>使用云厂商提供的全球数据库解决方案</strong></td>
+</tr>
+</tbody></table>
+<p><strong>最终结论</strong>：</p>
+<ul>
+<li>实现多机房容灾，<strong>异步复制</strong>是平衡性能和成本的主流选择，但这需要接受<strong>数据可能丢失 (RPO &gt; 0)</strong> 的事实。</li>
+<li><strong>切换流程</strong>是一个严肃的、需要<strong>人工决策</strong>的 SRE 流程，即使底层可以自动切换，也需要有 playbook 和演练。</li>
+<li>对于需要 <strong>RPO&#x3D;0</strong> 的金融级应用，必须采用基于 <strong>Paxos&#x2F;Raft 共识协议</strong>的原生分布式数据库，并接受其带来的高昂成本和写延迟。</li>
+<li>对于 Redis，最省心、最可靠的方式是<strong>拥抱云</strong>，使用云厂商提供的成熟的多地域解决方案。自建一套稳定高效的跨机房 Redis 复制体系，挑战巨大。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">#系统设计</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>redis或者mysql多机房集群数据同步</div>
+      <div>https://blog.longpi1.com/2025/09/18/redis或者mysql多机房集群数据同步/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/09/16/%E4%B8%8A%E7%99%BE%E4%BA%BF%E7%9A%84%E7%94%A8%E6%88%B7%E5%85%B3%E7%B3%BB%E7%B3%BB%E7%BB%9F%E5%AD%98%E5%82%A8%E5%BA%94%E8%AF%A5%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/" title="上百亿的用户关系系统存储应该如何设计">
+                        <span class="hidden-mobile">上百亿的用户关系系统存储应该如何设计</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

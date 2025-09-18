@@ -1,0 +1,781 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme="auto">
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <link rel="icon" href="/img/%E5%AD%A6%E6%A0%A1.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lp">
+  <meta name="keywords" content>
+  
+    <meta name="description" content="上百亿的用户关系系统存储应该如何设计一、核心挑战分析首先，我们必须清晰地认识到这个系统的核心挑战是什么：  海量数据存储： 关注关系：百亿级别。一个用户关注了谁 (followees)，被谁关注了 (followers)。这是一个巨大的图（Graph）。 动态（Feed）数据：用户发布的内容，百亿甚至千亿级别。   读写模式极不均衡（读多写少）： 写操作：关注&#x2F;取关、发布动态。相对低频。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="上百亿的用户关系系统存储应该如何设计">
+<meta property="og:url" content="https://blog.longpi1.com/2025/09/16/%E4%B8%8A%E7%99%BE%E4%BA%BF%E7%9A%84%E7%94%A8%E6%88%B7%E5%85%B3%E7%B3%BB%E7%B3%BB%E7%BB%9F%E5%AD%98%E5%82%A8%E5%BA%94%E8%AF%A5%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="lp&#39;s blog">
+<meta property="og:description" content="上百亿的用户关系系统存储应该如何设计一、核心挑战分析首先，我们必须清晰地认识到这个系统的核心挑战是什么：  海量数据存储： 关注关系：百亿级别。一个用户关注了谁 (followees)，被谁关注了 (followers)。这是一个巨大的图（Graph）。 动态（Feed）数据：用户发布的内容，百亿甚至千亿级别。   读写模式极不均衡（读多写少）： 写操作：关注&#x2F;取关、发布动态。相对低频。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-16T11:06:01.000Z">
+<meta property="article:modified_time" content="2025-09-16T11:06:27.731Z">
+<meta property="article:author" content="lp">
+<meta property="article:tag" content="原创">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>上百亿的用户关系系统存储应该如何设计 - lp&#39;s blog</title>
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css">
+
+
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css">
+
+  <link rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css">
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css">
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.longpi1.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":30,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","app_key":"w2xUk9wycItSqrREmRMDYJHY","server_url":"https://uvacwj6c.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/color-schema.js"></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lp&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                文章分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于我
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax="true" style="background: url('/img/bg.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="上百亿的用户关系系统存储应该如何设计"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-09-16 19:06" pubdate>
+          2025年9月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.3k 字
+        
+      </span>
+    
+
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+    <a target="_blank" rel="external nofollow noopener noreferrer" href="https://github.com/longpi1"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" srcset="/img/loading.gif" lazyload class="attachment-full size-full" alt="follow me on GitHub" data-recalc-dims="1"></a>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">上百亿的用户关系系统存储应该如何设计</h1>
+            
+            
+              <div class="markdown-body">
+              <meta name="referrer" content="no-referrer">
+                
+                <h1 id="上百亿的用户关系系统存储应该如何设计"><a href="#上百亿的用户关系系统存储应该如何设计" class="headerlink" title="上百亿的用户关系系统存储应该如何设计"></a>上百亿的用户关系系统存储应该如何设计</h1><h3 id="一、核心挑战分析"><a href="#一、核心挑战分析" class="headerlink" title="一、核心挑战分析"></a>一、核心挑战分析</h3><p>首先，我们必须清晰地认识到这个系统的核心挑战是什么：</p>
+<ol>
+<li><strong>海量数据存储</strong>：<ul>
+<li><strong>关注关系</strong>：百亿级别。一个用户关注了谁 (<code>followees</code>)，被谁关注了 (<code>followers</code>)。这是一个巨大的图（Graph）。</li>
+<li><strong>动态（Feed）数据</strong>：用户发布的内容，百亿甚至千亿级别。</li>
+</ul>
+</li>
+<li><strong>读写模式极不均衡（读多写少）</strong>：<ul>
+<li><strong>写操作</strong>：关注&#x2F;取关、发布动态。相对低频。</li>
+<li><strong>读操作</strong>：<strong>刷新关注页（Feed 流）</strong>。这是系统的核心功能，请求量极大，对延迟要求非常高。</li>
+</ul>
+</li>
+<li>**“明星效应”&#x2F; 大 V 问题 (The Celebrity Problem)**：<ul>
+<li>普通用户的粉丝数很少（几十到几百）。</li>
+<li>大 V（明星、机构）的粉丝数可能达到千万甚至上亿。</li>
+<li>当一个大 V 发布一条动态时，如何高效地将这条动态推送（或让其可见）给所有粉丝，是一个巨大的挑战。直接操作上亿条记录是不可行的。</li>
+</ul>
+</li>
+<li><strong>实时性要求</strong>：<ul>
+<li>用户发布动态后，应尽快出现在其粉丝的 Feed 流中。</li>
+<li>关注&#x2F;取关操作应立即生效。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="二、数据模型与存储选型"><a href="#二、数据模型与存储选型" class="headerlink" title="二、数据模型与存储选型"></a>二、数据模型与存储选型</h3><h4 id="1-关注关系存储"><a href="#1-关注关系存储" class="headerlink" title="1. 关注关系存储"></a>1. 关注关系存储</h4><p>这是一个典型的“多对多”关系。我们需要高效地查询：</p>
+<ul>
+<li><code>get_followees(user_id)</code> -&gt; 我关注了谁？</li>
+<li><code>get_followers(user_id)</code> -&gt; 谁关注了我？</li>
+</ul>
+<p><strong>不建议示范</strong>：使用单一的关系型数据库（如 MySQL）。</p>
+<ul>
+<li><strong>原因</strong>：当数据量达到百亿级别时， <code>following</code> 表会变得无比巨大。即使进行分库分表，对于大 V 的查询（<code>SELECT * FROM following WHERE follower_id = &#39;celebrity_id&#39;</code>）仍然是一场灾难，会引发严重的数据库热点和性能问题。</li>
+</ul>
+<p><strong>正确选型：面向海量关系查询的 NoSQL 数据库</strong></p>
+<ul>
+<li><strong>方案</strong>：使用 <strong>Redis &#x2F; TiKV &#x2F; Cassandra</strong> 等键值（KV）存储或宽列存储。</li>
+<li><strong>模型</strong>：<ul>
+<li>关注列表 (Following List)：<ul>
+<li><code>Key</code>: <code>following:user_id</code></li>
+<li><code>Value</code>: <code>ZSET</code> (有序集合) 或 <code>SET</code>。<code>Score</code> 可以是关注时间戳，<code>Member</code> 是被关注者的 <code>user_id</code>。</li>
+<li><code>ZREVRANGE following:user_id 0 -1</code> 可以快速分页获取我关注的人。</li>
+</ul>
+</li>
+<li>粉丝列表 (Followers List)：<ul>
+<li><code>Key</code>: <code>followers:user_id</code></li>
+<li><code>Value</code>: <code>ZSET</code> 或 <code>SET</code>。<code>Member</code> 是关注者的 <code>user_id</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>优点</strong>：<ul>
+<li><strong>极高的读写性能</strong>：KV 查询是 O(1)，ZSET 的范围查询也很快。</li>
+<li><strong>水平扩展</strong>：天然支持分布式和水平扩展。</li>
+<li><strong>大 V 问题</strong>：虽然单个 Key 仍然可能很大，但比关系型数据库的热点问题要好管理。Redis Cluster 或 TiKV 等可以自动处理分片。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="三、Feed-流（动态推送）架构设计"><a href="#三、Feed-流（动态推送）架构设计" class="headerlink" title="三、Feed 流（动态推送）架构设计"></a>三、Feed 流（动态推送）架构设计</h3><p>这是整个系统设计的核心和难点。主要有两种模式：<strong>推模式 (Push)</strong> 和 <strong>拉模式 (Pull)<strong>，以及结合两者的</strong>推拉结合模式</strong>。</p>
+<h4 id="1-写时扩散（推模式-x2F-Fan-out-on-Write）"><a href="#1-写时扩散（推模式-x2F-Fan-out-on-Write）" class="headerlink" title="1. 写时扩散（推模式 &#x2F; Fan-out on Write）"></a>1. 写时扩散（推模式 &#x2F; Fan-out on Write）</h4><ul>
+<li><strong>工作原理</strong>：当一个用户 <code>A</code> 发布一条动态 <code>M</code> 时，系统会<strong>立即</strong>将这条动态 <code>M</code> 的 ID（或完整内容）<strong>推送</strong>并插入到其<strong>所有粉丝</strong>的“收件箱（Feed 流时间线）”中。</li>
+<li><strong>数据模型</strong>：<ul>
+<li><code>Feed Timeline (收件箱)</code>: <code>Key: feed:user_id</code>, <code>Value: ZSET</code> (Score 是动态发布时间，Member 是动态 ID)。</li>
+</ul>
+</li>
+<li><strong>用户读取</strong>：用户刷新 Feed 流时，只需读取自己的“收件箱” <code>feed:user_id</code> 即可。<code>ZREVRANGE feed:user_id 0 49</code> 就能获取最新的 50 条动态。</li>
+<li><strong>优点</strong>：<ul>
+<li>**读取极快 (O(1))**：读操作非常简单，延迟低，因为 Feed 流是预先计算好的。对普通用户体验极佳。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li><strong>写入成本高</strong>：写操作被放大。一个有 100 万粉丝的用户发一条动态，就需要进行 100 万次写操作。</li>
+<li><strong>大 V 灾难</strong>：一个有 1 亿粉丝的大 V 发动态，会触发 1 亿次写操作，引发“**写风暴 (Write Storm)**”，可能导致整个系统延迟飙升甚至崩溃。</li>
+<li><strong>在线粉丝问题</strong>：很多粉丝可能是不活跃的，为他们推送属于资源浪费。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-读时聚合（拉模式-x2F-Fan-in-on-Read）"><a href="#2-读时聚合（拉模式-x2F-Fan-in-on-Read）" class="headerlink" title="2. 读时聚合（拉模式 &#x2F; Fan-in on Read）"></a>2. 读时聚合（拉模式 &#x2F; Fan-in on Read）</h4><ul>
+<li><strong>工作原理</strong>：当一个用户 <code>C</code> 刷新 Feed 流时，系统<strong>实时</strong>地：<ol>
+<li>获取 <code>C</code> 关注的所有人 <code>A, B, ...</code> 的列表。</li>
+<li>分别去获取 <code>A, B, ...</code> 这些人发布的最新动态。</li>
+<li>将所有动态在内存中进行<strong>聚合、排序</strong>，然后返回给用户 <code>C</code>。</li>
+</ol>
+</li>
+<li><strong>数据模型</strong>：<ul>
+<li><code>User&#39;s Outbox (发件箱)</code>: <code>Key: outbox:user_id</code>, <code>Value: ZSET</code> (存放该用户自己发布的所有动态 ID)。</li>
+</ul>
+</li>
+<li><strong>用户读取</strong>：一个复杂的多步聚合操作。</li>
+<li><strong>优点</strong>：<ul>
+<li>**写入极快 (O(1))**：用户发动态只需要往自己的“发件箱”里写一次即可。大 V 发动态毫无压力。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li><strong>读取极慢</strong>：如果一个用户关注了 2000 人，每次刷新都需要进行 2000 次查询再加一次复杂的内存排序，延迟会非常高，系统无法承受。</li>
+<li><strong>不适合普通用户</strong>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="四、终极方案：推拉结合-Hybrid-Approach-应对大V问题的关键"><a href="#四、终极方案：推拉结合-Hybrid-Approach-应对大V问题的关键" class="headerlink" title="四、终极方案：推拉结合 (Hybrid Approach) - 应对大V问题的关键"></a>四、终极方案：推拉结合 (Hybrid Approach) - 应对大V问题的关键</h3><p>既然纯推和纯拉都有致命缺陷，业界的成熟方案都是将两者结合，针对不同类型的用户采用不同策略。</p>
+<p><strong>核心思想：</strong></p>
+<ul>
+<li><strong>对普通用户</strong>：采用<strong>推模式</strong>。因为他们粉丝少，写扩散成本低，可以保证其粉丝的读取体验。</li>
+<li><strong>对大 V 用户</strong>：采用<strong>拉模式</strong>。他们的发布操作只写一次，避免写风暴。由其粉丝在读取时主动拉取。</li>
+</ul>
+<h4 id="实现细节："><a href="#实现细节：" class="headerlink" title="实现细节："></a>实现细节：</h4><ol>
+<li><strong>用户打标</strong>：<ul>
+<li>系统需要一个机制来识别“大 V”。例如，设定一个阈值，粉丝数 &gt; 10 万的被标记为大 V。这个标记可以是用户属性的一部分。</li>
+</ul>
+</li>
+<li><strong>混合的发布逻辑</strong>：<ul>
+<li>当一个普通用户 U发布动态时：<ul>
+<li>执行<strong>推模式</strong>逻辑：获取 U 的所有粉丝，将动态 ID 推送到他们的 Feed 时间线中。</li>
+</ul>
+</li>
+<li>当一大 V发布动态时：<ul>
+<li>执行<strong>拉模式</strong>逻辑：只将动态 ID 写入自己的“发件箱 (<code>outbox:v_user_id</code>)”。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>混合的读取逻辑</strong>：<ul>
+<li>当一个用户 C刷新 Feed 流时：<ol>
+<li><strong>读取自己的“收件箱”</strong>：<code>ZREVRANGE feed:c_user_id 0 49</code>。这里面包含了所有关注的<strong>普通用户</strong>推送给他的动态。</li>
+<li><strong>获取 <code>C</code> 关注的大 V 列表</strong>：<code>get_v_followees(c_user_id)</code>。这个列表可以被缓存，因为用户关注的大 V 不会频繁变化。</li>
+<li><strong>主动拉取大 V 动态</strong>：遍历这个大 V 列表，分别去他们的“发件箱” <code>outbox:v_user_id</code> 中拉取最新的几条动态。</li>
+<li><strong>最终聚合</strong>：将步骤 1 的“收件箱”动态和步骤 3 拉取到的“大 V”动态在<strong>应用层或一个专门的聚合服务</strong>中进行内存合并、按时间戳排序，然后返回最终的 Feed 流给用户。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="针对在线用户的优化-进一步提升"><a href="#针对在线用户的优化-进一步提升" class="headerlink" title="针对在线用户的优化 (进一步提升)"></a>针对在线用户的优化 (进一步提升)</h4><p>为了解决给离线用户推送造成的资源浪费，可以引入一个<strong>在线状态服务</strong>（可以用 Redis 或其他内存数据库实现）。</p>
+<ul>
+<li><strong>新的推模式逻辑</strong>：当普通用户发布动态时，只向其<strong>当前在线的粉丝</strong>进行实时推送。</li>
+<li>对于离线粉丝，可以有几种处理方式：<ul>
+<li><strong>惰性推送</strong>：当离线粉丝再次上线时，系统触发一个任务，将他离线期间错过的动态“补”进他的收件箱。</li>
+<li><strong>拉模式降级</strong>：当离线粉丝上线时，让他临时采用拉模式，主动去拉取所有关注者（包括普通用户）的动态来构建首页，之后再切换回正常的推模式。</li>
+</ul>
+</li>
+</ul>
+<h3 id="五、整体架构图"><a href="#五、整体架构图" class="headerlink" title="五、整体架构图"></a>五、整体架构图</h3><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">                       +-------------------+<br>                       |<span class="hljs-string">    API Gateway    </span>|<br>                       +-------------------+<br>                              |<span class="hljs-string"></span><br><span class="hljs-string">          +-------------------+-------------------+</span><br><span class="hljs-string">          </span>|<span class="hljs-string">                                       </span>|<br>+-------------------+                      +------------------------+<br>|<span class="hljs-string">  关注/发布服务    </span>|<span class="hljs-string">                      </span>|<span class="hljs-string">     Feed 流读取服务     </span>|<br>+-------------------+                      +------------------------+<br>          |<span class="hljs-string">                                       </span>|<br>          |<span class="hljs-string"> (Write)                               </span>|<span class="hljs-string"> (Read)</span><br><span class="hljs-string">          </span>|<span class="hljs-string">                                       </span>|<br>+-------------------------------------------------------------------+<br>|<span class="hljs-string">                           业务逻辑层                              </span>|<br>|<span class="hljs-string">                                                                   </span>|<br>|<span class="hljs-string">  IF user is NOT a V:                             IF user requests feed: </span>|<br>|<span class="hljs-string">    - Get followers_list                         - Get user&#x27;s inbox (feed:user_id) </span>|<br>|<span class="hljs-string">    - Push to each follower&#x27;s inbox (feed:...)    - Get user&#x27;s V_following_list </span>|<br>|<span class="hljs-string">                                                 - Pull from each V&#x27;s outbox (outbox:v_id) </span>|<br>|<span class="hljs-string">  IF user IS a V:                                - Merge &amp; Sort results </span>|<br>|<span class="hljs-string">    - Write to own outbox (outbox:user_id)                             </span>|<br>+-------------------------------------------------------------------+<br>          |<span class="hljs-string">                    </span>|<span class="hljs-string">                       </span>|<br>          |<span class="hljs-string">                    </span>|<span class="hljs-string">                       </span>|<br>+----------------+   +-----------------+   +--------------------+   +-------------------+<br>|<span class="hljs-string">  关注关系存储  </span>|<span class="hljs-string">   </span>|<span class="hljs-string">   用户发件箱     </span>|<span class="hljs-string">   </span>|<span class="hljs-string">   用户收件箱        </span>|<span class="hljs-string">   </span>|<span class="hljs-string">    在线状态服务    </span>|<br>|<span class="hljs-string"> (Redis/TiKV)   </span>|<span class="hljs-string">   </span>|<span class="hljs-string"> (Redis/TiKV)    </span>|<span class="hljs-string">   </span>|<span class="hljs-string"> (Redis/TiKV)       </span>|<span class="hljs-string">   </span>|<span class="hljs-string"> (Redis/etcd)      </span>|<br>|<span class="hljs-string"> - following:*  </span>|<span class="hljs-string">   </span>|<span class="hljs-string"> - outbox:*      </span>|<span class="hljs-string">   </span>|<span class="hljs-string"> - feed:*           </span>|<span class="hljs-string">   </span>|<span class="hljs-string"> - online_users    </span>|<br>|<span class="hljs-string"> - followers:*  </span>|<span class="hljs-string">   </span>|<span class="hljs-string">                 </span>|<span class="hljs-string">   </span>|<span class="hljs-string">                    </span>|<span class="hljs-string">   </span>|<span class="hljs-string">                   </span>|<br>+----------------+   +-----------------+   +--------------------+   +-------------------+<br>          |<span class="hljs-string"></span><br><span class="hljs-string">          </span>|<br>+----------------------+<br>|<span class="hljs-string">  动态内容存储 (DB/OSS) </span>|<br>|<span class="hljs-string"> - post_id -&gt; content </span>|<br>+----------------------+<br></code></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>设计这样一个超大规模的系统，关键在于<strong>识别核心矛盾并进行拆解和权衡</strong>。</p>
+<ol>
+<li><strong>存储分离</strong>：将关系数据（关注）、时间线数据（Feed）、内容数据分离存储，选择最合适的存储引擎。</li>
+<li><strong>读写分离</strong>：通过推拉结合的模式，将读写压力分离。</li>
+<li><strong>用户分层</strong>：对普通用户和大 V 用户采用不同的策略，是解决“明星效应”问题的关键。</li>
+<li><strong>缓存和异步</strong>：在所有可行的环节大量使用缓存（如大 V 列表缓存），并利用消息队列将耗时的推送任务异步化。</li>
+<li><strong>服务化</strong>：将不同功能（用户服务、关系服务、发布服务、Feed流服务）拆分成独立的微服务，便于独立扩展和维护。</li>
+</ol>
+<p>这是一个非常复杂的系统，但通过上述分层设计，我们可以构建出一个既能应对海量数据，又能保证核心功能性能和用户体验的健壮系统。</p>
+
+                
+              </div>
+            
+            <hr>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8E%9F%E5%88%9B/">#原创</a>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">#系统设计</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>上百亿的用户关系系统存储应该如何设计</div>
+      <div>https://blog.longpi1.com/2025/09/16/上百亿的用户关系系统存储应该如何设计/</div>
+    </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/09/18/redis%E6%88%96%E8%80%85mysql%E5%A4%9A%E6%9C%BA%E6%88%BF%E9%9B%86%E7%BE%A4%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5/" title="redis或者mysql多机房集群数据同步">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">redis或者mysql多机房集群数据同步</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/09/16/%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E9%AB%98%E5%8F%AF%E7%94%A8%E7%9A%84%E3%80%81%E5%B1%82%E5%B1%82%E9%80%92%E8%BF%9B%E7%9A%84%E7%A7%92%E6%9D%80%E7%B3%BB%E7%BB%9F/" title="构建一个高可用的、层层递进的秒杀系统">
+                        <span class="hidden-mobile">构建一个高可用的、层层递进的秒杀系统</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </article></div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"UvaCwj6C0pVj9XCWuMtLaBWJ-gzGzoHsz","appKey":"w2xUk9wycItSqrREmRMDYJHY","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <div>lp的个人博客 | 记录成长的过程</div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js"></script>
+  <link rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css">
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/plugins.js"></script>
+
+
+  <script src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js"></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script src="/js/img-lazyload.js"></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src="https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js"></script>
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script src="/js/boot.js"></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
